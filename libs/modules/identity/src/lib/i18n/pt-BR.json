@@ -5,6 +5,9 @@
     "AVATAR_DESCRIPTION": "Endereço URL da imagem de perfil recuperada do provedor de identidade social verificado.",
     "TRUST_LEVEL_DESCRIPTION": "Coeficiente algorítmico bayesiano que determina o peso das ações e votos do cidadão na rede."
   },
+  "logs": {
+    "AUTHORITY_SYNC_NOMINAL": "Sincronização de autoridade bayesiana consolidada com sucesso no Ledger Soberano."
+  },
   "errors": {
     "INVALID_AVATAR_URL": "O endereço da fotografia de perfil viola os padrões de segurança e integridade de rede.",
     "TRUST_LEVEL_OUT_OF_BOUNDS": "O nível de confiança deve estar estritamente compreendido entre 0.0 e 1.0.",

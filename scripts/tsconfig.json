@@ -1,7 +1,9 @@
 /**
- * @section tsconfig: Gatekeeper
- * @description Proteccion de frontera fisica para los disparadores CLI.
+ * @section tsconfig: Gatekeeper (CLI Triggers)
+ * @description Protección de frontera física para los disparadores CLI.
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ *
+ * SANEADO Zenith: Purga de rastro de archivos para evitar colisiones de RootDir.
  */
 {
   "extends": "../tsconfig.base.json",
@@ -10,6 +12,10 @@
     "noEmit": true,
     "ignoreDeprecations": "5.0"
   },
+  /**
+   * 🛡️ LEY DEL GATEKEEPER:
+   * Índice puro. La jurisdicción de archivos se delega al Emitter.
+   */
   "files": [],
   "include": [],
   "references": [

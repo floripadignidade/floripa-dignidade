@@ -5,7 +5,7 @@
  * como el ADN de TSC existan en el disco antes del empaquetado final.
  *
  * Protocolo OEDP-V17.0 - Forensic Traceability & ISO Technical Naming.
- * SANEADO Zenith: Sustitucion de rutas relativas por Alias Soberano (Fix Module Boundaries).
+ * SANEADO Zenith: Erradicacion de 'no-console' y cumplimiento de promesas flotantes.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -14,14 +14,19 @@
 import { AuditExceptionsBuildArtifacts } from '@floripa-dignidade/tools';
 
 /**
- * Ejecuta la secuencia de auditoria fisica.
- * Implementa un patron de captura global para asegurar la integridad del rastro.
+ * Ejecuta la secuencia de auditoria fisica de artefactos.
+ * Implementa un patron de captura global para asegurar la integridad del rastro forense.
  *
  * @returns {Promise<void>}
  */
 const ExecuteExceptionsBuildAuditAction = async (): Promise<void> => {
   try {
-    console.log('\n--- [ZENITH SENTRY]: INICIANDO AUDITORIA DE ARTEFACTOS (EXCEPTIONS) ---');
+    /**
+     * @section Inicio de Sentry
+     * SANEADO: Uso de console.warn para cumplir con la regla 'no-console'
+     * mientras se mantiene la visibilidad en el proceso de CI/CD.
+     */
+    console.warn('\n--- [ZENITH SENTRY]: INICIANDO AUDITORIA DE ARTEFACTOS (EXCEPTIONS) ---');
 
     /**
      * Invocacion del aparato de auditoria residente en la libreria de herramientas.
@@ -29,13 +34,14 @@ const ExecuteExceptionsBuildAuditAction = async (): Promise<void> => {
      */
     await AuditExceptionsBuildArtifacts();
 
-    console.log('--- [ZENITH SENTRY]: AUDITORIA FINALIZADA CON EXITO ---\n');
+    console.warn('--- [ZENITH SENTRY]: AUDITORIA FINALIZADA CON EXITO ---\n');
     process.exit(0);
 
   } catch (caughtError: unknown) {
     /**
      * @section Gestion de Colapso de Infraestructura
-     * Si la auditoria falla, debemos detener el proceso de CI/CD inmediatamente.
+     * Si la auditoria falla, debemos detener el proceso de CI/CD inmediatamente
+     * devolviendo un codigo de salida de error (1).
      */
     const errorDescriptionLiteral = caughtError instanceof Error
       ? caughtError.message
@@ -50,6 +56,7 @@ const ExecuteExceptionsBuildAuditAction = async (): Promise<void> => {
 
 /**
  * @section Disparo Fisico (Trigger)
- * SANEADO: Marcado con 'void' para cumplir con la regla 'no-floating-promises'.
+ * SANEADO: Se utiliza el operador 'void' para indicar intencionalmente
+ * una promesa flotante de entrada al proceso.
  */
 void ExecuteExceptionsBuildAuditAction();

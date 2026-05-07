@@ -4,9 +4,11 @@
     "outDir": "../../../dist/out-tsc/libs/core/exceptions",
     "tsBuildInfoFile": "../../../dist/out-tsc/libs/core/exceptions/tsconfig.lib.tsbuildinfo",
 
+    /* --- SOBERANÍA DE EMISIÓN (The Emitter) --- */
     /**
-     * 🛡️ EMITTER: Configuración activa de emisión de ADN.
-     * Se desactiva noEmit para obligar a TSC a generar las firmas físicas.
+     * 🛡️ LEY ZENITH: Composite habilitado.
+     * Esto permite que otras librerías referencien este proyecto sin intentar
+     * re-compilar su código fuente, usando solo los artefactos en dist.
      */
     "composite": true,
     "declaration": true,
@@ -15,26 +17,27 @@
     "noEmit": false,
     "rootDir": "src",
 
-    "module": "Preserve",
-    "moduleResolution": "bundler",
+    /* --- RESOLUCIÓN ESM MODERNA --- */
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
+    /* --- ADN DEL ENTORNO --- */
     "types": [],
-    "lib":["ES2022", "DOM", "DOM.Iterable"]
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-  "include":[
+  "include": [
     "src/**/*.ts",
     "src/**/*.json"
   ],
-  "exclude":[
+  "exclude": [
+    /* 🛡️ LIMPIEZA DE JURISDICCIÓN: Evitamos fugas de tipos de tests en la emisión */
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
+    "src/**/__tests__/*",
     "jest.config.ts",
     "dist",
-    "out-tsc",
-    "node_modules",
-    "../../../dist",
-    "../../../node_modules"
+    "out-tsc"
   ]
 }

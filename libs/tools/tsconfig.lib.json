@@ -1,66 +1,19 @@
-/**
- * @section tsconfig: Emitter (Tools & CLI)
- * @description Generador de ADN (.d.ts) para procesos de automatización y Weaver.
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard (Bundler Alignment).
- * SANEADO Zenith: Unificación de moduleResolution a 'bundler' para erradicar 
- * el error TS2835 y restaurar la visibilidad del Grafo Core.
- */
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc/libs/tools",
-    "tsBuildInfoFile": "../../dist/out-tsc/libs/tools/tsconfig.lib.tsbuildinfo",
-
-    /* --- INTEGRIDAD SOBERANA (Project References) --- */
+    "outDir": "../../dist/out-tsc",
     "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "emitDeclarationOnly": true,
     "rootDir": "src",
-    "noEmit": false,
-    
-    /** 
-     * 🛡️ PROTECCIÓN DE HERENCIA
-     * Silenciamos avisos de baseUrl para asegurar compatibilidad con TS 6.0/7.0.
-     */
-    "ignoreDeprecations": "5.0",
-
-    /* --- RESOLUCIÓN ZENITH (Isomorphic Bundler Strategy) --- */
-    /**
-     * 🛡️ FIX TS2307 & TS2835: Alineación con Next.js 16.
-     * Al usar 'bundler', TypeScript permite rutas limpias (sin .js) y 
-     * resuelve correctamente los búnkeres core desde el código fuente.
-     */
-    "module": "Preserve",
-    "moduleResolution": "bundler", 
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-
-    /* --- ESPEJO DE SOBERANÍA LOCAL --- */
-    "paths": {
-      "@floripa-dignidade/telemetry": ["../core/telemetry/src/index.ts"],
-      "@floripa-dignidade/telemetry/*": ["../core/telemetry/src/*"],
-      "@floripa-dignidade/exceptions": ["../core/exceptions/src/index.ts"],
-      "@floripa-dignidade/exceptions/*": ["../core/exceptions/src/*"]
-    },
-
-    /* --- ADN DEL ENTORNO (Node.js Logic) --- */
-    "types": ["node"],
-    "lib": ["ES2022"]
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
   },
-  "include": ["src/**/*.ts", "src/**/*.json"],
-  "exclude": [
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts",
-    "jest.config.ts",
-    "dist",
-    "out-tsc",
-    "node_modules",
-    "../../dist",
-    "../../node_modules"
-  ],
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/*.spec.ts"],
   "references": [
     { "path": "../core/exceptions/tsconfig.lib.json" },
-    { "path": "../core/telemetry/tsconfig.lib.json" }
+    { "path": "../core/telemetry/tsconfig.lib.json" },
+    { "path": "../engines/financial-ingestion-engine/tsconfig.lib.json" }
   ]
 }

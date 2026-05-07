@@ -1,18 +1,23 @@
-/**
- * @section tsconfig: Gatekeeper
- * @description Proteccion de frontera fisica para el bunker de pruebas espejo.
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- */
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "composite": false,
     "noEmit": true,
-    "ignoreDeprecations": "5.0"
+    "baseUrl": ".",
+    "paths": {
+      /*
+         🛡️ HERENCIA CRÍTICA:
+         Mapeo local para que el IDE resuelva instantáneamente
+         sin depender del build de las otras libs.
+      */
+      "@floripa-dignidade/exceptions": ["../libs/core/exceptions/src/index.ts"],
+      "@floripa-dignidade/telemetry": ["../libs/core/telemetry/src/index.ts"]
+    }
   },
   "files": [],
   "include": [],
   "references": [
-    { "path": "./tsconfig.lib.json" }
+    { "path": "./tsconfig.lib.json" },
+    { "path": "./tsconfig.spec.json" }
   ]
 }

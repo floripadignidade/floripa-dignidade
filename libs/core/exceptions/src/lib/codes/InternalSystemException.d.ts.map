@@ -1,0 +1,1 @@
+{"version":3,"file":"InternalSystemException.d.ts","sourceRoot":"","sources":["InternalSystemException.ts"],"names":[],"mappings":"AAAA;;;;;;;;;;;GAWG;AAEH,OAAO,EAAE,mBAAmB,EAAE,MAAM,uBAAuB,CAAC;AAG5D;;;;;GAKG;AACH,qBAAa,uBAAwB,SAAQ,mBAAmB;IAC9D;;;;;OAKG;gBAED,cAAc,EAAE,MAAM,EACtB,yBAAyB,GAAE,MAAM,CAAC,MAAM,EAAE,OAAO,CAAM;CAiB1D"}

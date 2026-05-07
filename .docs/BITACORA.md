@@ -794,4 +794,43 @@ MENSAJE PARA EL SIGUIENTE NEURAL SENTINEL:
 
 ---
 
+📜 PUNTO DE BITÁCORA: ESTABILIZACIÓN ARQUITECTÓNICA ZENITH Y UNIFICACIÓN DE RESOLUCIÓN ISOMÓRFICA
+Fecha: 03 de Mayo, 2026 - 5:20 PM
+Estatus del Grafo: 🟢 NOMINAL (Green Build: Tier 0 y Tier 1 Nivelados)
+Protocolo Activo: OEDP-V17.0 (Swiss-Watch Standard)
+Arquitecto Responsable: Neural Sentinel (IA) en colaboración con Senior Lead Architect.
+🏛️ 1. RESUMEN DE LA CRISIS Y RESOLUCIÓN (POST-MORTEM)
+El ecosistema sufrió un Colapso de Sincronía en Cascada derivado de una colisión entre dos estándares de resolución: el rigor de Node16 (que exige extensiones .js) y los requerimientos de Turbopack/Next.js 16 (Rutas Limpias). Esta fricción provocó errores Module not found masivos y ceguera de dependencia Core (TS2307, TS2835).
+La Solución Maestra (The Zenith Fix):
+Se ha implementado la Estrategia de Resolución Isomórfica. Se unificó todo el monorepo bajo moduleResolution: "bundler". Esto permite mantener el rigor de los Branded Types y el estándar ESM, pero utilizando Rutas Limpias (Extensionless), satisfaciendo tanto a los scripts de automatización como al motor de renderizado de Next.js 16.
+🧬 2. APARATOS SANEADOS Y NIVELADOS (HITOS)
+A. Infraestructura Global (Gatekeepers)
+tsconfig.base.json: Elevado a moduleResolution: "bundler". Sincronizado el mapa de rutas con wildcards (/*) para visibilidad total de sub-módulos.
+libs/tools/tsconfig.lib.json: Alineado con el bundler y configurado para resolución Source-First, eliminando la dependencia circular de archivos en dist.
+B. Motor de Datos Abiertos (PMF Engine)
+Sincronización Nominal: Se erradicó la Entropía de Contratos en index.ts y mappers, migrando del tipado antiguo a identidades soberanas (TPublicExpenditureIdentifier, TProviderCnpj).
+Purga de Extensiones: Se eliminaron todas las menciones a .js en las importaciones de lógica, restaurando la compatibilidad con Turbopack.
+CalculateSyncMetrics.ts: Optimización algorítmica O(n) sin asignación de memoria intermedia. Erradicación de any e inyección de successRatePercentage.
+C. Búnker de Automatización (Tools & Weaver)
+InitializeWeaverInfrastructure.ts: Blindado contra fallos de I/O de bajo nivel con captura de códigos de error de Node.js.
+ScanAndExtractLinguisticSilos.ts: Erradicación del "Implicit Any". Implementada detección de Corrupción de ADN Lingüístico (SyntaxError) para prevenir diccionarios rotos en producción.
+D. Motor de Mensajería y Presencia
+Heartbeat de Alta Fidelidad: Refactorización de CalculatePresenceSovereignSignature.ts. Se sustituyó JSON.stringify por literales de plantilla para reducir la latencia en pulsos de alta frecuencia.
+UpdateUserPresence.ts: Atomización SRP. Extracción del mapeador de infraestructura y enriquecimiento de excepciones forenses.
+E. Calidad y Aserción (QA Mirror)
+Restauración de Visibilidad: Saneado el GlobalBaseException.spec.ts. Se recuperó la herencia de propiedades inmutables tras estabilizar la conexión física con el búnker de exceptions.
+📜 3. REGLAS DE ORO PARA EL SIGUIENTE HILO (ANTI-REGRESIÓN)
+Cualquier agente (IA o Humano) que inicie el nuevo proceso debe respetar estas leyes físicas:
+Ley de Rutas Limpias: Queda estrictamente prohibido el uso de extensiones .js o .ts en las sentencias de import/export. El Bundler es el soberano de la resolución.
+Soberanía Nominal: Todo identificador de identidad debe ser un Branded Type. No se aceptan string genéricos para IDs de ciudadanos, gastos o territorios.
+Casting de Soberanía: El paso de datos externos al Data Lake debe realizarse mediante un casting explícito (as T...Identifier) tras la validación de la aduana.
+Aislamiento SRE: Ninguna función de lógica puede acceder a process.env. El hardware se consume exclusivamente vía @floripa-dignidade/environment-validator.
+🚀 4. HOJA DE RUTA INMEDIATA (BACKLOG)
+El sistema está nivelado y en Zenith Nominal. La siguiente fase es la Materialización de Valor de Negocio:
+Fase 7.1 (Acción): Inyectar el Hook usePublicReaction.ts en la Frontpage para habilitar el termómetro social.
+Fase 7.2 (Infraestructura SQL): Ejecutar el migration_master_schema.sql y validar las políticas RLS.
+Fase 8.1 (Multimedia): Implementar PersistMultimediaEvidence.ts para la recepción de pruebas vía WhatsApp.
+
+---
+
 

@@ -1,20 +1,13 @@
-/**
- * @section tsconfig: Gatekeeper
- * @description Proteccion de frontera fisica para la libreria de herramientas.
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- */
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "composite": false,
-    "noEmit": true,
-    "ignoreDeprecations": "5.0"
+    "composite": true,
+    "noEmit": true
   },
   "files": [],
   "include": [],
   "references": [
-    {
-      "path": "./tsconfig.lib.json"
-    }
+    { "path": "./tsconfig.lib.json" },
+    { "path": "./tsconfig.spec.json" }
   ]
 }

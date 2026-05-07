@@ -1,14 +1,10 @@
 /**
  * @section Identity Logic - Authority Synchronization Orchestrator
- * @description Átomo encargado de la persistencia física del coeficiente de autoridad
- * bayesiana en el Ledger Soberano (Supabase). Convierte la matemática volátil en
- * credibilidad institucional inmutable.
+ * @description Orquestador soberano encargado de coordinar la persistencia del
+ * peso bayesiano. Une los átomos de mapeo y transmisión bajo rastro forense.
  *
- * Protocolo OEDP-V17.0 - Cloud Sovereign & High Performance SRE.
- * Vision: Stateless Persistance & Zero Trust Loss.
- *
+ * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
  * @author Raz Podestá - MetaShark Tech
- * @license UNLICENSED
  */
 
 import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
@@ -19,20 +15,22 @@ import {
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-/* 🛡️ SANEADO Zenith: Verbatim Module Syntax para importación de ADN */
+/* 1. ADN de Entrada (Verbatim Types) */
 import type { IIdentityAuthorityResult } from './atomic/schemas/CalculateIdentityAuthority.schema';
 
+/* 2. Enjambre Atómico Local (Pulverized Logic) */
+import { MapAuthorityToLedgerRecord } from './atomic/MapAuthorityToLedgerRecord';
+import { TransmitAuthorityLedgerPatch } from './atomic/TransmitAuthorityLedgerPatch';
+
 /** Identificador técnico del aparato para el Neural Sentinel. */
-const AUTHORITY_SYNC_IDENTIFIER = 'IDENTITY_AUTHORITY_SYNC_ORCHESTRATOR';
+const ORCHESTRATOR_IDENTIFIER = 'IDENTITY_AUTHORITY_SYNC_ORCHESTRATOR';
 
 /**
- * Ejecuta la transacción de persistencia del coeficiente de credibilidad ciudadana.
+ * Ejecuta la transacción íntegra de sincronización de autoridad ciudadana.
  *
- * @param citizenIdentifierLiteral - UUID del ciudadano.
- * @param authoritySnapshot - Resultado del cálculo matemático de autoridad.
- * @param correlationIdentifier - Identificador para el rastro forense (Opcional).
- * @returns {Promise<void>}
- * @throws {InternalSystemException} Si la infraestructura cloud rechaza la transacción.
+ * @param citizenIdentifierLiteral - UUID del ciudadano objetivo.
+ * @param authoritySnapshot - Datos de autoridad calculados previamente.
+ * @param correlationIdentifier - ID de trazabilidad (opcional).
  */
 export const SyncIdentityAuthority = async (
   citizenIdentifierLiteral: string,
@@ -40,75 +38,59 @@ export const SyncIdentityAuthority = async (
   correlationIdentifier: string = GenerateCorrelationIdentifier()
 ): Promise<void> => {
 
-  // 1. CAPTURA DE SOBERANÍA CLOUD (Aislamiento de Entorno)
-  const {
-    SUPABASE_URL: cloudStorageUrlLiteral,
-    SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret
-  } = ValidateEnvironmentAduana();
+  // 1. ADUANA DE INFRAESTRUCTURA (Aislamiento de Hardware)
+  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = ValidateEnvironmentAduana();
 
   return await TraceExecutionTime(
-    AUTHORITY_SYNC_IDENTIFIER,
-    'EXECUTE_AUTHORITY_PERSISTENCE_TRANSACTION',
+    ORCHESTRATOR_IDENTIFIER,
+    'EXECUTE_AUTHORITY_SYNC_FLOW',
     correlationIdentifier,
     async () => {
       try {
-        /**
-         * 2. TRANSMISIÓN FÍSICA (PostgREST Protocol)
-         * Actualizamos el perfil del ciudadano inyectando el nuevo coeficiente bayesiano.
-         */
-        const cloudPersistenceResponse = await fetch(
-          `${cloudStorageUrlLiteral}/rest/v1/citizen_identities_ledger?citizen_id=eq.${citizenIdentifierLiteral}`,
-          {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-              'apikey': cloudSecurityKeySecret,
-              'Authorization': `Bearer ${cloudSecurityKeySecret}`,
-              'Prefer': 'return=minimal'
-            },
-            body: JSON.stringify({
-              trust_weight_score: authoritySnapshot.authorityCoefficientNumeric,
-              is_verified_human: authoritySnapshot.isVerifiedHumanBoolean,
-              last_authority_sync_at: new Date().toISOString(),
-              sync_correlation_id: correlationIdentifier
-            })
-          }
+        // 2. CONSTRUCCIÓN DE REGISTRO (Átomo Mapper)
+        const ledgerRecordSnapshot = MapAuthorityToLedgerRecord(
+          authoritySnapshot,
+          correlationIdentifier
         );
 
-        if (!cloudPersistenceResponse.ok) {
-          throw new Error(`CLOUD_PROVIDER_FAULT_${cloudPersistenceResponse.status}`);
-        }
+        // 3. DESPACHO FÍSICO (Átomo Dispatcher)
+        await TransmitAuthorityLedgerPatch({
+          cloudUrlLiteral: SUPABASE_URL,
+          cloudSecurityKeySecret: SUPABASE_SERVICE_ROLE_KEY,
+          citizenIdentifierLiteral,
+          ledgerRecordSnapshot,
+        });
 
-        // 3. REPORTE DE ÉXITO (SRE Analytics)
+        // 4. REPORTE DE ÉXITO (SRE Visibility)
         void EmitTelemetrySignal({
           severityLevel: 'INFO',
-          moduleIdentifier: AUTHORITY_SYNC_IDENTIFIER,
-          operationCode: 'AUTHORITY_SYNC_NOMINAL',
+          moduleIdentifier: ORCHESTRATOR_IDENTIFIER,
+          operationCode: 'AUTHORITY_SYNC_SUCCESS',
           correlationIdentifier,
-          message: 'Coeficiente de autoridad bayesiana persistido con éxito.',
-          contextMetadata: {
-            citizenIdentifier: citizenIdentifierLiteral,
-            assignedWeightNumeric: authoritySnapshot.authorityCoefficientNumeric
+          message: 'IDENTIDAD.LOGS.AUTHORITY_SYNC_NOMINAL',
+          contextMetadataSnapshot: {
+            citizenId: citizenIdentifierLiteral,
+            weightNumeric: authoritySnapshot.authorityCoefficientNumeric
           }
         });
 
       } catch (caughtError: unknown) {
-        // 4. GESTIÓN FORENSE DE FALLO (Resilience Layer)
+        // 5. GESTIÓN FORENSE DE COLAPSO (Resilience)
         const errorDescriptionLiteral = caughtError instanceof Error
           ? caughtError.message
           : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevel: 'CRITICAL',
-          moduleIdentifier: AUTHORITY_SYNC_IDENTIFIER,
+          moduleIdentifier: ORCHESTRATOR_IDENTIFIER,
           operationCode: 'AUTHORITY_SYNC_COLLAPSE',
           correlationIdentifier,
-          message: 'Fallo al intentar grabar la autoridad en la base de datos.',
-          contextMetadata: { errorTrace: errorDescriptionLiteral }
+          message: 'Error crítico al intentar grabar autoridad en el Ledger.',
+          contextMetadataSnapshot: { errorTrace: errorDescriptionLiteral }
         });
 
         throw new InternalSystemException('FALLO_EN_PERSISTENCIA_DE_AUTORIDAD_SRE', {
-          originalErrorLiteral: errorDescriptionLiteral,
+          originalError: errorDescriptionLiteral,
           correlationIdentifier
         });
       }

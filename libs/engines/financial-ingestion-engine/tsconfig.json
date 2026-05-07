@@ -1,0 +1,22 @@
+/**
+ * @section tsconfig: Gatekeeper
+ * @description Protección de frontera física. No emite código.
+ * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ *
+ * SANEADO Zenith: Consistencia de supresión de depreciaciones para TS 5.4+.
+ */
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "ignoreDeprecations": "5.0"
+  },
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    }
+  ]
+}

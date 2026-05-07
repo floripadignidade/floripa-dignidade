@@ -1,56 +1,69 @@
 // @ts-check
 /**
  * @section Next.js Configuration - CMS Shell (Payload 3.0)
- * Protocolo OEDP-V16.0 - ESM-First Architecture & Type Parity.
- * SANEADO Zenith: Resolución de TS2353 (Nx Override) y TS7006 (Implicit Any).
+ * @description Manifiesto de configuración soberano para el sistema de gestión
+ * de contenidos. Orquesta la integración con Nx y la inyección del motor Payload.
+ *
+ * Protocolo OEDP-V17.0 - ESM-First Architecture & ISO Standard Naming.
+ * SANEADO Zenith: Resolución de visibilidad de Project Service y Prosa ISO.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import { composePlugins, withNx } from '@nx/next';
 import { withPayload } from '@payloadcms/next/withPayload';
 
 /**
- * @name nextConfigurationFoundation
- * @description ADN base de la aplicación.
+ * @name cmsNextConfigurationFoundation
+ * @description ADN base de la aplicación con optimización de medios y seguridad.
  * @type {import('next').NextConfig}
  */
-const nextConfigurationFoundation = {
+const cmsNextConfigurationFoundation = {
   reactStrictMode: true,
   poweredByHeader: false,
 
   /**
    * 🛡️ SANEADO Zenith: TS2353
-   * Utilizamos ts-expect-error porque esta propiedad muta el tipo original
-   * de NextConfig, pero es un requerimiento vital para el motor de Nx.
+   * Utilizamos supresión de error controlada ya que esta propiedad es un
+   * requerimiento físico del motor de Nx que no existe en el tipo estándar de Next.
    */
-  // @ts-expect-error - Propiedad inyectada consumida exclusivamente por '@nx/next'
+  // @ts-expect-error - Propiedad inyectada para el orquestador '@nx/next'
   nx: {
     svgr: false,
   },
 
+  /**
+   * @section Gobernanza de Imágenes
+   * Optimización de Core Web Vitals mediante soporte nativo de AVIF y WebP.
+   */
   images: {
     formats: ['image/avif', 'image/webp'],
-    remotePatterns:[
-      { protocol: 'https', hostname: '**' },
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**'
+      },
     ],
   },
 };
 
 /**
- * Colección de orquestadores de compilación (Plugins).
+ * @name applicationPluginsCollection
+ * @description Colección ordenada de orquestadores de compilación (Swarm Plugins).
+ * Garantiza que el búnker de Nx y el motor de Payload se fusionen sin colisiones.
  */
-const pluginsCollection =[
+const applicationPluginsCollection = [
   withNx,
   /**
-   * 🛡️ SANEADO Zenith: TS7006
-   * Inyección de JSDoc para declarar la firma de entrada de la función flecha,
-   * erradicando el 'any' implícito.
-   *
-   * @param {import('next').NextConfig} config
+   * 🛡️ SANEADO Zenith: TS7006 (Erradicación de 'any' implícito).
+   * @param {import('next').NextConfig} nextConfigReference
    * @returns {import('next').NextConfig}
    */
-  (config) => withPayload(config),
+  (nextConfigReference) => withPayload(nextConfigReference),
 ];
 
-export default composePlugins(...pluginsCollection)(nextConfigurationFoundation);
+/**
+ * Exportación del ensamble final procesado por el motor de composición de plugins.
+ */
+export default composePlugins(...applicationPluginsCollection)(cmsNextConfigurationFoundation);

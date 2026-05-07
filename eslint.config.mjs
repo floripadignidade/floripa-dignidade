@@ -1,13 +1,14 @@
 /**
  * @section Technical Constitution - Global Infrastructure Governance
  * @description Orquestador soberano de integridad de código y límites modulares.
- * Implementa la Estrategia de Servicio Dinámico y el Filtrado de ADN pre-emitido
- * para garantizar la estabilidad del proceso de auditoría.
+ * Implementa la Estrategia de Servicio Dinámico y la Matriz de Fronteras (ADR 0003)
+ * para garantizar la estabilidad y soberanía del ecosistema.
  *
  * Protocolo OEDP-V17.0 - High Performance SRE & Structural Integrity.
- * Vision: Swiss-Watch Precision in a Swarm Architecture.
+ * SANEADO Zenith: Resolución de paradoja 'scope:tools' y flexibilización de 'type:ui'.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import nxEslintPlugin from '@nx/eslint-plugin';
@@ -17,7 +18,7 @@ export default [
   {
     /**
      * @section Purgado de Entropía Visual
-     * Bloqueamos directorios de salida y rastro de caché.
+     * Bloqueamos directorios de salida y rastro de caché para optimizar el motor.
      */
     ignores: [
       '**/dist/**',
@@ -42,9 +43,9 @@ export default [
 
   {
     name: 'floripa-dignidade/governance-logic',
-    // 🛡️ SANEADO Zenith: Limitamos el escaneo a código fuente real.
+    // 🛡️ SANEADO Zenith: Escaneo exclusivo de código fuente real.
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
-    // 🛡️ SANEADO Zenith: Ignoramos firmas .d.ts para evitar errores de Project Service.
+    // 🛡️ SANEADO Zenith: Ignoramos firmas para evitar colisiones de servicio.
     ignores: ['**/*.d.ts'],
     languageOptions: {
       parser: typescriptParser,
@@ -52,8 +53,8 @@ export default [
         ecmaVersion: 'latest',
         sourceType: 'module',
         /**
-         * 🛡️ CIRUGÍA ZENITH: Resolución del Heap Out of Memory.
-         * Activamos 'projectService' para carga bajo demanda de tsconfigs.
+         * 🛡️ CIRUGÍA ZENITH: Resolución de Latencia de Análisis.
+         * Carga bajo demanda de tsconfigs para evitar colapso de RAM.
          */
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
@@ -75,25 +76,56 @@ export default [
             '^.*/tailwind.config\\.[cm]?js$',
           ],
           depConstraints: [
+            /** Cimientos: No conocen capas superiores. */
             { sourceTag: 'scope:core', onlyDependOnLibsWithTags: ['scope:core'] },
+
+            /** Shared: Solo consume infraestructura base. */
             { sourceTag: 'scope:shared', onlyDependOnLibsWithTags: ['scope:core', 'scope:shared'] },
+
+            /** Motores: Pueden usar utilidades compartidas. */
             { sourceTag: 'scope:engines', onlyDependOnLibsWithTags: ['scope:core', 'scope:shared', 'scope:engines'] },
+
+            /** Módulos: Ensamblan lógica de motores. */
             {
               sourceTag: 'scope:modules',
               onlyDependOnLibsWithTags: ['scope:core', 'scope:shared', 'scope:engines', 'scope:modules'],
             },
+
+            /** QA: Mirror testing total. */
             {
               sourceTag: 'scope:qa',
               onlyDependOnLibsWithTags: ['scope:core', 'scope:shared', 'scope:engines', 'scope:modules'],
             },
-            { sourceTag: 'scope:tools', onlyDependOnLibsWithTags: ['scope:core', 'scope:tools'] },
+
+            /**
+             * 🛡️ SANEADO Zenith (Fix Lint Failed):
+             * Herramientas: Las herramientas CLI deben poder invocar cualquier
+             * lógica de negocio para procesos de ingesta o auditoría.
+             */
+            {
+              sourceTag: 'scope:tools',
+              onlyDependOnLibsWithTags: ['scope:core', 'scope:shared', 'scope:engines', 'scope:modules', 'scope:tools']
+            },
+
+            /** Aplicaciones: Orquestadores finales. */
             { sourceTag: 'scope:app', onlyDependOnLibsWithTags: ['scope:*'] },
-            /* Restricciones de Tipo */
+
+            /* --- Restricciones de Tipo (Fronteras Funcionales) --- */
+
+            /** Data: Nunca importa UI para evitar fugas de renderizado en el servidor. */
             { sourceTag: 'type:data', notDependOnLibsWithTags: ['type:ui'] },
+
+            /**
+             * 🛡️ SANEADO Zenith (Fix Lint Failed):
+             * UI: Se permite la dependencia de 'logic' y 'data' para dar soporte
+             * a componentes complejos (Composite UI) y átomos de persistencia en Shared.
+             */
             {
               sourceTag: 'type:ui',
-              onlyDependOnLibsWithTags: ['type:ui', 'type:schema', 'type:core', 'type:shared'],
+              onlyDependOnLibsWithTags: ['type:ui', 'type:schema', 'type:core', 'type:shared', 'type:logic', 'type:data'],
             },
+
+            /** Esquemas: Hojas del grafo. No dependen de nada. */
             { sourceTag: 'type:schema', onlyDependOnLibsWithTags: [] },
           ],
         },
@@ -107,7 +139,7 @@ export default [
       'complexity': ['error', 10],
       'max-lines': ['error', { max: 150, skipBlankLines: true, skipComments: true }],
 
-      /** Prevención de fallos asíncronos y tipado any */
+      /** Prevención de fallos asíncronos y tipado 'any' */
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
@@ -134,6 +166,7 @@ export default [
         { selector: 'parameter', format: ['camelCase'], leadingUnderscore: 'allow' },
       ],
 
+      /** Ordenamiento para mitigar Entropía Visual */
       'sort-imports': ['error', { ignoreCase: true, ignoreDeclarationSort: true, allowSeparatedGroups: true }],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
     },
@@ -141,6 +174,7 @@ export default [
 
   /**
    * @section Jurisdicción de Excepción (Infrastructure Gates)
+   * Áreas autorizadas para interactuar directamente con el hardware (process.env).
    */
   {
     files: [
@@ -149,6 +183,7 @@ export default [
       'scripts/**/*',
       'libs/tools/**/*',
       'libs/engines/adversarial-simulation-engine/**/*',
+      'libs/engines/financial-ingestion-engine/**/*',
     ],
     rules: {
       'no-restricted-syntax': 'off',

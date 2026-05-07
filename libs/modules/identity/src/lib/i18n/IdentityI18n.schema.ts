@@ -1,9 +1,8 @@
 /**
  * @section Identity DNA - Linguistic Integrity Schema
- * @description Contrato soberano que define a estrutura obrigatória para os
- * dicionários de tradução do búnker de identidade. Garante que cada mensagem
- * de erro, descrição de esquema e papel institucional possua uma representação
- * textual validada, eliminando textos estáticos na lógica de negócio.
+ * @description Contrato soberano que define la estructura obligatoria para los
+ * diccionarios de traducción del búnker de identidad. Garantiza que cada mensaje,
+ * rol y rastro telemétrico posea una representación técnica validada.
  *
  * Protocolo OEDP-V17.0 - Sovereign Data & ReadOnly Integrity.
  * @author Raz Podestá - MetaShark Tech
@@ -14,50 +13,45 @@ import { z } from 'zod';
 
 /**
  * @name IdentityI18nSchema
- * @description Aduana de validação para as almas linguísticas do domínio de identidade.
- * Implementa a imutabilidade absoluta para o motor de compilação i18n.
+ * @description Aduana de validación para las almas lingüísticas del dominio de identidad.
+ * Implementa inmutabilidad absoluta para prevenir ruidos en el motor de renderizado.
  */
 export const IdentityI18nSchema = z.object({
 
   /**
-   * @section Metadados de Esquema
-   * Descrições técnicas utilizadas para gerar documentação e tooltips dinâmicos.
+   * @section Metadatos de Esquema
+   * Descripciones técnicas utilizadas para generar documentación y tooltips.
    */
   schemas: z.object({
-    FULL_NAME_DESCRIPTION: z.string()
-      .describe('Descrição técnica do campo de nome civil completo.'),
-
-    EMAIL_DESCRIPTION: z.string()
-      .describe('Descrição técnica do campo de correio eletrônico institucional.'),
-
-    AVATAR_DESCRIPTION: z.string()
-      .describe('Descrição técnica do recurso visual de identidade.'),
-
+    FULL_NAME_DESCRIPTION: z.string(),
+    EMAIL_DESCRIPTION: z.string(),
+    AVATAR_DESCRIPTION: z.string(),
     TRUST_LEVEL_DESCRIPTION: z.string()
-      .describe('Explicação detalhada do coeficiente de credibilidade bayesiana do cidadão.')
-  }),
+  }).readonly(),
 
   /**
-   * @section Sinais de Erro (Exceptions)
-   * Mensagens localizadas para falhas de integridade e autoridade.
+   * @section Trazabilidad Telemétrica (SRE Logs)
+   * Mensajes para el rastro forense y auditoría de sincronización cloud.
+   */
+  logs: z.object({
+    AUTHORITY_SYNC_NOMINAL: z.string()
+      .describe('Confirmación de grabación del peso bayesiano en el Ledger.'),
+  }).readonly(),
+
+  /**
+   * @section Señales de Error (Exceptions)
+   * Mensajes localizados para fallos de integridad y autoridad.
    */
   errors: z.object({
-    INVALID_AVATAR_URL: z.string()
-      .describe('Mensagem emitida quando a URL da imagem viola padrões de segurança.'),
-
-    TRUST_LEVEL_OUT_OF_BOUNDS: z.string()
-      .describe('Alerta quando o score de confiança foge da escala 0.0 a 1.0.'),
-
-    IDENTITY_NOT_FOUND: z.string()
-      .describe('Erro de busca quando o identificador de cidadão não existe.'),
-
+    INVALID_AVATAR_URL: z.string(),
+    TRUST_LEVEL_OUT_OF_BOUNDS: z.string(),
+    IDENTITY_NOT_FOUND: z.string(),
     UNAUTHORIZED_PROVIDER: z.string()
-      .describe('Bloqueio quando o provedor de identidade social não é confiável.')
-  }),
+  }).readonly(),
 
   /**
-   * @section Catálogo de Papéis (RBAC)
-   * Representação textual de cada nível de autoridade na rede.
+   * @section Catálogo de Roles (RBAC)
+   * Representación textual de la jerarquía de poder institucional.
    */
   roles: z.object({
     INFRASTRUCTURE_SOVEREIGN_AUDITOR: z.string(),
@@ -66,12 +60,9 @@ export const IdentityI18nSchema = z.object({
     ORGANIZATION_OPERATOR: z.string(),
     CITIZEN_REGISTERED: z.string(),
     CITIZEN_ANONYMOUS: z.string()
-  })
+  }).readonly()
 
 }).readonly();
 
-/**
- * @section ADN Tipado (Verbatim Module Syntax)
- * Interface inalterável para o motor de tradução.
- */
+/** 🛡️ ADN Tipado para exportación Verbatim */
 export type IIdentityI18n = z.infer<typeof IdentityI18nSchema>;

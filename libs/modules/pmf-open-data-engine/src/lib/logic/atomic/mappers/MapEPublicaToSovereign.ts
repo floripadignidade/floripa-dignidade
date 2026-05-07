@@ -5,22 +5,19 @@
  * en inteligencia civil inmutable y validada por Zod.
  *
  * Protocolo OEDP-V17.0 - Swarm Intelligence & ISO Technical Naming.
- * SANEADO Zenith: Remoción de extensiones .js para compatibilidad con Next.js 16,
- * sincronización de Branded Types y cumplimiento de Rutas Limpias.
+ * SANEADO Zenith: Sincronización de orden alfabético y normalización de excepciones.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
+import { InternalSystemException } from '@floripa-dignidade/exceptions';
 import { EmitTelemetrySignal, TraceExecutionTime } from '@floripa-dignidade/telemetry';
 
 /* 1. ADN de Entrada y Salida (Verbatim Module Syntax - RUTAS LIMPIAS) */
-/**
- * 🛡️ RESOLUCIÓN ZENITH: Se purgan las extensiones .js. El Bundler orquestado
- * por Next.js 16 resolverá los archivos .ts de forma nativa.
- */
 import {
-  PublicExpenditureSchema,
   type IPublicExpenditure,
+  PublicExpenditureSchema,
   type TPublicExpenditureIdentifier,
   type TTerritorialTechnicalIdentifier,
 } from '../../../schemas/sovereign/PublicExpenditure.schema';
@@ -36,11 +33,13 @@ import { MapProviderIdentity } from './MapProviderIdentity';
 const DATA_MAPPER_IDENTIFIER = 'EPUBLICA_SOVEREIGN_MAPPER';
 
 /**
- * Mapea y purifica un registro individual de la Prefeitura.
+ * Mapea y purifica un registro individual de la Prefeitura de Florianópolis.
+ * Realiza la conversión de protocolos gubernamentales al estándar de integridad de la ONG.
  *
- * @param rawExpenseSnapshot - Registro extraído de la API de red.
+ * @param rawExpenseSnapshot - Registro extraído de la API de red de E-Pública.
  * @param correlationIdentifier - Identificador de trazabilidad del hilo superior.
- * @returns {Promise<IPublicExpenditure>} Entidad homogenizada y validada.
+ * @returns {Promise<IPublicExpenditure>} Entidad homogenizada y validada por la aduana Zod.
+ * @throws {InternalSystemException} Si el mapeo viola el contrato de ADN soberano.
  */
 export const MapEPublicaToSovereign = async (
   rawExpenseSnapshot: IEPublicaExpenseRaw,
@@ -55,7 +54,7 @@ export const MapEPublicaToSovereign = async (
 
       /**
        * FASE 1: INTELIGENCIA FINANCIERA Y FISCAL
-       * Delegamos los cálculos y limpiezas a los átomos correspondientes.
+       * Delegamos los cálculos y limpiezas a los átomos correspondientes para cumplir con SRP.
        */
       const totalExecutedAmountNumeric = CalculateExecutedFinancialBalance(
         registro.listMovimentos,
@@ -75,7 +74,7 @@ export const MapEPublicaToSovereign = async (
 
       /**
        * FASE 2: ENSAMBLAJE DE LA ENTIDAD SOBERANA
-       * Construimos el snapshot inmutable para el Data Lake.
+       * Construimos el snapshot inmutable para el Data Lake institucional.
        */
       const sovereignExpenditureSnapshot = {
         /** 🛡️ CASTING SOBERANO: Vinculación con los tipos bridados nominales */
@@ -85,6 +84,7 @@ export const MapEPublicaToSovereign = async (
         /**
          * @future_integration
          * Vinculación geográfica basada en el rastro del IBGE (Fase 8).
+         * Actualmente centralizado en el municipio de Florianópolis.
          */
         targetTerritoryIdentifier: '4205407' as TTerritorialTechnicalIdentifier,
 
@@ -100,20 +100,27 @@ export const MapEPublicaToSovereign = async (
         },
       };
 
-      // 3. ADUANA DE ADN (Validación Final)
+      // 3. ADUANA DE ADN (Validación de Integridad Estructural)
       const validationResult = PublicExpenditureSchema.safeParse(sovereignExpenditureSnapshot);
 
       if (!validationResult.success) {
+        // Reporte de violación de contrato al sistema de telemetría
         void EmitTelemetrySignal({
           severityLevel: 'CRITICAL',
           moduleIdentifier: DATA_MAPPER_IDENTIFIER,
           operationCode: 'SOVEREIGN_MAPPING_VIOLATION',
           correlationIdentifier,
-          message: 'Fallo al homogenizar registro: El ADN de salida viola el contrato.',
-          contextMetadataSnapshot: { issuesCollection: validationResult.error.flatten() },
+          message: 'PMF_ENGINE.ERRORS.MAPPING_TRANSFORMATION_FAULT',
+          contextMetadataSnapshot: {
+            structuralIssuesCollection: validationResult.error.flatten(),
+            sourceRecordIdentifier: registro.empenho.numero
+          },
         });
 
-        throw new Error('PMF_ENGINE.ERRORS.MAPPING_TRANSFORMATION_FAULT');
+        throw new InternalSystemException('FALLO_EN_HOMOGENIZACION_DE_GASTO_PUBLICO', {
+          validationIssues: validationResult.error.flatten(),
+          governmentReference: registro.empenho.numero
+        });
       }
 
       // 4. REPORTE DE ÉXITO (SRE Visibility)

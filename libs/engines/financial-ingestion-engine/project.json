@@ -1,0 +1,32 @@
+{
+  "name": "@floripa-dignidade/financial-ingestion-engine",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/engines/financial-ingestion-engine/src",
+  "projectType": "library",
+  "tags":[
+    "scope:engines",
+    "type:logic",
+    "platform:node"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:swc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/engines/financial-ingestion-engine",
+        "main": "libs/engines/financial-ingestion-engine/src/index.ts",
+        "tsConfig": "libs/engines/financial-ingestion-engine/tsconfig.lib.json",
+        "stripLeadingPaths": true
+      },
+      "cache": true
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "outputs":["{workspaceRoot}/dist/out-tsc/libs/engines/financial-ingestion-engine"],
+      "options": {
+        "command": "tsc -p libs/engines/financial-ingestion-engine/tsconfig.lib.json"
+      },
+      "cache": true
+    }
+  }
+}

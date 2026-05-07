@@ -1,50 +1,81 @@
 /**
- * @section tsconfig: Emitter
- * @description Generador de ADN (.d.ts) con redireccion fisica de Grafo.
+ * @section tsconfig: Emitter (Scripts & CLI)
+ * @description Generador de ADN para procesos de automatización y gatillos.
+ * Implementa la Redirección de ADN Maestro hacia Tooling y Core.
+ *
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * SANEADO Zenith: Mapeo integral de Paths con comodines y sincronización de Grafo.
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    /* --- ESTRATEGIA DE SALIDA ZENITH --- */
     "outDir": "../dist/out-tsc/scripts",
     "tsBuildInfoFile": "../dist/out-tsc/scripts/tsconfig.lib.tsbuildinfo",
 
-    /* --- Integridad Soberana --- */
+    /* --- INTEGRIDAD SOBERANA --- */
     "composite": true,
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
     "rootDir": "src",
     "noEmit": false,
+    "importHelpers": true,
+    "ignoreDeprecations": "5.0",
 
-    /* --- Redireccion de ADN Maestro (Solucion TS6059 / TS2307) --- */
+    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS2307 / TS6305) --- */
     "paths": {
-      "@floripa-dignidade/tools": ["../dist/out-tsc/libs/tools/index.d.ts"],
+      /* Tier 0 & 1: Foundations */
       "@floripa-dignidade/telemetry": ["../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/exceptions": ["../dist/out-tsc/libs/core/exceptions/index.d.ts"]
+      "@floripa-dignidade/telemetry/*": ["../dist/out-tsc/libs/core/telemetry/*"],
+
+      "@floripa-dignidade/exceptions": ["../dist/out-tsc/libs/core/exceptions/index.d.ts"],
+      "@floripa-dignidade/exceptions/*": ["../dist/out-tsc/libs/core/exceptions/*"],
+
+      "@floripa-dignidade/environment-validator": [
+        "../dist/out-tsc/libs/core/environment-validator/index.d.ts"
+      ],
+      "@floripa-dignidade/environment-validator/*": [
+        "../dist/out-tsc/libs/core/environment-validator/*"
+      ],
+
+      /* Tier 2: Tooling & Logic */
+      "@floripa-dignidade/tools": ["../dist/out-tsc/libs/tools/index.d.ts"],
+      "@floripa-dignidade/tools/*": ["../dist/out-tsc/libs/tools/*"],
+
+      "@floripa-dignidade/financial-ingestion-engine": [
+        "../dist/out-tsc/libs/engines/financial-ingestion-engine/index.d.ts"
+      ],
+      "@floripa-dignidade/financial-ingestion-engine/*": [
+        "../dist/out-tsc/libs/engines/financial-ingestion-engine/*"
+      ]
     },
 
-    /* --- Resolucion Next-Gen --- */
+    /* --- RESOLUCIÓN NEXT-GEN --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
-    /* --- ADN del Entorno (Node.js Automation) --- */
+    /* --- ADN DEL ENTORNO (Node.js Context) --- */
     "types": ["node"],
     "lib": ["ES2022"]
   },
   "include": ["src/**/*.ts"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "out-tsc",
-    "../dist",
-    "../node_modules"
-  ],
+  "exclude": ["node_modules", "dist", "out-tsc"],
+  /**
+   * 🛡️ SINCRONIZACIÓN DE GRAFO FÍSICO:
+   * Incluimos todas las dependencias consumidas por los disparadores.
+   */
   "references": [
-    { "path": "../libs/core/exceptions/tsconfig.lib.json" },
-    { "path": "../libs/core/telemetry/tsconfig.lib.json" },
-    { "path": "../libs/tools/tsconfig.lib.json" }
+    {
+      "path": "../libs/core/exceptions/tsconfig.lib.json"
+    },
+    {
+      "path": "../libs/core/telemetry/tsconfig.lib.json"
+    },
+    {
+      "path": "../libs/tools/tsconfig.lib.json"
+    }
   ]
 }

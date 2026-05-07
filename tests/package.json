@@ -2,11 +2,14 @@
   "name": "@floripa-dignidade/qa-mirror",
   "version": "1.1.0",
   "private": true,
-  "description": "ISO-Standard: Bunker Espejo de Calidad y Asercion de Logica. Implementa la Doctrina de Mirror Testing para el desacoplamiento fisico de pruebas.",
+  "description": "ISO-Standard: Bunker Espejo de Calidad y Aserción de Lógica. Implementa la Doctrina de Mirror Testing para el desacoplamiento físico de pruebas.",
   "type": "module",
   "sideEffects": false,
   "author": "Raz Podesta - MetaShark Tech",
   "license": "UNLICENSED",
+
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -14,17 +17,33 @@
       "default": "./src/index.ts"
     }
   },
+
   "dependencies": {
     "@swc/helpers": "~0.5.18"
+  },
+
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": true },
+    "react-dom": { "optional": true }
   },
   "devDependencies": {
     "@testing-library/react": "16.3.0",
     "@testing-library/dom": "10.4.0",
+    "@testing-library/jest-dom": "6.6.3",
     "jest": "^30.0.2",
     "jest-environment-jsdom": "^30.0.2",
-    "@swc/jest": "~0.2.38"
+    "@swc/jest": "~0.2.38",
+    "@types/node": "22.13.1"
   },
+
   "nx": {
+    "name": "@floripa-dignidade/qa-mirror",
+    "projectType": "library",
+    "sourceRoot": "tests/src",
     "tags": [
       "scope:qa",
       "type:tool",

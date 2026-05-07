@@ -1,0 +1,32 @@
+{
+  "name": "@floripa-dignidade/financial-ingestion-engine",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ISO-Standard: Motor de Ingesta, Extracción y Purificación de Matrices Financieras y Presupuestos Institucionales.",
+  "type": "module",
+  "sideEffects": false,
+  "author": "Raz Podesta - MetaShark Tech",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "dependencies": {
+    "@floripa-dignidade/environment-validator": "workspace:*",
+    "@floripa-dignidade/exceptions": "workspace:*",
+    "@floripa-dignidade/telemetry": "workspace:*",
+    "@swc/helpers": "~0.5.18",
+    "exceljs": "^4.4.0",
+    "zod": "^3.25.76"
+  },
+  "nx": {
+    "tags":[
+      "scope:engines",
+      "type:logic",
+      "platform:node"
+    ]
+  }
+}

@@ -5,6 +5,9 @@
     "AVATAR_DESCRIPTION": "URL address of the profile image retrieved from the verified social identity provider.",
     "TRUST_LEVEL_DESCRIPTION": "Bayesian algorithmic coefficient that determines the weight of citizen actions and votes on the network."
   },
+  "logs": {
+    "AUTHORITY_SYNC_NOMINAL": "Bayesian authority synchronization successfully consolidated in the Sovereign Ledger."
+  },
   "errors": {
     "INVALID_AVATAR_URL": "The profile photograph address violates network security and integrity standards.",
     "TRUST_LEVEL_OUT_OF_BOUNDS": "The trust level must be strictly between 0.0 and 1.0.",

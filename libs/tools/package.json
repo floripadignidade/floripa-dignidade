@@ -1,12 +1,8 @@
 {
   "name": "@floripa-dignidade/tools",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
-  "description": "ISO-Standard: Bunker de Herramientas y Automatizacion. Orquestra el Internationalization Weaver y procesos de auditoria forense.",
   "type": "module",
-  "sideEffects": false,
-  "author": "Raz Podesta - MetaShark Tech",
-  "license": "UNLICENSED",
   "exports": {
     ".": {
       "types": "./src/index.ts",
@@ -19,15 +15,5 @@
     "@floripa-dignidade/telemetry": "workspace:*",
     "@swc/helpers": "~0.5.18",
     "zod": "^3.25.76"
-  },
-  "devDependencies": {
-    "@types/node": "20.19.9"
-  },
-  "nx": {
-    "tags": [
-      "scope:tools",
-      "type:tool",
-      "platform:node"
-    ]
   }
 }

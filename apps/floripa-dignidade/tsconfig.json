@@ -1,15 +1,25 @@
 /**
- * @section tsconfig: Gatekeeper
- * @description Orquestrador de la configuracion del Portal Ciudadano.
+ * @section tsconfig: Gatekeeper (Portal Shell)
+ * @description Orquestador de la configuración de la aplicación ciudadana.
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ *
+ * SANEADO Zenith: Inclusión de index.d.ts para activar los DNA Bridges.
  */
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "composite": false,
     "noEmit": true,
     "ignoreDeprecations": "5.0"
   },
-  "files": [],
+  "files": [
+    "index.d.ts",
+    "next-env.d.ts",
+    "next.config.js",
+    "tailwind.config.js",
+    "postcss.config.js",
+    "jest.config.ts"
+  ],
   "include": [],
   "references": [
     {

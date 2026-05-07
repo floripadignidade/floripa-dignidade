@@ -1,0 +1,60 @@
+/**
+ * @section tsconfig: Emitter (Financial Ingestion Engine)
+ * @description Generador de ADN (.d.ts) con redirección física de Grafo.
+ * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ *
+ * SANEADO Zenith: Corrección de error TS5103 (ignoreDeprecations: 5.0).
+ */
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    /* --- ESTRATEGIA DE SALIDA ZENITH --- */
+    "outDir": "../../../dist/out-tsc/libs/engines/financial-ingestion-engine",
+    "tsBuildInfoFile": "../../../dist/out-tsc/libs/engines/financial-ingestion-engine/tsconfig.lib.tsbuildinfo",
+
+    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "src",
+    "noEmit": false,
+    "importHelpers": true,
+
+    /**
+     * 🛡️ FIX TS5103: El valor "6.0" es inválido.
+     * Se restaura a "5.0" para cumplimiento del estándar actual.
+     */
+    "ignoreDeprecations": "5.0",
+
+    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS2307 / TS6059) --- */
+    "paths": {
+      "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
+      "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
+      "@floripa-dignidade/environment-validator": ["../../../dist/out-tsc/libs/core/environment-validator/index.d.ts"]
+    },
+
+    /* --- RESOLUCIÓN NEXT-GEN --- */
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+
+    "types": ["node"],
+    "lib": ["ES2022"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.json"],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "dist",
+    "out-tsc",
+    "node_modules",
+    "../../../dist",
+    "../../../node_modules"
+  ],
+  "references": [
+    { "path": "../../core/telemetry/tsconfig.lib.json" },
+    { "path": "../../core/exceptions/tsconfig.lib.json" },
+    { "path": "../../core/environment-validator/tsconfig.lib.json" }
+  ]
+}

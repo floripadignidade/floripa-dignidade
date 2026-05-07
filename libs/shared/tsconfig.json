@@ -1,7 +1,9 @@
 /**
- * @section tsconfig: Gatekeeper
- * @description Proteccion de frontera fisica. No emite codigo.
+ * @section tsconfig: Gatekeeper (Shared UI & Utility)
+ * @description Protección de frontera física. No emite código.
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ *
+ * SANEADO Zenith: Consistencia institucional en la supresión de depreciaciones.
  */
 {
   "extends": "../../tsconfig.base.json",

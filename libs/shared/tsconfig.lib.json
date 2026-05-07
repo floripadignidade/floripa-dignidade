@@ -1,15 +1,19 @@
 /**
- * @section tsconfig: Emitter
- * @description Generador de ADN (.d.ts) para la fundicion visual.
+ * @section tsconfig: Emitter (Shared UI & Utility)
+ * @description Generador de ADN (.d.ts) con redirección física de Grafo.
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ *
+ * SANEADO Zenith: Resolución de TS2307 mediante inyección de Mapeo Maestro
+ * con soporte para comodines (Wildcards) y sincronización SRE.
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    /* --- ESTRATEGIA DE SALIDA ZENITH (Solution Mode) --- */
     "outDir": "../../dist/out-tsc/libs/shared",
     "tsBuildInfoFile": "../../dist/out-tsc/libs/shared/tsconfig.lib.tsbuildinfo",
 
-    /* --- Integridad Soberana --- */
+    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
     "composite": true,
     "declaration": true,
     "declarationMap": true,
@@ -17,29 +21,36 @@
     "rootDir": "src",
     "noEmit": false,
     "importHelpers": true,
+    "ignoreDeprecations": "5.0",
 
-    /* --- Redireccion de ADN (Solucion TS6059 / TS6305) --- */
+    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS2307 / TS6059) --- */
+    /**
+     * 🛡️ LEY DEL ENJAMBRE: Se incluyen comodines '/*' para permitir la
+     * resolución de tipos en sub-directorios de las dependencias core.
+     */
     "paths": {
+      "@floripa-dignidade/exceptions": ["../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
+      "@floripa-dignidade/exceptions/*": ["../../dist/out-tsc/libs/core/exceptions/*"],
+
       "@floripa-dignidade/telemetry": ["../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/exceptions": ["../../dist/out-tsc/libs/core/exceptions/index.d.ts"]
+      "@floripa-dignidade/telemetry/*": ["../../dist/out-tsc/libs/core/telemetry/*"],
+
+      "@floripa-dignidade/environment-validator": ["../../dist/out-tsc/libs/core/environment-validator/index.d.ts"],
+      "@floripa-dignidade/environment-validator/*": ["../../dist/out-tsc/libs/core/environment-validator/*"]
     },
 
-    /* --- Gobernanza de Renderizado --- */
+    /* --- RESOLUCIÓN NEXT-GEN --- */
     "jsx": "react-jsx",
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
-    /* --- ADN del Entorno (Web Context) --- */
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
-    "types": []
+    /* --- ADN DEL ENTORNO (Isomorphic Browser Context) --- */
+    "types": [],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.json"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.json"],
   "exclude": [
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
@@ -52,6 +63,7 @@
   ],
   "references": [
     { "path": "../core/exceptions/tsconfig.lib.json" },
-    { "path": "../core/telemetry/tsconfig.lib.json" }
+    { "path": "../core/telemetry/tsconfig.lib.json" },
+    { "path": "../core/environment-validator/tsconfig.lib.json" }
   ]
 }

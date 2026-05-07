@@ -3,32 +3,45 @@
   "$schema": "../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "tests/src",
   "projectType": "library",
-  "tags": [
-    "scope:qa",
-    "type:tool",
-    "platform:isomorphic"
-  ],
+  "tags": ["scope:qa", "type:tool", "platform:isomorphic"],
   "targets": {
+    "build": {
+      "executor": "@nx/js:swc",
+      "outputs": ["{options.outputPath}"],
+      "cache": true,
+      "options": {
+        "outputPath": "dist/tests/qa-mirror",
+        "main": "tests/src/index.ts",
+        "tsConfig": "tests/tsconfig.lib.json",
+        "assets": [],
+        "external": "all"
+      }
+    },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/tests"],
+      "outputs": ["{workspaceRoot}/coverage/tests/qa-mirror"],
+      "cache": true,
       "options": {
         "jestConfig": "tests/jest.config.ts",
         "passWithNoTests": true
-      },
-      "cache": true
+      }
     },
     "typecheck": {
-      "executor": "nx:run-commands",
-      "outputs": ["{workspaceRoot}/dist/out-tsc/tests"],
+      "executor": "@nx/js:tsc",
+      "cache": true,
       "options": {
-        "command": "tsc -p tests/tsconfig.lib.json"
-      },
-      "cache": true
+        "main": "tests/src/index.ts",
+        "tsConfig": "tests/tsconfig.lib.json",
+        "noEmit": true
+      }
     },
+
     "lint": {
       "executor": "@nx/eslint:lint",
-      "cache": true
+      "cache": true,
+      "options": {
+        "lintFilePatterns": ["tests/**/*.ts"]
+      }
     }
   }
 }

@@ -37,6 +37,7 @@
     { "path": "./libs/engines/health-monitor" },
     { "path": "./libs/engines/impact-analytics-engine" },
     { "path": "./libs/engines/search-engine" },
+     { "path": "./libs/engines/financial-ingestion-engine" },
 
     /* 📦 CAPA 3: DOMINIOS (Business Modules) */
     { "path": "./libs/modules/identity" },
