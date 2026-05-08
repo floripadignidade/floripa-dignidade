@@ -1,102 +1,119 @@
 /**
  * @section Identity Logic - Authority Validation Orchestrator
- * @description Orquestrador encarregado de validar se uma identidade cidadã
- * cumpre os requisitos de autoridade para uma transação.
+ * @description Orquestador encargado de validar la integridad de la identidad ciudadana
+ * y verificar el cumplimiento de los requisitos de autoridad para una transacción.
+ * Actúa como el punto de control perimetral (Juez de Paz) del ecosistema.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Swarm Intelligence.
- * SANEADO Zenith: Correção de TS2554 (Async call) e sincronização com parâmetros nominais.
+ * Protocolo OEDP-V17.0 - High Performance SRE & ISO Technical Naming.
+ * SANEADO Zenith: Inyección de TraceExecutionTime, Prosa ISO y etiquetas ontológicas.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import { ValidationException } from '@floripa-dignidade/exceptions';
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
 /* 1. ADN Estructural (Verbatim Module Syntax) */
-import type { UserAccessRole } from '../schemas/UserAccessRole.schema';
 import { UserIdentitySchema } from '../schemas/UserIdentity.schema';
+import type { UserAccessRole } from '../schemas/UserAccessRole.schema';
 import type { IUserIdentity } from '../schemas/UserIdentity.schema';
 
-/* 2. Enxame Atômico */
+/* 2. Enjambre Atómico de Decisión */
 import { EvaluateAuthorityHierarchy } from './atomic/EvaluateAuthorityHierarchy';
 
-/** Identificador técnico do sensor para o Neural Sentinel. */
-const IDENTITY_ACCESS_IDENTIFIER = 'IDENTITY_ACCESS_SENTRY';
+/** Identificador técnico del sensor para el Neural Sentinel. */
+const IDENTITY_ACCESS_SENTRY_IDENTIFIER = 'IDENTITY_ACCESS_SENTRY';
 
 /**
- * Verifica se a identidade cumpre o contrato técnico e possui autoridade legítima.
+ * Verifica si la identidad cumple el contrato técnico y posee autoridad legítima.
+ * Implementa el patrón "Sovereign Guard" con medición de latencia en microsegundos.
  *
- * @param rawUserIdentityData - Objeto capturado da sessão ou API.
- * @param requiredAccessRole - Nível de autoridade solicitado.
- * @returns {Promise<IUserIdentity>} Identidade purificada e validada.
- * @throws {ValidationException} Se o ADN estiver corrupto ou a autoridade for insuficiente.
+ * @param rawUserIdentitySnapshot - Objeto capturado de la sesión, JWT o API.
+ * @param requiredAccessRoleLiteral - Nível de autoridad mínimo solicitado.
+ * @returns {Promise<IUserIdentity>} Identidad purificada, validada y tipada.
+ * @throws {ValidationException} Si el ADN es corrupto o la jerarquía es insuficiente.
  */
 export const ValidateUserAccess = async (
-  rawUserIdentityData: unknown,
-  requiredAccessRole: UserAccessRole,
+  rawUserIdentitySnapshot: unknown,
+  requiredAccessRoleLiteral: UserAccessRole,
 ): Promise<IUserIdentity> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
-  // 1. ADUANA DE ADN (Safe Parsing)
-  const validationResult = UserIdentitySchema.safeParse(rawUserIdentityData);
-
-  if (!validationResult.success) {
-    void EmitTelemetrySignal({
-      severityLevel: 'CRITICAL',
-      moduleIdentifier: IDENTITY_ACCESS_IDENTIFIER,
-      operationCode: 'IDENTITY_CONTRACT_VIOLATION',
-      correlationIdentifier,
-      message: 'Os dados de identidade falharam na auditoria de esquema.',
-      contextMetadata: { issues: validationResult.error.flatten() }
-    });
-
-    throw new ValidationException('ADN_IDENTIDAD_CORRUPTO', {
-      validationIssues: validationResult.error.flatten(),
-    });
-  }
-
-  const authenticatedIdentity: IUserIdentity = validationResult.data;
-
-  /**
-   * 2. EVALUACIÓN DE JERARQUÍA (Delegación Atómica)
-   * SANEADO Zenith: Invocação assíncrona e passagem de parâmetros via objeto (Fix TS2554).
-   */
-  const isAuthorizedBoolean = await EvaluateAuthorityHierarchy({
-    activeRoleLiteral: authenticatedIdentity.assignedAuthorityRoleLiteral,
-    requiredRoleLiteral: requiredAccessRole
-  });
-
-  if (!isAuthorizedBoolean) {
-    void EmitTelemetrySignal({
-      severityLevel: 'WARNING',
-      moduleIdentifier: IDENTITY_ACCESS_IDENTIFIER,
-      operationCode: 'UNAUTHORIZED_ACCESS_ATTEMPT',
-      correlationIdentifier,
-      message: `Bloqueio de segurança: Acesso negado para [${authenticatedIdentity.assignedAuthorityRoleLiteral}]`,
-      contextMetadata: {
-        citizenId: authenticatedIdentity.identityIdentifier,
-        requiredRole: requiredAccessRole
-      }
-    });
-
-    throw new ValidationException('ACCESO_NO_AUTORIZADO', {
-      requiredRole: requiredAccessRole,
-      activeRole: authenticatedIdentity.assignedAuthorityRoleLiteral,
-      citizenIdentifier: authenticatedIdentity.identityIdentifier,
-    });
-  }
-
-  // 3. REPORTE DE TRANSITO LEGÍTIMO
-  void EmitTelemetrySignal({
-    severityLevel: 'INFO',
-    moduleIdentifier: IDENTITY_ACCESS_IDENTIFIER,
-    operationCode: 'IDENTITY_ACCESS_AUTHORIZED',
+  return await TraceExecutionTime(
+    IDENTITY_ACCESS_SENTRY_IDENTIFIER,
+    'EXECUTE_ACCESS_AUTHORIZATION_AUDIT',
     correlationIdentifier,
-    message: 'Acesso perimetral autorizado com sucesso.'
-  });
+    async () => {
+      // 1. ADUANA DE ADN (Frontera de Integridad Estructural)
+      const identityValidationResult = UserIdentitySchema.safeParse(rawUserIdentitySnapshot);
 
-  return authenticatedIdentity;
+      if (!identityValidationResult.success) {
+        const structuralIssuesCollection = identityValidationResult.error.flatten();
+
+        void EmitTelemetrySignal({
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: IDENTITY_ACCESS_SENTRY_IDENTIFIER,
+          operationCodeLiteral: 'IDENTITY_CONTRACT_VIOLATION',
+          correlationIdentifier,
+          messageContentLiteral: 'La estructura de identidad proporcionada es ilegítima o está corrupta.',
+          semanticIntentTag: 'SECURITY_CONTRACT_FAULT',
+          contextMetadataSnapshot: { structuralIssuesCollection }
+        });
+
+        throw new ValidationException('ADN_IDENTIDAD_CORRUPTO', {
+          structuralIssuesCollection,
+        });
+      }
+
+      const authenticatedIdentitySnapshot: IUserIdentity = identityValidationResult.data;
+
+      /**
+       * 2. EVALUACIÓN DE JERARQUÍA ARITMÉTICA (Delegación Atómica)
+       * Comparamos los pesos de autoridad institucional para permitir escalado.
+       */
+      const isAuthorizedBoolean = await EvaluateAuthorityHierarchy({
+        activeRoleLiteral: authenticatedIdentitySnapshot.assignedAuthorityRoleLiteral,
+        requiredRoleLiteral: requiredAccessRoleLiteral
+      });
+
+      if (!isAuthorizedBoolean) {
+        void EmitTelemetrySignal({
+          severityLevelLiteral: 'WARNING',
+          moduleIdentifierLiteral: IDENTITY_ACCESS_SENTRY_IDENTIFIER,
+          operationCodeLiteral: 'UNAUTHORIZED_ACCESS_ATTEMPT',
+          correlationIdentifier,
+          messageContentLiteral: `Bloqueo de seguridad: Autoridad insuficiente para la operación solicitada.`,
+          semanticIntentTag: 'RBAC_VIOLATION',
+          contextMetadataSnapshot: {
+            citizenIdentifierLiteral: authenticatedIdentitySnapshot.identityIdentifier,
+            activeRoleLiteral: authenticatedIdentitySnapshot.assignedAuthorityRoleLiteral,
+            requiredRoleLiteral: requiredAccessRoleLiteral
+          }
+        });
+
+        throw new ValidationException('ACCESO_NO_AUTORIZADO', {
+          requiredRoleLiteral: requiredAccessRoleLiteral,
+          activeRoleLiteral: authenticatedIdentitySnapshot.assignedAuthorityRoleLiteral,
+          citizenIdentifierLiteral: authenticatedIdentitySnapshot.identityIdentifier,
+        });
+      }
+
+      // 3. REPORTE DE TRÁNSITO NOMINAL (SRE Visibility)
+      void EmitTelemetrySignal({
+        severityLevelLiteral: 'INFO',
+        moduleIdentifierLiteral: IDENTITY_ACCESS_SENTRY_IDENTIFIER,
+        operationCodeLiteral: 'IDENTITY_ACCESS_AUTHORIZED',
+        correlationIdentifier,
+        messageContentLiteral: 'Acceso perimetral autorizado: Identidad y autoridad confirmadas.',
+        semanticIntentTag: 'ACCESS_CONTROL_SUCCESS'
+      });
+
+      return authenticatedIdentitySnapshot;
+    }
+  );
 };

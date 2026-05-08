@@ -5,7 +5,7 @@
  * establecidos en las fronteras de los búnkeres.
  *
  * Protocolo OEDP-V17.0 - Data Sovereignty Enforcement & ISO Naming.
- * SANEADO Zenith: Resolución de TS2345 (Branded Type Match) y Nomenclatura Prosaica.
+ * SANEADO Zenith: Sincronización de parámetros con la Clase Base y Prosa ISO.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -18,18 +18,19 @@ import type { ErrorCode } from '../schemas/Exception.schema';
  * @class ValidationException
  * @extends {GlobalBaseException}
  * @description Representa un rechazo en la aduana de datos. Indica que la
- * solicitud es semánticamente incorrecta, previniendo la polución de la lógica.
+ * solicitud es semánticamente incorrecta o incompleta, previniendo la
+ * ejecución de lógica sobre datos impuros.
  */
 export class ValidationException extends GlobalBaseException {
   /**
    * Inicializa un error de validación con estatus de solicitud incorrecta (Bad Request).
    *
    * @param messageLiteral - Descripción del fallo de integridad o contrato detectado.
-   * @param contextMetadataCollection - Snapshot de los campos o reglas que fallaron.
+   * @param runtimeContextSnapshotSource - Snapshot de los campos, reglas o esquemas que fallaron.
    */
   public constructor(
     messageLiteral: string,
-    contextMetadataCollection: Record<string, unknown> = {}
+    runtimeContextSnapshotSource: Record<string, unknown> = {}
   ) {
     /**
      * @constant VALIDATION_FAILED - Código semántico inmutable para fallos de esquema.
@@ -43,7 +44,7 @@ export class ValidationException extends GlobalBaseException {
       messageLiteral,
       operationalErrorCodeLiteral,
       httpStatusCodeNumeric,
-      contextMetadataCollection
+      runtimeContextSnapshotSource
     );
   }
 }

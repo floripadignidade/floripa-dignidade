@@ -1,13 +1,14 @@
 /**
  * @section Tools - Internationalization Dictionary Weaver Orchestrator
  * @description Orquestador soberano del pipeline de compilación lingüística.
- * Coordina el flujo de Inicialización, Extracción y Persistencia de diccionarios.
+ * Coordina la secuencia de Higiene, Inicialización, Extracción y Persistencia.
+ * Garantiza que la red de transparencia lingüística sea pura y determinista.
  *
- * Protocolo OEDP-V17.0 - Swarm Intelligence & Zenith Clean Paths.
- * SANEADO Zenith: Remoción de extensiones .js para compatibilidad con el motor 
- * de resolución 'bundler' y estabilización del Grafo Core.
+ * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
+ * SANEADO Zenith: Integración de Fase de Higiene (Purge) y rastro forense absoluto.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import {
@@ -16,21 +17,23 @@ import {
   TraceExecutionTime
 } from '@floripa-dignidade/telemetry';
 
-/** 
- * 🛡️ RESOLUCIÓN ZENITH: Rutas Limpias (Clean Paths).
- * Se purga el rastro .js. El orquestador de build (SWC/Bundler) 
- * gestiona la resolución nativa de TypeScript.
- */
+import { InternalSystemException } from '@floripa-dignidade/exceptions';
+
+/* 1. ADN Estructural y Configuración (Rutas Limpias) */
 import { WEAVER_CONFIGURATION } from './constants/WeaverConfiguration';
 import { InitializeWeaverInfrastructure } from './atomic/InitializeWeaverInfrastructure';
 import { ScanAndExtractLinguisticSilos } from './atomic/ScanAndExtractLinguisticSilos';
 import { PersistDictionariesAndAuditReport } from './atomic/PersistDictionariesAndAuditReport';
 
+/* 2. Enjambre de Soporte (Mantenimiento de Hardware) */
+import { ExecuteRecursiveEmissionsPurge } from '../maintenance-tools/ExecuteRecursiveEmissionsPurge';
+
 /**
  * Ejecuta el pipeline integral de consolidación de diccionarios multilingües.
- * ⚡ PERFORMANCE: Implementa rastro de ejecución forense para auditoría de build.
- * 
+ * Implementa la doctrina de "Estado Limpio" mediante la purga proactiva de emisiones.
+ *
  * @returns {Promise<void>} Operación resuelta cuando el rastro lingüístico está en disco.
+ * @throws {InternalSystemException} Si cualquier fase del pipeline sufre un colapso.
  */
 export const BuildInternationalizationDictionaries = async (): Promise<void> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
@@ -40,36 +43,72 @@ export const BuildInternationalizationDictionaries = async (): Promise<void> => 
     'DICTIONARY_CONSOLIDATION_PIPELINE',
     correlationIdentifier,
     async () => {
+      try {
+        /**
+         * @section FASE 0: Higiene de Jurisdicción (Clean Pre-flight)
+         * 🛡️ SANEADO Zenith: Eliminamos artefactos antiguos en el directorio de salida
+         * para evitar la persistencia de traducciones fantasma o corruptas.
+         */
+        await ExecuteRecursiveEmissionsPurge(
+          WEAVER_CONFIGURATION.TARGET_OUTPUT_DIRECTORY_LITERAL,
+          correlationIdentifier
+        );
 
-      // FASE 1: Preparación (Aduana de Infraestructura)
-      await InitializeWeaverInfrastructure();
+        // FASE 1: Preparación (Aduana de Infraestructura y Permisos)
+        await InitializeWeaverInfrastructure();
 
-      // FASE 2: Extracción (Navegación Recursiva de Silos)
-      const { aggregatedLinguisticDictionaries, forensicAuditTrail } =
-        await ScanAndExtractLinguisticSilos(correlationIdentifier);
+        // FASE 2: Extracción (Navegación Recursiva y Auditoría de ADN)
+        const { aggregatedLinguisticDictionaries, forensicAuditTrail } =
+          await ScanAndExtractLinguisticSilos(correlationIdentifier);
 
-      // FASE 3: Volcado y Reporte (Persistencia y Auditoría)
-      await PersistDictionariesAndAuditReport(
-        aggregatedLinguisticDictionaries,
-        forensicAuditTrail,
-        correlationIdentifier
-      );
+        // FASE 3: Volcado y Reporte (Persistencia Física y Generación de Evidencia)
+        await PersistDictionariesAndAuditReport(
+          aggregatedLinguisticDictionaries,
+          forensicAuditTrail,
+          correlationIdentifier
+        );
 
-      /**
-       * 🛡️ REPORTE FINAL: Consolidación de métricas para el Neural Sentinel.
-       * Alineación con contextMetadataSnapshot (Estándar V17.0).
-       */
-      void EmitTelemetrySignal({
-        severityLevel: 'INFO',
-        moduleIdentifier: WEAVER_CONFIGURATION.WEAVER_ENGINE_IDENTIFIER_LITERAL,
-        operationCode: 'WEAVER_PIPELINE_NOMINAL',
-        correlationIdentifier,
-        message: 'Construcción de diccionarios finalizada con precisión industrial.',
-        contextMetadataSnapshot: {
-          processedSilosQuantity: forensicAuditTrail.length,
-          timestampISO: new Date().toISOString()
-        }
-      });
+        /**
+         * @section Reporte de Cierre Nominal
+         * Notificamos al Neural Sentinel el éxito de la compilación con métricas.
+         */
+        void EmitTelemetrySignal({
+          severityLevelLiteral: 'INFO',
+          moduleIdentifierLiteral: WEAVER_CONFIGURATION.WEAVER_ENGINE_IDENTIFIER_LITERAL,
+          operationCodeLiteral: 'WEAVER_PIPELINE_NOMINAL_SUCCESS',
+          correlationIdentifier,
+          messageContentLiteral: 'Tejido lingüístico finalizado: Diccionarios sincronizados con el enjambre.',
+          contextMetadataSnapshot: {
+            processedModulesQuantity: forensicAuditTrail.length,
+            targetPathLiteral: WEAVER_CONFIGURATION.TARGET_OUTPUT_DIRECTORY_LITERAL,
+            executionTimestampISO: new Date().toISOString()
+          }
+        });
+
+      } catch (caughtError: unknown) {
+        /**
+         * @section Gestión Forense de Colapso de Pipeline
+         * Centralizamos la captura para asegurar que el rastro del fallo llegue a telemetría.
+         */
+        const errorDescriptionLiteral = caughtError instanceof Error
+          ? caughtError.message
+          : String(caughtError);
+
+        void EmitTelemetrySignal({
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: WEAVER_CONFIGURATION.WEAVER_ENGINE_IDENTIFIER_LITERAL,
+          operationCodeLiteral: 'WEAVER_PIPELINE_CRITICAL_FAULT',
+          correlationIdentifier,
+          messageContentLiteral: `Fallo catastrófico en el compilador de diccionarios: ${errorDescriptionLiteral}`,
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
+        });
+
+        /** Propagación de excepción nivelada para el disparador CLI. */
+        throw new InternalSystemException('FALLO_EN_PIPELINE_DE_COMPILACION_I18N', {
+          originalErrorLiteral: errorDescriptionLiteral,
+          correlationIdentifier
+        });
+      }
     }
   );
 };

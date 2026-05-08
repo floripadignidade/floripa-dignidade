@@ -4,8 +4,8 @@
  * financieros hacia el Data Lake institucional. Une los átomos de mapeo y
  * transmisión física bajo rastro de telemetría y vigilancia SRE.
  *
- * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance.
- * SANEADO Zenith: Reconexión de rutas planas y blindaje de secretos cloud.
+ * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
+ * SANEADO Zenith: Resolución de paradoja asíncrona y soporte para colecciones inmutables (Fix Lint).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -33,24 +33,28 @@ const ORCHESTRATOR_IDENTIFIER = 'FINANCIAL_PERSISTENCE_ORCHESTRATOR';
  * Ejecuta la transacción íntegra de volcado financiero hacia el Data Lake.
  * Coordina la transformación de protocolos y la seguridad de red.
  *
- * @param financialRecordsCollection - Lista de registros purificados tras la extracción.
+ * @param financialRecordsCollection - Lista de registros purificados (Inmutable).
  * @param correlationIdentifier - Identificador para la trazabilidad forense del proceso.
  * @returns {Promise<void>} Operación resuelta cuando los datos son inmutables en la nube.
+ * @throws {InternalSystemException} Si la infraestructura rechaza la conexión o el ADN es impuro.
  */
 export const PersistFinancialLedgerToCloud = async (
-  financialRecordsCollection: IProjectFinancialRecord[],
+  /**
+   * 🛡️ SANEADO Zenith: Uso de 'readonly' para permitir el flujo directo desde
+   * la aduana de extracción, erradicando la necesidad de 'any' en el consumidor.
+   */
+  financialRecordsCollection: readonly IProjectFinancialRecord[],
   correlationIdentifier: string = GenerateCorrelationIdentifier()
 ): Promise<void> => {
 
   /**
    * @section Captura de Soberanía Cloud (Hardware Isolation)
-   * 🛡️ SANEADO Zenith: El acceso a la infraestructura se realiza exclusivamente
-   * a través de la aduana validada, garantizando que los secretos sean Branded Types.
+   * 🛡️ SANEADO Zenith: Se añade 'await' mandatorio para resolver el contrato de secretos.
    */
   const {
     SUPABASE_URL: cloudUrlLiteral,
     SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret
-  } = ValidateEnvironmentAduana();
+  } = await ValidateEnvironmentAduana();
 
   return await TraceExecutionTime(
     ORCHESTRATOR_IDENTIFIER,

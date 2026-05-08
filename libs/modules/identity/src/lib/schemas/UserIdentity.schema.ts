@@ -1,11 +1,11 @@
 /**
  * @section Identity DNA - Global Verified Identity Schema
- * @description Define o contrato mestre para a identidade cidadã e institucional.
- * Orquestra a convergência entre autenticação social, transparência e privacidade.
- * Atua como a Única Fonte de Verdade (SSOT) para o enjambre de dados.
+ * @description Define el contrato mestre para la identidad ciudadana e institucional.
+ * Orquesta la convergencia entre autenticación social, transparencia y privacidad.
+ * Actúa como la Única Fuente de Verdad (SSOT) para el enjambre de datos.
  *
  * Protocolo OEDP-V17.0 - High Performance & ISO Technical Naming.
- * SANEADO Zenith: Injeção de tipos inferidos e normalização de nomenclatura.
+ * SANEADO Zenith: Inyección de vectores anti-bot y rastro de mutación forense.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -15,20 +15,20 @@ import { z } from 'zod';
 import { UserAccessRoleSchema } from './UserAccessRole.schema';
 
 /**
- * @section ADN Criptográfico - Tipagem Nominal
- * @description Garante que um identificador de usuário não seja confundido com
- * outros UUIDs do sistema (News, Organizations, etc).
+ * @section ADN Criptográfico - Tipificación Nominal (Branding)
+ * @description Garantiza que un identificador de usuario no sea confundido con
+ * otros UUIDs del sistema (News, Organizations, etc) en el Grafo de Tipos.
  */
 export const UserIdentifierSchema = z.string()
   .uuid()
   .brand<'UserIdentifier'>();
 
-/** 🛡️ ADN Tipado para exportação Verbatim */
+/** 🛡️ ADN Tipado para exportación Verbatim */
 export type UserIdentifier = z.infer<typeof UserIdentifierSchema>;
 
 /**
- * @section Provedores de Identidade Federada
- * Catálogo de entidades externas autorizadas para autenticação no ecossistema.
+ * @section Catálogo de Proveedores de Identidad
+ * Entidades externas autorizadas para la federación de soberanía.
  */
 export const SocialIdentityProviderSchema = z.enum([
   'GOOGLE_IDENTITY',
@@ -37,83 +37,90 @@ export const SocialIdentityProviderSchema = z.enum([
   'FACEBOOK_CONNECT',
   'X_CORP_API',
   'INTERNAL_INFRASTRUCTURE'
-]).describe('Identificador técnico do provedor de autenticação federada.');
+]).describe('Identificador técnico del proveedor de autenticación federada.');
 
-/**
- * 🛡️ SANEADO Zenith: Exportação de tipo nominal.
- * Resolve o erro TS2724 permitindo que átomos lógicos tipem seus parâmetros.
- */
+/** 🛡️ SANEADO Zenith: Exportación nominal para tipado de mappers externos. */
 export type SocialIdentityProvider = z.infer<typeof SocialIdentityProviderSchema>;
 
 /**
  * @name UserIdentitySchema
- * @description Contrato soberano de identidade. Define o perfil completo do cidadão.
+ * @description Contrato soberano de identidad. Define el perfil completo del ciudadano
+ * con soporte para auditoría bayesiana y telemetría de comportamiento.
  */
 export const UserIdentitySchema = z.object({
 
-  /** Identificador único e inalterável no enjambre de dados. */
+  /** Identificador único e inalterable en el enjambre de datos. */
   identityIdentifier: UserIdentifierSchema,
 
-  /** Nome completo capturado do registro civil ou provedor social. */
+  /** Nombre completo capturado del registro civil o proveedor social. */
   fullLegalNameLiteral: z.string()
     .min(3)
     .transform((value) => value.trim())
-    .describe('Nome legal completo para processos de transparência e auditoria.'),
+    .describe('Nombre legal completo para procesos de transparencia y auditoría institucional.'),
 
   /**
-   * Nome Público Anonimizado (Regra ISO: NOME + INICIAL).
-   * Exemplo: "ANALUIZA S."
+   * Nombre Público Anonimizado (Regra ISO: NOME + INICIAL).
+   * Ejemplo: "ANALUIZA S."
    */
   anonymizedPublicNameLiteral: z.string()
-    .describe('Representação visual segura para proteger a privacidade do cidadão em áreas públicas.'),
+    .describe('Representación visual segura para proteger la privacidad del ciudadano en el portal.'),
 
-  /** Endereço de contato principal validado. */
+  /** Dirección de contacto principal validada. */
   electronicMailAddressLiteral: z.string()
     .email()
     .transform((value) => value.toLowerCase().trim())
-    .describe('Endereço de correio eletrônico vinculado à conta soberana.'),
+    .describe('Dirección de correo electrónico vinculada a la cuenta soberana.'),
 
-  /**
-   * URL física do avatar institucional.
-   * SANEADO: 'Url' transmutado para 'UniformResourceLocator' seguindo a norma ISO de zero abreviaturas.
-   */
+  /** Dirección URL física del avatar institucional. */
   avatarImageUniformResourceLocator: z.string()
     .url()
     .nullable()
-    .describe('Endereço físico do recurso visual de identidade.'),
+    .describe('Dirección física del recurso visual de identidad (S3/Cloudinary).'),
 
-  /** Identificador do provedor de autenticação utilizado. */
+  /** Identificador del proveedor de autenticación utilizado. */
   socialProviderIdentifier: SocialIdentityProviderSchema
     .default('INTERNAL_INFRASTRUCTURE'),
 
   /**
-   * NÍVEL DE AUTORIDADE PONDERADA (Bayesian Confidence Level).
-   * Coeficiente calculado que determina o peso do cidadão nos algoritmos de impacto.
+   * NÍVEL DE AUTORIDAD PONDERADA (Bayesian Trust Score).
+   * Determina el peso del voto del ciudadano en los algoritmos de impacto social.
    */
   identityTrustWeightScoreNumeric: z.number()
     .min(0)
     .max(1)
     .default(0.1)
-    .describe('Coeficiente algorítmico de credibilidade bayesiana baseada em comportamento ético.'),
+    .describe('Coeficiente algorítmico de credibilidad basado en comportamiento ético histórico.'),
 
   /**
-   * Papel de autoridade institucional (RBAC).
-   * Sincronizado com a hierarquia global de acesso.
+   * 🛡️ PROACTIVO Zenith: Probabilidad de Humanidad.
+   * Vector utilizado por el Neural Sentinel para mitigar ataques de orquestación de bots.
    */
-  assignedAuthorityRoleLiteral: UserAccessRoleSchema
-    .default('CITIZEN_ANONYMOUS'),
+  humanProbabilityConfidenceScoreNumeric: z.number()
+    .min(0)
+    .max(1)
+    .default(0.5)
+    .describe('Nivel de certeza de que la identidad corresponde a un ser humano real.'),
 
-  /** Estado de verificação documental (SRE Audit). */
+  /** Papel de autoridad institucional (RBAC). */
+  assignedAuthorityRoleLiteral: UserAccessRoleSchema
+    .default('CITIZEN_REGISTERED'),
+
+  /** Estado de la auditoría documental humana (Selo de Verificação). */
   isIdentityLegallyVerifiedBoolean: z.boolean()
     .default(false)
-    .describe('Indica se o perfil passou pela auditoria documental humana e governamental.'),
+    .describe('Indica si el perfil ha superado la validación manual de documentos de la ONG.'),
 
-  /** Registro inalterável de ativação da identidade. */
+  /** Registro inalterable de creación en la infraestructura soberana. */
   occurrenceTimestampISO: z.string()
     .datetime()
-    .describe('Marca temporal da criação da conta na infraestrutura soberana.'),
+    .describe('Marca temporal de activación de la identidad en el Ledger.'),
+
+  /** 🛡️ SANEADO Zenith: Registro de última modificación para auditoría de integridad. */
+  lastIdentityMutationTimestampISO: z.string()
+    .datetime()
+    .describe('Marca temporal de la última actualización de rol o peso de autoridad.'),
 
 }).readonly();
 
-/** 🛡️ ADN Tipado para exportação Verbatim */
+/** 🛡️ ADN Tipado para el Enjambre de Identidad */
 export type IUserIdentity = z.infer<typeof UserIdentitySchema>;

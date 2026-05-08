@@ -1,15 +1,20 @@
 /**
- * @section tsconfig: Emitter
- * @description Generador de ADN (.d.ts) con redireccion fisica de Grafo.
+ * @section tsconfig: Emitter (PMF Open Data Engine)
+ * @description Generador de ADN (.d.ts) con redirección física de Grafo.
+ * Orquesta la emisión de tipos para la auditoría de datos abiertos de la PMF,
+ * integrando la soberanía territorial y la infraestructura core de fallos.
+ *
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * @author Raz Podestá - MetaShark Tech
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    /* --- ESTRATEGIA DE SALIDA ZENITH (Flattened Output) --- */
     "outDir": "../../../dist/out-tsc/libs/modules/pmf-open-data-engine",
     "tsBuildInfoFile": "../../../dist/out-tsc/libs/modules/pmf-open-data-engine/tsconfig.lib.tsbuildinfo",
 
-    /* --- Integridad Soberana --- */
+    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
     "composite": true,
     "declaration": true,
     "declarationMap": true,
@@ -17,8 +22,14 @@
     "rootDir": "src",
     "noEmit": false,
     "importHelpers": true,
+    "ignoreDeprecations": "5.0",
 
-    /* --- Redireccion de ADN (Solucion TS6059 / TS6305) --- */
+    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6059 / TS6305) --- */
+    /**
+     * 🛡️ LEY DEL ENJAMBRE: Consumimos el ADN físico del búnker territorial
+     * y las bases core para garantizar la inalterabilidad del grafo de tipos.
+     */
+    "baseUrl": ".",
     "paths": {
       "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
       "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
@@ -26,27 +37,33 @@
       "@floripa-dignidade/territorial-engine": ["../../../dist/out-tsc/libs/modules/territorial-engine/index.d.ts"]
     },
 
-    /* --- Resolucion Next-Gen --- */
+    /* --- RESOLUCIÓN NEXT-GEN (Turbopack Ready) --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
-    /* --- ADN del Entorno --- */
+    /* --- ADN DEL ENTORNO (Isomorphic Data Context) --- */
     "types": ["node"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
+
   "include": ["src/**/*.ts", "src/**/*.json"],
+
   "exclude": [
+    /* 🛡️ LIMPIEZA DE JURISDICCIÓN: Evitamos fugas de rastro técnico en la emisión */
     "src/**/*.spec.ts",
-    "src/**/*.test.ts",
-    "jest.config.ts",
     "dist",
     "out-tsc",
     "node_modules",
     "../../../dist",
     "../../../node_modules"
   ],
+
+  /**
+   * @section Grafo de Referencias Soberanas
+   * Establece el vínculo físico con los cimientos y motores de los que depende.
+   */
   "references": [
     { "path": "../../core/telemetry/tsconfig.lib.json" },
     { "path": "../../core/exceptions/tsconfig.lib.json" },

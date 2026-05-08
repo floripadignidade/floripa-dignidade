@@ -1,48 +1,80 @@
 /**
- * @section tsconfig: Emitter
- * @description Generador de ADN (.d.ts) con redireccion fisica de Grafo.
+ * @section tsconfig: Emitter (Environment Validator)
+ * @description Generador de ADN (.d.ts) con redirección física de Grafo.
+ * Orquesta la emisión de tipos para la Aduana de Infraestructura, garantizando
+ * la soberanía del entorno antes del arranque del sistema.
+ *
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    /* --- ESTRATEGIA DE SALIDA ZENITH (Flattened Output) --- */
     "outDir": "../../../dist/out-tsc/libs/core/environment-validator",
     "tsBuildInfoFile": "../../../dist/out-tsc/libs/core/environment-validator/tsconfig.lib.tsbuildinfo",
 
-    /* --- Integridad Soberana --- */
+    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
     "composite": true,
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
     "rootDir": "src",
     "noEmit": false,
+    "importHelpers": true,
+    "ignoreDeprecations": "5.0",
 
-    /* --- Redireccion de ADN (Solucion TS6059) --- */
+    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6059 / TS6305) --- */
+    /**
+     * 🛡️ LEY DEL ENJAMBRE: El búnker consume las firmas físicas (.d.ts) desde
+     * la carpeta dist, blindando la frontera rootDir y optimizando la RAM.
+     */
+    "baseUrl": ".",
     "paths": {
-      "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"]
+      "@floripa-dignidade/exceptions": [
+        "../../../dist/out-tsc/libs/core/exceptions/index.d.ts"
+      ],
+      "@floripa-dignidade/telemetry": [
+        "../../../dist/out-tsc/libs/core/telemetry/index.d.ts"
+      ]
     },
 
-    /* --- Resolucion Next-Gen --- */
+    /* --- RESOLUCIÓN NEXT-GEN --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
+    /* --- ADN DEL ENTORNO (Node.js Validation Context) --- */
     "types": ["node"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
+
   "include": ["src/**/*.ts", "src/**/*.json"],
+
   "exclude": [
+    /* 🛡️ LIMPIEZA DE JURISDICCIÓN: Evitamos fugas de rastro técnico en la emisión */
     "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "jest.config.ts",
     "dist",
     "out-tsc",
     "node_modules",
     "../../../dist",
     "../../../node_modules"
   ],
+
+  /**
+   * @section Grafo de Referencias Soberanas
+   * Mantiene el vínculo jerárquico con los cimientos CORE.
+   */
   "references": [
-    { "path": "../exceptions/tsconfig.lib.json" },
-    { "path": "../telemetry/tsconfig.lib.json" }
+    {
+      "path": "../exceptions/tsconfig.lib.json"
+    },
+    {
+      "path": "../telemetry/tsconfig.lib.json"
+    }
   ]
 }

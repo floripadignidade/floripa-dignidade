@@ -1,20 +1,29 @@
 {
   "name": "@floripa-dignidade/tools",
-  "projectType": "library",
+  "tags": ["scope:tools", "type:tool", "platform:node"],
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/tools/src",
+  "projectType": "library",
+
   "targets": {
     "build": {
       "executor": "@nx/js:swc",
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/tools",
         "main": "libs/tools/src/index.ts",
-        "tsConfig": "libs/tools/tsconfig.lib.json"
+        "tsConfig": "libs/tools/tsconfig.lib.json",
+        "stripLeadingPaths": true
       }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p libs/tools/tsconfig.lib.json"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
     }
-  },
-  "implicitDependencies": [
-    "telemetry",
-    "exceptions",
-    "financial-ingestion-engine"
-  ]
+  }
 }

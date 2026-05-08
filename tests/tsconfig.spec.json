@@ -1,12 +1,35 @@
+/**
+ * @section tsconfig: Spec Emitter (QA Mirror)
+ * @description Generador de ADN para archivos de prueba (.spec.ts).
+ * Garantiza que las aserciones tengan visibilidad sobre el código de producción.
+ *
+ * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * SANEADO Zenith: Resolución de errores TS6310 (composite) y paradoja de emisión.
+ */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../dist/out-tsc/tests-spec",
-    "types": ["jest", "node"]
+    /**
+     * 🛡️ LEY DE EMISIÓN:
+     * Para ser referenciado, este proyecto DEBE ser compuesto y emitir ADN.
+     */
+    "composite": true,
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+
+    "types": ["jest", "node"],
+    /**
+     * Mantenemos la resolución moderna 'bundler' para simetría
+     * con el motor SWC utilizado en jest.config.ts.
+     */
+    "module": "Preserve",
+    "moduleResolution": "bundler"
   },
   "include": [
     "src/**/*.spec.ts",
     "src/**/*.spec.tsx",
     "src/**/*.d.ts"
-  ]
+  ],
+  "exclude": ["node_modules", "dist"]
 }

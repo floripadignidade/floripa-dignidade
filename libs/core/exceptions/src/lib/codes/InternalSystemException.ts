@@ -1,11 +1,11 @@
 /**
  * @section Exception Engine - Specialized Infrastructure Exceptions
  * @description Excepción de Fallo Interno del Sistema (Nivel Servidor / HTTP 500).
- * Actúa como la señal de máxima prioridad operativa, activando automáticamente
- * los protocolos de intervención en el Health Analysis Engine.
+ * Actúa como la señal de máxima prioridad operativa. Su emisión notifica
+ * automáticamente al Neural Sentinel para iniciar protocolos de auto-sanación.
  *
  * Protocolo OEDP-V17.0 - High Severity Infrastructure Signal & ISO Naming.
- * SANEADO Zenith: Resolución de TS2345 (Branded Type Match) y Naming ISO.
+ * SANEADO Zenith: Sincronización de parámetros con la Clase Base y Rigor ISO.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -17,19 +17,19 @@ import type { ErrorCode } from '../schemas/Exception.schema';
 /**
  * @class InternalSystemException
  * @extends {GlobalBaseException}
- * @description Representa errores críticos imprevistos donde la infraestructura
- * o la lógica central han colapsado.
+ * @description Representa errores críticos imprevistos donde la infraestructura,
+ * la base de datos o la lógica central han colapsado.
  */
 export class InternalSystemException extends GlobalBaseException {
   /**
    * Inicializa una instancia de error de sistema con severidad de colapso técnica.
    *
    * @param messageLiteral - Descripción técnica detallada de la anomalía detectada.
-   * @param contextMetadataCollection - Colección de variables para la reconstrucción del fallo.
+   * @param runtimeContextSnapshotSource - Colección inmutable de metadatos para reconstrucción.
    */
   public constructor(
     messageLiteral: string,
-    contextMetadataCollection: Record<string, unknown> = {}
+    runtimeContextSnapshotSource: Record<string, unknown> = {}
   ) {
     /**
      * @constant INTERNAL_SYSTEM_FAILURE - Código semántico inmutable (ISO Standard).
@@ -43,7 +43,7 @@ export class InternalSystemException extends GlobalBaseException {
       messageLiteral,
       operationalErrorCodeLiteral,
       httpStatusCodeNumeric,
-      contextMetadataCollection
+      runtimeContextSnapshotSource
     );
   }
 }

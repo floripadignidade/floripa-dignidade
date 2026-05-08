@@ -1,9 +1,14 @@
 /**
  * @section Tools Logic - Financial Ingestion CLI Orchestrator
- * @description Orquestador de interacción humana para la ingesta de datos.
+ * @description Orquestador de interacción humana encargado de disparar la ingesta
+ * de presupuestos institucionales. Gestiona el ciclo de vida de la consola,
+ * valida rutas físicas y vincula la operación con el rastro de telemetría.
  *
- * Protocolo OEDP-V17.0 - Swarm Intelligence & ISO Standard Naming.
- * SANEADO Zenith: Resolución de visibilidad de módulos Core y Engine.
+ * Protocolo OEDP-V17.0 - Swarm Intelligence & ISO Technical Naming.
+ * SANEADO Zenith: Erradicación absoluta de 'any' y sincronización de contratos inmutables.
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import * as filesystemReference from 'node:fs';
@@ -18,7 +23,10 @@ import {
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-import { InternalSystemException } from '@floripa-dignidade/exceptions';
+import {
+  InternalSystemException,
+  ValidationException
+} from '@floripa-dignidade/exceptions';
 
 /* 2. Motores de Negocio (Engines) */
 import {
@@ -29,27 +37,37 @@ import {
 /** Identificador técnico del aparato para el Neural Sentinel. */
 const TOOL_IDENTIFIER = 'FINANCIAL_INGESTION_CLI_TOOL';
 
-/** @section ADN Lingüístico Local */
+/**
+ * @section ADN Lingüístico Local
+ */
 const CLI_DICTIONARY = {
-  header: '\n--- [ZENITH SENTRY]: SISTEMA DE INGESTA FINANCIERA ---',
+  headerLiteral: '\n--- [ZENITH SENTRY]: SISTEMA DE INGESTA FINANCIERA ---',
   prompts: {
-    targetFilePath: '\n📄 Ingrese la ruta física del archivo Excel de presupuesto: ',
+    targetFilePathLiteral: '\n📄 Ingrese la ruta física del archivo Excel de presupuesto: ',
   },
   status: {
-    analyzingDna: (fileName: string) => `\n🔍 Analizando integridad de ADN: ${fileName}...`,
-    aduanaSuccess: (count: number) => `✅ Aduana Zod Superada: [${count}] registros purificados.`,
-    transmitting: '☁️ Transmitiendo soberanía al Ledger de Transparencia...',
-    finished: '\n--- [ZENITH SENTRY]: INGESTA CONSOLIDADA EXITOSAMENTE ---\n',
+    analyzingDnaLiteral: (fileName: string) => `\n🔍 Analizando integridad de ADN: ${fileName}...`,
+    aduanaSuccessLiteral: (recordsQuantity: number) =>
+      `✅ Aduana Zod Superada: [${recordsQuantity}] registros purificados.`,
+    transmittingToCloudLiteral: '☁️ Transmitiendo soberanía al Ledger de Transparencia...',
+    executionFinishedLiteral: '\n--- [ZENITH SENTRY]: INGESTA CONSOLIDADA EXITOSAMENTE ---\n',
   },
   errors: {
-    fileNotFound: (path: string) => `\n❌ ERROR_I/O: Archivo no identificado en: [${path}]`,
-    fatalCollapse: (trace: string) => `[FATAL_TOOL_COLLAPSE]: Falla crítica: ${trace}`,
+    fileNotFoundLiteral: (path: string) => `\n❌ ERROR_I/O: Archivo no identificado en: [${path}]`,
+    fatalCollapseLiteral: (errorTraceLiteral: string) =>
+      `[FATAL_TOOL_COLLAPSE]: Falla crítica: ${errorTraceLiteral}`,
   }
 } as const;
 
+/**
+ * Ejecuta el flujo interactivo de ingesta de datos financieros.
+ * Implementa un patrón de cierre seguro de interfaz para evitar fugas de recursos.
+ *
+ * @returns {Promise<void>}
+ */
 export const ExecuteFinancialIngestionOrchestrator = async (): Promise<void> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
-  let rawPathInputLiteral = 'NOT_PROVIDED_YET';
+  let rawPathInputLiteral = 'PENDING_INPUT';
 
   const cliInteractionInterface = readlinePromises.createInterface({
     input: standardInputReference,
@@ -58,63 +76,95 @@ export const ExecuteFinancialIngestionOrchestrator = async (): Promise<void> => 
 
   return await TraceExecutionTime(
     TOOL_IDENTIFIER,
-    'EXECUTE_INTERACTIVE_INGESTION',
+    'EXECUTE_INTERACTIVE_INGESTION_FLOW',
     correlationIdentifier,
     async () => {
       try {
-        console.warn(CLI_DICTIONARY.header);
+        console.warn(CLI_DICTIONARY.headerLiteral);
 
-        // 1. CAPTURA (Human Interaction)
-        const userInput = await cliInteractionInterface.question(CLI_DICTIONARY.prompts.targetFilePath);
-        rawPathInputLiteral = userInput.trim();
+        // 1. CAPTURA DE INTENCIÓN (Human-in-the-loop)
+        const userInputLiteral = await cliInteractionInterface.question(
+          CLI_DICTIONARY.prompts.targetFilePathLiteral
+        );
+        rawPathInputLiteral = userInputLiteral.trim();
+
         const absoluteFilePathLiteral = pathReference.resolve(process.cwd(), rawPathInputLiteral);
 
-        // 2. ADUANA (I/O Sentry)
+        // 2. ADUANA DE HARDWARE (I/O Sentry)
         if (!filesystemReference.existsSync(absoluteFilePathLiteral)) {
-          throw new Error(`FILE_NOT_FOUND_AT_${absoluteFilePathLiteral}`);
+          throw new ValidationException('ARCHIVO_FINANCIERO_NO_ENCONTRADO', {
+            attemptedPathLiteral: absoluteFilePathLiteral
+          });
         }
 
-        // 3. PROCESAMIENTO (Delegación al Motor)
-        console.warn(CLI_DICTIONARY.status.analyzingDna(pathReference.basename(absoluteFilePathLiteral)));
+        // 3. PROCESAMIENTO TÉCNICO (Delegación al Engine)
+        console.warn(
+          CLI_DICTIONARY.status.analyzingDnaLiteral(pathReference.basename(absoluteFilePathLiteral))
+        );
 
         const validatedRecordsCollection = await ExtractWorkbookData({
           absoluteFilePathLiteral,
           correlationIdentifier
         });
 
-        console.warn(CLI_DICTIONARY.status.aduanaSuccess(validatedRecordsCollection.length));
+        console.warn(
+          CLI_DICTIONARY.status.aduanaSuccessLiteral(validatedRecordsCollection.length)
+        );
 
-        // 4. PERSISTENCIA (Cloud Transmission)
-        console.warn(CLI_DICTIONARY.status.transmitting);
-        await PersistFinancialLedgerToCloud([...validatedRecordsCollection], correlationIdentifier);
+        // 4. PERSISTENCIA INMUTABLE (Cloud Ledger Synchronization)
+        console.warn(CLI_DICTIONARY.status.transmittingToCloudLiteral);
 
-        // 5. REPORTE
-        console.warn(CLI_DICTIONARY.status.finished);
+        /**
+         * 🛡️ SANEADO Zenith: ERRADICACIÓN DE 'any'.
+         * Gracias a la nivelación de la firma en 'PersistFinancialLedgerToCloud',
+         * el flujo de datos inmutables es ahora 100% Type-Safe.
+         */
+        await PersistFinancialLedgerToCloud(
+          validatedRecordsCollection,
+          correlationIdentifier
+        );
+
+        // 5. REPORTE DE FINALIZACIÓN
+        console.warn(CLI_DICTIONARY.status.executionFinishedLiteral);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'INFO',
           moduleIdentifierLiteral: TOOL_IDENTIFIER,
-          operationCodeLiteral: 'INGESTION_FINISHED_NOMINAL',
+          operationCodeLiteral: 'INGESTION_TOOL_NOMINAL_SUCCESS',
           correlationIdentifier,
-          messageContentLiteral: 'Proceso de ingesta manual finalizado con éxito.'
+          messageContentLiteral: 'Proceso de ingesta manual finalizado con precisión industrial.'
         });
 
       } catch (caughtError: unknown) {
-        const errorDescriptionLiteral = caughtError instanceof Error ? caughtError.message : String(caughtError);
+        const isUserFaultBoolean = caughtError instanceof ValidationException;
+        const errorDescriptionLiteral = caughtError instanceof Error
+          ? caughtError.message
+          : String(caughtError);
+
+        if (isUserFaultBoolean) {
+          console.error(CLI_DICTIONARY.errors.fileNotFoundLiteral(rawPathInputLiteral));
+        } else {
+          console.error(CLI_DICTIONARY.errors.fatalCollapseLiteral(errorDescriptionLiteral));
+        }
 
         void EmitTelemetrySignal({
-          severityLevelLiteral: 'CRITICAL',
+          severityLevelLiteral: isUserFaultBoolean ? 'WARNING' : 'CRITICAL',
           moduleIdentifierLiteral: TOOL_IDENTIFIER,
-          operationCodeLiteral: 'INGESTION_TOOL_COLLAPSE',
+          operationCodeLiteral: 'INGESTION_TOOL_FAULT',
           correlationIdentifier,
-          messageContentLiteral: CLI_DICTIONARY.errors.fatalCollapse(errorDescriptionLiteral),
+          messageContentLiteral: `Fallo en herramienta de ingesta: ${errorDescriptionLiteral}`,
           contextMetadataSnapshot: { attemptedPath: rawPathInputLiteral }
         });
 
+        if (caughtError instanceof ValidationException || caughtError instanceof InternalSystemException) {
+          throw caughtError;
+        }
+
         throw new InternalSystemException('COLLAPSE_IN_FINANCIAL_TOOL', {
-          originalError: errorDescriptionLiteral,
-          inputPath: rawPathInputLiteral
+          originalErrorLiteral: errorDescriptionLiteral,
+          inputPathLiteral: rawPathInputLiteral
         });
+
       } finally {
         cliInteractionInterface.close();
       }

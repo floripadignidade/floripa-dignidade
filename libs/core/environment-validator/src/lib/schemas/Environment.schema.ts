@@ -1,11 +1,11 @@
 /**
  * @section Environment DNA - Infrastructure Sovereignty Schema
- * @description Define o contrato de integridade absoluto para as variáveis de ambiente.
- * Implementa Branded Types para blindar segredos e garantir o padrão ISO de segurança.
- * Atua como a única Aduana de ADN para a execução Cloud-Sovereign (ADR 0015).
+ * @description Define el contrato de integridad absoluto para las variables de entorno.
+ * Implementa Branded Types para blindar secretos y garantiza el estándar ISO 27001.
+ * Actúa como la única Aduana de ADN para la ejecución Cloud-Sovereign (ADR 0015).
  *
  * Protocolo OEDP-V17.0 - Sovereign Data & ReadOnly Integrity.
- * SANEADO Zenith: Erradicação de abreviações e injeção de ADN nominal completo.
+ * SANEADO Zenith: Inyección de secretos de IA y normalización de sufijos de seguridad.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -14,22 +14,23 @@
 import { z } from 'zod';
 
 /**
- * @section Branded Types (ADN Criptográfico)
- * @description Evitam a colisão semântica entre diferentes segredos de infraestrutura.
+ * @section ADN Criptográfico (Branded Types)
+ * @description Sellos de marca nominal para evitar colisiones semánticas.
  */
-export const ResendApiKeySchema = z.string()
+
+export const ResendApiKeySecretSchema = z.string()
   .startsWith('re_')
-  .brand<'ResendApiKey'>();
+  .brand<'ResendApiKeySecret'>();
 
 export const SupabaseUniformResourceLocatorSchema = z.string()
   .url()
-  .describe('URL física do projeto no Tier de Supabase.')
+  .describe('URL física del proyecto en el Tier de Supabase.')
   .brand<'SupabaseUniformResourceLocator'>();
 
-export const SupabaseServiceKeySchema = z.string()
+export const SupabaseServiceKeySecretSchema = z.string()
   .min(50)
-  .describe('Token de acesso administrativo (Service Role) para bypass de RLS.')
-  .brand<'SupabaseServiceKey'>();
+  .describe('Token de acceso administrativo (Service Role) para bypass de RLS.')
+  .brand<'SupabaseServiceKeySecret'>();
 
 export const PostgresUniformResourceLocatorSchema = z.string()
   .url()
@@ -40,9 +41,9 @@ export const WhatsAppSecretSchema = z.string()
   .min(16)
   .brand<'WhatsAppSecret'>();
 
-export const WhatsAppVerifyTokenSchema = z.string()
+export const WhatsAppVerifyTokenSecretSchema = z.string()
   .min(10)
-  .brand<'WhatsAppVerifyToken'>();
+  .brand<'WhatsAppVerifyTokenSecret'>();
 
 export const PayloadSecretSchema = z.string()
   .min(32, { message: 'PAYLOAD_SECRET_MUST_BE_AT_LEAST_32_CHARACTERS' })
@@ -50,10 +51,10 @@ export const PayloadSecretSchema = z.string()
 
 export const SovereignEmergencyTokenSchema = z.string()
   .min(32)
-  .describe('Token de alta segurança para bypass de auditoria em casos de falha crítica.')
+  .describe('Token de alta seguridad para bypass de auditoría en casos de falla crítica.')
   .brand<'SovereignEmergencyToken'>();
 
-/** ADN para Persistência Multimídia (S3 Gateway) */
+/** ADN para Persistencia Multimídia (S3 Gateway) */
 export const S3EndpointUniformResourceLocatorSchema = z.string()
   .url()
   .brand<'S3EndpointUniformResourceLocator'>();
@@ -66,22 +67,31 @@ export const S3SecretAccessKeySchema = z.string()
   .min(10)
   .brand<'S3SecretAccessKey'>();
 
+/** 🛡️ SANEADO Zenith: ADN para el Neural Sentinel (Hugging Face) */
+export const HuggingFaceApiTokenSecretSchema = z.string()
+  .startsWith('hf_')
+  .brand<'HuggingFaceApiTokenSecret'>();
+
+export const HuggingFaceModelUrlSchema = z.string()
+  .url()
+  .brand<'HuggingFaceModelUrl'>();
+
 export const SiteUniformResourceLocatorSchema = z.string()
   .url()
   .brand<'SiteUniformResourceLocator'>();
 
-export const NxCloudAccessTokenSchema = z.string()
-  .brand<'NxCloudAccessToken'>();
+export const NxCloudAccessSecurityTokenSchema = z.string()
+  .brand<'NxCloudAccessSecurityToken'>();
 
 /**
  * @name EnvironmentSchema
- * @description Aduana mestra que valida a saúde do ambiente antes do arranque do sistema.
- * Implementa o padrão de validação proativa (Fail-Fast) para evitar estados inconsistentes.
+ * @description Aduana maestra que valida la salud del entorno antes del arranque del sistema.
+ * Implementa el patrón de validación proactiva (Fail-Fast) para evitar estados inconsistentes.
  */
 export const EnvironmentSchema = z.object({
 
   // --- COMUNICAÇÃO TRANSACIONAL (Resend) ---
-  RESEND_API_KEY: ResendApiKeySchema
+  RESEND_API_KEY: ResendApiKeySecretSchema
     .describe('Chave de API oficial para o despacho de correios eletrônicos transacionais.'),
 
   RESEND_FROM_EMAIL: z.string()
@@ -92,7 +102,7 @@ export const EnvironmentSchema = z.object({
   SUPABASE_URL: SupabaseUniformResourceLocatorSchema
     .describe('Ponto de enlace REST para a base de dados de cidadãos.'),
 
-  SUPABASE_SERVICE_ROLE_KEY: SupabaseServiceKeySchema
+  SUPABASE_SERVICE_ROLE_KEY: SupabaseServiceKeySecretSchema
     .describe('Chave mestra para operações de escrita assíncronas no Supabase.'),
 
   DATABASE_URL: PostgresUniformResourceLocatorSchema
@@ -121,11 +131,18 @@ export const EnvironmentSchema = z.object({
   PAYLOAD_SECRET: PayloadSecretSchema
     .describe('Segredo criptográfico inalterável para a segurança de sessões administrativas.'),
 
-  /** 🛡️ SANEADO: Injeção oficial do token de bypass soberano no contrato global */
   SOVEREIGN_EMERGENCY_TOKEN: SovereignEmergencyTokenSchema,
 
+  // --- INTELIGENCIA ARTIFICIAL (Neural Sentinel) ---
+  /** 🛡️ SANEADO Zenith: Inyección necesaria para la auditoría cognitiva de denuncias. */
+  HUGGING_FACE_API_TOKEN: HuggingFaceApiTokenSecretSchema
+    .describe('Token de autenticação para os modelos SLM em Hugging Face Spaces.'),
+
+  HUGGING_FACE_MODEL_URL: HuggingFaceModelUrlSchema
+    .describe('URL de inferência para o cérebro de análise de saúde e veracidade.'),
+
   // --- GATEWAY DE MENSAGENS (WhatsApp / Meta) ---
-  WHATSAPP_VERIFY_TOKEN: WhatsAppVerifyTokenSchema
+  WHATSAPP_VERIFY_TOKEN: WhatsAppVerifyTokenSecretSchema
     .describe('Token secreto para o handshake inicial com a Meta.'),
 
   WHATSAPP_APP_SECRET: WhatsAppSecretSchema
@@ -140,7 +157,7 @@ export const EnvironmentSchema = z.object({
     .describe('Identificador do modo de execução do compilador.'),
 
   /** Auditoria de Nx Cloud para CI/CD */
-  NX_CLOUD_ACCESS_TOKEN: NxCloudAccessTokenSchema
+  NX_CLOUD_ACCESS_TOKEN: NxCloudAccessSecurityTokenSchema
     .optional()
     .describe('Token para habilitar computação remota e cache distribuído.'),
 

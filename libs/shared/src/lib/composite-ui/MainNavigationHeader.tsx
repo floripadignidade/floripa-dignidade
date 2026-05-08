@@ -3,28 +3,34 @@
 /**
  * @section Composite UI - Main Navigation Header (Orchestrator)
  * @description Punto de ensamblaje soberano para la navegación institucional.
- * Gestiona estados de scroll, visibilidad del enjambre móvil y trazabilidad.
+ * Gestiona el ciclo de vida del scroll, la visibilidad del enjambre móvil y
+ * la inyección de herramientas de conversión (Donaciones/Búsqueda).
  *
- * Protocolo OEDP-V16.0 - Swiss-Watch Architecture & ISO Standards.
- * SANEADO Zenith: Resolución de error 'sort-imports' y validación de rutas.
+ * Protocolo OEDP-V17.0 - Swiss-Watch Architecture & High Performance SRE.
+ * SANEADO Zenith: Erradicación de código muerto (TS6133), optimización de identidad y memorización.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import * as NavigationMenu from '@radix-ui/react-navigation-menu';
 
-/**
- * 🛡️ SANEADO Zenith: Miembros ordenados alfabéticamente (H < M < X)
- * para cumplimiento estricto de reglas de linter y legibilidad ISO.
- */
+/** 🛡️ SANEADO Zenith: Miembros ordenados alfabéticamente (ISO Sort) */
 import { Heart, Menu, X } from 'lucide-react';
 
 /* 1. Infraestructura Core (Atmos PascalCase) */
-import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
+import {
+  EmitTelemetrySignal,
+  GenerateCorrelationIdentifier
+} from '@floripa-dignidade/telemetry';
 
-/* 2. Primitivos y Utilidades Sincronizadas */
-import { GlobalActionButton, GlobalBrandLogo, GlobalSearchWidget } from '../ui-primitives';
+/* 2. Primitivos y Utilidades Sincronizadas (Shared Swarm) */
+import {
+  GlobalActionButton,
+  GlobalBrandLogo,
+  GlobalSearchWidget
+} from '../ui-primitives';
 import { GlobalStyleClassMerger } from '../utility/GlobalStyleMerger';
 
 /* 3. Átomos y Moléculas Locales (Enjambre Atomizado) */
@@ -34,17 +40,24 @@ import type { IMainNavigationHeaderI18n } from './i18n/MainNavigationHeaderI18n.
 
 /**
  * @interface IGlobalMainNavigationHeaderProperties
- * @description Contrato de propiedades inmutables para el ensamble de navegación.
+ * @description Contrato inmutable para el componente de navegación superior.
  */
 interface IGlobalMainNavigationHeaderProperties {
-  /** Diccionario de traducciones inyectado desde el orquestador de página. */
+  /** Diccionario de traducciones validado por la aduana lingüística. */
   readonly translationDictionary: IMainNavigationHeaderI18n;
-  /** Identificador de ruta activa para resaltado visual. */
+  /** Ruta activa para el resaltado visual de la sección. */
   readonly currentActivePathLiteral?: string;
-  /** Clase externa para ajustes de z-index o posicionamiento. */
+  /** Clases externas para ajustes de profundidad (Z-Index) o margen. */
   readonly externalClassName?: string;
 }
 
+/** Identificador técnico del aparato para el Neural Sentinel. */
+const HEADER_MODULE_IDENTIFIER = 'MAIN_NAVIGATION_HEADER_COMPOSITE';
+
+/**
+ * Componente funcional de navegación global.
+ * Implementa estrategias de visibilidad condicional y rastro telemétrico.
+ */
 export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderProperties> = ({
   translationDictionary,
   externalClassName,
@@ -53,51 +66,61 @@ export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderPro
   const [isMobileMenuOpenBoolean, setIsMobileMenuOpenBoolean] = useState(false);
   const [hasUserScrolledPastThresholdBoolean, setHasUserScrolledPastThresholdBoolean] = useState(false);
 
-  // --- ESCUCHA DE SENSORES (Scroll & Lifecycle) ---
+  // --- ESCUCHA DE SENSORES (Hardware Listeners) ---
   useEffect(() => {
+    /**
+     * 🛡️ SANEADO Zenith: La identidad se genera dentro del efecto
+     * para evitar creaciones de UUID innecesarias en cada re-render.
+     */
     const correlationIdentifier = GenerateCorrelationIdentifier();
 
     const handleWindowScrollEvent = () => {
-      /** Umbral de activación para el efecto Glassmorphism (30px) */
-      const scrollThresholdInPixelsQuantity = 30;
+      /** Umbral de activación para la firma visual Glassmorphism (40px) */
+      const scrollThresholdInPixelsQuantity = 40;
       setHasUserScrolledPastThresholdBoolean(window.scrollY > scrollThresholdInPixelsQuantity);
     };
 
-    /** Optimización de Rendimiento: Passive Listener para evitar bloqueo del Main Thread */
+    /** Optimización: Passive Listener para fluidez total en mobile */
     window.addEventListener('scroll', handleWindowScrollEvent, { passive: true });
 
-    EmitTelemetrySignal({
-      severityLevel: 'INFO',
-      moduleIdentifier: 'MAIN_NAVIGATION_HEADER',
-      operationCode: 'HEADER_INITIALIZED',
+    void EmitTelemetrySignal({
+      severityLevelLiteral: 'INFO',
+      moduleIdentifierLiteral: HEADER_MODULE_IDENTIFIER,
+      operationCodeLiteral: 'HEADER_MOUNTED_AND_ACTIVE',
       correlationIdentifier,
-      message: 'Encabezado institucional hidratado y sincronizado con sensores físicos.'
+      messageContentLiteral: 'Encabezado institucional hidratado y sincronizado con sensores físicos.'
     });
 
     return () => window.removeEventListener('scroll', handleWindowScrollEvent);
   }, []);
 
+  /**
+   * Orquesta el estado de visibilidad del cajón móvil.
+   */
   const toggleMobileMenuAction = useCallback(() => {
     setIsMobileMenuOpenBoolean((previousStateBoolean) => !previousStateBoolean);
   }, []);
 
-  // --- ARQUITECTURA DE ESTILOS SOBERANOS ---
-  const headerContainerStylesLiteral = GlobalStyleClassMerger(
+  // --- ARQUITECTURA DE ESTILOS (Performance SRE) ---
+  /**
+   * Memorizamos la fusión de clases para proteger el hilo principal durante el scroll.
+   */
+  const headerContainerStylesLiteral = useMemo(() => GlobalStyleClassMerger(
     "fixed top-0 w-full z-[100] transition-all duration-500 border-b",
     hasUserScrolledPastThresholdBoolean
-      ? "bg-white/80 backdrop-blur-xl py-2 shadow-lg border-slate-200"
-      : "bg-transparent py-5 border-transparent",
+      ? "bg-white/90 backdrop-blur-md py-2 shadow-2xl border-slate-200"
+      : "bg-transparent py-6 border-transparent",
     externalClassName
-  );
+  ), [hasUserScrolledPastThresholdBoolean, externalClassName]);
 
   return (
     <header className={headerContainerStylesLiteral} role="banner">
       <div className="container mx-auto px-4 flex items-center justify-between">
 
-        {/* LADO IZQUIERDO: Identidad Institucional */}
+        {/* LADO IZQUIERDO: Identidad Soberana */}
         <div className="flex-shrink-0">
           <GlobalBrandLogo
-            imageWidthPixelQuantity={hasUserScrolledPastThresholdBoolean ? 130 : 160}
+            imageWidthPixelQuantity={hasUserScrolledPastThresholdBoolean ? 140 : 180}
             labels={{
               logoAlternativeTextLiteral: "Floripa Dignidade",
               navigationAriaLabelLiteral: "Volver a la página de inicio"
@@ -107,7 +130,7 @@ export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderPro
 
         {/* CENTRO: Navegación Estratégica (Desktop Only) */}
         <NavigationMenu.Root className="hidden lg:flex relative">
-          <NavigationMenu.List className="flex gap-10 items-center">
+          <NavigationMenu.List className="flex gap-12 items-center">
             <NavigationLink
               hrefLiteral="/identidad"
               labelLiteral={translationDictionary.navigationPaths.identity}
@@ -124,13 +147,13 @@ export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderPro
         </NavigationMenu.Root>
 
         {/* LADO DERECHO: Herramientas de Conversión (Desktop Only) */}
-        <div className="hidden lg:flex items-center gap-6">
-          <div className="w-72">
+        <div className="hidden lg:flex items-center gap-8">
+          <div className="w-80">
             <GlobalSearchWidget
               placeholderTextLiteral={translationDictionary.actions.searchPlaceholder}
             />
           </div>
-          <GlobalActionButton visualIntentConfiguration="CONVERSION" className="px-8">
+          <GlobalActionButton visualIntentConfiguration="CONVERSION" className="px-10">
             <Heart className="w-4 h-4 fill-current" />
             <span>{translationDictionary.actions.donateCallToAction}</span>
           </GlobalActionButton>
@@ -138,16 +161,16 @@ export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderPro
 
         {/* GESTIÓN DE FRONTERA MÓVIL (ISO Accessibility) */}
         <button
-          className="lg:hidden p-2 text-navy-900 rounded-lg focus:ring-2 focus:ring-amber-500 transition-all"
+          className="lg:hidden p-3 text-navy-900 rounded-2xl bg-white/50 backdrop-blur shadow-sm border border-white focus:ring-2 focus:ring-amber-500 transition-all active:scale-90"
           onClick={toggleMobileMenuAction}
           aria-expanded={isMobileMenuOpenBoolean}
           aria-label={translationDictionary.actions.mobileMenuToggle}
         >
-          {isMobileMenuOpenBoolean ? <X size={26} /> : <Menu size={26} />}
+          {isMobileMenuOpenBoolean ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
 
-      {/* CAJÓN DE NAVEGACIÓN (Drawer) */}
+      {/* CAJÓN DE NAVEGACIÓN (Enjambre Atómico) */}
       <MobileNavigationDrawer
         isOpenBoolean={isMobileMenuOpenBoolean}
         translationDictionary={translationDictionary}

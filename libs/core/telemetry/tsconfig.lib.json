@@ -1,3 +1,12 @@
+/**
+ * @section tsconfig: Emitter (Telemetry Engine)
+ * @description Generador de ADN (.d.ts) con redirección física de Grafo.
+ * Orquesta la emisión de tipos para el sistema nervioso central, permitiendo
+ * el procesamiento asíncrono en Web Workers y despacho SRE en el Edge.
+ *
+ * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * @author Raz Podestá - MetaShark Tech
+ */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
@@ -13,27 +22,27 @@
     "rootDir": "src",
     "noEmit": false,
     "importHelpers": true,
+    "ignoreDeprecations": "5.0",
 
-    /**
-     * 🛡️ MANIOBRA DE REDIRECCIÓN DE ADN (OEDP-V17.0)
-     * SANEADO Zenith: Se elimina el segmento '/src/' de la ruta de resolución.
-     * TSC aplana la estructura basándose en rootDir: "src", por lo que el
-     * archivo físico resulta en index.d.ts directamente.
-     */
+    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6059 / TS2307) --- */
     "baseUrl": ".",
     "paths": {
+      /**
+       * 🛡️ LEY DEL ENJAMBRE: Consumimos el ADN físico de las excepciones
+       * generado en la fase anterior para blindar la frontera rootDir.
+       */
       "@floripa-dignidade/exceptions": [
         "../../../dist/out-tsc/libs/core/exceptions/index.d.ts"
       ]
     },
 
-    /* --- RESOLUCIÓN NEXT-GEN --- */
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    /* --- RESOLUCIÓN NEXT-GEN (Alineación Next.js 16+) --- */
+    "module": "Preserve",
+    "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
-    /* --- ADN DEL ENTORNO --- */
+    /* --- ADN DEL ENTORNO (Shadow Threading Context) --- */
     "types": ["node"],
     "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"]
   },
@@ -41,14 +50,22 @@
   "include": ["src/**/*.ts", "src/**/*.json"],
 
   "exclude": [
+    /* 🛡️ LIMPIEZA DE JURISDICCIÓN: Evitamos fugas de rastro técnico en la emisión */
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
     "src/**/__tests__/*",
     "jest.config.ts",
     "dist",
-    "out-tsc"
+    "out-tsc",
+    "node_modules",
+    "../../../dist",
+    "../../../node_modules"
   ],
 
+  /**
+   * @section Grafo de Referencias Soberanas
+   * Establece el vínculo físico con los búnkeres de los que depende.
+   */
   "references": [
     {
       "path": "../exceptions/tsconfig.lib.json"

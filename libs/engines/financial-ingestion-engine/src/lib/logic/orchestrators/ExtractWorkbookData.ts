@@ -5,7 +5,7 @@
  * asegura que el resultado cumpla con el contrato de integridad de la ONG.
  *
  * Protocolo OEDP-V17.0 - High Performance SRE & Absolute Functional Atomicity.
- * SANEADO Zenith: Reconexión de rutas tras reingeniería y reducción de complejidad a 2.
+ * SANEADO Zenith: Resolución de TS7006 (Implicit Any), tipado de hardware y Prosa ISO.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -78,10 +78,14 @@ export const ExtractWorkbookData = async (
 
         // 2. INICIALIZACIÓN DE CABECERAS (Temporal Axis)
         /** Delegamos la identificación de meses al átomo especializado. */
-        const headerRowIndex = WORKBOOK_INGESTION_STANDARDS.HEADER_ROW_INDEX_QUANTITY;
-        const monthHeadersMapping = IdentifyMonthHeaders(targetWorksheet.getRow(headerRowIndex));
+        const headerRowIndexNumeric = WORKBOOK_INGESTION_STANDARDS.HEADER_ROW_INDEX_QUANTITY;
+        const monthHeadersMapping = IdentifyMonthHeaders(targetWorksheet.getRow(headerRowIndexNumeric));
 
         // 3. CONSTRUCCIÓN DE MEMORIA DE PROCESO (Context)
+        /**
+         * 🛡️ SANEADO Zenith: Se utiliza el tipo nominal IExtractionContext
+         * para garantizar que el enjambre de átomos comparta la misma verdad.
+         */
         const extractionContext: IExtractionContext = {
           activeCategorySpecificationLiteral: '',
           monthHeadersMapping,
@@ -91,10 +95,11 @@ export const ExtractWorkbookData = async (
 
         // 4. ESCANEO POR DELEGACIÓN (Swarm Execution)
         /**
-         * El orquestador ya no contiene lógica de decisión; solo itera y
-         * pasa el testigo al átomo de triaje para cada fila.
+         * 🛡️ SANEADO Zenith: Resolución de TS7006.
+         * Tipamos explícitamente los parámetros del motor de ExcelJS para
+         * cumplir con la norma 'noImplicitAny' de la arquitectura.
          */
-        targetWorksheet.eachRow((currentRow, rowNumberNumeric) => {
+        targetWorksheet.eachRow((currentRow: ExcelJS.Row, rowNumberNumeric: number) => {
           TriageContextualRow(currentRow, rowNumberNumeric, extractionContext);
         });
 
@@ -116,9 +121,9 @@ export const ExtractWorkbookData = async (
         }
 
         /**
-         * Retorno del rastro financiero nominalmente puro.
+         * Retorno del rastro financiero nominalmente puro y sellado.
          */
-        return validationResult.data;
+        return Object.freeze(validationResult.data);
 
       } catch (caughtError: unknown) {
         // 6. GESTIÓN FORENSE DE COLAPSO (Resilience)

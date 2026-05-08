@@ -1,12 +1,14 @@
 /**
  * @section Impact Analytics - Bayesian Metrics Aggregator (Orchestrator)
  * @description Orquestador superior encargado de transformar el universo de datos
- * de reputación en indicadores de aceptación popular de grado forense.
+ * de reputación en indicadores de aceptación popular de grado forense. Implementa
+ * el algoritmo de Promedio Bayesiano para neutralizar sesgos de bots.
  *
  * Protocolo OEDP-V17.0 - Swarm Intelligence & Modular Boundary Fix.
- * SANEADO Zenith: Resolución de error TS2345 y alineación de contratos atómicos.
+ * SANEADO Zenith: Resolución de colisión TS2322 y cumplimiento de Soberanía Nominal.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import {
@@ -17,12 +19,17 @@ import {
 
 import { InternalSystemException } from '@floripa-dignidade/exceptions';
 
-/* 1. ADN Estructural (Zod Schemas & Internal Contracts) */
+/* 1. ADN Estructural (Verbatim Module Syntax) */
 import { PopularAcceptanceIndicatorSchema } from '../schemas/PopularAcceptanceIndicator.schema';
-import type { IPopularAcceptanceIndicator } from '../schemas/PopularAcceptanceIndicator.schema';
+import type {
+  EvaluatedEntityIdentifier, // 🛡️ SANEADO Zenith: Importación del tipo sellado.
+  ImpactIndicatorIdentifier,
+  IPopularAcceptanceIndicator
+} from '../schemas/PopularAcceptanceIndicator.schema';
+
 import type { IEvaluationInput } from '../schemas/EvaluationInput.schema';
 
-/* 2. Enjambre Atómico de Precisión Matemática */
+/* 2. Enjambre Atómico de Precisión Matemática (Swiss-Watch Swarm) */
 import { AccumulatePulseMetrics } from './atomic/AccumulatePulseMetrics';
 import { CalculateCommunityConsensus } from './atomic/CalculateCommunityConsensus';
 import { CalculateStatisticalConfidence } from './atomic/CalculateStatisticalConfidence';
@@ -32,15 +39,23 @@ import { CalculateWeightedBayesianScore } from './atomic/CalculateWeightedBayesi
 const IMPACT_ORCHESTRATOR_IDENTIFIER = 'IMPACT_ANALYTICS_CORE_ENGINE';
 
 /**
+ * @section Configuración Estadística Institucional
+ */
+const CONFIDENCE_THRESHOLD_CONSTANT = 10;
+const SYSTEM_GLOBAL_MEAN_SCORE = 0.5;
+
+/**
  * Procesa integralmente un conjunto de evaluaciones ciudadanas para generar el
- * "Termómetro de Verdad" institucional.
+ * "Termómetro de Verdad" institucional con rastro de auditoría forense.
  *
- * @param evaluatedEntityIdentifierLiteral - UUID de la entidad (Noticia/Gasto/Denuncia).
- * @param evaluationPulsesCollection - Datos de entrada agnósticos.
+ * @param evaluatedEntityIdentifierLiteral - Identificador sellado (Branded) de la entidad.
+ * @param evaluationPulsesCollection - Colección agnóstica de pulsos de interacción.
  * @returns {Promise<IPopularAcceptanceIndicator>} Indicador validado, auditado e inmutable.
+ * @throws {InternalSystemException} Si la agregación falla o viola el contrato de ADN.
  */
 export const AggregateBayesianImpactMetrics = async (
-  evaluatedEntityIdentifierLiteral: string,
+  // 🛡️ SANEADO Zenith: Exigimos el tipo nominal desde la firma para erradicar TS2322.
+  evaluatedEntityIdentifierLiteral: EvaluatedEntityIdentifier,
   evaluationPulsesCollection: IEvaluationInput[],
 ): Promise<IPopularAcceptanceIndicator> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
@@ -51,14 +66,7 @@ export const AggregateBayesianImpactMetrics = async (
     correlationIdentifier,
     async () => {
       try {
-        /**
-         * @constant CONFIDENCE_THRESHOLD_CONSTANT - Mínimo de peso para fiabilidad 1.0.
-         * @constant SYSTEM_GLOBAL_MEAN_SCORE - Neutro (0.5).
-         */
-        const CONFIDENCE_THRESHOLD_CONSTANT = 10;
-        const SYSTEM_GLOBAL_MEAN_SCORE = 0.5;
-
-        // FASE 1: REDUCCIÓN DE DATOS (Saneado: Ahora consume IEvaluationInput)
+        // FASE 1: REDUCCIÓN DE DATOS
         const {
           weightedTrustScoreSumAccumulator,
           totalTrustWeightAccumulator,
@@ -66,18 +74,20 @@ export const AggregateBayesianImpactMetrics = async (
         } = AccumulatePulseMetrics(evaluationPulsesCollection);
 
         // FASE 2: CÁLCULO BAYESIANO PONDERADO
-        const calculatedWeightedTrustScore = CalculateWeightedBayesianScore({
+        const calculatedWeightedTrustScoreNumeric = CalculateWeightedBayesianScore({
           currentEntityWeightedSum: weightedTrustScoreSumAccumulator,
           currentEntityTotalWeight: totalTrustWeightAccumulator,
           globalSystemMeanScore: SYSTEM_GLOBAL_MEAN_SCORE,
           confidenceThresholdConstant: CONFIDENCE_THRESHOLD_CONSTANT,
         });
 
-        // FASE 3: ENSAMBLAJE DE INDICADOR SOBERANO
+        // FASE 3: ENSAMBLAJE DEL INDICADOR SOBERANO
+        const indicatorIdentifier = crypto.randomUUID() as ImpactIndicatorIdentifier;
+
         const popularAcceptanceIndicatorSnapshot: IPopularAcceptanceIndicator = {
-          indicatorIdentifier: crypto.randomUUID() as IPopularAcceptanceIndicator['indicatorIdentifier'],
+          indicatorIdentifier,
           targetEntityIdentifier: evaluatedEntityIdentifierLiteral,
-          weightedTrustScoreNumeric: calculatedWeightedTrustScore,
+          weightedTrustScoreNumeric: calculatedWeightedTrustScoreNumeric,
           statisticalConfidenceLevelNumeric: CalculateStatisticalConfidence(
             totalTrustWeightAccumulator,
             CONFIDENCE_THRESHOLD_CONSTANT,
@@ -88,40 +98,51 @@ export const AggregateBayesianImpactMetrics = async (
             technicalAuditorsQuantity: 0,
           },
           currentAcceptanceTrend: 'STABLE_CONSENSUS',
-          communityConsensusIndexNumeric: CalculateCommunityConsensus(calculatedWeightedTrustScore),
+          communityConsensusIndexNumeric: CalculateCommunityConsensus(calculatedWeightedTrustScoreNumeric),
           lastAggregationTimestampISO: new Date().toISOString(),
+          algorithmVersionLiteral: 'BAYES_V1.2_FLORIPA'
         };
 
-        // FASE 4: ADUANA DE ADN (Validación Final)
+        // FASE 4: ADUANA DE ADN (Validación de Integridad Final)
         const validationResult = PopularAcceptanceIndicatorSchema.safeParse(
           popularAcceptanceIndicatorSnapshot,
         );
 
         if (!validationResult.success) {
-          throw new Error('IMPACT_INDICATOR_ADN_CORRUPTION');
+          throw new InternalSystemException('CONTRATO_INDICADOR_DE_IMPACTO_CORRUPTO', {
+            structuralIssuesCollection: validationResult.error.flatten(),
+            indicatorIdentifier,
+          });
         }
 
-        // FASE 5: REPORTE DE SALUD SRE
+        // FASE 5: REPORTE DE SALUD SRE (Visibility)
         void EmitTelemetrySignal({
-          severityLevel: 'INFO',
-          moduleIdentifier: IMPACT_ORCHESTRATOR_IDENTIFIER,
-          operationCode: 'IMPACT_INDICATOR_GENERATED',
+          severityLevelLiteral: 'INFO',
+          moduleIdentifierLiteral: IMPACT_ORCHESTRATOR_IDENTIFIER,
+          operationCodeLiteral: 'IMPACT_INDICATOR_GENERATED',
           correlationIdentifier,
-          message: 'Análisis de impacto bayesiano finalizado exitosamente.',
-          contextMetadata: {
-            entityId: evaluatedEntityIdentifierLiteral,
-            trustScore: calculatedWeightedTrustScore,
+          messageContentLiteral: 'Análisis de impacto bayesiano finalizado exitosamente.',
+          /** 🛡️ SANEADO Zenith: Nomenclatura ISO en metadatos de señal. */
+          contextMetadataSnapshot: {
+            targetEntityIdentifierLiteral: evaluatedEntityIdentifierLiteral,
+            weightedTrustScoreNumeric: calculatedWeightedTrustScoreNumeric,
+            statisticalConfidenceLevelNumeric: popularAcceptanceIndicatorSnapshot.statisticalConfidenceLevelNumeric,
           },
         });
 
         return validationResult.data;
+
       } catch (caughtError: unknown) {
+        if (caughtError instanceof InternalSystemException) {
+          throw caughtError;
+        }
+
         const errorDescriptionLiteral =
           caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         throw new InternalSystemException('FALLO_EN_PROCESAMIENTO_ESTADISTICO_SRE', {
           originalErrorLiteral: errorDescriptionLiteral,
-          evaluatedEntityIdentifierLiteral,
+          targetEntityIdentifierLiteral: evaluatedEntityIdentifierLiteral,
           correlationIdentifier,
         });
       }

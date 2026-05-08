@@ -1,40 +1,48 @@
 /**
  * @section Identity Logic - Infrastructure Sovereign Authority Validator
- * @description Aparelho de segurança máxima que valida a ativação de privilégios
- * de auditoria total baseados em segredos de infraestrutura. Implementa comparação
- * de tempo constante para prevenir ataques de temporização (Timing Attacks).
+ * @description Aparato de seguridad máxima encargado de validar la activación de
+ * privilegios de auditoría total basados en secretos de infraestructura.
+ * Implementa comparación de tiempo constante (Constant-time) para prevenir
+ * ataques de temporización (Timing Attacks) y asegura la integridad del rastro.
  *
  * Protocolo OEDP-V17.0 - Security First & Functional Atomicity.
- * SANEADO Zenith: Erradicação total de process.env (Fix no-restricted-syntax).
+ * SANEADO Zenith: Resolución de paradoja asíncrona (Fix TS2339) e inyección ontológica.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import { createHmac, timingSafeEqual } from 'node:crypto';
+
+/* 1. Infraestructura Core (Atmos PascalCase) */
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
   TraceExecutionTime
 } from '@floripa-dignidade/telemetry';
+
 import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
 import { ValidationException } from '@floripa-dignidade/exceptions';
 
-/* 1. ADN Estructural */
+/* 2. ADN Estructural (Verbatim Module Syntax) */
 import {
   ValidateInfrastructureSovereignAuthoritySchema
 } from './schemas/ValidateInfrastructureSovereignAuthority.schema';
+
 import type {
   IValidateInfrastructureSovereignAuthorityParameters
 } from './schemas/ValidateInfrastructureSovereignAuthority.schema';
 
-/** Identificador técnico para o Neural Sentinel. */
+/** Identificador técnico del aparato para el Neural Sentinel. */
 const SOVEREIGN_SECURITY_IDENTIFIER = 'INFRASTRUCTURE_SOVEREIGN_GATEKEEPER';
 
 /**
- * Avalia se o desafio de poder soberano é legítimo.
+ * Evalúa si el desafío de poder soberano es legítimo mediante simetría criptográfica.
+ * Implementa el patrón "Zero-Knowledge Proof" local contra secretos de hardware.
  *
- * @param parameters - Objeto contendo o token de segurança fornecido.
- * @returns {Promise<boolean>} Verdadeiro se a simetria criptográfica for absoluta.
+ * @param parameters - Objeto conteniendo el token de seguridad suministrado por el auditor.
+ * @returns {Promise<boolean>} Verdadero si la firma coincide exactamente con el secreto institucional.
+ * @throws {ValidationException} Si el token suministrado viola el contrato de longitud o formato.
  */
 export const ValidateInfrastructureSovereignAuthority = async (
   parameters: IValidateInfrastructureSovereignAuthorityParameters
@@ -46,28 +54,33 @@ export const ValidateInfrastructureSovereignAuthority = async (
     'EXECUTE_SOVEREIGN_CHALLENGE_VALIDATION',
     correlationIdentifier,
     async () => {
+
       // 1. ADUANA DE ADN (Input Validation)
       const validationResult = ValidateInfrastructureSovereignAuthoritySchema.safeParse(parameters);
 
       if (!validationResult.success) {
-        throw new ValidationException('TOKEN_DE_SEGURANÇA_MALFORMADO', {
-          issues: validationResult.error.flatten()
+        throw new ValidationException('TOKEN_DE_SEGURIDAD_MALFORMADO', {
+          structuralIssuesCollection: validationResult.error.flatten()
         });
       }
 
-      // 2. CAPTURA DE INFRAESTRUTURA (Sovereign Infrastructure Capture)
+      // 2. CAPTURA DE INFRAESTRUCTURA (Sovereign Infrastructure Capture)
       /**
-       * 🛡️ SANEADO Zenith: O segredo é recuperado exclusivamente via Aduana.
-       * Isso garante que o token tenha o formato correto e tenha sido validado no bootstrap.
+       * 🛡️ SANEADO Zenith: Resolución de TS2339.
+       * Se añade 'await' mandatorio ya que la Aduana de Entorno opera de forma asíncrona
+       * para garantizar la carga de secretos en el Edge Runtime.
        */
+      const infrastructureSovereignSecrets = await ValidateEnvironmentAduana();
+
       const {
         PAYLOAD_SECRET,
         SOVEREIGN_EMERGENCY_TOKEN
-      } = ValidateEnvironmentAduana();
+      } = infrastructureSovereignSecrets;
 
       /**
-       * @section Blindagem Criptográfica (Constant-time Comparison)
-       * Utilizamos HMAC para normalizar os dados e prevenir Timing Attacks.
+       * 3. BLINDAJE CRIPTOGRÁFICO (Constant-time Comparison)
+       * Utilizamos HMAC-SHA256 para normalizar las longitudes de los búferes y
+       * timingSafeEqual para erradicar fugas de información por tiempo de respuesta.
        */
       const challengeHashBuffer = createHmac('sha256', PAYLOAD_SECRET)
         .update(validationResult.data.administrativeSecurityTokenLiteral)
@@ -79,23 +92,26 @@ export const ValidateInfrastructureSovereignAuthority = async (
 
       const isIdentityLegitimateBoolean = timingSafeEqual(challengeHashBuffer, expectedHashBuffer);
 
-      // 3. REPORTE DE TELEMETRIA DE ALTA PRIORIDADE
+      // 4. REPORTE DE TELEMETRÍA DE ALTA PRIORIDAD (Audit Trail)
       if (!isIdentityLegitimateBoolean) {
         void EmitTelemetrySignal({
-          severityLevel: 'CRITICAL',
-          moduleIdentifier: SOVEREIGN_SECURITY_IDENTIFIER,
-          operationCode: 'SOVEREIGN_BYPASS_ATTEMPT_FAILED',
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: SOVEREIGN_SECURITY_IDENTIFIER,
+          operationCodeLiteral: 'SOVEREIGN_BYPASS_ATTEMPT_FAILED',
           correlationIdentifier,
-          message: 'ALERTA DE SEGURANÇA: Tentativa falha de ativação de poder soberano.',
-          contextMetadata: { threatLevel: 'HIGH' }
+          messageContentLiteral: 'ALERTA DE SEGURIDAD: Tentativa falha de ativação de poder soberano.',
+          /** Clasificación para el Neural Sentinel */
+          semanticIntentTag: 'SECURITY_THREAT_DETECTION',
+          contextMetadataSnapshot: { threatLevelLiteral: 'HIGH' }
         });
       } else {
         void EmitTelemetrySignal({
-          severityLevel: 'WARNING',
-          moduleIdentifier: SOVEREIGN_SECURITY_IDENTIFIER,
-          operationCode: 'SOVEREIGN_POWER_ACTIVATED',
+          severityLevelLiteral: 'WARNING',
+          moduleIdentifierLiteral: SOVEREIGN_SECURITY_IDENTIFIER,
+          operationCodeLiteral: 'SOVEREIGN_POWER_ACTIVATED',
           correlationIdentifier,
-          message: 'Poder soberano de infraestrutura ativado com sucesso.'
+          messageContentLiteral: 'Poder soberano de infraestrutura ativado com sucesso.',
+          semanticIntentTag: 'ADMIN_PRIVILEGE_ESCALATION'
         });
       }
 

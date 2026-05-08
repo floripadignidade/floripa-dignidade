@@ -1,56 +1,66 @@
 /**
  * @section Exception Engine - Base Infrastructure
  * @description Clase base abstracta para la gestión estandarizada de anomalías.
- * Proporciona la estructura fundamental para la captura forense de fallos
- * e inmutabilidad de contexto (ADR 0014).
+ * Proporciona la estructura fundamental para la captura forense de fallos,
+ * inmutabilidad de contexto y trazabilidad en el sistema nervioso central.
  *
  * Protocolo OEDP-V17.0 - ISO Technical Naming & Isomorphic Integrity.
+ * Vision: Immutable Evidence Capture for the Neural Sentinel.
+ *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import type { ErrorCode } from '../schemas/Exception.schema';
+import type { ErrorCode, IRuntimeSnapshot } from '../schemas/Exception.schema';
 
 /**
  * @interface IV8StackProvider
  * @description Interfaz técnica para el acceso seguro a las APIs de rastro de V8.
+ * Permite que el motor sea compatible con Node.js y navegadores basados en Chromium.
  */
 interface IV8StackProvider {
-  captureStackTrace(
+  readonly captureStackTrace: (
     targetObject: object,
-    constructorOpt?: (...args: unknown[]) => unknown
-  ): void;
+    constructorOption?: (...args: unknown[]) => unknown
+  ) => void;
 }
 
 /**
  * @class GlobalBaseException
  * @extends {Error}
  * @description Ancestro supremo de todas las excepciones del ecosistema.
- * Obliga a la captura de un snapshot de memoria para auditoría del Neural Sentinel.
+ * Obliga a la generación de un snapshot de memoria inmutable en el momento del fallo.
  */
 export abstract class GlobalBaseException extends Error {
+  /** Código operativo soberano para el triaje de la IA. */
   public readonly operationalErrorCodeLiteral: ErrorCode;
+
+  /** Código de estado técnico para la capa de transporte (HTTP/Edge). */
   public readonly httpStatusCodeNumeric: number;
+
+  /** Marca temporal de precisión ISO 8601 de la ocurrencia. */
   public readonly occurrenceTimestampISO: string;
-  public readonly runtimeContextSnapshot: Record<string, unknown>;
+
+  /** Snapshot inmutable de la evidencia técnica del entorno. */
+  public readonly runtimeContextSnapshot: IRuntimeSnapshot;
 
   /**
-   * Inicializa la excepción inyectando el ADN forense.
+   * Inicializa la excepción inyectando el ADN forense institucional.
    *
-   * @param messageLiteral - Descripción humana/técnica del fallo.
-   * @param operationalErrorCodeLiteral - Código soberano catalogado en la Aduana de ADN.
-   * @param httpStatusCodeNumeric - Código de estado HTTP para el triaje de red.
-   * @param contextMetadataCollection - Diccionario opcional de variables de entorno del fallo.
+   * @param messageLiteral - Descripción técnica del fallo para el desarrollador.
+   * @param operationalErrorCodeLiteral - Código sellado del catálogo de ADN.
+   * @param httpStatusCodeNumeric - Estatus RFC 9110 para la respuesta de red.
+   * @param runtimeContextSnapshotSource - Diccionario opcional de variables de entorno.
    */
-  public constructor(
+  protected constructor(
     messageLiteral: string,
     operationalErrorCodeLiteral: ErrorCode,
     httpStatusCodeNumeric: number,
-    contextMetadataCollection: Record<string, unknown> = {}
+    runtimeContextSnapshotSource: Record<string, unknown> = {}
   ) {
     super(messageLiteral);
 
-    // 1. ASIGNACIÓN DE IDENTIDAD ISO
+    // 1. ASIGNACIÓN DE IDENTIDAD NOMINAL
     this.name = this.constructor.name;
     this.operationalErrorCodeLiteral = operationalErrorCodeLiteral;
     this.httpStatusCodeNumeric = httpStatusCodeNumeric;
@@ -58,22 +68,27 @@ export abstract class GlobalBaseException extends Error {
 
     /**
      * 2. CONSTRUCCIÓN DE SNAPSHOT FORENSE (Immutable context)
-     * Sellamos el objeto para garantizar que el rastro no sea alterado en el bus de datos.
+     * Implementamos el patrón de sellado total para proteger la cadena de custodia.
+     * Sincronizado con 'RuntimeSnapshotSchema'.
      */
     this.runtimeContextSnapshot = Object.freeze({
-      ...contextMetadataCollection,
+      ...runtimeContextSnapshotSource,
       exceptionIdentifierLiteral: this.name,
       operationalErrorCodeLiteral: this.operationalErrorCodeLiteral,
-      occurrenceTimestampISO: this.occurrenceTimestampISO,
       httpStatusCodeNumeric: this.httpStatusCodeNumeric,
-    });
+      occurrenceTimestampISO: this.occurrenceTimestampISO,
+    }) as IRuntimeSnapshot;
 
-    // 3. CAPTURA DE RASTRO DE PILA (Isomorphic Guard)
-    const stackProvider = Error as unknown as IV8StackProvider;
+    /**
+     * 3. CAPTURA DE RASTRO DE PILA (Isomorphic Sentry)
+     * SANEADO Zenith: Verificación de seguridad para compatibilidad con
+     * Edge Runtimes donde 'Error.captureStackTrace' puede no estar cableado.
+     */
+    const errorConstructorReference = Error as unknown as IV8StackProvider;
 
-    if (typeof stackProvider.captureStackTrace === 'function') {
-      const constructorReference = this.constructor as (...args: unknown[]) => unknown;
-      stackProvider.captureStackTrace(this, constructorReference);
+    if (typeof errorConstructorReference.captureStackTrace === 'function') {
+      const currentInstanceConstructor = this.constructor as (...args: unknown[]) => unknown;
+      errorConstructorReference.captureStackTrace(this, currentInstanceConstructor);
     }
   }
 }

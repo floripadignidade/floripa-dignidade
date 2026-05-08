@@ -1,17 +1,18 @@
 /**
- * @section Tools Logic - Exceptions Build Auditor (Master)
+ * @section Tools Logic - Exceptions Build Auditor (Master Orchestrator)
  * @description Escanea físicamente los directorios de salida para validar la
- * integridad de los artefactos generados por TSC y SWC.
+ * integridad de los artefactos generados por TSC y SWC. Garantiza que la
+ * "Maniobra de Redirección de ADN" (Zenith) se haya materializado en el disco.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & ISO Standard Naming.
- * SANEADO Zenith: Erradicación de 'no-console' y 'unused-vars'.
+ * Protocolo OEDP-V17.0 - High Performance SRE & ISO Technical Naming.
+ * SANEADO Zenith: Inyección de medición de tamaño físico y rastro forense absoluto.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import { promises as filesystemPromises } from 'node:fs';
-import * as pathReference from 'node:path';
+import { basename, dirname, join } from 'node:path';
 
 /* 1. Infraestructura Core (Atmos PascalCase) */
 import {
@@ -22,15 +23,15 @@ import {
 
 import { InternalSystemException } from '@floripa-dignidade/exceptions';
 
-/* 2. ADN Estructural Local */
-import type { IBuildArtifact } from './schemas/BuildAuditReport.schema';
+/* 2. ADN Estructural Local (Aduana de Reporte) */
+import type { IBuildArtifact, IBuildAuditReport } from './schemas/BuildAuditReport.schema';
 
 /** Identificador técnico del aparato para el Neural Sentinel. */
 const BUILD_AUDITOR_IDENTIFIER = 'EXCEPTIONS_BUILD_AUDITOR';
 
 /**
  * Ejecuta la auditoría física de los cimientos del búnker 'exceptions'.
- * Garantiza que el ADN (TSC) y la Lógica (SWC) existan en el disco.
+ * Implementa el patrón "Physical Sentry": valida la existencia y el peso de los binarios.
  *
  * @returns {Promise<void>}
  * @throws {InternalSystemException} Si el hardware deniega el acceso a las rutas.
@@ -46,111 +47,107 @@ export const AuditExceptionsBuildArtifacts = async (): Promise<void> => {
     async () => {
       /**
        * @section Definición de Objetivos de Auditoría
-       * Mapeamos las rutas donde el enjambre espera encontrar los binarios.
+       * Mapeamos las rutas donde el enjambre espera encontrar los binarios y el ADN.
        */
       const targetAuditPathsCollection = [
         {
-          pathLiteral: pathReference.join(
-            workspaceRootDirectoryPathLiteral,
-            'dist/out-tsc/libs/core/exceptions'
-          ),
-          artifactCategoryLabelLiteral: 'ADN_DECLARATION (TSC)',
+          pathLiteral: join(workspaceRootDirectoryPathLiteral, 'dist/out-tsc/libs/core/exceptions'),
+          artifactCategoryLabelLiteral: 'ADN_DECLARATION',
         },
         {
-          pathLiteral: pathReference.join(
-            workspaceRootDirectoryPathLiteral,
-            'dist/libs/core/exceptions'
-          ),
-          artifactCategoryLabelLiteral: 'LOGIC_EXECUTABLE (SWC)',
+          pathLiteral: join(workspaceRootDirectoryPathLiteral, 'dist/libs/core/exceptions'),
+          artifactCategoryLabelLiteral: 'LOGIC_EXECUTABLE',
         },
       ];
 
-      console.warn(`\n=== [ZENITH SENTRY]: AUDITORÍA FÍSICA: @floripa-dignidade/exceptions ===`);
-
       const discoveredArtifactsCollection: IBuildArtifact[] = [];
 
+      /**
+       * @section Fase 1: Escaneo de Jurisdicción Física
+       */
       for (const auditTarget of targetAuditPathsCollection) {
-        console.warn(`\nVerificando: ${auditTarget.artifactCategoryLabelLiteral}`);
-        console.warn(`Ruta: ${auditTarget.pathLiteral}`);
-
         try {
-          const directoryEntriesCollection = await filesystemPromises.readdir(
-            auditTarget.pathLiteral
-          );
+          const directoryEntriesCollection = await filesystemPromises.readdir(auditTarget.pathLiteral, {
+            withFileTypes: true,
+          });
 
-          if (directoryEntriesCollection.length === 0) {
-            console.warn('  ⚠️ Carpeta FÍSICAMENTE VACÍA.');
-          } else {
-            directoryEntriesCollection.forEach((fileNameLiteral) => {
-              console.warn(`  [+] ${fileNameLiteral}`);
+          for (const entry of directoryEntriesCollection) {
+            if (entry.isFile()) {
+              const fileAbsolutePathLiteral = join(auditTarget.pathLiteral, entry.name);
 
-              // Registro de metadatos del artefacto
+              /** 🛡️ SANEADO Zenith: Captura de metadatos de hardware (File Size). */
+              const fileStatusMetadata = await filesystemPromises.stat(fileAbsolutePathLiteral);
+
               discoveredArtifactsCollection.push({
-                fileNameLiteral,
-                fileAbsolutePathLiteral: pathReference.join(
-                  auditTarget.pathLiteral,
-                  fileNameLiteral
-                ),
-                fileSizeInBytesQuantity: 0, // TODO: Implementar stat en Fase 2
-                artifactTypeLiteral: auditTarget.artifactCategoryLabelLiteral.includes('ADN')
-                  ? 'ADN_DECLARATION'
-                  : 'LOGIC_EXECUTABLE'
+                fileNameLiteral: entry.name,
+                fileAbsolutePathLiteral,
+                fileSizeInBytesQuantity: fileStatusMetadata.size,
+                artifactTypeLiteral: auditTarget.artifactCategoryLabelLiteral as IBuildArtifact['artifactTypeLiteral']
               });
-            });
+            }
           }
-        } catch (_caughtError: unknown) {
+        } catch (_caughtInputOutputError: unknown) {
           /**
-           * 🛡️ SANEADO: Prefijo '_' inyectado para cumplir con @typescript-eslint/no-unused-vars.
-           * Reportamos el fallo de hardware pero permitimos que la auditoría continúe.
+           * Reportamos el fallo de acceso a telemetría pero no colapsamos el proceso
+           * para permitir que otras rutas sean auditadas.
            */
-          console.error(`  ❌ ERROR_I/O: No se pudo acceder a la jurisdicción física.`);
+          void EmitTelemetrySignal({
+            severityLevelLiteral: 'WARNING',
+            moduleIdentifierLiteral: BUILD_AUDITOR_IDENTIFIER,
+            operationCodeLiteral: 'PHYSICAL_PATH_UNREACHABLE',
+            correlationIdentifier,
+            messageContentLiteral: `No se pudo acceder a la ruta de auditoría: ${auditTarget.pathLiteral}`,
+          });
         }
       }
 
       /**
-       * @section Generación de Reporte Forense
-       * Persistimos los resultados para que Shannon AI pueda analizarlos en el CI.
+       * @section Fase 2: Consolidación de Reporte Forense
+       * Sincronizado con el estándar BuildAuditReportSchema.
        */
-      const reportPathLiteral = pathReference.join(
-        workspaceRootDirectoryPathLiteral,
-        'reports/exceptions-build-audit.json'
-      );
+      const isBuildNominalBoolean = discoveredArtifactsCollection.length > 0;
+      const reportFilePathLiteral = join(workspaceRootDirectoryPathLiteral, 'reports/exceptions-build-audit.json');
+
+      const finalAuditReportSnapshot: IBuildAuditReport = {
+        auditTimestampISO: new Date().toISOString(),
+        targetBunkerIdentifier: '@floripa-dignidade/exceptions',
+        isBuildCompliantWithZenithStandardBoolean: isBuildNominalBoolean,
+        discoveredArtifactsCollection,
+        missingCriticalArtifactsCollection: isBuildNominalBoolean ? [] : ['ALL_ARTIFACTS_MISSING'],
+      };
 
       try {
-        await filesystemPromises.mkdir(pathReference.dirname(reportPathLiteral), { recursive: true });
-
-        const reportSnapshot = {
-          auditTimestampISO: new Date().toISOString(),
-          correlationIdentifier,
-          targetBunkerIdentifier: '@floripa-dignidade/exceptions',
-          artifactsCountQuantity: discoveredArtifactsCollection.length,
-          discoveredArtifactsCollection
-        };
+        await filesystemPromises.mkdir(dirname(reportFilePathLiteral), { recursive: true });
 
         await filesystemPromises.writeFile(
-          reportPathLiteral,
-          JSON.stringify(reportSnapshot, null, 2),
+          reportFilePathLiteral,
+          JSON.stringify(finalAuditReportSnapshot, null, 2),
           'utf-8'
         );
 
-        console.warn(`\n>>> REPORTE FORENSE GENERADO: ${reportPathLiteral}\n`);
+        // Notificación visual mínima para el auditor humano (CLI)
+        console.warn(`[${BUILD_AUDITOR_IDENTIFIER}]: Reporte forense generado en ${basename(reportFilePathLiteral)}`);
 
       } catch (caughtPersistenceError: unknown) {
         throw new InternalSystemException('FALLO_AL_GRABAR_REPORTE_DE_AUDITORIA', {
           originalErrorLiteral: caughtPersistenceError instanceof Error
             ? caughtPersistenceError.message
             : String(caughtPersistenceError),
-          reportPathLiteral
+          targetPathLiteral: reportFilePathLiteral
         });
       }
 
       // REPORTE FINAL AL NEURAL SENTINEL
       void EmitTelemetrySignal({
-        severityLevel: discoveredArtifactsCollection.length > 0 ? 'INFO' : 'WARNING',
-        moduleIdentifier: BUILD_AUDITOR_IDENTIFIER,
-        operationCode: 'BUILD_AUDIT_FINISHED',
+        severityLevelLiteral: isBuildNominalBoolean ? 'INFO' : 'CRITICAL',
+        moduleIdentifierLiteral: BUILD_AUDITOR_IDENTIFIER,
+        operationCodeLiteral: 'BUILD_AUDIT_COMPLETED',
         correlationIdentifier,
-        message: 'Auditoría física de artefactos completada.'
+        messageContentLiteral: 'La auditoría física de integridad de construcción ha finalizado.',
+        contextMetadataSnapshot: {
+          artifactsDiscoveredQuantity: discoveredArtifactsCollection.length,
+          isNominalBoolean: isBuildNominalBoolean
+        }
       });
     }
   );
