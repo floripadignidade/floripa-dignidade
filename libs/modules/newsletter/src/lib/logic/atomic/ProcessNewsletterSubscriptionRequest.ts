@@ -3,10 +3,11 @@
  * @description Orquestador superior de negocio. Coordina la secuencia de
  * validación, persistencia en nube y despacho de desafío de identidad.
  *
- * Protocolo OEDP-V16.0 - Swarm Intelligence & Clean Orchestration.
- * SANEADO Zenith: Atomización completa. Delegación de notificación al átomo dispatcher.
+ * Protocolo OEDP-V17.0 - High Performance SRE & Swarm Intelligence.
+ * SANEADO Zenith: Resolución de paradoja asíncrona (Fix TS2339) y Prosa ISO.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
@@ -21,7 +22,7 @@ import {
 import { NewsletterSubscriptionRequestSchema } from '../../schemas/NewsletterSubscriptionRequest.schema';
 import type { INewsletterSubscriptionRequest } from '../../schemas/NewsletterSubscriptionRequest.schema';
 
-/* 2. Enjambre Atómico de Soporte */
+/* 2. Enjambre Atómico de Soporte (Internal Swarm) */
 import { DispatchNewsletterVerification } from './DispatchNewsletterVerification';
 import { LoadNewsletterLinguisticDictionary } from './LoadNewsletterLinguisticDictionary';
 import { SavePendingSubscriptionToSupabase } from './SavePendingSubscriptionToSupabase';
@@ -34,14 +35,19 @@ const NEWSLETTER_ORCHESTRATOR_IDENTIFIER = 'NEWSLETTER_SUBSCRIPTION_ORCHESTRATOR
  *
  * @param rawSubscriptionPayload - Datos crudos del formulario.
  * @returns {Promise<string>} Correlation ID de la transacción exitosa.
+ * @throws {ValidationException} Si el contrato de datos es violado.
  */
 export const ProcessNewsletterSubscriptionRequest = async (
   rawSubscriptionPayload: unknown
 ): Promise<string> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
-  // 1. CAPTURA DE INFRAESTRUCTURA SOBERANA
-  const infrastructure = ValidateEnvironmentAduana();
+  /**
+   * 1. CAPTURA DE INFRAESTRUCTURA SOBERANA
+   * 🛡️ SANEADO Zenith: Inyección de 'await' mandatorio. La infraestructura
+   * debe estar plenamente resuelta para acceder a los secretos (Resend/Supabase).
+   */
+  const infrastructureSnapshot = await ValidateEnvironmentAduana();
 
   return await TraceExecutionTime(
     NEWSLETTER_ORCHESTRATOR_IDENTIFIER,
@@ -49,12 +55,12 @@ export const ProcessNewsletterSubscriptionRequest = async (
     correlationIdentifier,
     async () => {
 
-      // 2. ADUANA DE ADN: Validación de entrada
+      // 2. ADUANA DE ADN: Validación de entrada (Safe Parsing)
       const validationResult = NewsletterSubscriptionRequestSchema.safeParse(rawSubscriptionPayload);
 
       if (!validationResult.success) {
         throw new ValidationException('ADN_SUSCRIPCION_CORRUPTO', {
-          validationIssues: validationResult.error.flatten(),
+          validationIssuesCollection: validationResult.error.flatten(),
         });
       }
 
@@ -82,19 +88,19 @@ export const ProcessNewsletterSubscriptionRequest = async (
         linguisticDictionary,
         correlationIdentifier,
         infrastructureSecrets: {
-          resendApiKeySecret: infrastructure.RESEND_API_KEY,
-          resendFromEmailLiteral: infrastructure.RESEND_FROM_EMAIL
+          resendApiKeySecret: infrastructureSnapshot.RESEND_API_KEY,
+          resendFromEmailLiteral: infrastructureSnapshot.RESEND_FROM_EMAIL
         }
       });
 
       // 6. CIERRE DE CICLO NOMINAL
-      EmitTelemetrySignal({
-        severityLevel: 'INFO',
-        moduleIdentifier: NEWSLETTER_ORCHESTRATOR_IDENTIFIER,
-        operationCode: 'CITIZEN_SUBSCRIPTION_REQUESTED',
+      void EmitTelemetrySignal({
+        severityLevelLiteral: 'INFO',
+        moduleIdentifierLiteral: NEWSLETTER_ORCHESTRATOR_IDENTIFIER,
+        operationCodeLiteral: 'CITIZEN_SUBSCRIPTION_REQUESTED',
         correlationIdentifier,
-        message: 'Ciclo de vida de suscripción iniciado y notificado.',
-        contextMetadata: {
+        messageContentLiteral: 'Ciclo de vida de suscripción iniciado y notificado.',
+        contextMetadataSnapshot: {
           preferredLocale: validatedRequest.preferredLinguisticLocaleIdentifier
         }
       });

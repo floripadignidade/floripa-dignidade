@@ -1,15 +1,16 @@
 /**
- * @section tsconfig: Emitter
- * @description Generador de ADN (.d.ts) para el motor de descubrimiento universal.
+ * @section tsconfig: Emitter (Search Engine)
+ * @description Generador de ADN (.d.ts) con redirección física de Grafo.
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    /* --- ESTRATEGIA DE SALIDA ZENITH (Ajustada a 3 niveles) --- */
     "outDir": "../../../dist/out-tsc/libs/engines/search-engine",
     "tsBuildInfoFile": "../../../dist/out-tsc/libs/engines/search-engine/tsconfig.lib.tsbuildinfo",
 
-    /* --- Integridad Soberana --- */
+    /* --- INTEGRIDAD SOBERANA --- */
     "composite": true,
     "declaration": true,
     "declarationMap": true,
@@ -17,25 +18,27 @@
     "rootDir": "src",
     "noEmit": false,
     "importHelpers": true,
+    "ignoreDeprecations": "5.0",
 
-    /* --- Redireccion de ADN (Solucion TS6059 / TS6305) --- */
+    /* --- REDIRECCIÓN DE ADN (Saneado a 3 niveles) --- */
+    "baseUrl": ".",
     "paths": {
-      "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
+      "@floripa-dignidade/telemetry":["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
       "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"]
     },
 
-    /* --- Resolucion Next-Gen --- */
+    /* --- RESOLUCIÓN NEXT-GEN --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
-    /* --- ADN del Entorno (Isomorphic Context) --- */
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": []
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
+
   "include": ["src/**/*.ts", "src/**/*.json"],
-  "exclude": [
+
+  "exclude":[
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
     "jest.config.ts",
@@ -45,7 +48,8 @@
     "../../../dist",
     "../../../node_modules"
   ],
-  "references": [
+
+  "references":[
     { "path": "../../core/exceptions/tsconfig.lib.json" },
     { "path": "../../core/telemetry/tsconfig.lib.json" }
   ]

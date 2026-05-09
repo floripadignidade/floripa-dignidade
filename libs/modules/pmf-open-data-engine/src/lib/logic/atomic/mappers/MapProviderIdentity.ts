@@ -2,53 +2,60 @@
  * @section PMF Engine Logic - Provider Identity Mapper
  * @description Átomo de lógica pura encargado de transformar los datos crudos
  * del beneficiario en una estructura de identidad fiscal purificada y tipada.
+ * Garantiza la integridad de la razón social y la normalización del documento legal.
  *
- * Protocolo OEDP-V17.0 - Functional Atomicity & ISO Standards.
- * SANEADO Zenith: Remoción de extensiones .js para compatibilidad con Turbopack
- * y alineación con la estrategia de Rutas Limpias (Clean Paths).
+ * Protocolo OEDP-V17.0 - Functional Atomicity & ISO Technical Naming.
+ * SANEADO Zenith: Resolución de TS2305 mediante sincronización de Branded Types.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
-/* 1. ADN Estructural y Tipos Nominales (RUTAS LIMPIAS) */
-/** 
- * 🛡️ RESOLUCIÓN ZENITH: Se purga el rastro .js para que el Bundler 
- * gestione la resolución nativa de TypeScript.
+/* 1. ADN Estructural y Tipos Nominales (Clean Paths) */
+/**
+ * 🛡️ SANEADO Zenith (Fix TS2305):
+ * Sincronización con el esquema soberano. Se sustituye 'TProviderCnpj'
+ * por el tipo nominal brindado 'TProviderTaxIdentifier'.
  */
-import type { TProviderCnpj } from '../../../schemas/sovereign/PublicExpenditure.schema';
+import type { TProviderTaxIdentifier } from '../../../schemas/sovereign/PublicExpenditure.schema';
 import { SanitizeProviderTaxIdentifier } from './SanitizeProviderTaxIdentifier';
 
 /**
  * @interface IProviderMetadata
- * @description Contrato inmutable para la identidad legal del proveedor.
+ * @description Contrato inmutable para la identidad legal del proveedor gubernamental.
  */
-interface IProviderMetadata {
-  /** Razón social normalizada (Upper Case). */
+export interface IProviderMetadata {
+  /** Razón social o nombre civil normalizado en mayúsculas. */
   readonly legalNameLiteral: string;
-  /** Identificador fiscal purificado y sellado (Branded Type). */
-  readonly taxIdentificationNumber: TProviderCnpj;
+
+  /** Identificador fiscal (CNPJ/CPF) purificado y sellado nominalmente. */
+  readonly taxIdentificationNumber: TProviderTaxIdentifier;
 }
 
 /**
- * Mapea y purifica la identidad del proveedor gubernamental.
- * ⚡ PERFORMANCE: Función pura de alta velocidad para procesamiento masivo.
- * 
- * @param rawNameLiteral - Nombre crudo del proveedor.
- * @param rawCpfCnpjLiteral - Identificador fiscal con posibles ruidos visuales.
- * @returns {IProviderMetadata} Snapshot de identidad purificado.
+ * Mapea y purifica la identidad del proveedor de servicios o bienes.
+ * ⚡ PERFORMANCE: Operación sincrónica pura de alta velocidad para mapeo de lotes.
+ *
+ * @param rawNameLiteral - Nombre crudo extraído de la API de E-Pública.
+ * @param rawTaxIdentifierLiteral - Documento fiscal con posibles ruidos de formato.
+ * @returns {IProviderMetadata} Snapshot de identidad purificado y validado.
  */
 export const MapProviderIdentity = (
   rawNameLiteral: string,
-  rawCpfCnpjLiteral: string,
+  rawTaxIdentifierLiteral: string,
 ): IProviderMetadata => {
   return {
-    /** 
+    /**
      * @section Saneamiento de Identidad
-     * Normalizamos a mayúsculas y eliminamos espacios redundantes.
+     * Aplicamos normalización tipográfica ISO: mayúsculas y eliminación de
+     * espacios en los extremos para evitar duplicidad semántica.
      */
     legalNameLiteral: rawNameLiteral.toUpperCase().trim(),
 
-    /** 🛡️ SANEADO Zenith: Delegación al átomo de saneamiento fiscal sin rastro .js */
-    taxIdentificationNumber: SanitizeProviderTaxIdentifier(rawCpfCnpjLiteral),
+    /**
+     * 🛡️ DELEGACIÓN ATÓMICA:
+     * El saneamiento del rastro numérico se delega al átomo de especialidad fiscal.
+     */
+    taxIdentificationNumber: SanitizeProviderTaxIdentifier(rawTaxIdentifierLiteral),
   };
 };

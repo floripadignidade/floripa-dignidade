@@ -1,38 +1,24 @@
 /**
  * @section tsconfig: Gatekeeper (Portal Shell)
- * @description Orquestador de la configuración de la aplicación ciudadana.
- * Actúa como el escudo de integridad estructural y punto de entrada para el
- * motor de servicios de tipos (Project Service), delegando la ejecución física
- * al enjambre de aplicación.
+ * @description Orquestador de la configuración para el Portal Ciudadano.
+ * Proporciona el pasaporte de visibilidad para archivos de configuración
+ * de raíz (Next, Tailwind, PostCSS) permitiendo que el motor de tipos
+ * los audite sin colapsar el rootDir de la aplicación.
  *
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Resolución de deprecación 'baseUrl' y sincronización de grafo.
+ * SANEADO Zenith: Resolución de Asfixia de Identidad (Fix TS7016).
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    /**
-     * 🛡️ LEY DEL GATEKEEPER:
-     * Protege la jurisdicción de archivos prohibiendo la emisión local.
-     */
+    /* 🛡️ LEY DEL GATEKEEPER: Solo gestiona referencias, no emite código. */
     "composite": false,
     "noEmit": true,
-
-    /**
-     * 🛡️ SILENCIO OPERATIVO:
-     * Suprimimos las advertencias de deprecación de 'baseUrl' y 'paths'
-     * para mantener la compatibilidad con el motor de resolución de Next.js 16.
-     */
     "ignoreDeprecations": "5.0"
   },
-
-  /**
-   * @section Jurisdicción de Infraestructura
-   * Registramos físicamente los archivos de configuración para que el
-   * Project Service de ESLint pueda auditarlos bajo la norma OEDP-V17.0.
-   */
   "files": [
     "index.d.ts",
     "next-env.d.ts",
@@ -41,15 +27,7 @@
     "postcss.config.js",
     "jest.config.ts"
   ],
-
   "include": [],
-
-  /**
-   * @section Grafo de Referencias Soberanas
-   * Delega la lógica de compilación y emisión al enjambre de aplicación.
-   * 🛡️ NOTA: El archivo referenciado 'tsconfig.app.json' DEBE ser nivelado
-   * con 'composite: true' para sanar el error TS6310.
-   */
   "references": [
     {
       "path": "./tsconfig.app.json"

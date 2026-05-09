@@ -17,13 +17,15 @@
   "dependencies": {
     "@floripa-dignidade/exceptions": "workspace:*",
     "@floripa-dignidade/identity": "workspace:*",
-    "@floripa-dignidade/shared": "workspace:*",
+    "@floripa-dignidade/shared-utility": "workspace:*",
+    "@floripa-dignidade/shared-state-store": "workspace:*",
+    "@floripa-dignidade/shared-ui-foundry": "workspace:*",
     "@floripa-dignidade/telemetry": "workspace:*",
     "@swc/helpers": "~0.5.18",
     "zod": "^3.25.76"
   },
   "nx": {
-    "tags": [
+    "tags":[
       "scope:modules",
       "type:logic",
       "platform:isomorphic"

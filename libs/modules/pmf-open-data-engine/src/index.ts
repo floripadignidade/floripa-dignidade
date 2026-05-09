@@ -1,25 +1,24 @@
 /**
  * @section PMF Open Data Engine - Package Entry Point (Barrel)
  * @description Único punto de exportación autorizado para el búnker de inteligencia
- * de datos abiertos. Orquesta la visibilidad de los contratos de ADN.
+ * de datos abiertos. Orquesta la visibilidad de los contratos de ADN, esquemas
+ * de validación gubernamental y motores de auditoría fiscal.
  *
  * Protocolo OEDP-V17.0 - Single Source Resolution & Bundler-Ready Syntax.
- * SANEADO Zenith: Remoción de extensiones .js para compatibilidad con Turbopack,
- * alineación de nomenclatura ISO y soberanía de tipos bridados.
+ * SANEADO Zenith: Sincronización nominal de identidades fiscales (TProviderTaxIdentifier).
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 /**
- * @version 1.2.3
- * Estatus: Nivelación Zenith completada. Resolución de colisiones con Next.js 16.
- * Sincronización de Identificadores Bridados y Limpieza de Rastro ESM.
+ * @version 1.3.1
+ * Estatus: Nivelación Zenith completada. Grafo de tipos unificado.
  */
-export const MODULE_PMF_OPEN_DATA_ENGINE_VERSION = '1.2.3';
+export const MODULE_PMF_OPEN_DATA_ENGINE_VERSION = '1.3.1';
 
 /**
  * @section Capa 1: ADN Estructural (Schemas & Types)
- * Exportación de contratos inmutables para la validación y tipado.
  */
 
 // 1.1. Protocolo de Red Gubernamental (E-Pública Raw)
@@ -37,12 +36,11 @@ export type {
 
 // 1.2. Contratos Soberanos (Sovereign Data Normalized)
 /**
- * 🛡️ INTEGRIDAD SOBERANA: Sincronización de Identidades (Branded Types).
- * Los nombres reflejan la jerarquía de tipado nominal del ecosistema.
+ * 🛡️ INTEGRIDAD SOBERANA: Exportación de contratos nominales (Branded Types).
  */
 export {
   PublicExpenditureIdentifierSchema,
-  ProviderCnpjSchema,
+  ProviderTaxIdentifierSchema,
   PublicExpenditureSchema,
   TerritorialTechnicalIdentifierSchema,
 } from './lib/schemas/sovereign/PublicExpenditure.schema';
@@ -50,12 +48,12 @@ export {
 export type {
   TPublicExpenditureIdentifier,
   IPublicExpenditure,
-  TProviderCnpj,
+  TProviderTaxIdentifier,
   TTerritorialTechnicalIdentifier,
 } from './lib/schemas/sovereign/PublicExpenditure.schema';
 
 /**
- * @section Capa 2: Almas Lingüísticas (i18n)
+ * @section Capa 2: Almas Lingüísticas (Internationalization)
  */
 export { PmfOpenDataI18nSchema } from './lib/i18n/PmfOpenDataI18n.schema';
 export type { IPmfOpenDataI18n } from './lib/i18n/PmfOpenDataI18n.schema';

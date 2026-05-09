@@ -1,36 +1,41 @@
 /**
  * @section Newsletter Logic - Cloud Persistence Atom
- * @description Ejecuta la inserción física de una suscripción pendiente en la
- * infraestructura de Supabase utilizando el protocolo PostgREST. Implementa
- * un patrón de ejecución stateless optimizado para el Edge Runtime.
+ * @description Ejecuta la inserción física de una suscripción pendiente en el
+ * Ledger institucional de Supabase. Implementa un patrón de ejecución
+ * stateless con blindaje de red y validación de ADN en frontera.
  *
- * Protocolo OEDP-V16.0 - Cloud Sovereign & High Performance Architecture.
- * Saneamiento: Eliminación de acceso directo a 'process' y centralización de secretos.
+ * Protocolo OEDP-V17.0 - High Performance SRE & Cloud Sovereign.
+ * SANEADO Zenith: Inyección de Aduana Zod interna, protección de timeout
+ * mediante AbortSignal y resiliencia 'keepalive' para el Edge Runtime.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
+import { z } from 'zod';
 import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
-import { InternalSystemException } from '@floripa-dignidade/exceptions';
+import { MapHttpErrorToException } from '@floripa-dignidade/exceptions';
 import {
   EmitTelemetrySignal,
-  TraceExecutionTime
+  // GenerateCorrelationIdentifier,
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
 /**
- * @interface ISavePendingSubscriptionParameters
- * @description Contrato de entrada inmutable para la persistencia de ciudadanos.
+ * @section Aduana de ADN (Internal Schema)
+ * Garantiza que el átomo no procese basura técnica.
  */
-interface ISavePendingSubscriptionParameters {
-  /** Dirección de correo electrónico del ciudadano solicitante. */
-  readonly emailAddressLiteral: string;
-  /** Identificador secreto de 36 caracteres para el proceso Double Opt-In. */
-  readonly verificationTokenLiteral: string;
-  /** Identificador de localización (ej: pt-BR) para segmentación lingüística. */
-  readonly localeIdentifier: string;
-  /** Identificador único de transacción para el rastro forense digital. */
-  readonly correlationIdentifier: string;
-}
+const SavePendingSubscriptionParametersSchema = z.object({
+  emailAddressLiteral: z.string().email(),
+  verificationTokenLiteral: z.string().uuid(),
+  localeIdentifier: z.string().min(2),
+  correlationIdentifier: z.string().uuid(),
+}).readonly();
+
+export type ISavePendingSubscriptionParameters = z.infer<typeof SavePendingSubscriptionParametersSchema>;
+
+/** Identificador técnico del aparato para el Neural Sentinel. */
+const PERSISTENCE_ATOM_IDENTIFIER = 'NEWSLETTER_CLOUD_PERSISTENCE_ATOM';
 
 /**
  * Persiste un registro de ciudadano en estado 'PENDING_VERIFICATION' en la nube.
@@ -45,33 +50,41 @@ export const SavePendingSubscriptionToSupabase = async (
 ): Promise<void> => {
 
   return await TraceExecutionTime(
-    'NEWSLETTER_PERSISTENCE_ATOM',
-    'SAVE_SUBSCRIPTION_TO_CLOUD_TRANSACTION',
+    PERSISTENCE_ATOM_IDENTIFIER,
+    'EXECUTE_CLOUD_LEDGER_INSERTION',
     parameters.correlationIdentifier,
     async () => {
+      // 1. ADUANA DE ADN: Validación de frontera atómica
+      const validationResultSnapshot = SavePendingSubscriptionParametersSchema.safeParse(parameters);
+
+      if (!validationResultSnapshot.success) {
+        throw MapHttpErrorToException(400, 'ADN_DE_PERSISTENCIA_CORRUPTO', {
+          issuesCollection: validationResultSnapshot.error.flatten()
+        });
+      }
+
       /**
-       * 1. CAPTURA SEGURA DE INFRAESTRUCTURA (Spectacular Isolation)
-       * SANEADO: Invocamos a la Aduana de Entorno. Si faltan secretos, ella lanzará
-       * la excepción correspondiente, evitando el uso de 'process' en este archivo.
+       * 2. CAPTURA SEGURA DE INFRAESTRUCTURA (Aduana de Entorno)
+       * 🛡️ SANEADO Zenith: El búnker environment-validator garantiza Branded Types.
        */
       const {
-        DATABASE_URL: _ignoredPostgresUrl, // Documentación visual de disponibilidad
-        RESEND_API_KEY: _ignoredResendKey,
-        SUPABASE_SERVICE_ROLE_KEY: supabaseServiceRoleKeySecret,
-        SUPABASE_URL: supabaseUrlLiteral
-      } = ValidateEnvironmentAduana();
+        SUPABASE_URL: cloudUrlLiteral,
+        SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret
+      } = await ValidateEnvironmentAduana();
 
       try {
         /**
          * @section Comunicación Física (Cloud Native Layer)
-         * Se utiliza fetch nativo para minimizar el bundle y asegurar latencia < 100ms.
+         * Uso de fetch nativo con señal de tiempo de espera (SRE Compliance).
          */
-        const outgoingResponse = await fetch(`${supabaseUrlLiteral}/rest/v1/newsletter_subscribers`, {
+        const targetEndpointLiteral = `${cloudUrlLiteral}/rest/v1/newsletter_subscribers`;
+
+        const outgoingResponse = await fetch(targetEndpointLiteral, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'apikey': supabaseServiceRoleKeySecret,
-            'Authorization': `Bearer ${supabaseServiceRoleKeySecret}`,
+            'apikey': cloudSecurityKeySecret,
+            'Authorization': `Bearer ${cloudSecurityKeySecret}`,
             'Prefer': 'return=minimal'
           },
           body: JSON.stringify({
@@ -81,36 +94,57 @@ export const SavePendingSubscriptionToSupabase = async (
             correlation_id: parameters.correlationIdentifier,
             status: 'PENDING_VERIFICATION',
             created_at: new Date().toISOString()
-          })
+          }),
+          /** 🛡️ SANEADO Zenith: Garantiza que la petición termine incluso si el contexto se cierra. */
+          keepalive: true,
+          /** 🛡️ SANEADO Zenith: Prevención de peticiones zombis (Timeout 8s). */
+          signal: AbortSignal.timeout(8000)
         });
 
         if (!outgoingResponse.ok) {
-          /** 🛡️ SANEADO: Captura de fallo de protocolo con rastro de estado HTTP */
-          throw new Error(`SUPABASE_PROVIDER_ERROR: ${outgoingResponse.status}`);
+          throw MapHttpErrorToException(outgoingResponse.status, 'SUPABASE_PROVIDER_REJECTION', {
+            httpStatusNumeric: outgoingResponse.status,
+            endpoint: targetEndpointLiteral
+          });
         }
 
-        // 2. EMISIÓN DE SEÑAL DE ÉXITO (Audit Trail)
-        EmitTelemetrySignal({
-          severityLevel: 'INFO',
-          moduleIdentifier: 'NEWSLETTER_PERSISTENCE_ATOM',
-          operationCode: 'CLOUD_INSERTION_SUCCESS',
+        // 3. REPORTE DE ÉXITO (Audit Trail)
+        void EmitTelemetrySignal({
+          severityLevelLiteral: 'INFO',
+          moduleIdentifierLiteral: PERSISTENCE_ATOM_IDENTIFIER,
+          operationCodeLiteral: 'CLOUD_INSERTION_NOMINAL',
           correlationIdentifier: parameters.correlationIdentifier,
-          message: 'TELEMETRY.SIGNALS.END_PROCESS',
-          contextMetadata: {
+          messageContentLiteral: 'TELEMETRY.SIGNALS.END_PROCESS',
+          contextMetadataSnapshot: {
             targetTableLiteral: 'newsletter_subscribers',
-            insertionStatusLiteral: 'PENDING'
+            recordIdentityLiteral: parameters.emailAddressLiteral
           }
         });
 
       } catch (caughtError: unknown) {
-        /** 🛡️ SANEADO: Extracción de rastro forense con tipado 'unknown' */
+        /**
+         * @section Gestión Forense de Colapso
+         * Si el fallo es de red o rechazo del proveedor, lo elevamos con rastro forense.
+         */
         const errorDescriptionLiteral = caughtError instanceof Error
           ? caughtError.message
           : String(caughtError);
 
-        throw new InternalSystemException('CLOUD_PERSISTENCE_FAULT', {
-          providerLiteral: 'SUPABASE_REST_API',
-          errorDescriptionLiteral,
+        void EmitTelemetrySignal({
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: PERSISTENCE_ATOM_IDENTIFIER,
+          operationCodeLiteral: 'CLOUD_PERSISTENCE_FAULT',
+          correlationIdentifier: parameters.correlationIdentifier,
+          messageContentLiteral: 'Fallo crítico al persistir suscripción en el Ledger Cloud.',
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
+        });
+
+        if (errorDescriptionLiteral.includes('Exception')) {
+          throw caughtError;
+        }
+
+        throw MapHttpErrorToException(500, 'FALLO_FISICO_PERSISTENCIA_NEWSLETTER', {
+          originalErrorLiteral: errorDescriptionLiteral,
           correlationIdentifier: parameters.correlationIdentifier
         });
       }

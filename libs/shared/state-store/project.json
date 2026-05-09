@@ -1,0 +1,36 @@
+{
+  "name": "@floripa-dignidade/shared-state-store",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/state-store/src",
+  "projectType": "library",
+  "tags": [
+    "scope:shared",
+    "type:logic",
+    "platform:web"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:swc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/state-store",
+        "main": "libs/shared/state-store/src/index.ts",
+        "tsConfig": "libs/shared/state-store/tsconfig.lib.json",
+        "stripLeadingPaths": true
+      },
+      "cache": true
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/out-tsc/libs/shared/state-store"],
+      "options": {
+        "command": "tsc -p libs/shared/state-store/tsconfig.lib.json"
+      },
+      "cache": true
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "cache": true
+    }
+  }
+}

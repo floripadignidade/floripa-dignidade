@@ -7,7 +7,7 @@
   "author": "Raz Podesta - MetaShark Tech",
   "license": "UNLICENSED",
   "nx": {
-    "tags": [
+    "tags":[
       "scope:app",
       "type:app",
       "platform:web"
@@ -21,7 +21,9 @@
     "@floripa-dignidade/exceptions": "workspace:*",
     "@floripa-dignidade/newsletter": "workspace:*",
     "@floripa-dignidade/routing": "workspace:*",
-    "@floripa-dignidade/shared": "workspace:*",
+    "@floripa-dignidade/shared-utility": "workspace:*",
+    "@floripa-dignidade/shared-state-store": "workspace:*",
+    "@floripa-dignidade/shared-ui-foundry": "workspace:*",
     "@floripa-dignidade/telemetry": "workspace:*",
     "@floripa-dignidade/whatsapp-communication-service": "workspace:*"
   }

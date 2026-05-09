@@ -4,7 +4,7 @@ packages:
   - 'libs/core/communication-providers/*'
   - 'libs/modules/*'
   - 'libs/engines/*'
-  - 'libs/shared'
+  - 'libs/shared/*'
   - 'libs/modules/whatsapp/*'
 
 autoInstallPeers: true

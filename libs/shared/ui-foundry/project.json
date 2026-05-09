@@ -1,0 +1,40 @@
+{
+  "name": "@floripa-dignidade/shared-ui-foundry",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/ui-foundry/src",
+  "projectType": "library",
+  "tags":[
+    "scope:shared",
+    "type:ui",
+    "platform:web"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:swc",
+      "outputs":[
+        "{workspaceRoot}/dist/libs/shared/ui-foundry"
+      ],
+      "options": {
+        "outputPath": "dist/libs/shared/ui-foundry",
+        "main": "libs/shared/ui-foundry/src/index.ts",
+        "tsConfig": "libs/shared/ui-foundry/tsconfig.lib.json",
+        "stripLeadingPaths": true
+      },
+      "cache": true
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "outputs":[
+        "{workspaceRoot}/dist/out-tsc/libs/shared/ui-foundry"
+      ],
+      "options": {
+        "command": "tsc -p libs/shared/ui-foundry/tsconfig.lib.json"
+      },
+      "cache": true
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "cache": true
+    }
+  }
+}

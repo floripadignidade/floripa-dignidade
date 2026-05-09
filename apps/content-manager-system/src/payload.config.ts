@@ -5,10 +5,11 @@
  * (S3-Compatible), el motor de edición Lexical y la jerarquía de seguridad
  * institucional basada en roles (RBAC).
  *
- * Protocolo OEDP-V16.0 - High Performance & Zero Abbreviations.
- * Vision: Absolute Cloud-Sovereign Infrastructure for Social Impact.
+ * Protocolo OEDP-V17.0 - High Performance & Zero Abbreviations.
+ * SANEADO Zenith: Resolución de Paradoja Asíncrona (Fix TS2339) vía Top-Level Await.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import { buildConfig } from 'payload';
@@ -34,9 +35,11 @@ import { MediaVaultCollection } from './collections/infrastructure/MediaVault.co
 /**
  * @section Pre-flight Infrastructure Audit
  * @description Extraemos y validamos los metadatos del entorno antes del arranque.
- * La aduana garantiza que el sistema no inicie en un estado de corrupción técnica.
+ * 🛡️ SANEADO Zenith: Inyección de Top-Level Await.
+ * La aduana garantiza de forma asíncrona que el sistema no inicie en un estado de
+ * corrupción técnica (Ej: Secrets faltantes en el Edge).
  */
-const validatedEnvironmentInfrastructureMetadata = ValidateEnvironmentAduana();
+const validatedEnvironmentInfrastructureMetadata = await ValidateEnvironmentAduana();
 
 /**
  * @name SovereignPayloadConfiguration
@@ -60,7 +63,7 @@ export default buildConfig({
   /**
    * @section Bóveda de Colecciones (Ejes de Valor Social)
    */
-  collections: [
+  collections:[
     CitizenUsersCollection,
     OrganizationsCollection,
     MediaVaultCollection,
@@ -76,7 +79,7 @@ export default buildConfig({
    * @section Capa de Plugins (Sovereign Infrastructure Extensions)
    * Implementa el túnel de almacenamiento S3-Compatible hacia Supabase Storage.
    */
-  plugins: [
+  plugins:[
     CreateCloudStoragePlugin({
       endpointLiteral: validatedEnvironmentInfrastructureMetadata.S3_ENDPOINT,
       accessKeyIdSecret: validatedEnvironmentInfrastructureMetadata.S3_ACCESS_KEY_ID,

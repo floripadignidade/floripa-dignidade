@@ -1,0 +1,38 @@
+{
+  "name": "@floripa-dignidade/shared-ui-foundry",
+  "version": "1.1.1",
+  "private": true,
+  "description": "Enterprise Global: Búnker de componentes visuales bajo estándar Zenith.",
+  "type": "module",
+  "author": "Raz Podestá - MetaShark Tech",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "dependencies": {
+    "@floripa-dignidade/shared-state-store": "workspace:*",
+    "@floripa-dignidade/shared-utility": "workspace:*",
+    "@floripa-dignidade/telemetry": "workspace:*",
+    "@radix-ui/react-navigation-menu": "^1.2.14",
+    "@radix-ui/react-slot": "^1.1.0",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.8.0",
+    "tailwind-merge": "^2.3.0"
+  },
+  "devDependencies": {
+    "next": "~16.1.6"
+  },
+  "peerDependencies": {
+    "next": "~16.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "nx": {
+    "tags": ["scope:shared", "type:ui", "platform:web"]
+  }
+}

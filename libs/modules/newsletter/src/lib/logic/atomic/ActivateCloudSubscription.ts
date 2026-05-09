@@ -1,11 +1,11 @@
 /**
  * @section Newsletter Logic - Cloud Activation Orchestrator
- * @description Orquestador soberano encargado de la transicion de estado
- * del ciudadano (PENDING -> ACTIVE). Implementa el patron Swarm Orchestration
- * delegando en atomos especializados para seguridad, I/O y parseo.
+ * @description Orquestador soberano encargado de la transición de estado
+ * del ciudadano (PENDING -> ACTIVE). Implementa el patrón Swarm Orchestration
+ * delegando en átomos especializados para seguridad, I/O y parseo.
  *
  * Protocolo OEDP-V17.0 - High Performance SRE & Swarm Intelligence.
- * SANEADO Zenith: Erradicacion de TS2307, TS2724 y Atomizacion SRP.
+ * SANEADO Zenith: Resolución de paradoja asíncrona (Fix TS2339) y Prosa ISO.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -26,16 +26,16 @@ export interface IActivationResult {
   readonly metadataSnapshot?: Record<string, unknown>;
 }
 
-/* 2. Enjambre Atomico Local (Internal Swarm) */
+/* 2. Enjambre Atómico Local (Internal Swarm) */
 import { BuildCloudPatchHeaders } from './BuildCloudPatchHeaders';
 import { ExecuteCloudActivationRequest } from './ExecuteCloudActivationRequest';
 import { ParseSubscriberActivationResult } from './ParseSubscriberActivationResult';
 
-/** Identificador tecnico del aparato para el Neural Sentinel. */
+/** Identificador técnico del aparato para el Neural Sentinel. */
 const ACTIVATION_ORCHESTRATOR_IDENTIFIER = 'NEWSLETTER_ACTIVATION_ENGINE';
 
 /**
- * Ejecuta el ciclo integral de activacion de soberania en la nube.
+ * Ejecuta el ciclo integral de activación de soberanía en la nube.
  *
  * @param verificationTokenLiteral - Token secreto capturado de la URL.
  * @returns {Promise<IActivationResult>} Resultado validado y auditado.
@@ -45,18 +45,22 @@ export const ActivateCloudSubscription = async (
 ): Promise<IActivationResult> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
-  // 1. CAPTURA DE SOBERANÍA DE HARDWARE (Aduana de Entorno)
-  const {
-    SUPABASE_URL: cloudUrlLiteral,
-    SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret,
-  } = ValidateEnvironmentAduana();
-
   return await TraceExecutionTime(
     ACTIVATION_ORCHESTRATOR_IDENTIFIER,
     'EXECUTE_CITIZEN_ACTIVATION_FLOW',
     correlationIdentifier,
     async () => {
       try {
+        /**
+         * 1. CAPTURA DE SOBERANÍA DE HARDWARE (Aduana de Entorno)
+         * 🛡️ SANEADO Zenith: Inyección de 'await' para resolver la promesa
+         * de la aduana antes de intentar acceder a los secretos del hardware.
+         */
+        const {
+          SUPABASE_URL: cloudUrlLiteral,
+          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret,
+        } = await ValidateEnvironmentAduana();
+
         // 2. CONSTRUCCIÓN DE SEGURIDAD (Delegación Atómica)
         const securityHeaders = BuildCloudPatchHeaders(cloudSecurityKeySecret);
 
@@ -79,11 +83,11 @@ export const ActivateCloudSubscription = async (
 
         // 5. REPORTE DE ESTADO (SRE Visibility)
         void EmitTelemetrySignal({
-          severityLevel: activationResult.isActivationSuccessfulBoolean ? 'INFO' : 'WARNING',
-          moduleIdentifier: ACTIVATION_ORCHESTRATOR_IDENTIFIER,
-          operationCode: activationResult.isActivationSuccessfulBoolean ? 'CONVERSION_SUCCESS' : 'INVALID_TOKEN',
+          severityLevelLiteral: activationResult.isActivationSuccessfulBoolean ? 'INFO' : 'WARNING',
+          moduleIdentifierLiteral: ACTIVATION_ORCHESTRATOR_IDENTIFIER,
+          operationCodeLiteral: activationResult.isActivationSuccessfulBoolean ? 'CONVERSION_SUCCESS' : 'INVALID_TOKEN',
           correlationIdentifier,
-          message: 'Proceso de activacion de ciudadania finalizado.',
+          messageContentLiteral: 'Proceso de activación de ciudadanía finalizado.',
           contextMetadataSnapshot: { ...activationResult.metadataSnapshot },
         });
 
@@ -96,12 +100,12 @@ export const ActivateCloudSubscription = async (
           : String(caughtError);
 
         void EmitTelemetrySignal({
-          severityLevel: 'CRITICAL',
-          moduleIdentifier: ACTIVATION_ORCHESTRATOR_IDENTIFIER,
-          operationCode: 'ACTIVATION_PIPELINE_COLLAPSE',
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: ACTIVATION_ORCHESTRATOR_IDENTIFIER,
+          operationCodeLiteral: 'ACTIVATION_PIPELINE_COLLAPSE',
           correlationIdentifier,
-          message: 'Error catastrofico en el orquestador de activacion.',
-          contextMetadataSnapshot: { errorTrace: errorDescriptionLiteral },
+          messageContentLiteral: 'Error catastrófico en el orquestador de activación.',
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
         });
 
         throw caughtError;

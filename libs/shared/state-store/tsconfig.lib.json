@@ -1,0 +1,47 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../../dist/out-tsc/libs/shared/state-store",
+    "tsBuildInfoFile": "../../../dist/out-tsc/libs/shared/state-store/tsconfig.lib.tsbuildinfo",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "src",
+    "noEmit": false,
+    "importHelpers": true,
+    "ignoreDeprecations": "5.0",
+
+    /* --- GLOBAL TYPE REDIRECTION --- */
+    "baseUrl": ".",
+    "paths": {
+      "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
+      "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
+      "@floripa-dignidade/shared-utility": ["../../../dist/out-tsc/libs/shared/utility/index.d.ts"]
+    },
+
+    /* --- RESOLUTION ENTERPRISE --- */
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+
+    "types": ["node", "react", "react-dom"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "dist",
+    "out-tsc",
+    "node_modules",
+    "../../../dist",
+    "../../../node_modules"
+  ],
+  "references": [
+    { "path": "../../core/exceptions/tsconfig.lib.json" },
+    { "path": "../../core/telemetry/tsconfig.lib.json" },
+    { "path": "../utility/tsconfig.lib.json" }
+  ]
+}

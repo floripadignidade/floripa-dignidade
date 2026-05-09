@@ -9,6 +9,27 @@
     "platform:node"
   ],
   "targets": {
+    "purge-rogue-emissions": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx scripts/src/purge-rogue-emissions.ts",
+        "color": true
+      }
+    },
+    "audit-exceptions": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx scripts/src/audit-exceptions.ts",
+        "color": true
+      }
+    },
+    "ingest-financial-budget": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx scripts/src/ingest-financial-budget.ts",
+        "color": true
+      }
+    },
     "internationalization-build": {
       "executor": "nx:run-commands",
       "options": {
@@ -28,7 +49,7 @@
       "outputs": ["{workspaceRoot}/dist/out-tsc/scripts"],
       "options": {
         "outputPath": "dist/libs/scripts",
-        "main": "scripts/src/run-weaver.ts",
+        "main": "scripts/src/index.ts",
         "tsConfig": "scripts/tsconfig.lib.json",
         "stripLeadingPaths": true
       },

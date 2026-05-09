@@ -2,11 +2,13 @@
  * @section tsconfig: Emitter (Environment Validator)
  * @description Generador de ADN (.d.ts) con redirección física de Grafo.
  * Orquesta la emisión de tipos para la Aduana de Infraestructura, garantizando
- * la soberanía del entorno antes del arranque del sistema.
+ * que el contrato de secretos sea legible para todo el enjambre.
  *
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * SANEADO Zenith: Erradicación de TS6305 mediante el sellado de rutas físicas
+ * y visibilidad isomórfica de tipos de Node.
+ *
  * @author Raz Podestá - MetaShark Tech
- * @license UNLICENSED
  */
 {
   "extends": "./tsconfig.json",
@@ -25,13 +27,13 @@
     "importHelpers": true,
     "ignoreDeprecations": "5.0",
 
-    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6059 / TS6305) --- */
-    /**
-     * 🛡️ LEY DEL ENJAMBRE: El búnker consume las firmas físicas (.d.ts) desde
-     * la carpeta dist, blindando la frontera rootDir y optimizando la RAM.
-     */
+    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6305) --- */
     "baseUrl": ".",
     "paths": {
+      /**
+       * 🛡️ LEY DEL ENJAMBRE: Consumimos las firmas físicas emitidas en dist.
+       * Esto blinda la frontera física y acelera la compilación incremental.
+       */
       "@floripa-dignidade/exceptions": [
         "../../../dist/out-tsc/libs/core/exceptions/index.d.ts"
       ],
@@ -40,13 +42,17 @@
       ]
     },
 
-    /* --- RESOLUCIÓN NEXT-GEN --- */
+    /* --- RESOLUCIÓN NEXT-GEN (Bundler Ready) --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
-    /* --- ADN DEL ENTORNO (Node.js Validation Context) --- */
+    /* --- ADN DEL ENTORNO (Isomorphic Context) --- */
+    /**
+     * 🛡️ LEY SRE: Requerimos tipos de 'node' para procesar 'process.env'
+     * en la fase de validación de infraestructura.
+     */
     "types": ["node"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
@@ -54,7 +60,7 @@
   "include": ["src/**/*.ts", "src/**/*.json"],
 
   "exclude": [
-    /* 🛡️ LIMPIEZA DE JURISDICCIÓN: Evitamos fugas de rastro técnico en la emisión */
+    /* 🛡️ LIMPIEZA DE JURISDICCIÓN */
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
     "jest.config.ts",
@@ -67,14 +73,9 @@
 
   /**
    * @section Grafo de Referencias Soberanas
-   * Mantiene el vínculo jerárquico con los cimientos CORE.
    */
   "references": [
-    {
-      "path": "../exceptions/tsconfig.lib.json"
-    },
-    {
-      "path": "../telemetry/tsconfig.lib.json"
-    }
+    { "path": "../exceptions/tsconfig.lib.json" },
+    { "path": "../telemetry/tsconfig.lib.json" }
   ]
 }

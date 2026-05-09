@@ -35,12 +35,18 @@ importers:
       '@radix-ui/react-navigation-menu':
         specifier: ^1.2.14
         version: 1.2.14(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@radix-ui/react-slot':
+        specifier: ^1.2.4
+        version: 1.2.4(@types/react@19.2.14)(react@19.2.5)
       '@tanstack/react-query':
         specifier: ^5.100.5
         version: 5.100.8(react@19.2.5)
       add:
         specifier: ^2.0.6
         version: 2.0.6
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -77,12 +83,15 @@ importers:
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
+      tailwind-merge:
+        specifier: ^2.6.1
+        version: 2.6.1
       vercel:
         specifier: ^52.0.0
         version: 52.2.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(encoding@0.1.13)(rollup@4.60.2)(typescript@5.9.3)
       vercel-plugin:
         specifier: github:vercel/vercel-plugin
-        version: https://codeload.github.com/vercel/vercel-plugin/tar.gz/b4803caa71cf3277f1178f35f7189f9b8d20f6bb
+        version: https://codeload.github.com/vercel/vercel-plugin/tar.gz/61f1903bed7b322c9745f6ba67095bc006de7e63
       zod:
         specifier: ^3.25.76
         version: 3.25.76
@@ -316,9 +325,15 @@ importers:
       '@floripa-dignidade/routing':
         specifier: workspace:*
         version: link:../../libs/core/routing
-      '@floripa-dignidade/shared':
+      '@floripa-dignidade/shared-state-store':
         specifier: workspace:*
-        version: link:../../libs/shared
+        version: link:../../libs/shared/state-store
+      '@floripa-dignidade/shared-ui-foundry':
+        specifier: workspace:*
+        version: link:../../libs/shared/ui-foundry
+      '@floripa-dignidade/shared-utility':
+        specifier: workspace:*
+        version: link:../../libs/shared/utility
       '@floripa-dignidade/telemetry':
         specifier: workspace:*
         version: link:../../libs/core/telemetry
@@ -550,9 +565,15 @@ importers:
       '@floripa-dignidade/identity':
         specifier: workspace:*
         version: link:../identity
-      '@floripa-dignidade/shared':
+      '@floripa-dignidade/shared-state-store':
         specifier: workspace:*
-        version: link:../../shared
+        version: link:../../shared/state-store
+      '@floripa-dignidade/shared-ui-foundry':
+        specifier: workspace:*
+        version: link:../../shared/ui-foundry
+      '@floripa-dignidade/shared-utility':
+        specifier: workspace:*
+        version: link:../../shared/utility
       '@floripa-dignidade/telemetry':
         specifier: workspace:*
         version: link:../../core/telemetry
@@ -574,9 +595,15 @@ importers:
       '@floripa-dignidade/identity':
         specifier: workspace:*
         version: link:../identity
-      '@floripa-dignidade/shared':
+      '@floripa-dignidade/shared-state-store':
         specifier: workspace:*
-        version: link:../../shared
+        version: link:../../shared/state-store
+      '@floripa-dignidade/shared-ui-foundry':
+        specifier: workspace:*
+        version: link:../../shared/ui-foundry
+      '@floripa-dignidade/shared-utility':
+        specifier: workspace:*
+        version: link:../../shared/utility
       '@floripa-dignidade/telemetry':
         specifier: workspace:*
         version: link:../../core/telemetry
@@ -730,6 +757,75 @@ importers:
       zustand:
         specifier: ^5.0.12
         version: 5.0.12(@types/react@19.2.14)(react@19.2.5)
+
+  libs/shared/state-store:
+    dependencies:
+      '@floripa-dignidade/exceptions':
+        specifier: workspace:*
+        version: link:../../core/exceptions
+      '@floripa-dignidade/shared-utility':
+        specifier: workspace:*
+        version: link:../utility
+      '@floripa-dignidade/telemetry':
+        specifier: workspace:*
+        version: link:../../core/telemetry
+      react:
+        specifier: ^19.0.0
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.5(react@19.2.5)
+      zustand:
+        specifier: ^5.0.12
+        version: 5.0.12(@types/react@19.2.14)(react@19.2.5)
+
+  libs/shared/ui-foundry:
+    dependencies:
+      '@floripa-dignidade/shared-state-store':
+        specifier: workspace:*
+        version: link:../state-store
+      '@floripa-dignidade/shared-utility':
+        specifier: workspace:*
+        version: link:../utility
+      '@floripa-dignidade/telemetry':
+        specifier: workspace:*
+        version: link:../../core/telemetry
+      '@radix-ui/react-navigation-menu':
+        specifier: ^1.2.14
+        version: 1.2.14(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@radix-ui/react-slot':
+        specifier: ^1.1.0
+        version: 1.2.4(@types/react@19.2.14)(react@19.2.5)
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      framer-motion:
+        specifier: ^12.38.0
+        version: 12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      lucide-react:
+        specifier: ^1.8.0
+        version: 1.14.0(react@19.2.5)
+      tailwind-merge:
+        specifier: ^2.3.0
+        version: 2.6.1
+
+  libs/shared/utility:
+    dependencies:
+      '@floripa-dignidade/exceptions':
+        specifier: workspace:*
+        version: link:../../core/exceptions
+      '@floripa-dignidade/telemetry':
+        specifier: workspace:*
+        version: link:../../core/telemetry
+      '@swc/helpers':
+        specifier: ~0.5.18
+        version: 0.5.21
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      tailwind-merge:
+        specifier: ^2.3.0
+        version: 2.6.1
 
 packages:
 
@@ -11672,9 +11768,9 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
-  vercel-plugin@https://codeload.github.com/vercel/vercel-plugin/tar.gz/b4803caa71cf3277f1178f35f7189f9b8d20f6bb:
-    resolution: {tarball: https://codeload.github.com/vercel/vercel-plugin/tar.gz/b4803caa71cf3277f1178f35f7189f9b8d20f6bb}
-    version: 0.40.1
+  vercel-plugin@https://codeload.github.com/vercel/vercel-plugin/tar.gz/61f1903bed7b322c9745f6ba67095bc006de7e63:
+    resolution: {tarball: https://codeload.github.com/vercel/vercel-plugin/tar.gz/61f1903bed7b322c9745f6ba67095bc006de7e63}
+    version: 0.42.1
     hasBin: true
 
   vercel@52.2.1:
@@ -25336,7 +25432,7 @@ snapshots:
 
   vary@1.1.2: {}
 
-  vercel-plugin@https://codeload.github.com/vercel/vercel-plugin/tar.gz/b4803caa71cf3277f1178f35f7189f9b8d20f6bb:
+  vercel-plugin@https://codeload.github.com/vercel/vercel-plugin/tar.gz/61f1903bed7b322c9745f6ba67095bc006de7e63:
     dependencies:
       minisearch: 7.2.0
 

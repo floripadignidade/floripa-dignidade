@@ -1,59 +1,109 @@
 /**
- * @section Territorial Logic - IBGE Data Mapper
- * @description Átomo encargado de transformar el ADN crudo gubernamental (IBGE)
- * en entidades territoriales soberanas con identidad brindada.
+ * @section Territorial Logic - IBGE Data Mapper Atom
+ * @description Átomo de lógica pura encargado de transformar el ADN crudo
+ * gubernamental (IBGE) en entidades territoriales soberanas. Implementa la
+ * normalización toponímica, extracción de jerarquía y sellado nominal (Branding).
  *
- * Protocolo OEDP-V17.0 - Functional Atomicity & Branded Type Integrity.
+ * Protocolo OEDP-V17.0 - Functional Atomicity & High Performance SRE.
+ * SANEADO Zenith: Inyección de Aduana Zod defensiva, telemetría forense integrada
+ * y cumplimiento de Prosa ISO (ADR 0002).
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
-/** 
- * 🛡️ RIGOR ESM: Extensiones .js requeridas para el motor de resolución Node16.
- */
-import { SanitizeTerritoryName } from './SanitizeTerritoryName.js';
+import {
+  EmitTelemetrySignal,
+  GenerateCorrelationIdentifier
+} from '@floripa-dignidade/telemetry';
 
-/* 1. ADN Estructural y Tipos Nominales */
-import type { 
-  ITerritorialEntity, 
-  TTerritorialTechnicalIdentifier 
-} from '../../schemas/TerritorialEntity.schema.js';
-import type { IIbgeDistrictRawResponse } from '../../schemas/IbgeTerritorialProtocols.schema.js';
+import { ValidationException } from '@floripa-dignidade/exceptions';
+import { SanitizeTerritoryName } from './SanitizeTerritoryName';
+
+/* 1. ADN Estructural y Protocolos (Verbatim Module Syntax) */
+import { IbgeDistrictRawResponseSchema } from '../../schemas/IbgeTerritorialProtocols.schema';
+import type { IIbgeDistrictRawResponse } from '../../schemas/IbgeTerritorialProtocols.schema';
+
+import type {
+  ITerritorialEntity,
+  TTerritorialTechnicalIdentifier
+} from '../../schemas/TerritorialEntity.schema';
+
+/** Identificador técnico del aparato para el Neural Sentinel. */
+const MAPPER_ATOM_IDENTIFIER = 'TERRITORIAL_IBGE_MAPPER_ATOM';
 
 /**
- * Transforma un registro de distrito del IBGE en una entidad purificada.
- * ⚡ PERFORMANCE: Operación sincrónica pura para procesamiento masivo de arrays.
- * 
- * @param rawDistrict - Snapshot crudo del proveedor externo.
- * @returns {ITerritorialEntity} Entidad con identidad brindada y nombre saneado.
+ * Transforma un registro de distrito del IBGE en una entidad purificada y jerarquizada.
+ * Realiza una validación de integridad previa para asegurar la conformidad del protocolo.
+ *
+ * @param rawDistrictSnapshotSource - Snapshot crudo del proveedor gubernamental.
+ * @param correlationIdentifier - Identificador opcional para la cadena de custodia.
+ * @returns {ITerritorialEntity} Entidad con identidad brindada e inmutable.
+ * @throws {ValidationException} Si el snapshot viola el contrato de la API del IBGE.
  */
 export const MapIbgeToTerritorialEntity = (
-  rawDistrict: IIbgeDistrictRawResponse
+  rawDistrictSnapshotSource: unknown,
+  correlationIdentifier: string = GenerateCorrelationIdentifier()
 ): ITerritorialEntity => {
-  /**
-   * @section SANEAMIENTO TOPONÍMICO
-   * Delegación atómica para asegurar la pureza lingüística (Uppercase/ASCII).
-   */
-  const officialName = SanitizeTerritoryName(rawDistrict.nome);
+
+  // 1. ADUANA DE ADN: Purificación del rastro gubernamental
+  const protocolValidationResult = IbgeDistrictRawResponseSchema.safeParse(rawDistrictSnapshotSource);
+
+  if (!protocolValidationResult.success) {
+    throw new ValidationException('PROTOCOLO_IBGE_CORRUPTO_O_MUTADO', {
+      structuralIssuesCollection: protocolValidationResult.error.flatten(),
+      correlationIdentifier
+    });
+  }
+
+  const validatedRawDistrict: IIbgeDistrictRawResponse = protocolValidationResult.data;
 
   /**
-   * @section IDENTIDAD SOBERANA
-   * Transformamos el ID numérico del IBGE en una firma técnica.
+   * @section Saneamiento Toponímico
+   * Delegación atómica para asegurar la pureza lingüística ISO (Uppercase/ASCII).
    */
-  const technicalIdLiteral = rawDistrict.id.toString();
+  const officialTerritoryNameLiteral = SanitizeTerritoryName(validatedRawDistrict.nome);
 
-  return {
+  /**
+   * @section Extracción de Identidades Técnicas
+   * Transmutamos los IDs numéricos a literales técnicos para el Ledger soberano.
+   */
+  const technicalIdentifierLiteral = validatedRawDistrict.id.toString();
+  const parentIdentifierLiteral = validatedRawDistrict.municipio.id.toString();
+
+  /**
+   * @section Construcción de Entidad Soberana
+   * 🛡️ SOVEREIGN CASTING: Elevamos los strings a tipos bridados nominales.
+   */
+  const territorialEntitySnapshot: ITerritorialEntity = Object.freeze({
+    territorialTechnicalIdentifier: technicalIdentifierLiteral as TTerritorialTechnicalIdentifier,
+
+    parentTerritoryIdentifier: parentIdentifierLiteral as TTerritorialTechnicalIdentifier,
+
+    officialTerritoryNameLiteral,
+
     /**
-     * 🛡️ SOVEREIGN CASTING: 
-     * Resolvemos el error TS2322 inyectando la marca de tipo nominal. 
-     * Validamos que este rastro de texto es ahora una identidad territorial legítima.
+     * Clasificación ontológica del nivel administrativo.
+     * El búnker asume la procedencia de nivel 'Distrito' según el endpoint del IBGE.
      */
-    territorialTechnicalIdentifier: technicalIdLiteral as TTerritorialTechnicalIdentifier,
-
-    officialTerritoryNameLiteral: officialName,
-
-    /** Clasificación jerárquica por defecto según el endpoint de origen. */
     administrativeHierarchyLevel: 'DISTRICT',
 
-    /** Sincronización de rastro temporal ISO 8601 */
+    /** Sincronización de rastro temporal ISO 8601. */
     lastSovereignSyncTimestampISO: new Date().toISOString(),
-  };
+  });
+
+  // 2. REPORTE DE EJECUCIÓN (DEBUG Visibility)
+  void EmitTelemetrySignal({
+    severityLevelLiteral: 'DEBUG',
+    moduleIdentifierLiteral: MAPPER_ATOM_IDENTIFIER,
+    operationCodeLiteral: 'IBGE_RECORD_NORMALIZED',
+    correlationIdentifier,
+    messageContentLiteral: `Normalización territorial exitosa: [${officialTerritoryNameLiteral}]`,
+    contextMetadataSnapshot: {
+      ibgeIdentifierLiteral: technicalIdentifierLiteral,
+      parentIdentifierLiteral
+    }
+  });
+
+  return territorialEntitySnapshot;
 };

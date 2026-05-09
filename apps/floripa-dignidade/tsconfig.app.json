@@ -1,87 +1,55 @@
 /**
- * @section tsconfig: Emitter/Consumer (Portal Shell)
- * @description Orquestador de ejecución para el Portal Ciudadano. Implementa la
- * "Maniobra de Redirección de ADN Total", resolviendo todas las dependencias
- * contra las firmas físicas (.d.ts) para garantizar latencia cero y
- * cumplimiento de fronteras (OEDP-V17.0).
+ * @section tsconfig: Emitter (Portal Shell)
+ * @description Generador de ADN para la aplicación principal. Orquesta la
+ * visibilidad del motor Next.js y sincroniza el mapa de rutas con la
+ * arquitectura de búnkeres aplanados.
  *
- * SANEADO Zenith: Resolución de TS6310, sincronización de Motores y alineación Next.js 16.
+ * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * SANEADO Zenith: Resolución de error TS2688 (Carga de librería 'next')
+ * delegando la resolución al puente de tipos ambiental.
+ *
  * @author Raz Podestá - MetaShark Tech
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    /**
-     * 🛡️ LEY DE COMPOSICIÓN (Fix TS6310):
-     * Habilitamos 'composite' para permitir que este proyecto sea parte del
-     * grafo incremental de TypeScript orquestado por el Gatekeeper.
-     */
     "composite": true,
     "noEmit": false,
     "declaration": true,
-    "declarationMap": true,
     "emitDeclarationOnly": true,
 
-    /* --- FUNDAMENTOS DE RENDERIZADO (React 19 / Next.js 16) --- */
-    "jsx": "preserve",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "rootDir": ".",
+    "outDir": "../../dist/out-tsc/apps/floripa-dignidade",
+    "tsBuildInfoFile": "../../dist/out-tsc/apps/floripa-dignidade/tsconfig.app.tsbuildinfo",
 
-    /* --- RESOLUCIÓN ZENITH (Turbopack Ready) --- */
+    "ignoreDeprecations": "5.0",
+
+    "paths": {
+      "@/*": ["./src/*"],
+      "@floripa-dignidade/*": ["../../dist/out-tsc/libs/*/index.d.ts"]
+    },
+
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
-    "allowJs": true,
-    "strict": true,
-    "ignoreDeprecations": "5.0",
-
-    /* --- ESTRATEGIA DE SALIDA FÍSICA --- */
-    "outDir": "../../dist/out-tsc/apps/floripa-dignidade",
-    "tsBuildInfoFile": "../../dist/out-tsc/apps/floripa-dignidade/tsconfig.app.tsbuildinfo",
-
+    /* --- ADN DEL ENTORNO --- */
     /**
-     * 🛡️ MANIOBRA DE REDIRECCIÓN DE ADN MAESTRA
-     * La aplicación NO lee el código fuente (.ts) de las librerías.
-     * Resuelve todo contra las firmas físicas (.d.ts) en dist/out-tsc.
+     * 🛡️ SANEADO Zenith (Fix TS2688): Se remueve 'next' de este array.
+     * La visibilidad de Next.js se garantiza ahora vía 'index.d.ts' mediante
+     * referencia de triple barra, evitando fallos de resolución en PNPM.
      */
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-
-      /* --- TIER 0 & 1: FOUNDATIONS --- */
-      "@floripa-dignidade/exceptions": ["../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/telemetry": ["../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/environment-validator": ["../../dist/out-tsc/libs/core/environment-validator/index.d.ts"],
-      "@floripa-dignidade/routing": ["../../dist/out-tsc/libs/core/routing/index.d.ts"],
-
-      /* --- TIER 2: COGNITIVE ENGINES --- */
-      "@floripa-dignidade/impact-analytics-engine": ["../../dist/out-tsc/libs/engines/impact-analytics-engine/index.d.ts"],
-      "@floripa-dignidade/health-analysis-engine": ["../../dist/out-tsc/libs/engines/health-analysis/index.d.ts"],
-      "@floripa-dignidade/search-engine": ["../../dist/out-tsc/libs/engines/search-engine/index.d.ts"],
-      "@floripa-dignidade/health-monitor": ["../../dist/out-tsc/libs/engines/health-monitor/index.d.ts"],
-      "@floripa-dignidade/financial-ingestion-engine": ["../../dist/out-tsc/libs/engines/financial-ingestion-engine/index.d.ts"],
-      "@floripa-dignidade/adversarial-simulation-engine": ["../../dist/out-tsc/libs/engines/adversarial-simulation-engine/index.d.ts"],
-
-      /* --- TIER 3: BUSINESS MODULES --- */
-      "@floripa-dignidade/identity": ["../../dist/out-tsc/libs/modules/identity/index.d.ts"],
-      "@floripa-dignidade/territorial-engine": ["../../dist/out-tsc/libs/modules/territorial-engine/index.d.ts"],
-      "@floripa-dignidade/whatsapp-communication-service": ["../../dist/out-tsc/libs/modules/whatsapp/communication-service/index.d.ts"],
-      "@floripa-dignidade/newsletter": ["../../dist/out-tsc/libs/modules/newsletter/index.d.ts"],
-      "@floripa-dignidade/pmf-open-data-engine": ["../../dist/out-tsc/libs/modules/pmf-open-data-engine/index.d.ts"],
-      "@floripa-dignidade/messaging-engine": ["../../dist/out-tsc/libs/modules/messaging-engine/index.d.ts"],
-
-      /* --- TIER 4: SHARED FOUNDRY --- */
-      "@floripa-dignidade/shared": ["../../dist/out-tsc/libs/shared/index.d.ts"]
-    },
-
-    "plugins": [{ "name": "next" }],
-    "types": ["node"]
+    "types": ["node", "react", "react-dom"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
 
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
+    "next.config.js",
+    "postcss.config.js",
+    "tailwind.config.js",
     "index.d.ts",
     "next-env.d.ts",
     ".next/types/**/*.ts"
@@ -91,35 +59,8 @@
     "node_modules",
     "dist",
     ".next",
-    "out-tsc",
-    "../../dist/out-tsc",
-    "**/*.spec.ts"
-  ],
-
-  /**
-   * @section Grafo de Dependencias Físicas
-   * Sincronizamos la visibilidad con el enjambre completo para permitir
-   * el build incremental de grado industrial.
-   */
-  "references": [
-    /* Core */
-    { "path": "../../libs/core/exceptions/tsconfig.lib.json" },
-    { "path": "../../libs/core/telemetry/tsconfig.lib.json" },
-    { "path": "../../libs/core/environment-validator/tsconfig.lib.json" },
-    { "path": "../../libs/core/routing/tsconfig.lib.json" },
-    /* Engines */
-    { "path": "../../libs/engines/impact-analytics-engine/tsconfig.lib.json" },
-    { "path": "../../libs/engines/health-analysis/tsconfig.lib.json" },
-    { "path": "../../libs/engines/search-engine/tsconfig.lib.json" },
-    { "path": "../../libs/engines/health-monitor/tsconfig.lib.json" },
-    /* Modules */
-    { "path": "../../libs/modules/identity/tsconfig.lib.json" },
-    { "path": "../../libs/modules/newsletter/tsconfig.lib.json" },
-    { "path": "../../libs/modules/pmf-open-data-engine/tsconfig.lib.json" },
-    { "path": "../../libs/modules/whatsapp/communication-service/tsconfig.lib.json" },
-    { "path": "../../libs/modules/messaging-engine/tsconfig.lib.json" },
-    { "path": "../../libs/modules/territorial-engine/tsconfig.lib.json" },
-    /* Shared */
-    { "path": "../../libs/shared/tsconfig.lib.json" }
+    "../../dist",
+    "**/*.spec.ts",
+    "**/*.test.ts"
   ]
 }

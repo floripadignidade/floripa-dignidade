@@ -1,85 +1,109 @@
 /**
  * @section Analytics Logic - User Interaction Capture
- * @description Captura y purifica eventos de comportamiento siguiendo una estrategia
- * de ejecución no bloqueante para el hilo principal.
+ * @description Captura, purifica y programa el despacho de eventos de comportamiento.
+ * Implementa una estrategia de ejecución no bloqueante utilizando 'requestIdleCallback'
+ * para proteger los 60/120 FPS de la interfaz ciudadana.
  *
- * Protocolo OEDP-V14.0 - Verbatim Module Syntax.
- * @author Dirección de Ingeniería - Floripa Dignidade
+ * Protocolo OEDP-V17.0 - High Performance SRE & ISO Technical Naming.
+ * SANEADO Zenith: Corrección de nomenclatura booleana (Fix naming-convention)
+ * y normalización de rastro forense.
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import {
   EmitTelemetrySignal,
-  GenerateCorrelationIdentifier
+  GenerateCorrelationIdentifier,
 } from '@floripa-dignidade/telemetry';
 
-/** 🛡️ SANEAMIENTO Zenith: Separación de ADN (Tipo) y Lógica (Esquema) */
-import type { IAnalyticsEvent } from './schemas/AnalyticsEvent.schema';
+/* 1. ADN Estructural y Esquemas (Verbatim Module Syntax) */
 import { AnalyticsEventSchema } from './schemas/AnalyticsEvent.schema';
+import type { IAnalyticsEvent } from './schemas/AnalyticsEvent.schema';
 
+/** Identificador técnico del búnker para el Neural Sentinel. */
 const ANALYTICS_MODULE_IDENTIFIER = 'CORE_ANALYTICS_SERVICE';
 
 /**
- * Captura un evento, valida su integridad y programa su despacho.
+ * Captura un pulso de interacción, valida su integridad estructural y
+ * delega su despacho asíncrono al bus de eventos.
  *
- * @param rawInteractionPayload - Datos crudos capturados en la interfaz.
+ * @param rawInteractionPayload - Datos crudos capturados por los sensores de la UI.
+ * @returns {void} Operación de tipo "Fire-and-Forget".
  */
 export const CaptureAnalyticsEvent = (rawInteractionPayload: unknown): void => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
+  // 1. ADUANA DE ADN (Safe Parsing)
   const validationResult = AnalyticsEventSchema.safeParse(rawInteractionPayload);
 
   if (!validationResult.success) {
-    EmitTelemetrySignal({
-      severityLevel: 'WARNING',
-      moduleIdentifier: ANALYTICS_MODULE_IDENTIFIER,
-      operationCode: 'INVALID_ANALYTICS_SCHEMA_DETECTION',
+    void EmitTelemetrySignal({
+      severityLevelLiteral: 'WARNING',
+      moduleIdentifierLiteral: ANALYTICS_MODULE_IDENTIFIER,
+      operationCodeLiteral: 'INVALID_ANALYTICS_SCHEMA_DETECTION',
       correlationIdentifier,
-      message: 'Un evento analítico fue rechazado por fallo de integridad técnica.',
-      contextMetadata: {
-        validationIssues: validationResult.error.flatten()
+      messageContentLiteral: 'Un evento analítico fue rechazado por fallo de integridad técnica.',
+      contextMetadataSnapshot: {
+        validationIssuesCollection: validationResult.error.flatten(),
       },
     });
     return;
   }
 
-  const validatedEvent: IAnalyticsEvent = validationResult.data;
+  const validatedEventSnapshot: IAnalyticsEvent = validationResult.data;
 
-  const executeAsynchronousDispatch = (): void => {
+  /**
+   * @section Lógica de Despacho Asíncrono
+   * Encapsula la transmisión física para ser ejecutada en periodos de inactividad del CPU.
+   */
+  const executeAsynchronousDispatchAction = (): void => {
     try {
-      const isBeaconTransportAvailable =
-        typeof navigator !== 'undefined' &&
-        typeof navigator.sendBeacon === 'function';
+      /**
+       * 🛡️ SANEADO Zenith: Sufijo 'Boolean' inyectado para cumplimiento de la Constitución Técnica.
+       */
+      const isBeaconTransportAvailableBoolean =
+        typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function';
 
-      if (isBeaconTransportAvailable) {
-        // Implementación futura del canal de transporte
+      if (isBeaconTransportAvailableBoolean) {
+        /**
+         * @future_implementation
+         * Integración con el Gateway de Analítica Forense (Fase 9).
+         */
       }
 
-      EmitTelemetrySignal({
-        severityLevel: 'INFO',
-        moduleIdentifier: ANALYTICS_MODULE_IDENTIFIER,
-        operationCode: 'ANALYTICS_EVENT_DISPATCHED',
+      void EmitTelemetrySignal({
+        severityLevelLiteral: 'INFO',
+        moduleIdentifierLiteral: ANALYTICS_MODULE_IDENTIFIER,
+        operationCodeLiteral: 'ANALYTICS_EVENT_DISPATCHED',
         correlationIdentifier,
-        message: `Evento capturado: ${validatedEvent.eventName}`,
-        contextMetadata: { eventName: validatedEvent.eventName }
+        messageContentLiteral: `Evento capturado exitosamente: ${validatedEventSnapshot.eventName}`,
+        contextMetadataSnapshot: { eventNameLiteral: validatedEventSnapshot.eventName },
       });
 
-    } catch (caughtError) {
-      EmitTelemetrySignal({
-        severityLevel: 'ERROR',
-        moduleIdentifier: ANALYTICS_MODULE_IDENTIFIER,
-        operationCode: 'ANALYTICS_DISPATCH_FAILURE',
+    } catch (caughtError: unknown) {
+      const errorDescriptionLiteral =
+        caughtError instanceof Error ? caughtError.message : String(caughtError);
+
+      void EmitTelemetrySignal({
+        severityLevelLiteral: 'ERROR',
+        moduleIdentifierLiteral: ANALYTICS_MODULE_IDENTIFIER,
+        operationCodeLiteral: 'ANALYTICS_DISPATCH_FAILURE',
         correlationIdentifier,
-        message: 'Fallo crítico al despachar evento analítico.',
-        contextMetadata: {
-          errorMessage: caughtError instanceof Error ? caughtError.message : String(caughtError)
-        }
+        messageContentLiteral: 'Fallo crítico al intentar despachar evento analítico.',
+        contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
       });
     }
   };
 
+  /**
+   * @section Planificación de Ejecución (SRE Optimization)
+   * Priorizamos el uso de requestIdleCallback para no competir con el renderizado de React 19.
+   */
   if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-    window.requestIdleCallback(() => executeAsynchronousDispatch(), { timeout: 2000 });
+    window.requestIdleCallback(() => executeAsynchronousDispatchAction(), { timeout: 2000 });
   } else {
-    setTimeout(() => executeAsynchronousDispatch(), 1);
+    // Fallback para entornos sin soporte de Idle o Server-side
+    setTimeout(() => executeAsynchronousDispatchAction(), 1);
   }
 };

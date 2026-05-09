@@ -5,6 +5,9 @@
  * el procesamiento asíncrono en Web Workers y despacho SRE en el Edge.
  *
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * SANEADO Zenith: Erradicación de TS6305 mediante el sellado de rutas físicas
+ * y aislamiento del rootDir.
+ *
  * @author Raz Podestá - MetaShark Tech
  */
 {
@@ -24,25 +27,30 @@
     "importHelpers": true,
     "ignoreDeprecations": "5.0",
 
-    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6059 / TS2307) --- */
+    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6305) --- */
     "baseUrl": ".",
     "paths": {
       /**
        * 🛡️ LEY DEL ENJAMBRE: Consumimos el ADN físico de las excepciones
-       * generado en la fase anterior para blindar la frontera rootDir.
+       * generado en el paso previo. Esto impide que tsc intente validar
+       * las fuentes de 'exceptions' dentro de la jurisdicción de 'telemetry'.
        */
       "@floripa-dignidade/exceptions": [
         "../../../dist/out-tsc/libs/core/exceptions/index.d.ts"
       ]
     },
 
-    /* --- RESOLUCIÓN NEXT-GEN (Alineación Next.js 16+) --- */
+    /* --- RESOLUCIÓN NEXT-GEN (Bundler Ready) --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
     /* --- ADN DEL ENTORNO (Shadow Threading Context) --- */
+    /**
+     * 🛡️ LEY SRE: Se incluye 'WebWorker' para autorizar el uso de APIs
+     * de hilos sombra en el TelemetryBackgroundProcessor.
+     */
     "types": ["node"],
     "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"]
   },
@@ -64,7 +72,6 @@
 
   /**
    * @section Grafo de Referencias Soberanas
-   * Establece el vínculo físico con los búnkeres de los que depende.
    */
   "references": [
     {

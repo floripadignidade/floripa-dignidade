@@ -1,0 +1,18 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "../../../dist/out-tsc/libs/shared/ui-foundry",
+    "tsBuildInfoFile": "../../../dist/out-tsc/libs/shared/ui-foundry/tsconfig.lib.tsbuildinfo",
+    "composite": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "allowJs": true
+  },
+  "include":["src/**/*.ts", "src/**/*.tsx", "src/types.d.ts"],
+  "exclude":["src/**/*.spec.ts", "src/**/*.test.ts"],
+  "references":[
+    { "path": "../../core/telemetry/tsconfig.lib.json" },
+    { "path": "../../shared/utility/tsconfig.lib.json" }
+  ]
+}

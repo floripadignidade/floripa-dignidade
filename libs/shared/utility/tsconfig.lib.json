@@ -1,0 +1,51 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../../dist/out-tsc/libs/shared/utility",
+    "tsBuildInfoFile": "../../../dist/out-tsc/libs/shared/utility/tsconfig.lib.tsbuildinfo",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "src",
+    "noEmit": false,
+    "importHelpers": true,
+    "ignoreDeprecations": "5.0",
+
+    /* --- REDIRECCIÓN DE ADN MAESTRO --- */
+    "baseUrl": ".",
+    "paths": {
+      "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
+      "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
+      "@floripa-dignidade/environment-validator": ["../../../dist/out-tsc/libs/core/environment-validator/index.d.ts"]
+    },
+
+    /* --- RESOLUCIÓN NEXT-GEN --- */
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "resolvePackageJsonExports": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+
+    "types": ["node"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+  },
+  "include":[
+    "src/index.d.ts",
+    "src/**/*.ts",
+    "src/**/*.json"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "dist",
+    "out-tsc",
+    "node_modules",
+    "../../../dist",
+    "../../../node_modules"
+  ],
+  "references": [
+    { "path": "../../core/exceptions/tsconfig.lib.json" },
+    { "path": "../../core/telemetry/tsconfig.lib.json" },
+    { "path": "../../core/environment-validator/tsconfig.lib.json" }
+  ]
+}

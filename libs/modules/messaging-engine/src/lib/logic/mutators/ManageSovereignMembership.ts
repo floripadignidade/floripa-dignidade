@@ -1,13 +1,14 @@
 /**
  * @section Messaging Logic - Sovereign Membership Orchestrator
- * @description Orquestador encargado de las transiciones de estado de membresía 
- * institucional. Implementa el protocolo de moderación y preservación forense 
- * de registros en el Ledger de grupos.
+ * @description Orquestador encargado de las transiciones de estado de membresía
+ * institucional. Implementa el protocolo de moderación y preservación forense
+ * de registros en el Ledger de grupos, asegurando la integridad de los Action Hubs.
  *
- * Protocolo OEDP-V16.0 - High Performance SRE & Atomic State Machine.
- * SANEADO Zenith: Purga de código muerto (TS6133) e integridad de tipos.
+ * Protocolo OEDP-V17.0 - High Performance SRE & Swarm Intelligence.
+ * SANEADO Zenith: Resolución de Paradoja Asíncrona (await) en Aduana de Entorno.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
@@ -30,12 +31,14 @@ const MEMBERSHIP_ORCHESTRATOR_IDENTIFIER = 'SOVEREIGN_MEMBERSHIP_ORCHESTRATOR';
 
 /**
  * Ejecuta una transición de estado sobre la membresía de un ciudadano en un Hub.
- * Orquesta la captura de secretos, la generación de cabeceras y la persistencia física.
- * 
+ * Orquesta la captura de secretos, la generación de cabeceras y la persistencia física
+ * en el Ledger soberano utilizando el protocolo PostgREST.
+ *
  * @param groupIdentifierLiteral - UUID del Hub de comunicación objetivo.
  * @param citizenIdentifierLiteral - UUID del ciudadano bajo transición de estado.
  * @param targetStatusLiteral - Nuevo estatus ontológico (ACTIVE, PAUSED, BANNED, etc).
  * @returns {Promise<boolean>} Verdadero si la soberanía de la membresía fue sincronizada.
+ * @throws {InternalSystemException} Si la infraestructura cloud colapsa o los secretos son ilegibles.
  */
 export const ManageSovereignMembership = async (
   groupIdentifierLiteral: string,
@@ -44,12 +47,6 @@ export const ManageSovereignMembership = async (
 ): Promise<boolean> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
-  // 1. CAPTURA DE INFRAESTRUCTURA (Hardware Isolation)
-  const { 
-    SUPABASE_URL: cloudUrlLiteral, 
-    SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret 
-  } = ValidateEnvironmentAduana();
-
   return await TraceExecutionTime(
     MEMBERSHIP_ORCHESTRATOR_IDENTIFIER,
     `EXECUTE_MEMBERSHIP_TRANSITION_TO_${targetStatusLiteral}`,
@@ -57,14 +54,25 @@ export const ManageSovereignMembership = async (
     async () => {
       try {
         /**
+         * 1. CAPTURA DE INFRAESTRUCTURA (Hardware Isolation)
+         * 🛡️ SANEADO Zenith (Fix TS2339): Inyección de await mandatorio.
+         * La resolución de secretos se audita ahora dentro del rastro de latencia.
+         */
+        const {
+          SUPABASE_URL: cloudUrlLiteral,
+          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret
+        } = await ValidateEnvironmentAduana();
+
+        /**
          * 2. SEGURIDAD Y PERSISTENCIA (Delegación Atómica)
          * Reutilizamos el átomo de cabeceras para asegurar cumplimiento DRY.
+         * Se utiliza preferencia 'minimal' para optimizar el performance de red.
          */
-        const securityHeaders = CreateSovereignDatabaseHeaders(cloudSecurityKeySecret, 'minimal');
+        const securityHeadersSnapshot = CreateSovereignDatabaseHeaders(cloudSecurityKeySecret, 'minimal');
 
         await PersistMembershipTransition(
           cloudUrlLiteral,
-          securityHeaders,
+          securityHeadersSnapshot,
           {
             group_id: groupIdentifierLiteral,
             citizen_id: citizenIdentifierLiteral,
@@ -76,14 +84,15 @@ export const ManageSovereignMembership = async (
 
         // 3. REPORTE DE ÉXITO (SRE Analytics)
         void EmitTelemetrySignal({
-          severityLevel: targetStatusLiteral === 'BANNED_BY_MODERATION' ? 'WARNING' : 'INFO',
-          moduleIdentifier: MEMBERSHIP_ORCHESTRATOR_IDENTIFIER,
-          operationCode: 'MEMBERSHIP_STATE_SYNCHRONIZED',
+          severityLevelLiteral: targetStatusLiteral === 'BANNED_BY_MODERATION' ? 'WARNING' : 'INFO',
+          moduleIdentifierLiteral: MEMBERSHIP_ORCHESTRATOR_IDENTIFIER,
+          operationCodeLiteral: 'MEMBERSHIP_STATE_SYNCHRONIZED',
           correlationIdentifier,
-          message: `Soberanía de membresía actualizada exitosamente: [${targetStatusLiteral}]`,
-          contextMetadata: { 
-            groupIdentifier: groupIdentifierLiteral, 
-            citizenIdentifier: citizenIdentifierLiteral 
+          messageContentLiteral: `Soberanía de membresía actualizada exitosamente: [${targetStatusLiteral}].`,
+          contextMetadataSnapshot: {
+            groupIdentifierLiteral,
+            citizenIdentifierLiteral,
+            targetStatusLiteral
           }
         });
 
@@ -91,17 +100,17 @@ export const ManageSovereignMembership = async (
 
       } catch (caughtError: unknown) {
         // 4. GESTIÓN FORENSE DE FALLO (Resilience Layer)
-        const errorDescriptionLiteral = caughtError instanceof Error 
-          ? caughtError.message 
+        const errorDescriptionLiteral = caughtError instanceof Error
+          ? caughtError.message
           : String(caughtError);
 
         void EmitTelemetrySignal({
-          severityLevel: 'CRITICAL',
-          moduleIdentifier: MEMBERSHIP_ORCHESTRATOR_IDENTIFIER,
-          operationCode: 'MEMBERSHIP_TRANSITION_COLLAPSE',
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: MEMBERSHIP_ORCHESTRATOR_IDENTIFIER,
+          operationCodeLiteral: 'MEMBERSHIP_TRANSITION_COLLAPSE',
           correlationIdentifier,
-          message: 'Error catastrófico al intentar transicionar el estado de membresía.',
-          contextMetadata: { errorTrace: errorDescriptionLiteral }
+          messageContentLiteral: 'Error catastrófico al intentar transicionar el estado de membresía.',
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
         });
 
         throw new InternalSystemException('FALLO_EN_TRANSICION_DE_MEMBRESIA_SRE', {

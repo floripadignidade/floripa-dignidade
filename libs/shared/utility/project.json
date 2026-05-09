@@ -1,0 +1,36 @@
+{
+  "name": "@floripa-dignidade/shared-utility",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/utility/src",
+  "projectType": "library",
+  "tags": [
+    "scope:shared",
+    "type:logic",
+    "platform:isomorphic"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:swc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/utility",
+        "main": "libs/shared/utility/src/index.ts",
+        "tsConfig": "libs/shared/utility/tsconfig.lib.json",
+        "stripLeadingPaths": true
+      },
+      "cache": true
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/out-tsc/libs/shared/utility"],
+      "options": {
+        "command": "tsc -p libs/shared/utility/tsconfig.lib.json"
+      },
+      "cache": true
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "cache": true
+    }
+  }
+}

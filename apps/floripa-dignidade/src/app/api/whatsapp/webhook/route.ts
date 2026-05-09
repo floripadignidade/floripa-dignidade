@@ -4,7 +4,7 @@
  * institucional y el triaje cognitivo de eventos ciudadanos.
  *
  * Protocolo OEDP-V17.0 - Swarm Intelligence & PascalCase Sync.
- * SANEADO Zenith: Sincronización de Identidad (Fix TS2724) y Atomización SRP.
+ * SANEADO Zenith: Inyección de await para aduana de entorno y seguridad criptográfica.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -50,7 +50,11 @@ export const GET = async (incomingRequest: NextRequest): Promise<NextResponse> =
   const correlationIdentifier = GenerateCorrelationIdentifier();
   const { searchParams } = new URL(incomingRequest.url);
 
-  const { WHATSAPP_VERIFY_TOKEN: systemVerifyTokenSecret } = ValidateEnvironmentAduana();
+  /**
+   * 🛡️ SANEADO Zenith (Fix TS2339):
+   * Inyección de await para asegurar que los secretos existan antes del handshake.
+   */
+  const { WHATSAPP_VERIFY_TOKEN: systemVerifyTokenSecret } = await ValidateEnvironmentAduana();
 
   // 1. EVALUACIÓN DE HANDSHAKE (Delegación Atómica)
   const { isAuthorizedBoolean, challengeLiteral } = ValidateWhatsAppHandshake(
@@ -96,8 +100,11 @@ export const POST = async (incomingRequest: NextRequest): Promise<NextResponse> 
         const rawRequestBodyLiteral = await incomingRequest.text();
         const xHubSignatureHeaderLiteral = ExtractWebhookSecurityHeaders(incomingRequest.headers);
 
-        // 2. ADUANA CRIPTOGRÁFICA (Security Enforcement)
-        const isIdentityLegitimateBoolean = ValidateMetaSignature({
+        /**
+         * 2. ADUANA CRIPTOGRÁFICA (Security Enforcement)
+         * 🛡️ SANEADO Zenith: Inyección de await para evitar bypass por promesa flotante.
+         */
+        const isIdentityLegitimateBoolean = await ValidateMetaSignature({
           rawRequestBodyLiteral,
           xHubSignatureHeaderLiteral
         });

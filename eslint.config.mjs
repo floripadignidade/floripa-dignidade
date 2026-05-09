@@ -5,7 +5,8 @@
  * para garantizar la estabilidad y soberanía del ecosistema.
  *
  * Protocolo OEDP-V17.0 - High Performance SRE & Structural Integrity.
- * SANEADO Zenith: Resolución de paradoja 'scope:tools' y flexibilización de 'type:ui'.
+ * SANEADO Zenith: Resolución de paradoja de nomenclatura booleana (Fix PascalCase residue)
+ * e inyección de soporte para estados pasados (was).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -27,6 +28,7 @@ export default [
       '**/tmp/**',
       '**/coverage/**',
       '**/.nx/**',
+      '**/.swc/**', // 🛡️ SANEADO: Ignoramos caché binaria de SWC para evitar bloqueos
       '**/.cache/**',
       '.next/**/*',
       'pnpm-lock.yaml',
@@ -54,7 +56,7 @@ export default [
         sourceType: 'module',
         /**
          * 🛡️ CIRUGÍA ZENITH: Resolución de Latencia de Análisis.
-         * Carga bajo demanda de tsconfigs para evitar colapso de RAM.
+         * Carga bajo demanda de tsconfigs vía Project Service para evitar colapso de RAM.
          */
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
@@ -83,28 +85,43 @@ export default [
             { sourceTag: 'scope:shared', onlyDependOnLibsWithTags: ['scope:core', 'scope:shared'] },
 
             /** Motores: Pueden usar utilidades compartidas. */
-            { sourceTag: 'scope:engines', onlyDependOnLibsWithTags: ['scope:core', 'scope:shared', 'scope:engines'] },
+            {
+              sourceTag: 'scope:engines',
+              onlyDependOnLibsWithTags: ['scope:core', 'scope:shared', 'scope:engines'],
+            },
 
             /** Módulos: Ensamblan lógica de motores. */
             {
               sourceTag: 'scope:modules',
-              onlyDependOnLibsWithTags: ['scope:core', 'scope:shared', 'scope:engines', 'scope:modules'],
+              onlyDependOnLibsWithTags: [
+                'scope:core',
+                'scope:shared',
+                'scope:engines',
+                'scope:modules',
+              ],
             },
 
             /** QA: Mirror testing total. */
             {
               sourceTag: 'scope:qa',
-              onlyDependOnLibsWithTags: ['scope:core', 'scope:shared', 'scope:engines', 'scope:modules'],
+              onlyDependOnLibsWithTags: [
+                'scope:core',
+                'scope:shared',
+                'scope:engines',
+                'scope:modules',
+              ],
             },
 
-            /**
-             * 🛡️ SANEADO Zenith (Fix Lint Failed):
-             * Herramientas: Las herramientas CLI deben poder invocar cualquier
-             * lógica de negocio para procesos de ingesta o auditoría.
-             */
+            /** Herramientas: Las herramientas CLI invocan lógica para ingesta o auditoría. */
             {
               sourceTag: 'scope:tools',
-              onlyDependOnLibsWithTags: ['scope:core', 'scope:shared', 'scope:engines', 'scope:modules', 'scope:tools']
+              onlyDependOnLibsWithTags: [
+                'scope:core',
+                'scope:shared',
+                'scope:engines',
+                'scope:modules',
+                'scope:tools',
+              ],
             },
 
             /** Aplicaciones: Orquestadores finales. */
@@ -116,13 +133,19 @@ export default [
             { sourceTag: 'type:data', notDependOnLibsWithTags: ['type:ui'] },
 
             /**
-             * 🛡️ SANEADO Zenith (Fix Lint Failed):
-             * UI: Se permite la dependencia de 'logic' y 'data' para dar soporte
-             * a componentes complejos (Composite UI) y átomos de persistencia en Shared.
+             * UI: Flexibilizado para soporte de componentes complejos (Composite UI)
+             * y átomos de persistencia reactiva.
              */
             {
               sourceTag: 'type:ui',
-              onlyDependOnLibsWithTags: ['type:ui', 'type:schema', 'type:core', 'type:shared', 'type:logic', 'type:data'],
+              onlyDependOnLibsWithTags: [
+                'type:ui',
+                'type:schema',
+                'type:core',
+                'type:shared',
+                'type:logic',
+                'type:data',
+              ],
             },
 
             /** Esquemas: Hojas del grafo. No dependen de nada. */
@@ -151,24 +174,51 @@ export default [
         'error',
         {
           selector: "MemberExpression[object.name='process'][property.name='env']",
-          message: "⚠️ Acceso prohibido a 'process.env'. Use '@floripa-dignidade/environment-validator'.",
+          message:
+            "⚠️ Acceso prohibido a 'process.env'. Use '@floripa-dignidade/environment-validator'.",
         },
       ],
 
       /**
-       * @section Convención de Nomenclatura ISO (ISO 11179)
+       * @section Convención de Nomenclatura ISO (ISO 11179 / ADR 0002)
        */
       '@typescript-eslint/naming-convention': [
         'error',
+        // 1. Interfaces y Tipos
         { selector: 'interface', format: ['PascalCase'], prefix: ['I'] },
         { selector: 'typeLike', format: ['PascalCase'] },
-        { selector: 'variable', format: ['camelCase', 'UPPER_CASE', 'PascalCase'], leadingUnderscore: 'allow' },
+
+        // 2. 🛡️ INYECCIÓN ZENITH: Prosa Booleana Obligatoria
+        {
+          selector: 'variable',
+          types: ['boolean'],
+          /**
+           * SANEADO: Usamos PascalCase porque al recortar el prefijo (ej: 'is'),
+           * el residuo (ej: 'ClientEnvironmentBoolean') comienza con mayúscula.
+           */
+          format: ['PascalCase'],
+          prefix: ['is', 'has', 'should', 'can', 'did', 'will', 'was'],
+          suffix: ['Boolean'],
+        },
+
+        // 3. Variables y Parámetros Estándar
+        {
+          selector: 'variable',
+          format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
+          leadingUnderscore: 'allow',
+        },
         { selector: 'parameter', format: ['camelCase'], leadingUnderscore: 'allow' },
       ],
 
       /** Ordenamiento para mitigar Entropía Visual */
-      'sort-imports': ['error', { ignoreCase: true, ignoreDeclarationSort: true, allowSeparatedGroups: true }],
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
+      'sort-imports': [
+        'error',
+        { ignoreCase: true, ignoreDeclarationSort: true, allowSeparatedGroups: true },
+      ],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
     },
   },
 

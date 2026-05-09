@@ -1,17 +1,71 @@
+/**
+ * @section tsconfig: Emitter (Tools & Automation)
+ * @description Generador de ADN (.d.ts) con redirección física de Grafo hacia
+ * la caché de dist/out-tsc. Orquesta la emisión de tipos para el búnker de
+ * herramientas, permitiendo que los scripts CLI consuman la lógica validada.
+ *
+ * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * SANEADO Zenith: Resolución de Grafo físico (Fix TS2307) mediante outDir
+ * específico y mapeo de ADN nominal.
+ *
+ * @author Raz Podestá - MetaShark Tech
+ */
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc",
+    /* --- ESTRATEGIA DE SALIDA ZENITH (Jurisdicción Física) --- */
+    "outDir": "../../dist/out-tsc/libs/tools",
+    "tsBuildInfoFile": "../../dist/out-tsc/libs/tools/tsconfig.lib.tsbuildinfo",
+
+    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
     "composite": true,
     "declaration": true,
     "declarationMap": true,
+    "emitDeclarationOnly": true,
     "rootDir": "src",
-    "module": "ESNext",
-    "moduleResolution": "Bundler"
+    "noEmit": false,
+    "importHelpers": true,
+    "ignoreDeprecations": "5.0",
+
+    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS2307) --- */
+    /**
+     * 🛡️ LEY DEL ENJAMBRE: El búnker de herramientas consume el ADN físico
+     * de Core y Engines para garantizar el desacoplamiento.
+     */
+    "baseUrl": ".",
+    "paths": {
+      "@floripa-dignidade/telemetry": ["../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
+      "@floripa-dignidade/exceptions":["../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
+      "@floripa-dignidade/financial-ingestion-engine":["../../dist/out-tsc/libs/engines/financial-ingestion-engine/index.d.ts"]
+    },
+
+    /* --- RESOLUCIÓN NEXT-GEN (Bundler Ready) --- */
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+
+    /* --- ADN DEL ENTORNO (Node.js Scripting) --- */
+    "types":["node"],
+    "lib": ["ES2022"]
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["**/*.spec.ts"],
-  "references": [
+
+  "include":["src/**/*.ts"],
+
+  "exclude":[
+    /* 🛡️ LIMPIEZA DE JURISDICCIÓN */
+    "src/**/*.spec.ts",
+    "dist",
+    "out-tsc",
+    "node_modules",
+    "../../dist",
+    "../../node_modules"
+  ],
+
+  /**
+   * @section Grafo de Referencias Soberanas
+   */
+  "references":[
     { "path": "../core/exceptions/tsconfig.lib.json" },
     { "path": "../core/telemetry/tsconfig.lib.json" },
     { "path": "../engines/financial-ingestion-engine/tsconfig.lib.json" }

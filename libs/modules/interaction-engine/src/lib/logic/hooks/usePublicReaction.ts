@@ -7,7 +7,7 @@
  * 'Sync Sentry' para el encolamiento de acciones en entornos sin red.
  *
  * Protocolo OEDP-V17.0 - High Performance SRE & Functional Atomicity.
- * SANEADO Zenith: Atomización implacable y blindaje de tipado estricto (Fix TS7006).
+ * SANEADO Zenith: Inyección de caché de impacto (Reputation Slice) y Prosa ISO.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -17,7 +17,6 @@ import { useCallback, useState } from 'react';
 
 /* 1. Infraestructura Core & Shared (Sovereign Swarm) */
 import { useGlobalStateStore } from '@floripa-dignidade/shared';
-/** 🛡️ SANEADO Zenith: Importación explícita del tipo para prevenir colapso 'any' */
 import type { IGlobalSovereignStore } from '@floripa-dignidade/shared';
 
 import {
@@ -51,10 +50,12 @@ export interface IUsePublicReactionResult {
   readonly submitReactionAction: (polarityNumeric: number, emoticonIntentionLiteral?: string) => Promise<void>;
 }
 
+/** Identificador técnico del aparato para el Neural Sentinel. */
 const REACTION_HOOK_IDENTIFIER = 'PUBLIC_REACTION_CONNECTOR_HOOK';
 
 /**
  * Hook de élite para la gestión de reacciones ciudadanas.
+ * Orquesta la transformación atómica, persistencia cloud y estado visual.
  *
  * @param parameters - Configuración de la entidad destino y contexto de identidad.
  * @returns {IUsePublicReactionResult} Operaciones atómicas para la UI.
@@ -64,16 +65,19 @@ export const usePublicReaction = (
 ): IUsePublicReactionResult => {
 
   /**
-   * @section Integración SRE (Sync Sentry)
-   * 🛡️ SANEADO Zenith: Tipado explícito de '(state: IGlobalSovereignStore)'
-   * Esto erradica el TS7006 incluso si el LSP del IDE sufre latencia.
+   * @section Integración SRE y Memoria Soberana (State Store)
+   * 🛡️ SANEADO Zenith: Incorporamos la acción de caché de impacto para que el
+   * ciudadano vea el peso de su voto reflejado instantáneamente.
    */
-  const { isNetworkOnlineBoolean, IncrementPendingQueueAction } = useGlobalStateStore(
-    (state: IGlobalSovereignStore) => ({
+  const {
+    isNetworkOnlineBoolean,
+    IncrementPendingQueueAction,
+    CacheImpactIndicatorAction
+  } = useGlobalStateStore((state: IGlobalSovereignStore) => ({
       isNetworkOnlineBoolean: state.isNetworkOnlineBoolean,
-      IncrementPendingQueueAction: state.IncrementPendingQueueAction
-    })
-  );
+      IncrementPendingQueueAction: state.IncrementPendingQueueAction,
+      CacheImpactIndicatorAction: state.CacheImpactIndicatorAction
+  }));
 
   const [isExecutingBoolean, setIsExecutingBoolean] = useState(false);
   const [optimisticPolarityNumeric, setOptimisticPolarityNumeric] = useState(0);
@@ -91,7 +95,7 @@ export const usePublicReaction = (
 
     try {
       // 2. CONSTRUCCIÓN Y PONDERACIÓN (Delegación Atómica)
-      const rawInteractionPayload = BuildPublicReactionPayload(
+      const rawInteractionPayloadSnapshot = BuildPublicReactionPayload(
         parameters.targetEntityIdentifier,
         polarityNumeric,
         parameters.activeCitizenIdentitySnapshot,
@@ -99,7 +103,7 @@ export const usePublicReaction = (
       );
 
       const validatedReactionSnapshot = await ProcessPublicReactionTransaction(
-        rawInteractionPayload,
+        rawInteractionPayloadSnapshot,
         parameters.activeCitizenIdentitySnapshot
       );
 
@@ -108,11 +112,12 @@ export const usePublicReaction = (
         IncrementPendingQueueAction();
 
         void EmitTelemetrySignal({
-          severityLevel: 'WARNING',
-          moduleIdentifier: REACTION_HOOK_IDENTIFIER,
-          operationCode: 'REACTION_QUEUED_OFFLINE',
+          severityLevelLiteral: 'WARNING',
+          moduleIdentifierLiteral: REACTION_HOOK_IDENTIFIER,
+          operationCodeLiteral: 'REACTION_QUEUED_OFFLINE',
           correlationIdentifier,
-          message: 'Sin conexión de red. Reacción encolada para sincronización diferida.'
+          messageContentLiteral: 'Sin conexión de red. Reacción encolada para sincronización diferida.',
+          semanticIntentTag: 'OFFLINE_STATE_DEFERRAL'
         });
 
         setIsExecutingBoolean(false);
@@ -125,21 +130,37 @@ export const usePublicReaction = (
         validatedReactionSnapshot
       );
 
-      // 5. REPORTE SRE (Success)
+      /**
+       * 5. ACTUALIZACIÓN DE MEMORIA CACHÉ (Bayesian Reflection)
+       * Simulamos un impacto en el consenso para que la UI principal (Frontpage)
+       * no deba re-consultar la base de datos inmediatamente.
+       *
+       * NOTA: El cálculo es una aproximación optimista. El servidor calculará
+       * el valor real Bayesiano en background.
+       */
+      const simulatedConsensusIndexNumeric = polarityNumeric === 0 ? 0.5 : 1.0;
+
+      CacheImpactIndicatorAction(
+        parameters.targetEntityIdentifier,
+        validatedReactionSnapshot.calculatedImpactWeightNumeric,
+        simulatedConsensusIndexNumeric
+      );
+
+      // 6. REPORTE SRE (Nominal Success)
       void EmitTelemetrySignal({
-        severityLevel: 'INFO',
-        moduleIdentifier: REACTION_HOOK_IDENTIFIER,
-        operationCode: 'REACTION_SYNC_SUCCESSFUL',
+        severityLevelLiteral: 'INFO',
+        moduleIdentifierLiteral: REACTION_HOOK_IDENTIFIER,
+        operationCodeLiteral: 'REACTION_SYNC_SUCCESSFUL',
         correlationIdentifier,
-        message: 'Reacción pública sincronizada exitosamente con la nube.',
-        contextMetadata: {
-          impactWeight: validatedReactionSnapshot.calculatedImpactWeightNumeric,
-          entityId: parameters.targetEntityIdentifier
+        messageContentLiteral: 'Reacción pública sincronizada exitosamente con la nube.',
+        contextMetadataSnapshot: {
+          calculatedImpactWeightNumeric: validatedReactionSnapshot.calculatedImpactWeightNumeric,
+          targetEntityIdentifierLiteral: parameters.targetEntityIdentifier
         }
       });
 
     } catch (caughtError: unknown) {
-      // 6. RECUPERACIÓN FORENSE (Rollback)
+      // 7. RECUPERACIÓN FORENSE (Optimistic Rollback)
       setOptimisticPolarityNumeric(previousPolarityNumeric);
 
       const errorDescriptionLiteral = caughtError instanceof Error
@@ -147,21 +168,22 @@ export const usePublicReaction = (
         : String(caughtError);
 
       void EmitTelemetrySignal({
-        severityLevel: 'ERROR',
-        moduleIdentifier: REACTION_HOOK_IDENTIFIER,
-        operationCode: 'REACTION_SYNC_FAULT',
+        severityLevelLiteral: 'ERROR',
+        moduleIdentifierLiteral: REACTION_HOOK_IDENTIFIER,
+        operationCodeLiteral: 'REACTION_SYNC_FAULT',
         correlationIdentifier,
-        message: 'Fallo al procesar la reacción. Estado visual revertido.',
-        contextMetadata: { errorTrace: errorDescriptionLiteral }
+        messageContentLiteral: 'Fallo al procesar la reacción. Estado visual revertido.',
+        contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
       });
     } finally {
       setIsExecutingBoolean(false);
     }
-  },[
+  }, [
     optimisticPolarityNumeric,
     parameters,
     isNetworkOnlineBoolean,
-    IncrementPendingQueueAction
+    IncrementPendingQueueAction,
+    CacheImpactIndicatorAction
   ]);
 
   return {
