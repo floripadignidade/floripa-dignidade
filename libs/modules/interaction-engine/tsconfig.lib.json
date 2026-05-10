@@ -1,16 +1,20 @@
 /**
- * @section tsconfig: Emitter
- * @description Generador de ADN (.d.ts) con redireccion fisica de Grafo.
+ * @section tsconfig: Emitter (Interaction Engine)
+ * @description Generador de ADN (.d.ts) con redirección física de Grafo.
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Redireccion aplanada para erradicar errores TS2307.
+ * SANEADO Zenith: Erradicación de la dependencia 'shared' obsoleta y
+ * alineación con la fragmentación de utilidades, estado y UI.
+ *
+ * @author Raz Podestá - MetaShark Tech
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    /* --- ESTRATEGIA DE SALIDA ZENITH (Flattened Output) --- */
     "outDir": "../../../dist/out-tsc/libs/modules/interaction-engine",
     "tsBuildInfoFile": "../../../dist/out-tsc/libs/modules/interaction-engine/tsconfig.lib.tsbuildinfo",
 
-    /* --- Integridad Soberana --- */
+    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
     "composite": true,
     "declaration": true,
     "declarationMap": true,
@@ -18,27 +22,36 @@
     "rootDir": "src",
     "noEmit": false,
     "importHelpers": true,
+    "ignoreDeprecations": "5.0",
 
-    /* --- Redireccion de ADN (Solucion TS6059 / TS6305 / TS2307) --- */
+    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6059 / TS6305) --- */
+    "baseUrl": ".",
     "paths": {
+      /* 🛡️ LEY DEL ENJAMBRE: Consumimos firmas físicas (.d.ts) para evitar hemorragia */
       "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
       "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
       "@floripa-dignidade/identity": ["../../../dist/out-tsc/libs/modules/identity/index.d.ts"],
-      "@floripa-dignidade/shared": ["../../../dist/out-tsc/libs/shared/index.d.ts"]
+
+      /* 🛡️ SANEADO: Redirección hacia los nuevos búnkeres fragmentados tras la poda de 'shared' */
+      "@floripa-dignidade/shared-utility": ["../../../dist/out-tsc/libs/shared/utility/index.d.ts"],
+      "@floripa-dignidade/shared-state-store": ["../../../dist/out-tsc/libs/shared/state-store/index.d.ts"],
+      "@floripa-dignidade/shared-ui-foundry": ["../../../dist/out-tsc/libs/shared/ui-foundry/index.d.ts"]
     },
 
-    /* --- Resolucion Next-Gen --- */
+    /* --- RESOLUCIÓN NEXT-GEN --- */
     "jsx": "react-jsx",
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
-    /* --- ADN del Entorno --- */
+    /* --- ADN DEL ENTORNO --- */
     "types": [],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
+
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.json"],
+
   "exclude": [
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
@@ -49,10 +62,19 @@
     "../../../dist",
     "../../../node_modules"
   ],
+
+  /**
+   * @section Grafo de Referencias Soberanas
+   * 🛡️ SANEADO Zenith: Vínculos físicos de proyecto actualizados a la nueva topología.
+   */
   "references": [
     { "path": "../../core/telemetry/tsconfig.lib.json" },
     { "path": "../../core/exceptions/tsconfig.lib.json" },
-    { "path": "../identity/tsconfig.lib.json" },
-    { "path": "../../shared/tsconfig.lib.json" }
+    { "path": "../../modules/identity/tsconfig.lib.json" },
+
+    /* Referencias a la nueva capa Shared pulverizada */
+    { "path": "../../shared/utility/tsconfig.lib.json" },
+    { "path": "../../shared/state-store/tsconfig.lib.json" },
+    { "path": "../../shared/ui-foundry/tsconfig.lib.json" }
   ]
 }

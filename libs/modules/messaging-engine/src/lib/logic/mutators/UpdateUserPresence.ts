@@ -1,11 +1,11 @@
 /**
  * @section Messaging Logic - User Presence Heartbeat Mutator
- * @description Orquestador encargado de validar y persistir el pulso de vida
- * (Heartbeat) del ciudadano en el Ledger soberano. Asegura que el estado de
- * disponibilidad y el rastro de hardware estén sincronizados con la nube.
+ * @description Orquestador encargado de coordinar la sincronización del pulso de vida
+ * ciudadano. Valida el ADN, delega la transformación física y orquesta el despacho
+ * hacia el Tier de Datos bajo rastro de telemetría y vigilancia SRE.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Atomic Responsibility.
- * SANEADO Zenith: Resolución de Paradoja Asíncrona (await) en Aduana de Entorno.
+ * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
+ * SANEADO Zenith: Pulverización de mappers, erradicación de lógica I/O y Prosa ISO.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -22,6 +22,10 @@ import {
 /* 1. ADN Estructural (Verbatim Module Syntax) */
 import { UserPresenceSchema } from '../../schemas/UserPresence.schema';
 import type { IUserPresence } from '../../schemas/UserPresence.schema';
+
+/* 2. Enjambre Atómico Local (Swiss-Watch Swarm) */
+import { MapPresenceToLedgerSnapshot } from '../mappers/MapPresenceToLedgerSnapshot';
+import { CreateSovereignDatabaseHeaders } from '../dispatchers/CreateSovereignDatabaseHeaders';
 
 /** Identificador técnico del aparato para el Neural Sentinel. */
 const PRESENCE_MUTATOR_IDENTIFIER = 'CITIZEN_PRESENCE_HEARTBEAT_MUTATOR';
@@ -42,54 +46,52 @@ export const UpdateUserPresence = async (
 
   return await TraceExecutionTime(
     PRESENCE_MUTATOR_IDENTIFIER,
-    'EXECUTE_PRESENCE_HEARTBEAT_SYNCHRONIZATION',
+    'EXECUTE_PRESENCE_HEARTBEAT_ORCHESTRATION',
     correlationIdentifier,
     async () => {
-
-      /**
-       * 1. CAPTURA DE INFRAESTRUCTURA (Sovereign Secrets)
-       * 🛡️ SANEADO Zenith (Fix TS2339): Inyección de await mandatorio.
-       * La resolución de secretos se audita ahora dentro del rastro de latencia.
-       */
-      const {
-        SUPABASE_URL: cloudStorageUrlLiteral,
-        SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret
-      } = await ValidateEnvironmentAduana();
-
-      // 2. ADUANA DE ADN (Validación de Contrato Zod)
-      const validationResult = UserPresenceSchema.safeParse(unvalidatedPayloadSnapshot);
-
-      if (!validationResult.success) {
-        throw new InternalSystemException('PRESENCE_DNA_VIOLATION', {
-          correlationIdentifier,
-          structuralIssuesCollection: validationResult.error.format(),
-          intentLiteral: 'VALIDATE_PRESENCE_PAYLOAD'
-        });
-      }
-
-      const validatedPresenceData: IUserPresence = validationResult.data;
-
       try {
-        // 3. MAPEO DE PERSISTENCIA (Protocol Translation)
-        const ledgerPayloadSnapshot = MapPresenceToLedger(validatedPresenceData, correlationIdentifier);
+        /**
+         * 1. CAPTURA DE INFRAESTRUCTURA (Sovereign Secrets)
+         * El búnker environment-validator garantiza secretos tipados nominalmente.
+         */
+        const {
+          SUPABASE_URL: cloudStorageUrlLiteral,
+          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret
+        } = await ValidateEnvironmentAduana();
+
+        // 2. ADUANA DE ADN (Safe Parsing)
+        const validationResult = UserPresenceSchema.safeParse(unvalidatedPayloadSnapshot);
+
+        if (!validationResult.success) {
+          throw new InternalSystemException('PRESENCE_DNA_VIOLATION', {
+            structuralIssuesCollection: validationResult.error.format(),
+            correlationIdentifier
+          });
+        }
+
+        const validatedPresenceData: IUserPresence = validationResult.data;
+
+        // 3. TRANSFORMACIÓN DE ADN (Delegación Atómica)
+        const ledgerPayloadSnapshot = MapPresenceToLedgerSnapshot(
+          validatedPresenceData,
+          correlationIdentifier
+        );
 
         /**
-         * 4. PERSISTENCIA FÍSICA (PostgREST Protocol)
-         * Realizamos un Upsert basado en la llave primaria (citizen_id).
+         * 4. PERSISTENCIA FÍSICA (Cloud I/O)
+         * Implementamos el protocolo de red directamente aquí para mantener la
+         * eficiencia del Edge, utilizando el generador de cabeceras institucional.
          */
         const cloudPersistenceResponse = await fetch(`${cloudStorageUrlLiteral}/rest/v1/user_presence_ledger`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'apikey': cloudSecurityKeySecret,
-            'Authorization': `Bearer ${cloudSecurityKeySecret}`,
-            /** 🛡️ ESTRATEGIA: Upsert para evitar duplicidad de registros de presencia. */
-            'Prefer': 'resolution=merge-duplicates',
+            ...CreateSovereignDatabaseHeaders(cloudSecurityKeySecret, 'minimal')
           },
           body: JSON.stringify(ledgerPayloadSnapshot),
-          /** SRE: Timeout corto para no bloquear el hilo de navegación del ciudadano */
+          /** 🛡️ LEY DE RESILIENCIA: Upsert basado en citizen_id. */
+          'Prefer': 'resolution=merge-duplicates',
           signal: AbortSignal.timeout(5000)
-        });
+        } as RequestInit);
 
         if (!cloudPersistenceResponse.ok) {
           throw new Error(`CLOUD_LEDGER_REJECTION_HTTP_${cloudPersistenceResponse.status}`);
@@ -99,18 +101,19 @@ export const UpdateUserPresence = async (
         void EmitTelemetrySignal({
           severityLevelLiteral: 'INFO',
           moduleIdentifierLiteral: PRESENCE_MUTATOR_IDENTIFIER,
-          operationCodeLiteral: 'HEARTBEAT_SYNCHRONIZED_SUCCESSFULLY',
+          operationCodeLiteral: 'HEARTBEAT_SYNC_NOMINAL',
           correlationIdentifier,
-          messageContentLiteral: 'Pulso de vida ciudadano sincronizado exitosamente con el Ledger.',
+          messageContentLiteral: 'Pulso de vida sincronizado exitosamente con el Ledger.',
           contextMetadataSnapshot: {
-            citizenIdentifierLiteral: validatedPresenceData.citizenIdentifier,
-            availabilityStatusLiteral: validatedPresenceData.currentAvailabilityStatus
+            citizenId: validatedPresenceData.citizenIdentifier,
+            status: validatedPresenceData.currentAvailabilityStatus
           }
         });
 
         return true;
 
       } catch (caughtError: unknown) {
+        // 6. GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
         const errorDescriptionLiteral = caughtError instanceof Error
           ? caughtError.message
           : String(caughtError);
@@ -120,37 +123,15 @@ export const UpdateUserPresence = async (
           moduleIdentifierLiteral: PRESENCE_MUTATOR_IDENTIFIER,
           operationCodeLiteral: 'PRESENCE_SYNC_COLLAPSE',
           correlationIdentifier,
-          messageContentLiteral: 'Fallo catastrófico en la sincronización del pulso de presencia.',
-          contextMetadataSnapshot: {
-            errorTraceLiteral: errorDescriptionLiteral,
-            citizenId: validatedPresenceData.citizenIdentifier
-          }
+          messageContentLiteral: 'Fallo catastrófico en la sincronización del pulso.',
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
         });
 
         throw new InternalSystemException('FALLO_EN_SINCRONIZACION_DE_PRESENCIA_SRE', {
-          correlationIdentifier,
           originalErrorLiteral: errorDescriptionLiteral,
-          citizenIdentifier: validatedPresenceData.citizenIdentifier
+          correlationIdentifier
         });
       }
     }
   );
 };
-
-/**
- * 🔒 ATOMIZACIÓN PRIVADA: Mapeador de Infraestructura.
- * @description Transforma el modelo de dominio al esquema físico de persistencia (snake_case).
- * Cumple con la norma de Objeto + Propiedad + Representación.
- */
-const MapPresenceToLedger = (
-  domainDataSnapshot: IUserPresence,
-  correlationIdentifier: string
-): Record<string, unknown> => ({
-  citizen_id: domainDataSnapshot.citizenIdentifier,
-  availability_status: domainDataSnapshot.currentAvailabilityStatus,
-  custom_status_text: domainDataSnapshot.customStatusMessageLiteral,
-  platform_type: domainDataSnapshot.lastActivePlatformLiteral,
-  push_token: domainDataSnapshot.activePushSubscriptionTokenSecret,
-  last_heartbeat_at: domainDataSnapshot.lastHeartbeatTimestampISO,
-  correlation_id: correlationIdentifier,
-});

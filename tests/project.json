@@ -10,12 +10,20 @@
       "outputs": ["{options.outputPath}"],
       "cache": true,
       "options": {
-        "outputPath": "dist/tests/qa-mirror",
+        "outputPath": "dist/out-tsc/tests",
         "main": "tests/src/index.ts",
         "tsConfig": "tests/tsconfig.lib.json",
-        "assets": [],
-        "external": "all"
+        "stripLeadingPaths": true
       }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/out-tsc/tests"],
+      "options": {
+        "command": "tsc -p tests/tsconfig.lib.json",
+        "color": true
+      },
+      "cache": true
     },
     "test": {
       "executor": "@nx/jest:jest",
@@ -26,21 +34,11 @@
         "passWithNoTests": true
       }
     },
-    "typecheck": {
-      "executor": "@nx/js:tsc",
-      "cache": true,
-      "options": {
-        "main": "tests/src/index.ts",
-        "tsConfig": "tests/tsconfig.lib.json",
-        "noEmit": true
-      }
-    },
-
     "lint": {
       "executor": "@nx/eslint:lint",
       "cache": true,
       "options": {
-        "lintFilePatterns": ["tests/**/*.ts"]
+        "lintFilePatterns": ["tests/**/*.ts", "tests/**/*.tsx"]
       }
     }
   }

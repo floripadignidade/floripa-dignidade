@@ -1,35 +1,71 @@
 /**
- * @section tsconfig: Spec Emitter (QA Mirror)
- * @description Generador de ADN para archivos de prueba (.spec.ts).
- * Garantiza que las aserciones tengan visibilidad sobre el código de producción.
+ * @section tscheck: Spec Emitter (QA Mirror Bunker)
+ * @description Generador de ADN para archivos de prueba (.spec.ts). Orquesta la
+ * visibilidad del motor de aserciones garantizando que las pruebas se ejecuten
+ * contra las firmas físicas (.d.ts) de la capa de producción.
  *
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Resolución de errores TS6310 (composite) y paradoja de emisión.
+ * SANEADO Zenith: Implementación de Redirección de ADN Maestro para CI/CD
+ * y blindaje de jurisdicción física.
+ *
+ * @author Raz Podestá - MetaShark Tech
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    /* --- ESTRATEGIA DE SALIDA ZENITH (Test Cache) --- */
     "outDir": "../dist/out-tsc/tests-spec",
+
     /**
      * 🛡️ LEY DE EMISIÓN:
-     * Para ser referenciado, este proyecto DEBE ser compuesto y emitir ADN.
+     * Para ser referenciado por el motor de Jest y Nx, este proyecto
+     * DEBE ser compuesto y emitir exclusivamente su ADN técnico.
      */
     "composite": true,
-    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
     "emitDeclarationOnly": true,
+    "noEmit": false,
 
-    "types": ["jest", "node"],
+    /* --- RIGOR DE IDENTIDAD (SRE Compatibility) --- */
+    "ignoreDeprecations": "5.0",
+    "baseUrl": ".",
+
+    /* --- REDIRECCIÓN DE ADN MAESTRO (High Fidelity Testing) --- */
     /**
-     * Mantenemos la resolución moderna 'bundler' para simetría
-     * con el motor SWC utilizado en jest.config.ts.
+     * 🛡️ LEY DEL ESPEJO: Las pruebas no consumen los fuentes .ts de 'libs/'.
+     * Consumen las firmas .d.ts en 'dist/out-tsc' para asegurar que el
+     * contrato emitido sea íntegro y compatible con el despliegue final.
      */
+    "paths": {
+      "@floripa-dignidade/exceptions": ["../dist/out-tsc/libs/core/exceptions/index.d.ts"],
+      "@floripa-dignidade/telemetry": ["../dist/out-tsc/libs/core/telemetry/index.d.ts"],
+      "@floripa-dignidade/environment-validator": ["../dist/out-tsc/libs/core/environment-validator/index.d.ts"],
+      "@floripa-dignidade/identity": ["../dist/out-tsc/libs/modules/identity/index.d.ts"],
+      "@floripa-dignidade/shared-utility": ["../dist/out-tsc/libs/shared/utility/index.d.ts"],
+      "@floripa-dignidade/shared-state-store": ["../dist/out-tsc/libs/shared/state-store/index.d.ts"]
+    },
+
+    /* --- RESOLUCIÓN NEXT-GEN --- */
     "module": "Preserve",
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+
+    /* --- ADN DEL ENTORNO DE PRUEBAS --- */
+    "types": ["jest", "node", "react", "react-dom"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
+
   "include": [
     "src/**/*.spec.ts",
     "src/**/*.spec.tsx",
     "src/**/*.d.ts"
   ],
-  "exclude": ["node_modules", "dist"]
+
+  "exclude": [
+    "node_modules",
+    "dist",
+    "../dist"
+  ]
 }

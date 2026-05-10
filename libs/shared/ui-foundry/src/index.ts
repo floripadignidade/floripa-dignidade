@@ -1,16 +1,22 @@
-// libs/shared/ui-foundry/src/index.ts
+/**
+ * @section Shared UI Foundry - Package Entry Point (Barrel)
+ * @description Único punto de exportación autorizado para componentes React.
+ * Protocolo OEDP-V17.0 - Single Source Resolution.
+ */
 
-// Atoms
-export * from './lib/atoms/GlobalActionButton';
-export * from './lib/atoms/GlobalBrandLogo';
+// 1. Átomos (Interaction Units)
+export { GlobalActionButton } from './lib/atoms/GlobalActionButton';
+export { GlobalBrandLogo } from './lib/atoms/GlobalBrandLogo';
 
-// Molecules
-export * from './lib/molecules/GlobalSearchWidget';
+// 2. Moléculas (Composite Units)
+export { GlobalSearchWidget } from './lib/molecules/GlobalSearchWidget';
 
-// Organisms
-export * from './lib/organisms/MainNavigationHeader';
-export * from './lib/organisms/NewsletterSubscriptionForm';
+// 3. Organismos (Business Blocks)
+export { GlobalMainNavigationHeader } from './lib/organisms/MainNavigationHeader';
+export { NewsletterSubscriptionForm } from './lib/organisms/NewsletterSubscriptionForm';
 
-// Contracts (Asegurando exportación de tipos)
-export type { IMainNavigationHeaderI18n } from './lib/composite-ui/i18n/MainNavigationHeaderI18n.schema';
-export type { INewsletterSubscriptionFormI18n } from './lib/ui-primitives/i18n/NewsletterSubscriptionFormI18n.schema';
+/**
+ * 🛡️ NOTA DE ARQUITECTURA:
+ * Los esquemas i18n y contratos estructurales ahora se consumen desde
+ * @floripa-dignidade/shared-ui-contracts para evitar duplicidad.
+ */

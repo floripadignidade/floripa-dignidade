@@ -1,0 +1,27 @@
+{
+  "name": "@floripa-dignidade/shared-ui-contracts",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/ui-contracts/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:schema", "platform:isomorphic"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:swc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/ui-contracts",
+        "main": "libs/shared/ui-contracts/src/index.ts",
+        "tsConfig": "libs/shared/ui-contracts/tsconfig.lib.json",
+        "stripLeadingPaths": true
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/out-tsc/libs/shared/ui-contracts"],
+      "options": {
+        "command": "tsc -p libs/shared/ui-contracts/tsconfig.lib.json",
+        "color": true
+      }
+    }
+  }
+}

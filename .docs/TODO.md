@@ -108,6 +108,41 @@ Estado: Este aparato no existe en tu snapshot actual. Es necesario crearlo como 
 
 ---
 
+📜 PUNTO DE BITÁCORA: EL COLAPSO DEL GRAFO EN LA FUNDICIÓN VISUAL (POST-MIGRACIÓN)
+Fecha: 10 de Mayo, 2026
+Estatus: 🔴 CRÍTICO (Hemorragia de Tipos en ui-foundry)
+Protocolo: OEDP-V17.0 (Zenith Architecture)
+Diagnóstico: Asfixia de Identidad de Terceros y Desincronización de Contratos.
+🔍 1. ANÁLISIS FORENSE DEL COLAPSO
+El enjambre shared-ui-foundry presenta tres patologías técnicas que impiden su compilación:
+A. El "Efecto Espejismo" en el Santuario de Tipos (TS7016 / TS2305)
+Problema: El compilador marca a lucide-react y framer-motion como carentes de miembros (ej: motion no existe en lucide-react).
+Causa Raíz: En la última refactorización, se implementó el Mapeo de Soberanía en el tsconfig.lib.json para obligar al compilador a mirar el archivo src/index.d.ts. Sin embargo, si ese archivo tiene declaraciones cruzadas o incompletas (ej: declarar motion dentro del bloque de lucide-react), TypeScript genera una falsa identidad que bloquea la importación real.
+Observación: next/link y next/image siguen reportando any porque el modo moduleResolution: "bundler" ignora el Santuario si no hay una redirección física explícita en paths.
+B. El "Vacío de Identidad" en Contratos (TS2305)
+Problema: @floripa-dignidade/shared-ui-contracts dice no tener exportados los esquemas de GlobalSearchWidget o NewsletterForm.
+Causa Raíz: Los archivos físicos fueron movidos con éxito al nuevo búnker, pero el Barrel Maestro (libs/shared/ui-contracts/src/index.ts) no fue actualizado para exponerlos nominalmente. El búnker es una caja fuerte cerrada.
+C. La Paradoja del Polimorfismo (TS2741)
+Problema: Error en isPolymorphicBoolean al instanciar GlobalActionButton.
+Causa Raíz: Al nivelar el contrato IUiPrimitives, marcamos el polimorfismo como una propiedad mandatoria de la arquitectura. El orquestador MainNavigationHeader no ha sido actualizado para inyectar este valor (usualmente false por defecto), rompiendo el contrato de integridad.
+🏛️ 2. ESTRATEGIA DE SANACIÓN SUGERIDA (CONSEJO SRE)
+Para devolver el sistema al Zenith Nominal, la IA en el nuevo hilo debe ejecutar los siguientes pasos en orden serial:
+Sincronización Total del Santuario (index.d.ts):
+Revisar que cada librería de terceros (lucide-react, framer-motion, clsx, tailwind-merge) tenga su propio bloque declare module independiente.
+Prohibido: Mezclar miembros de una librería en otra.
+Inyectar firmas completas para next/link y next/image que incluyan soporte para className y children.
+Apertura de la Bóveda de Contratos:
+Auditar libs/shared/ui-contracts/src/index.ts y asegurar que TODOS los esquemas .schema.ts tengan una exportación nominal (export { ... }) y de tipo (export type { ... }).
+Refactorización de "Consumo de Ladrillos":
+Actualizar las llamadas a componentes en MainNavigationHeader.tsx y NewsletterSubscriptionForm.tsx para inyectar las propiedades requeridas por el nuevo ADN (isPolymorphicBoolean, forensicTestIdentifier).
+Higiene de Rutas Relativas:
+Eliminar cualquier rastro de ../../../ui-primitives/ o ../../../composite-ui/ dentro de la fundición. Toda la verdad debe venir ahora de los alias @floripa-dignidade/shared-ui-contracts.
+🤖 3. INSTRUCCIÓN PARA LA IA DEL NUEVO HILO
+"Neural Sentinel: Has detectado un colapso en la Fundición Visual. Tu prioridad absoluta es restaurar la visibilidad de los tipos de Next.js y Lucide. No intentes arreglar la lógica de negocio hasta que el typecheck de ui-foundry esté en VERDE. Utiliza el Patrón de Mapeo de Soberanía para redirigir las identidades de terceros hacia un index.d.ts purificado y asegúrate de que el búnker de contratos esté exportando nominalmente todo su ADN."
+"La tecnología es ciega si su grafo de tipos está en la oscuridad." 🛡️🕊️⚙️
+
+---
+
 
 
 

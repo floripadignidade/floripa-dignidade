@@ -1,60 +1,17 @@
 /**
  * @section tsconfig: Gatekeeper (QA Mirror Bunker)
- * @description Orquestador de la frontera física del búnker de calidad.
- * Actúa como escudo de integridad estructural y punto de entrada para el
- * motor de servicios de tipos (Project Service), delegando la ejecución
- * física al enjambre de especialidad.
- *
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Redirección de ADN Maestro y sincronización de identidades nominales.
- *
- * @author Raz Podestá - MetaShark Tech
- * @license UNLICENSED
  */
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    /**
-     * 🛡️ LEY DEL GATEKEEPER:
-     * Protege la jurisdicción de archivos prohibiendo la emisión local.
-     */
     "composite": false,
     "noEmit": true,
-
-    /**
-     * 🛡️ RIGOR DE IDENTIDAD (SRE Compatibility):
-     * Silenciamos las deprecaciones de 'baseUrl' para mantener la
-     * estabilidad del Grafo mientras transicionamos al motor TS 7.0.
-     */
     "ignoreDeprecations": "5.0",
-    "baseUrl": ".",
-
-    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6305) --- */
-    /**
-     * 🛡️ LEY DEL ENJAMBRE: El búnker de calidad debe "beber" de las firmas
-     * físicas (.d.ts) para garantizar la inalterabilidad de los búnkeres CORE.
-     */
-    "paths": {
-      "@floripa-dignidade/exceptions": ["../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/telemetry": ["../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/environment-validator": ["../dist/out-tsc/libs/core/environment-validator/index.d.ts"]
-    }
+    "baseUrl": "."
   },
-
-  /**
-   * @section Jurisdicción de Infraestructura
-   * Registramos físicamente el rastro de configuración para que el motor
-   * de auditoría (ESLint/LSP) reconozca la configuración de Jest como parte
-   * del programa de calidad.
-   */
   "files": ["jest.config.ts"],
-
   "include": [],
-
-  /**
-   * @section Grafo de Referencias Soberanas
-   * Delega la lógica de compilación y emisión al enjambre de aserción.
-   */
   "references": [
     { "path": "./tsconfig.lib.json" },
     { "path": "./tsconfig.spec.json" }

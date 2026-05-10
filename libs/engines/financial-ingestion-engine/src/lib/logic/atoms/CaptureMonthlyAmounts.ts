@@ -5,41 +5,45 @@
  * filtro de pureza para evitar el volcado de registros nulos en la nube.
  *
  * Protocolo OEDP-V17.0 - High Performance & Type Safety.
- * SANEADO Zenith: Recalibración de ruta de ADN y erradicación de Readonly Mismatch.
+ * SANEADO Zenith: Resolución de TS2503 (Namespace collision) mediante importación
+ * nombrada y cumplimiento de Prosa ISO (ADR 0002).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import type ExcelJS from 'exceljs';
-
-/* 1. ADN Estructural (Recalibrado a Topología Plana) */
 /**
- * 🛡️ SANEADO Zenith: Ruta corregida para la nueva estructura de carpetas.
- * Se utiliza 'import type' para garantizar el Tree-shaking absoluto.
+ * 🛡️ SANEADO Zenith: Transición de importación por defecto (Namespace) a
+ * importación de interfaz nombrada para alineación con el puente 'index.d.ts'.
  */
+import type { Row } from 'exceljs';
+
+/* 1. ADN Estructural (Verbatim Module Syntax) */
 import type { IExtractionContext } from '../../schemas/ExtractionContext.schema';
 
 /**
  * Itera sobre las columnas temporales de una fila y extrae los snapshots financieros.
+ * Implementa una función pura de mapeo con filtro de relevancia fiscal.
  *
- * @param currentRowInstance - Fila física bajo auditoría proporcionada por el motor ExcelJS.
- * @param processContext - Referencia al contexto de extracción (Sello de Memoria).
+ * @param currentRowInstance - Fila física bajo auditoría proporcionada por el motor.
+ * @param processContext - Referencia al contexto de extracción (Memoria de proceso).
  * @returns {void} Mutación controlada de la colección de registros en el contexto.
  */
 export const CaptureMonthlyAmounts = (
-  currentRowInstance: ExcelJS.Row,
+  currentRowInstance: Row,
   processContext: IExtractionContext
 ): void => {
   /**
    * @section Puente de Mutabilidad (Bypass de Solo Lectura)
-   * SANEADO Zenith: Para cumplir con 'verbatimModuleSyntax' y evitar errores de
-   * asignación en propiedades del esquema Zod marked as '.readonly()', realizamos
-   * un cast local a la colección de registros. Esto permite la operación
-   * '.push()' sin recurrir a 'any'.
+   * SANEADO Zenith: El casteo permite la operación '.push()' en la colección
+   * residentes en el contexto sin comprometer el contrato '.readonly()' externo.
    */
   const mutableRecordsCollectionReference = processContext.recordsCollection as Record<string, unknown>[];
 
+  /**
+   * @section Ciclo de Captura Mensual
+   * Procesamos las cabeceras identificadas previamente para extraer los montos.
+   */
   Object.entries(processContext.monthHeadersMapping).forEach(
     ([columnIdentifier, monthYearLiteral]) => {
       /** Captura del valor textual de la celda financiera. */
@@ -49,7 +53,7 @@ export const CaptureMonthlyAmounts = (
        * @section Filtro de Pureza Fiscal (SRE Optimization)
        * Identificamos si el monto tiene valor económico real antes de procesar.
        * Evitamos persistir "R$ 0,00" o valores vacíos para optimizar la cuota
-       * del Tier Gratuito de Supabase (ADR 0015).
+       * del Tier Gratuito (ADR 0015).
        */
       const isRecordWorthProcessingBoolean =
         !!rawAmountLiteral &&

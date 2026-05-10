@@ -3,12 +3,12 @@
 /**
  * @section Component: GlobalBrandLogo
  * @description Representación técnica de la identidad visual institucional.
- * Implementa optimización de LCP mediante carga prioritaria, validación de ADN
- * vía Zod y rastro telemétrico de interacciones de navegación.
+ * Implementa optimización de LCP mediante carga prioritaria y rastro
+ * telemétrico de interacciones de navegación institucional.
  *
  * Protocolo OEDP-V17.0 - High Performance SRE & Branding Authority.
- * SANEADO Zenith: Resolución de fronteras Shared-Utility, inyección de Aduana Zod
- * y cumplimiento de visibilidad ambiental para Next.js 16 (Fix TS7016).
+ * SANEADO Zenith: Erradicación de TS7016 mediante Santuario de Tipos,
+ * migración de ADN a 'ui-contracts' e integración de Prosa ISO.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -17,7 +17,6 @@
 import React, { useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { z } from 'zod';
 
 /* 1. Infraestructura Core y Utilidades (Sovereign Boundaries) */
 import {
@@ -27,36 +26,26 @@ import {
 
 import { GlobalStyleClassMerger } from '@floripa-dignidade/shared-utility';
 
-/**
- * @section Aduana de ADN (Prop Validation)
- * Define el contrato de integridad inmutable para la identidad visual.
- */
-export const GlobalBrandLogoPropertiesSchema = z.object({
-  imageWidthPixelQuantity: z.number().default(180),
-  imageHeightPixelQuantity: z.number().default(60),
-  isNavigationLinkEnabledBoolean: z.boolean().default(true),
-  visualVariantLiteral: z.enum(['STANDARD', 'MONOCHROME_WHITE']).default('STANDARD'),
-  labels: z.object({
-    logoAlternativeTextLiteral: z.string().min(1),
-    navigationAriaLabelLiteral: z.string().min(1),
-  }).readonly(),
-  externalClassName: z.string().optional(),
-}).readonly();
-
-export type IGlobalBrandLogoProperties = z.infer<typeof GlobalBrandLogoPropertiesSchema>;
+/* 2. Planos y Contratos (Blueprints Layer) */
+import { GlobalBrandLogoPropertiesSchema } from '@floripa-dignidade/shared-ui-contracts';
+import type { IGlobalBrandLogoProperties } from '@floripa-dignidade/shared-ui-contracts';
 
 /**
  * @name VARIANT_ASSETS_MAPPING
  * @description Mapa de activos físicos inyectados en la infraestructura.
+ * 🛡️ LEY SRE: Estas rutas son relativas a la carpeta /public de la aplicación final.
  */
 const VARIANT_ASSETS_MAPPING: Record<string, string> = {
   STANDARD: '/brand/floripa-dignidade-logo-color.png',
   MONOCHROME_WHITE: '/brand/floripa-dignidade-logo-white.png',
 };
 
+/** Identificador técnico del aparato para el Neural Sentinel. */
+const ATOM_IDENTIFIER = 'GLOBAL_BRAND_LOGO_ATOM';
+
 export const GlobalBrandLogo: React.FC<IGlobalBrandLogoProperties> = (rawProperties) => {
 
-  // 1. ADUANA DE ADN: Purificación de entrada
+  // 1. ADUANA DE ADN: Purificación mediante el contrato de UI Contracts
   const {
     imageWidthPixelQuantity,
     imageHeightPixelQuantity,
@@ -64,21 +53,24 @@ export const GlobalBrandLogo: React.FC<IGlobalBrandLogoProperties> = (rawPropert
     labels,
     visualVariantLiteral,
     externalClassName,
+    forensicTestIdentifier,
+    accessibilityConfiguration
   } = GlobalBrandLogoPropertiesSchema.parse(rawProperties);
 
   /**
    * @section Gestión de Interacción Telemétrica
-   * 🛡️ SANEADO Zenith: El retorno a home es un evento de trazabilidad crítica.
+   * 🛡️ LEY ZENITH: El rastro de navegación hacia 'Home' es auditado como evento de conversión.
    */
   const handleLogoInteractionAction = useCallback(() => {
     const correlationIdentifier = GenerateCorrelationIdentifier();
 
     void EmitTelemetrySignal({
       severityLevelLiteral: 'INFO',
-      moduleIdentifierLiteral: 'GLOBAL_BRAND_LOGO_ATOM',
+      moduleIdentifierLiteral: ATOM_IDENTIFIER,
       operationCodeLiteral: 'BRAND_HOME_NAVIGATION_TRIGGERED',
       correlationIdentifier,
-      messageContentLiteral: 'Navegación institucional hacia raíz detectada desde el logotipo.',
+      messageContentLiteral: 'Navegación institucional hacia raíz detectada.',
+      semanticIntentTag: 'NAVIGATION_TO_ROOT',
       contextMetadataSnapshot: {
         variantLiteral: visualVariantLiteral,
         timestampISO: new Date().toISOString()
@@ -88,11 +80,14 @@ export const GlobalBrandLogo: React.FC<IGlobalBrandLogoProperties> = (rawPropert
 
   // 2. CONSTRUCCIÓN DEL ELEMENTO VISUAL (Atomic Composition)
   const brandLogoVisualElement = (
-    <div className={GlobalStyleClassMerger(
-      "flex items-center justify-center transition-all duration-500",
-      "hover:opacity-85 active:scale-[0.97]",
-      externalClassName
-    )}>
+    <div
+      className={GlobalStyleClassMerger(
+        "flex items-center justify-center transition-all duration-500",
+        "hover:opacity-85 active:scale-[0.97]",
+        externalClassName
+      )}
+      data-testid={forensicTestIdentifier}
+    >
       <div
         className="relative"
         style={{
@@ -121,7 +116,8 @@ export const GlobalBrandLogo: React.FC<IGlobalBrandLogoProperties> = (rawPropert
     <Link
       href="/"
       onClick={handleLogoInteractionAction}
-      aria-label={labels.navigationAriaLabelLiteral}
+      /** SANEADO: Si no hay label específico en el ADN, usamos el del AriaContract */
+      aria-label={labels.navigationAriaLabelLiteral || accessibilityConfiguration?.accessibilityLabelLiteral}
       className={GlobalStyleClassMerger(
         "outline-none rounded-xl transition-all duration-300",
         "focus-visible:ring-4 focus-visible:ring-amber-500/30 focus-visible:ring-offset-2"

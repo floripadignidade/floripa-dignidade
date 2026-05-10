@@ -4,59 +4,55 @@
  * lógica de matrices XLSX. Coordina el enjambre de átomos de triaje y
  * asegura que el resultado cumpla con el contrato de integridad de la ONG.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Absolute Functional Atomicity.
- * SANEADO Zenith: Resolución de TS7006 (Implicit Any), tipado de hardware y Prosa ISO.
+ * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
+ * SANEADO Zenith: Sincronización con Puente Soberano (Row/Worksheet),
+ * pulverización de sub-procesos y reporte de telemetría de hardware.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import ExcelJS from 'exceljs';
+import { Workbook } from 'exceljs';
+import type { Row, Worksheet } from 'exceljs';
 import { InternalSystemException } from '@floripa-dignidade/exceptions';
 import {
+  EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-/* 1. ADN Estructural y Configuración (SSOT) */
+/* 1. ADN Estructural y Estándares (Ground Truth) */
 import { WORKBOOK_INGESTION_STANDARDS } from '../../constants/WorkbookIngestion.config';
-import { FinancialIngestionBatchSchema } from '../../schemas/ProjectFinancialLedger.schema';
 import type { IProjectFinancialRecord } from '../../schemas/ProjectFinancialLedger.schema';
-import type { IExtractionContext } from '../../schemas/ExtractionContext.schema';
 
-/* 2. Enjambre Atómico Local (Atoms Swarm) */
+/* 2. Enjambre Atómico Local (Swiss-Watch Swarm) */
 import { IdentifyMonthHeaders } from '../atoms/IdentifyMonthHeaders';
 import { TriageContextualRow } from '../atoms/TriageContextualRow';
+import { InitializeExtractionContext } from './atoms/InitializeExtractionContext';
+import { ValidateExtractedBatchADN } from './atoms/ValidateExtractedBatchADN';
+
+/** Identificador técnico del aparato para el Neural Sentinel. */
+const ORCHESTRATOR_IDENTIFIER = 'FINANCIAL_WORKBOOK_ORCHESTRATOR';
 
 /**
  * @interface IExtractionParameters
  * @description Contrato inmutable para la parametrización de la auditoría de hardware.
  */
 interface IExtractionParameters {
-  /** Ruta absoluta del archivo XLSX en el sistema de archivos del servidor/CLI. */
   readonly absoluteFilePathLiteral: string;
-  /** Identificador opcional para mantener la cadena de custodia si el proceso es disparado por otra lib. */
   readonly correlationIdentifier?: string;
 }
 
-/** Identificador técnico del aparato para el Neural Sentinel. */
-const ORCHESTRATOR_IDENTIFIER = 'FINANCIAL_WORKBOOK_ORCHESTRATOR';
-
 /**
  * Ejecuta la extracción purificada de datos financieros desde una matriz física.
- * Implementa el patrón 'Contextual Ingestion' para resolver jerarquías de filas.
+ * Implementa el patrón 'Contextual Ingestion' con aislamiento de hardware I/O.
  *
  * @param parameters - Rutas y metadatos de ejecución.
- * @returns {Promise<readonly IProjectFinancialRecord[]>} Colección inmutable homologada por Zod.
- * @throws {InternalSystemException} Si el libro es ilegible o el ADN está corrupto.
+ * @returns {Promise<readonly IProjectFinancialRecord[]>} Lote financiero inmutable.
  */
 export const ExtractWorkbookData = async (
   parameters: IExtractionParameters,
 ): Promise<readonly IProjectFinancialRecord[]> => {
-  /**
-   * Generamos la "Traza de Sangre Digital" que vinculará la lectura física
-   * con el rastro de auditoría en la nube.
-   */
   const correlationIdentifier = parameters.correlationIdentifier ?? GenerateCorrelationIdentifier();
 
   return await TraceExecutionTime(
@@ -65,72 +61,65 @@ export const ExtractWorkbookData = async (
     correlationIdentifier,
     async () => {
       try {
-        // 1. CARGA DE HARDWARE (I/O)
-        const workbookInstance = new ExcelJS.Workbook();
-
-        /** 🛡️ SANEADO Zenith: Protección de lectura física para captura forense. */
+        // 1. CARGA DE HARDWARE (I/O Sentry)
+        const workbookInstance = new Workbook();
         await workbookInstance.xlsx.readFile(parameters.absoluteFilePathLiteral);
 
-        const targetWorksheet = workbookInstance.worksheets[0];
+        const targetWorksheet: Worksheet | undefined = workbookInstance.worksheets[0];
+
         if (!targetWorksheet) {
-          throw new Error('WORKSHEET_NOT_IDENTIFIED_IN_HARDWARE');
-        }
-
-        // 2. INICIALIZACIÓN DE CABECERAS (Temporal Axis)
-        /** Delegamos la identificación de meses al átomo especializado. */
-        const headerRowIndexNumeric = WORKBOOK_INGESTION_STANDARDS.HEADER_ROW_INDEX_QUANTITY;
-        const monthHeadersMapping = IdentifyMonthHeaders(targetWorksheet.getRow(headerRowIndexNumeric));
-
-        // 3. CONSTRUCCIÓN DE MEMORIA DE PROCESO (Context)
-        /**
-         * 🛡️ SANEADO Zenith: Se utiliza el tipo nominal IExtractionContext
-         * para garantizar que el enjambre de átomos comparta la misma verdad.
-         */
-        const extractionContext: IExtractionContext = {
-          activeCategorySpecificationLiteral: '',
-          monthHeadersMapping,
-          recordsCollection: [],
-          correlationIdentifier,
-        };
-
-        // 4. ESCANEO POR DELEGACIÓN (Swarm Execution)
-        /**
-         * 🛡️ SANEADO Zenith: Resolución de TS7006.
-         * Tipamos explícitamente los parámetros del motor de ExcelJS para
-         * cumplir con la norma 'noImplicitAny' de la arquitectura.
-         */
-        targetWorksheet.eachRow((currentRow: ExcelJS.Row, rowNumberNumeric: number) => {
-          TriageContextualRow(currentRow, rowNumberNumeric, extractionContext);
-        });
-
-        // 5. ADUANA DE ADN (Validación de Lote)
-        /**
-         * Transformamos la colección cruda en un lote de registros tipados.
-         * La aduana Zod purificará los montos (R$ -> Float) en este paso.
-         */
-        const validationResult = FinancialIngestionBatchSchema.safeParse(
-          extractionContext.recordsCollection,
-        );
-
-        if (!validationResult.success) {
-          throw new InternalSystemException('EXCEL_DNA_INCONSISTENCY', {
-            structuralIssuesCollection: validationResult.error.flatten(),
-            correlationIdentifier,
-            targetPath: parameters.absoluteFilePathLiteral
+          throw new InternalSystemException('WORKSHEET_IDENTIFICATION_FAULT', {
+            targetFile: parameters.absoluteFilePathLiteral
           });
         }
 
+        // 2. MAPEO CRONOLÓGICO (Temporal Axis)
+        const headerRowIndexNumeric = WORKBOOK_INGESTION_STANDARDS.HEADER_ROW_INDEX_QUANTITY;
+        const monthHeadersMapping = IdentifyMonthHeaders(targetWorksheet.getRow(headerRowIndexNumeric));
+
+        // 3. INICIALIZACIÓN DE MEMORIA (Delegación Atómica)
+        const extractionContext = InitializeExtractionContext(monthHeadersMapping, correlationIdentifier);
+
+        // 4. ESCANEO POR ENJAMBRE (Hardware Iteration)
         /**
-         * Retorno del rastro financiero nominalmente puro y sellado.
+         * 🛡️ SANEADO Zenith: Uso de tipos nominales 'Row' provenientes del puente.
+         * Garantiza que el callback sea 100% Type-Safe ante el motor de ExcelJS.
          */
-        return Object.freeze(validationResult.data);
+        targetWorksheet.eachRow((currentRowInstance: Row, rowNumberNumeric: number) => {
+          TriageContextualRow(currentRowInstance, rowNumberNumeric, extractionContext);
+        });
+
+        // 5. ADUANA DE ADN FINAL (Lote Validation)
+        const finalSovereignBatch = ValidateExtractedBatchADN(extractionContext.recordsCollection);
+
+        // 6. REPORTE DE ÉXITO (SRE Visibility)
+        void EmitTelemetrySignal({
+          severityLevelLiteral: 'INFO',
+          moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
+          operationCodeLiteral: 'WORKBOOK_EXTRACTION_SUCCESS',
+          correlationIdentifier,
+          messageContentLiteral: 'Extracción física de matriz presupuestaria finalizada.',
+          /** Clasificación para el Neural Sentinel */
+          semanticIntentTag: 'FINANCIAL_DATA_ACQUISITION',
+          contextMetadataSnapshot: {
+            extractedRecordsQuantity: finalSovereignBatch.length,
+            sourceFileLiteral: parameters.absoluteFilePathLiteral
+          }
+        });
+
+        return finalSovereignBatch;
 
       } catch (caughtError: unknown) {
-        // 6. GESTIÓN FORENSE DE COLAPSO (Resilience)
-        const errorDescriptionLiteral =
-          caughtError instanceof Error ? caughtError.message : String(caughtError);
+        // 7. GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
 
-        throw new InternalSystemException('WORKBOOK_EXTRACTION_FAULT', {
+        // Si es una excepción interna ya tipada, se propaga intacta.
+        if (caughtError instanceof InternalSystemException) throw caughtError;
+
+        const errorDescriptionLiteral = caughtError instanceof Error
+          ? caughtError.message
+          : String(caughtError);
+
+        throw new InternalSystemException('WORKBOOK_ORCHESTRATION_FAULT', {
           originalErrorLiteral: errorDescriptionLiteral,
           correlationIdentifier,
           targetFileLiteral: parameters.absoluteFilePathLiteral

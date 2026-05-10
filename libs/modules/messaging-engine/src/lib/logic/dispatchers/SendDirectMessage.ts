@@ -1,11 +1,11 @@
 /**
  * @section Messaging Logic - Direct Message Orchestrator
  * @description Orquestador de élite encargado de la transmisión de mensajes privados.
- * Coordina la validación de ADN, la transformación de datos, la inyección de
- * seguridad y la persistencia cloud en el Data Lake.
+ * Coordina la validación de ADN, la protección de privacidad (LGPD), la
+ * transformación de datos y la persistencia cloud en el Ledger inmutable.
  *
  * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Resolución de Paradoja Asíncrona (await) en Aduana de Entorno.
+ * SANEADO Zenith: Enmascaramiento de PII, rastro i18n y triaje de sensibilidad.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -13,6 +13,7 @@
 
 import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
 import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
+import { MaskSovereignIdentity } from '@floripa-dignidade/shared-utility';
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
@@ -23,7 +24,7 @@ import {
 import { DirectMessageSchema } from '../../schemas/DirectMessage.schema';
 import type { IDirectMessage } from '../../schemas/DirectMessage.schema';
 
-/* 2. Enjambre Atómico (Internal Swarm) */
+/* 2. Enjambre Atómico Local (Swiss-Watch Swarm) */
 import { MapDirectMessageToPersistence } from '../mappers/MapDirectMessageToPersistence';
 import { PersistDirectMessageTransaction } from './PersistDirectMessageTransaction';
 import { CreateSovereignDatabaseHeaders } from './CreateSovereignDatabaseHeaders';
@@ -34,7 +35,7 @@ const MESSAGE_DISPATCHER_IDENTIFIER = 'DIRECT_MESSAGE_TRANSACTION_ORCHESTRATOR';
 /**
  * Ejecuta el envío integral de un mensaje privado con soporte multimedia.
  * Implementa el patrón "Cloud Sovereign" garantizando la resolución de
- * secretos antes de la persistencia física.
+ * secretos antes de la persistencia física y el blindaje de identidad.
  *
  * @param unvalidatedMessagePayloadSnapshot - Datos crudos del mensaje capturados en la UI.
  * @returns {Promise<IDirectMessage>} Instancia del mensaje validado y persistido.
@@ -54,8 +55,7 @@ export const SendDirectMessage = async (
       try {
         /**
          * 1. CAPTURA DE INFRAESTRUCTURA (Sovereign Secrets)
-         * 🛡️ SANEADO Zenith (Fix TS2339): Inyección de await mandatorio.
-         * La resolución de secretos se audita ahora dentro del rastro de latencia.
+         * El búnker environment-validator garantiza la carga asíncrona de secretos.
          */
         const {
           SUPABASE_URL: cloudStorageUrlLiteral,
@@ -66,13 +66,12 @@ export const SendDirectMessage = async (
         const validationResult = DirectMessageSchema.safeParse(unvalidatedMessagePayloadSnapshot);
 
         if (!validationResult.success) {
-          /** Reporte de violación estructural antes del colapso */
           void EmitTelemetrySignal({
             severityLevelLiteral: 'WARNING',
             moduleIdentifierLiteral: MESSAGE_DISPATCHER_IDENTIFIER,
             operationCodeLiteral: 'MESSAGE_CONTRACT_VIOLATION',
             correlationIdentifier,
-            messageContentLiteral: 'La estructura del mensaje directo es inválida o está corrompida.',
+            messageContentLiteral: 'MESSAGING.ERRORS.MESSAGE_ADN_CORRUPTED',
             contextMetadataSnapshot: { issuesCollection: validationResult.error.flatten() }
           });
 
@@ -83,34 +82,57 @@ export const SendDirectMessage = async (
 
         const validatedMessage: IDirectMessage = validationResult.data;
 
-        // 3. SEGURIDAD Y TRANSFORMACIÓN (Protocol Translation)
+        /**
+         * 3. PROTECCIÓN DE PRIVACIDAD (PII Masking)
+         * Enmascaramos las identidades para el rastro de telemetría forense.
+         */
+        const maskedSenderLiteral = MaskSovereignIdentity({
+          rawIdentityLiteral: validatedMessage.senderIdentityIdentifier,
+          maskingStrategyLiteral: 'CITIZEN_NAME'
+        });
+
+        const maskedRecipientLiteral = MaskSovereignIdentity({
+          rawIdentityLiteral: validatedMessage.recipientIdentityIdentifier,
+          maskingStrategyLiteral: 'CITIZEN_NAME'
+        });
+
+        // 4. SEGURIDAD Y TRANSFORMACIÓN (Protocol Translation)
         const databaseHeaders = CreateSovereignDatabaseHeaders(cloudSecurityKeySecret, 'representation');
         const databasePayload = MapDirectMessageToPersistence(validatedMessage, correlationIdentifier);
 
-        // 4. PERSISTENCIA FÍSICA (Delegación Atómica I/O)
+        // 5. PERSISTENCIA FÍSICA (Delegación Atómica I/O)
         await PersistDirectMessageTransaction(
           cloudStorageUrlLiteral,
           databaseHeaders,
           databasePayload
         );
 
-        // 5. REPORTE DE ÉXITO (SRE Analytics)
+        /**
+         * 6. REPORTE DE ÉXITO (SRE Visibility)
+         * 🛡️ SANEADO Zenith: Triaje de sensibilidad.
+         * Si el mensaje es sensible, omitimos el conteo de adjuntos en metadatos para
+         * reducir la superficie de ataque por inferencia.
+         */
         void EmitTelemetrySignal({
           severityLevelLiteral: 'INFO',
           moduleIdentifierLiteral: MESSAGE_DISPATCHER_IDENTIFIER,
           operationCodeLiteral: 'DIRECT_MESSAGE_SENT_SUCCESSFULLY',
           correlationIdentifier,
-          messageContentLiteral: 'Mensaje directo cifrado y enviado exitosamente.',
+          messageContentLiteral: 'MESSAGING.LOGS.DIRECT_MESSAGE_DISPATCHED',
           contextMetadataSnapshot: {
-            attachmentsQuantity: validatedMessage.attachedMediaIdentifiersCollection.length,
-            isSensitiveBoolean: validatedMessage.containsSensitiveInformationBoolean
+            senderMask: maskedSenderLiteral,
+            recipientMask: maskedRecipientLiteral,
+            isSensitiveBoolean: validatedMessage.containsSensitiveInformationBoolean,
+            ...(!validatedMessage.containsSensitiveInformationBoolean && {
+              attachmentsQuantity: validatedMessage.attachedMediaIdentifiersCollection.length
+            })
           },
         });
 
         return validatedMessage;
 
       } catch (caughtError: unknown) {
-        // 6. GESTIÓN FORENSE DE FALLO (Resilience Layer)
+        // 7. GESTIÓN FORENSE DE FALLO (Resilience Layer)
         if (caughtError instanceof ValidationException) throw caughtError;
 
         const errorDescriptionLiteral = caughtError instanceof Error
@@ -122,7 +144,7 @@ export const SendDirectMessage = async (
           moduleIdentifierLiteral: MESSAGE_DISPATCHER_IDENTIFIER,
           operationCodeLiteral: 'MESSAGE_DISPATCH_COLLAPSE',
           correlationIdentifier,
-          messageContentLiteral: 'Colapso crítico en el orquestador de mensajería directa.',
+          messageContentLiteral: 'Error crítico en la transmisión de mensaje directo.',
           contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
         });
 

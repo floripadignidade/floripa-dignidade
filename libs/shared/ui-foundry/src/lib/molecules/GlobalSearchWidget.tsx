@@ -2,203 +2,114 @@
 
 /**
  * @section UI Molecule - Global Search Widget
- * @description Orquestador de descubrimiento institucional. Gestiona la entrada
- * de datos, la escucha de hardware para atajos de teclado y la telemetría de
- * intención de búsqueda.
+ * @description Orquestador de descubrimiento institucional. Ensambla el sensor de
+ * hardware, la entrada de datos y los átomos de feedback visual.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Complexity Eradication.
- * SANEADO Zenith: Reducción de complejidad (13 a 4), Prosa ISO y Telemetría.
+ * Protocolo OEDP-V17.0 - Swarm Intelligence & DRY.
+ * SANEADO Zenith: Atomización extrema, resolución de TS2307 y telemetría de intención.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Command, Loader2, Search } from 'lucide-react';
+import React, { useCallback, useState } from 'react';
+import { Command, Loader2, Search as SearchIcon } from 'lucide-react';
 
-/* 1. Infraestructura Core y Utilidades (Sovereign Swarm) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
-
+/* 1. Infraestructura Core y Utilidades */
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 import { GlobalStyleClassMerger } from '@floripa-dignidade/shared-utility';
 
-/* 2. ADN Estructural y Esquemas */
-import { GlobalSearchWidgetPropertiesSchema } from '../ui-primitives/schemas/GlobalSearchWidget.schema';
-import type { IGlobalSearchWidgetProperties } from '../ui-primitives/schemas/GlobalSearchWidget.schema';
+/* 2. Planos y Contratos (Sovereign Blueprints) */
+import { GlobalSearchWidgetPropertiesSchema } from '@floripa-dignidade/shared-ui-contracts';
+import type { IGlobalSearchWidgetProperties } from '@floripa-dignidade/shared-ui-contracts';
 
-/**
- * @interface IGlobalSearchWidgetExtendedProperties
- * @description Contrato inmutable para la parametrización del widget.
- */
-interface IGlobalSearchWidgetExtendedProperties extends Partial<IGlobalSearchWidgetProperties> {
-  readonly labels?: {
-    readonly inputPlaceholderLiteral: string;
-    readonly accessibilityLabelLiteral: string;
-    readonly searchingStatusLiteral: string;
-  };
-  readonly externalClassName?: string;
-}
+/* 3. Enjambre Atómico Local (Hooks & Atoms) */
+import { useSearchHardwareSentry } from './hooks/useSearchHardwareSentry';
+import { SearchFeedbackPanel } from './atoms/SearchFeedbackPanel';
 
-/** Identificador técnico del aparato para el Neural Sentinel. */
+/** Identificador técnico para el Neural Sentinel. */
 const SEARCH_MODULE_IDENTIFIER = 'GLOBAL_SEARCH_WIDGET_MOLECULE';
 
-export const GlobalSearchWidget: React.FC<IGlobalSearchWidgetExtendedProperties> = (
-  rawUserProperties,
-) => {
-  // 1. ADUANA DE ADN: Purificación de configuración técnica
-  const componentConfiguration = GlobalSearchWidgetPropertiesSchema.parse(rawUserProperties);
-  const inputElementReference = useRef<HTMLInputElement>(null);
+export const GlobalSearchWidget: React.FC<Partial<IGlobalSearchWidgetProperties>> = (rawProperties) => {
 
-  // 2. ESTADOS ATÓMICOS DE INTERFAZ
-  const [isInputFocusedBoolean, setIsInputFocusedBoolean] = useState(false);
-  const [activeSearchQueryLiteral, setActiveSearchQueryLiteral] = useState('');
+  // 1. ADUANA DE ADN: Purificación técnica
+  const config = GlobalSearchWidgetPropertiesSchema.parse(rawProperties);
 
-  /**
-   * @section Inferencia de Estado de Algoritmo
-   * Determina si el motor de búsqueda debe considerarse activo basándose en el volumen de datos.
-   */
-  const isAlgorithmExecutingBoolean =
-    activeSearchQueryLiteral.length >= componentConfiguration.minimumCharacterQuantityToSearch;
+  // 2. SENSORES DE HARDWARE (Hook Swarm)
+  const {
+    inputReference,
+    isInputFocusedBoolean,
+    handleFocusAction,
+    handleBlurAction
+  } = useSearchHardwareSentry(config.isKeyboardShortcutEnabled);
 
-  /**
-   * @section Gestión de Atajos de Teclado (Hardware Sentry)
-   * 🛡️ LEY ZENITH: Implementación de escucha pasiva para no degradar el Main Thread.
-   */
-  useEffect(() => {
-    if (!componentConfiguration.isKeyboardShortcutEnabled) return;
-
-    const handleKeyboardShortcutAction = (event: KeyboardEvent) => {
-      const isCommandKeyShortcutPressedBoolean = (event.metaKey || event.ctrlKey) && event.key === 'k';
-
-      if (isCommandKeyShortcutPressedBoolean) {
-        event.preventDefault();
-        inputElementReference.current?.focus();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyboardShortcutAction, { passive: false });
-    return () => window.removeEventListener('keydown', handleKeyboardShortcutAction);
-  }, [componentConfiguration.isKeyboardShortcutEnabled]);
+  // 3. ESTADOS LÓGICOS
+  const [activeQueryLiteral, setActiveQueryLiteral] = useState('');
+  const isAlgorithmExecutingBoolean = activeQueryLiteral.length >= config.minimumCharacterQuantityToSearch;
 
   /**
    * @section Gestión de Telemetría de Descubrimiento
    */
-  const handleQueryChangeAction = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const newQueryLiteral = event.target.value;
-      setActiveSearchQueryLiteral(newQueryLiteral);
+  const handleInputChangeAction = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuery = event.target.value;
+    setActiveQueryLiteral(newQuery);
 
-      if (newQueryLiteral.length === componentConfiguration.minimumCharacterQuantityToSearch) {
-        const correlationIdentifier = GenerateCorrelationIdentifier();
-
-        void EmitTelemetrySignal({
-          severityLevelLiteral: 'INFO',
-          moduleIdentifierLiteral: SEARCH_MODULE_IDENTIFIER,
-          operationCodeLiteral: 'SEARCH_INTENT_DETECTED',
-          correlationIdentifier,
-          messageContentLiteral: `Ciudadano iniciando búsqueda: [${newQueryLiteral}]`,
-          contextMetadataSnapshot: { queryLengthQuantity: newQueryLiteral.length },
-        });
-      }
-    },
-    [componentConfiguration.minimumCharacterQuantityToSearch],
-  );
+    if (newQuery.length === config.minimumCharacterQuantityToSearch) {
+      void EmitTelemetrySignal({
+        severityLevelLiteral: 'INFO',
+        moduleIdentifierLiteral: SEARCH_MODULE_IDENTIFIER,
+        operationCodeLiteral: 'SEARCH_INTENT_DETECTED',
+        correlationIdentifier: GenerateCorrelationIdentifier(),
+        messageContentLiteral: `Intención de descubrimiento detectada: [${newQuery}]`,
+        semanticIntentTag: 'USER_DISCOVERY_START',
+        contextMetadataSnapshot: { queryLengthQuantity: newQuery.length }
+      });
+    }
+  }, [config.minimumCharacterQuantityToSearch]);
 
   return (
     <div
-      className={GlobalStyleClassMerger(
-        'relative w-full group',
-        rawUserProperties.externalClassName,
-      )}
+      className={GlobalStyleClassMerger('relative w-full group', config.externalClassName)}
       role="search"
+      data-testid={config.forensicTestIdentifier}
     >
-      <div
-        className={GlobalStyleClassMerger(
-          'flex items-center gap-3 px-5 py-3 rounded-2xl border transition-all duration-500',
-          isInputFocusedBoolean
-            ? 'bg-white border-amber-500 shadow-xl shadow-amber-500/10 ring-4 ring-amber-500/5'
-            : 'bg-slate-50 border-slate-200 hover:border-slate-300',
+      <div className={GlobalStyleClassMerger(
+        'flex items-center gap-3 px-5 py-3 rounded-2xl border transition-all duration-500',
+        isInputFocusedBoolean ? 'bg-white border-amber-500 shadow-xl' : 'bg-slate-50 border-slate-200'
+      )}>
+
+        {/* ICONOGRAFÍA DE ESTADO */}
+        {isAlgorithmExecutingBoolean ? (
+          <Loader2 size={18} className="text-amber-500 animate-spin" />
+        ) : (
+          <SearchIcon size={18} className={isInputFocusedBoolean ? 'text-amber-500' : 'text-slate-400'} />
         )}
-      >
-        <SearchIconIndicator isExecutingBoolean={isAlgorithmExecutingBoolean} isFocusedBoolean={isInputFocusedBoolean} />
 
         <input
-          ref={inputElementReference}
+          ref={inputReference}
           type="text"
-          value={activeSearchQueryLiteral}
-          onChange={handleQueryChangeAction}
-          onFocus={() => setIsInputFocusedBoolean(true)}
-          onBlur={() => setTimeout(() => setIsInputFocusedBoolean(false), 200)}
-          placeholder={
-            rawUserProperties.labels?.inputPlaceholderLiteral ??
-            componentConfiguration.placeholderTextLiteral
-          }
-          aria-label={rawUserProperties.labels?.accessibilityLabelLiteral ?? 'Busca universal'}
+          value={activeQueryLiteral}
+          onChange={handleInputChangeAction}
+          onFocus={handleFocusAction}
+          onBlur={handleBlurAction}
+          placeholder={config.labels?.inputPlaceholderLiteral ?? config.placeholderTextLiteral}
           className="flex-grow bg-transparent border-none outline-none text-sm font-medium text-slate-900 placeholder:text-slate-400"
+          aria-label={config.labels?.accessibilityLabelLiteral}
         />
 
-        <KeyboardShortcutHint isVisibleBoolean={!isAlgorithmExecutingBoolean} />
+        {/* INDICADOR DE ATAJO (Desktop Only) */}
+        {!isAlgorithmExecutingBoolean && (
+          <div className="hidden md:flex items-center gap-1 px-1.5 py-1 rounded-md bg-white border border-slate-200 text-[10px] font-black text-slate-400">
+            <Command size={10} />
+            <span>K</span>
+          </div>
+        )}
       </div>
 
       <SearchFeedbackPanel
         isVisibleBoolean={isInputFocusedBoolean && isAlgorithmExecutingBoolean}
-        statusLabelLiteral={rawUserProperties.labels?.searchingStatusLiteral ?? 'Explorando...'}
+        label={config.labels?.searchingStatusLiteral ?? 'Explorando...'}
       />
-    </div>
-  );
-};
-
-/**
- * @private Component: SearchIconIndicator
- * @description Átomo encargado de la representación de estado del motor de búsqueda.
- */
-const SearchIconIndicator: React.FC<{
-  readonly isExecutingBoolean: boolean;
-  readonly isFocusedBoolean: boolean;
-}> = ({ isExecutingBoolean, isFocusedBoolean }) => {
-  if (isExecutingBoolean) {
-    return <Loader2 size={18} className="text-amber-500 animate-spin" />;
-  }
-  return <Search size={18} className={isFocusedBoolean ? 'text-amber-500' : 'text-slate-400'} />;
-};
-
-/**
- * @private Component: KeyboardShortcutHint
- * @description Indicador visual de acceso rápido para hardware de escritorio.
- */
-const KeyboardShortcutHint: React.FC<{ readonly isVisibleBoolean: boolean }> = ({
-  isVisibleBoolean,
-}) => {
-  if (!isVisibleBoolean) return null;
-  return (
-    <div className="hidden md:flex items-center gap-1 px-1.5 py-1 rounded-md bg-white border border-slate-200 text-[10px] font-black text-slate-400">
-      <Command size={10} />
-      <span>K</span>
-    </div>
-  );
-};
-
-/**
- * @private Component: SearchFeedbackPanel
- * @description Panel de resultados (Placeholder) con rastro de progreso.
- */
-const SearchFeedbackPanel: React.FC<{
-  readonly isVisibleBoolean: boolean;
-  readonly statusLabelLiteral: string;
-}> = ({ isVisibleBoolean, statusLabelLiteral }) => {
-  if (!isVisibleBoolean) return null;
-  return (
-    <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl border border-slate-100 z-[110] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-      <div className="p-8 text-center" aria-live="polite">
-        <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">
-          {statusLabelLiteral}
-        </p>
-        <div className="h-1 w-24 bg-slate-100 mx-auto rounded-full overflow-hidden">
-          <div className="h-full bg-amber-500 w-1/3 animate-pulse" />
-        </div>
-      </div>
     </div>
   );
 };

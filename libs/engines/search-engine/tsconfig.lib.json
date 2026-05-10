@@ -2,15 +2,14 @@
  * @section tsconfig: Emitter (Search Engine)
  * @description Generador de ADN (.d.ts) con redirección física de Grafo.
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * SANEADO Zenith: Implementación de Mapeo de Soberanía para erradicar TS7016.
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    /* --- ESTRATEGIA DE SALIDA ZENITH (Ajustada a 3 niveles) --- */
     "outDir": "../../../dist/out-tsc/libs/engines/search-engine",
     "tsBuildInfoFile": "../../../dist/out-tsc/libs/engines/search-engine/tsconfig.lib.tsbuildinfo",
 
-    /* --- INTEGRIDAD SOBERANA --- */
     "composite": true,
     "declaration": true,
     "declarationMap": true,
@@ -20,14 +19,16 @@
     "importHelpers": true,
     "ignoreDeprecations": "5.0",
 
-    /* --- REDIRECCIÓN DE ADN (Saneado a 3 niveles) --- */
     "baseUrl": ".",
     "paths": {
-      "@floripa-dignidade/telemetry":["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"]
+      /* 🛡️ LEY DEL ENJAMBRE: Redirección de ADN Core */
+      "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
+      "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
+
+      /* 🛡️ MAPEO DE SOBERANÍA: Forzamos el uso de nuestro puente para 'fuse.js' */
+      "fuse.js": ["src/index.d.ts"]
     },
 
-    /* --- RESOLUCIÓN NEXT-GEN --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
@@ -36,9 +37,13 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
 
-  "include": ["src/**/*.ts", "src/**/*.json"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json",
+    "src/index.d.ts"
+  ],
 
-  "exclude":[
+  "exclude": [
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
     "jest.config.ts",
@@ -49,7 +54,7 @@
     "../../../node_modules"
   ],
 
-  "references":[
+  "references": [
     { "path": "../../core/exceptions/tsconfig.lib.json" },
     { "path": "../../core/telemetry/tsconfig.lib.json" }
   ]

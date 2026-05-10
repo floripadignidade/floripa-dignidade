@@ -1,12 +1,9 @@
 /**
  * @section Discovery Engine - Ambient Types Bridge
- * @description Inyección profesional de tipos para 'fuse.js'.
- * Al declarar el módulo aquí, erradicamos el error TS7016 de forma limpia,
- * cumpliendo con el protocolo de calidad del Neural Sentinel.
+ * @description Inyección soberana de tipos para 'fuse.js'.
+ * Erradica el error TS7016 forzando una identidad validada para el motor de búsqueda.
  *
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Cierre de clase y resolución de TS7006/TS7016.
- *
  * @author Raz Podestá - MetaShark Tech
  */
 
@@ -16,26 +13,33 @@ declare module 'fuse.js' {
    * @description Contrato de configuración para el motor de búsqueda difusa.
    */
   export interface IFuseOptions<T> {
-    readonly keys: readonly { readonly name: string; readonly weight: number }[];
+    readonly keys?: readonly (string | { name: string; weight: number })[];
     readonly threshold?: number;
     readonly includeScore?: boolean;
     readonly ignoreLocation?: boolean;
     readonly minMatchCharLength?: number;
+    readonly useTokenSearch?: boolean;
+    readonly includeMatches?: boolean;
+  }
+
+  /**
+   * @interface FuseResult
+   * @description Representación de un hallazgo del algoritmo.
+   */
+  export interface FuseResult<T> {
+    readonly item: T;
+    readonly refIndex: number;
+    readonly score?: number;
   }
 
   /**
    * @class Fuse
-   * @description Motor de búsqueda difusa con tipado genérico estricto.
+   * @description Clase maestra del motor de búsqueda.
    */
   export default class Fuse<T> {
     constructor(list: readonly T[], options?: IFuseOptions<T>);
-
-    /**
-     * Ejecuta una búsqueda difusa sobre la lista indexada.
-     */
-    search(pattern: string): readonly {
-      readonly item: T;
-      readonly score?: number;
-    }[];
+    search(pattern: string | object): readonly FuseResult<T>[];
+    add(doc: T): void;
+    remove(predicate: (doc: T) => boolean): readonly T[];
   }
 }

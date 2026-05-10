@@ -4,76 +4,58 @@
  * validación de pruebas mediante la Redirección de ADN Maestro.
  *
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Resolución de conflicto 'rootDir' y supresión de deprecaciones.
+ * SANEADO Zenith: Alineación de rootDir y blindaje de jurisdicción para CI.
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    /* --- ESTRATEGIA DE SALIDA ZENITH (Flattened Output) --- */
+    /* --- ESTRATEGIA DE SALIDA ZENITH --- */
     "outDir": "../dist/out-tsc/tests",
     "tsBuildInfoFile": "../dist/out-tsc/tests/tsconfig.lib.tsbuildinfo",
 
-    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
     "composite": true,
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
-    /**
-     * 🛡️ SANEADO Zenith: Alineamos rootDir con la raíz del búnker '.' para
-     * permitir que el Gatekeeper valide archivos de configuración (jest)
-     * sin violar la jurisdicción de fuentes.
-     */
+
+    /** 🛡️ LEY ZENITH: rootDir apunta al búnker para incluir specs en la validación */
     "rootDir": ".",
     "noEmit": false,
 
-    /* --- RIGOR DE IDENTIDAD (SRE Compatibility) --- */
-    "ignoreDeprecations": "5.0",
+    /* --- REDIRECCIÓN DE ADN MAESTRO (Consumo de CI) --- */
     "baseUrl": ".",
-
-    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix Performance) --- */
-    /**
-     * 🛡️ LEY DEL ENJAMBRE: El búnker de pruebas consume el ADN físico
-     * desde 'dist/out-tsc' en lugar de los fuentes, acelerando el typecheck.
-     */
     "paths": {
       "@floripa-dignidade/exceptions": ["../dist/out-tsc/libs/core/exceptions/index.d.ts"],
       "@floripa-dignidade/telemetry": ["../dist/out-tsc/libs/core/telemetry/index.d.ts"],
       "@floripa-dignidade/environment-validator": ["../dist/out-tsc/libs/core/environment-validator/index.d.ts"]
     },
 
-    /* --- RESOLUCIÓN NEXT-GEN --- */
     "module": "Preserve",
     "moduleResolution": "Bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
-    /* --- ADN DEL ENTORNO (Test Context) --- */
     "types": ["node", "jest"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
 
   "include": [
     "src/**/*.ts",
-    "src/**/*.tsx"
+    "src/**/*.tsx",
+    "jest.config.ts"
   ],
 
   "exclude": [
     "node_modules",
     "dist",
     "out-tsc",
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts"
+    "../dist",
+    "../node_modules"
   ],
 
-  /**
-   * @section Grafo de Referencias Soberanas
-   */
   "references": [
-    {
-      "path": "../libs/core/exceptions/tsconfig.lib.json"
-    },
-    {
-      "path": "../libs/core/telemetry/tsconfig.lib.json"
-    }
+    { "path": "../libs/core/exceptions/tsconfig.lib.json" },
+    { "path": "../libs/core/telemetry/tsconfig.lib.json" },
+    { "path": "../libs/core/environment-validator/tsconfig.lib.json" }
   ]
 }

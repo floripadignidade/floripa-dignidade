@@ -1,0 +1,35 @@
+/**
+ * @section tsconfig: Gatekeeper (UI Contracts Bunker)
+ * @description Orquestador de la frontera física de los esquemas de UI.
+ * Actúa como escudo de integridad y punto de entrada para el motor de servicios
+ * de tipos, delegando la ejecución física al Emitter especializado.
+ *
+ * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * @author Raz Podestá - MetaShark Tech
+ */
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    /**
+     * 🛡️ LEY DEL GATEKEEPER:
+     * Protege la jurisdicción de archivos prohibiendo la emisión local.
+     */
+    "composite": false,
+    "noEmit": true,
+
+    /**
+     * 🛡️ RIGOR DE IDENTIDAD (SRE Compatibility):
+     * Silenciamos las deprecaciones de 'baseUrl' para mantener la
+     * estabilidad del Grafo mientras transicionamos al motor TS 7.0.
+     */
+    "ignoreDeprecations": "5.0",
+    "baseUrl": "."
+  },
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    }
+  ]
+}

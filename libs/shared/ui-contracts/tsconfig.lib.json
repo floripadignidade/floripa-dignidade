@@ -1,0 +1,45 @@
+/**
+ * @section tsconfig: Emitter (UI Contracts)
+ * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * SANEADO Zenith: Redirección física total para evitar polución de src.
+ */
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    /* --- DESTINO SOBERANO (Fuera del Workspace) --- */
+    "outDir": "../../../dist/out-tsc/libs/shared/ui-contracts",
+    "tsBuildInfoFile": "../../../dist/out-tsc/libs/shared/ui-contracts/tsconfig.lib.tsbuildinfo",
+
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+
+    /* 🛡️ LEY ZENITH: src es la única raíz, cualquier emisión aquí será error */
+    "rootDir": "src",
+    "noEmit": false,
+
+    "baseUrl": ".",
+    "paths": {
+      "@floripa-dignidade/shared-design-system": ["../../../dist/out-tsc/libs/shared/design-system/index.d.ts"]
+    },
+
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+
+    "types": ["node"],
+    "lib": ["ES2022", "DOM"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "dist",
+    "out-tsc",
+    "node_modules"
+  ],
+  "references": [
+    { "path": "../design-system/tsconfig.lib.json" }
+  ]
+}

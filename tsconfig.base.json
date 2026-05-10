@@ -73,7 +73,9 @@
       "@floripa-dignidade/telemetry": ["libs/core/telemetry/src/index.ts"],
       "@floripa-dignidade/territorial-engine": ["libs/modules/territorial-engine/src/index.ts"],
       "@floripa-dignidade/tools": ["libs/tools/src/index.ts"],
-      "@floripa-dignidade/whatsapp-communication-service": ["libs/modules/whatsapp/communication-service/src/index.ts"]
+      "@floripa-dignidade/whatsapp-communication-service": ["libs/modules/whatsapp/communication-service/src/index.ts"],
+      "@floripa-dignidade/shared-design-system": ["libs/shared/design-system/src/index.ts"],
+      "@floripa-dignidade/shared-ui-contracts": ["libs/shared/ui-contracts/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp", "dist"]

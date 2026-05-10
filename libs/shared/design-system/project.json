@@ -1,0 +1,26 @@
+{
+  "name": "@floripa-dignidade/shared-design-system",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/design-system/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:logic", "platform:isomorphic"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:swc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/design-system",
+        "main": "libs/shared/design-system/src/index.ts",
+        "tsConfig": "libs/shared/design-system/tsconfig.lib.json",
+        "stripLeadingPaths": true
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/out-tsc/libs/shared/design-system"],
+      "options": {
+        "command": "tsc -p libs/shared/design-system/tsconfig.lib.json"
+      }
+    }
+  }
+}

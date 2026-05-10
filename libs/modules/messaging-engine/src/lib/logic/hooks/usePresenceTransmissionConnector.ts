@@ -2,104 +2,101 @@
 
 /**
  * @section Messaging Logic - Presence Transmission Orchestrator (Hook)
- * @description Orquestador de sincronización de presencia entre el State Store
- * y el Ledger de Persistencia. Gestiona idempotencia y resiliencia SRE.
+ * @description Orquestador sensorial que vincula el State Store con el Ledger
+ * de Persistencia. Gestiona el ciclo de vida del componente y la idempotencia.
  *
- * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance.
+ * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
+ * SANEADO Zenith: Resolución de TS2307 (Shared State Store) y Atomización SRP.
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import { useEffect, useRef } from 'react';
-import { useGlobalStateStore } from '@floripa-dignidade/shared';
-import type { IGlobalSovereignStore } from '@floripa-dignidade/shared';
-import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
-/* Enjambre Atómico de Dominio */
-import { UpdateUserPresence } from '../mutators/UpdateUserPresence';
+/* 1. Infraestructura Core y Shared (Zenith Boundaries) */
+import { useGlobalStateStore } from '@floripa-dignidade/shared-state-store';
+import type { IGlobalSovereignStore } from '@floripa-dignidade/shared-state-store';
+import { GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
+
+/* 2. Enjambre Atómico Local (Swiss-Watch Swarm) */
 import { CalculatePresenceSovereignSignature } from '../atomic/CalculatePresenceSovereignSignature';
-import { IdentifyHardwarePlatform } from '../atomic/IdentifyHardwarePlatform';
+import { ExecutePresenceSyncTransaction } from '../mutators/atomic/ExecutePresenceSyncTransaction';
 
-const SENSOR_IDENTIFIER = 'PRESENCE_SYNC_CONNECTOR_HOOK';
-
+/**
+ * Hook encargado de la sincronización automática de la presencia del ciudadano.
+ * Implementa una estrategia de "Debounced Sync" para proteger el ancho de banda.
+ *
+ * @param citizenIdentifierLiteral - UUID del ciudadano activo.
+ */
 export const usePresenceTransmissionConnector = (
   citizenIdentifierLiteral: string | undefined
 ): void => {
-  /**
-   * 🛡️ OPTIMIZACIÓN: Selector granular para evitar re-ejecuciones innecesarias.
-   * Extraemos los valores primitivos para que la comparación de dependencias sea estable.
-   */
-  const availabilityStatus = useGlobalStateStore((state: IGlobalSovereignStore) => state.availabilityStatus);
-  const customStatusMessageLiteral = useGlobalStateStore((state: IGlobalSovereignStore) => state.customStatusMessageLiteral);
-  const activePushTokenSecret = useGlobalStateStore((state: IGlobalSovereignStore) => state.activePushTokenSecret);
-  const lastHeartbeatTimestampISO = useGlobalStateStore((state: IGlobalSovereignStore) => state.lastHeartbeatTimestampISO);
 
+  // 1. SELECTORES DE MEMORIA SOBERANA
+  const {
+    availabilityStatus,
+    customStatusMessageLiteral,
+    activePushTokenSecret,
+    lastHeartbeatTimestampISO
+  } = useGlobalStateStore((state: IGlobalSovereignStore) => ({
+    availabilityStatus: state.availabilityStatus,
+    customStatusMessageLiteral: state.customStatusMessageLiteral,
+    activePushTokenSecret: state.activePushTokenSecret,
+    lastHeartbeatTimestampISO: state.lastHeartbeatTimestampISO
+  }));
+
+  // 2. REFERENCIAS DE CONTROL DE HARDWARE
   const lastSynchronizedSignatureReference = useRef<string>('');
   const isComponentMountedReference = useRef<boolean>(true);
 
   useEffect(() => {
     isComponentMountedReference.current = true;
-    
-    // 1. ADUANA DE IDENTIDAD
+
+    // GUARDIA DE IDENTIDAD: Sin ciudadano no hay rastro de vida.
     if (!citizenIdentifierLiteral) return;
 
-    const correlationIdentifier = GenerateCorrelationIdentifier();
-
     /**
-     * 🛡️ FIX TS2379: Saneamiento de nulidad para exactOptionalPropertyTypes.
-     * Forzamos a que el token sea un string (aunque sea vacío) para cumplir el contrato del átomo,
-     * o aseguramos que el esquema acepte el tipo exacto.
+     * @section Generación de Firma de Soberanía
+     * SANEADO Zenith: Uso de tipos nominales y normalización de nulos.
      */
     const currentStatusSignature = CalculatePresenceSovereignSignature({
-      status: availabilityStatus,
-      customMessage: customStatusMessageLiteral ?? '',
-      pushToken: activePushTokenSecret ?? '' // Normalización para evitar el error de asignación
+      availabilityStatusLiteral: availabilityStatus,
+      customStatusMessageLiteral: customStatusMessageLiteral ?? '',
+      pushSubscriptionTokenSecret: activePushTokenSecret ?? ''
     });
 
-    // 2. FILTRO DE IDEMPOTENCIA: Evita saturación del Data Lake
+    // FILTRO DE IDEMPOTENCIA: Si el estado no ha mutado, abortamos el despacho.
     if (currentStatusSignature === lastSynchronizedSignatureReference.current) {
       return;
     }
 
-    // 3. ESTRATEGIA DE PERSISTENCIA (Debounce SRE)
+    /**
+     * @section Estrategia de Persistencia (SRE Debounce)
+     * Retardamos el envío 1500ms para asegurar que ráfagas de cambios de estado
+     * (ej: Online -> Away rápido) no saturen el Tier Gratuito.
+     */
     const synchronizationTimerReference = setTimeout(async () => {
+      if (!isComponentMountedReference.current) return;
+
+      const correlationIdentifier = GenerateCorrelationIdentifier();
+
       try {
-        const platformIdentifierLiteral = IdentifyHardwarePlatform();
-
-        // Verificación de integridad de montaje (Evita fugas de memoria y errores de estado)
-        if (!isComponentMountedReference.current) return;
-
-        await UpdateUserPresence({
+        // DELEGACIÓN AL ÁTOMO DE TRANSACCIÓN
+        await ExecutePresenceSyncTransaction({
           citizenIdentifier: citizenIdentifierLiteral,
-          currentAvailabilityStatus: availabilityStatus,
+          availabilityStatus,
           customStatusMessageLiteral,
-          lastActivePlatformLiteral: platformIdentifierLiteral,
-          activePushSubscriptionTokenSecret: activePushTokenSecret,
-          lastHeartbeatTimestampISO
+          activePushTokenSecret,
+          lastHeartbeatTimestampISO,
+          correlationIdentifier
         });
 
+        // Actualizamos la firma tras el éxito para evitar redundancia
         lastSynchronizedSignatureReference.current = currentStatusSignature;
 
-        void EmitTelemetrySignal({
-          severityLevel: 'INFO',
-          moduleIdentifier: SENSOR_IDENTIFIER,
-          operationCode: 'PRESENCE_SYNC_NOMINAL',
-          correlationIdentifier,
-          message: 'Sincronización de presencia exitosa.',
-          contextMetadataSnapshot: { platformLiteral: platformIdentifierLiteral }
-        });
-
-      } catch (caughtError: unknown) {
-        if (!isComponentMountedReference.current) return;
-
-        void EmitTelemetrySignal({
-          severityLevel: 'ERROR',
-          moduleIdentifier: SENSOR_IDENTIFIER,
-          operationCode: 'PRESENCE_SYNC_COLLAPSE',
-          correlationIdentifier,
-          message: 'Fallo en la sincronización de presencia.',
-          contextMetadataSnapshot: { 
-            errorDescriptionLiteral: caughtError instanceof Error ? caughtError.message : String(caughtError)
-          }
-        });
+      } catch (_ignoredAuditFault: unknown) {
+        // El fallo ya ha sido reportado por telemetría dentro del átomo.
       }
     }, 1500);
 

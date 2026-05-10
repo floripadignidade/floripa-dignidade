@@ -3,11 +3,11 @@
 /**
  * @section Interaction Logic - Public Reaction Connector (Hook)
  * @description Puente isomórfico entre la interfaz de usuario y el motor de
- * sentimientos. Implementa 'Optimistic UI' para latencia cero percibida y
- * 'Sync Sentry' para el encolamiento de acciones en entornos sin red.
+ * sentimientos. Implementa 'Optimistic UI' y 'Sync Sentry' para resiliencia offline.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Functional Atomicity.
- * SANEADO Zenith: Inyección de caché de impacto (Reputation Slice) y Prosa ISO.
+ * Protocolo OEDP-V17.0 - High Performance SRE & Swarm Intelligence.
+ * SANEADO Zenith: Resolución de TS2307 (Shared State Store), atomización de
+ * consenso y cumplimiento de Prosa ISO (ADR 0002).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -15,59 +15,55 @@
 
 import { useCallback, useState } from 'react';
 
-/* 1. Infraestructura Core & Shared (Sovereign Swarm) */
-import { useGlobalStateStore } from '@floripa-dignidade/shared';
-import type { IGlobalSovereignStore } from '@floripa-dignidade/shared';
+/* 1. Infraestructura de Memoria Soberana (Fragmented Shared Boundary) */
+import { useGlobalStateStore } from '@floripa-dignidade/shared-state-store';
+import type { IGlobalSovereignStore } from '@floripa-dignidade/shared-state-store';
 
+/* 2. Infraestructura Core (Atmos PascalCase) */
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier
 } from '@floripa-dignidade/telemetry';
 
-/* 2. ADN Estructural y Enjambre de Dominio */
+/* 3. ADN Estructural y Enjambre de Dominio */
 import type { IUserIdentity } from '@floripa-dignidade/identity';
-import { ProcessPublicReactionTransaction } from '../ProcessPublicReactionTransaction';
 import { BuildPublicReactionPayload } from '../atomic/BuildPublicReactionPayload';
+import { CalculateOptimisticConsensus } from '../atomic/CalculateOptimisticConsensus';
 import { TransmitPublicReactionToCloud } from '../atomic/TransmitPublicReactionToCloud';
-
-/**
- * @interface IUsePublicReactionParameters
- * @description Contrato inmutable de parametrización para el orquestador visual.
- */
-export interface IUsePublicReactionParameters {
-  readonly targetEntityIdentifier: string;
-  readonly targetApiEndpointLiteral: string;
-  readonly activeCitizenIdentitySnapshot?: IUserIdentity;
-}
-
-/**
- * @interface IUsePublicReactionResult
- * @description Capacidades expuestas para la interfaz ciudadana.
- */
-export interface IUsePublicReactionResult {
-  readonly isExecutingBoolean: boolean;
-  readonly optimisticPolarityNumeric: number;
-  readonly submitReactionAction: (polarityNumeric: number, emoticonIntentionLiteral?: string) => Promise<void>;
-}
+import { ProcessPublicReactionTransaction } from '../ProcessPublicReactionTransaction';
 
 /** Identificador técnico del aparato para el Neural Sentinel. */
 const REACTION_HOOK_IDENTIFIER = 'PUBLIC_REACTION_CONNECTOR_HOOK';
 
 /**
- * Hook de élite para la gestión de reacciones ciudadanas.
- * Orquesta la transformación atómica, persistencia cloud y estado visual.
+ * @interface IUsePublicReactionResult
+ * @description Capacidades expuestas para la interacción ciudadana en la UI.
+ */
+export interface IUsePublicReactionResult {
+  /** Estado de ejecución física de la transacción. */
+  readonly isExecutingBoolean: boolean;
+  /** Valor de polaridad reflejado instantáneamente para el feedback visual. */
+  readonly optimisticPolarityNumeric: number;
+  /** Gatillo de acción para disparar una nueva reacción. */
+  readonly submitReactionAction: (polarityNumeric: number, emoticonIntentionLiteral?: string) => Promise<void>;
+}
+
+/**
+ * Hook encargado de la gestión de reacciones con rastro de telemetría y resiliencia.
  *
- * @param parameters - Configuración de la entidad destino y contexto de identidad.
- * @returns {IUsePublicReactionResult} Operaciones atómicas para la UI.
+ * @param targetEntityIdentifier - UUID de la entidad que recibe el impacto.
+ * @param targetApiEndpointLiteral - URL física para la persistencia cloud.
+ * @param activeCitizenIdentitySnapshot - Contexto de identidad validado.
  */
 export const usePublicReaction = (
-  parameters: IUsePublicReactionParameters
+  targetEntityIdentifier: string,
+  targetApiEndpointLiteral: string,
+  activeCitizenIdentitySnapshot?: IUserIdentity
 ): IUsePublicReactionResult => {
 
   /**
-   * @section Integración SRE y Memoria Soberana (State Store)
-   * 🛡️ SANEADO Zenith: Incorporamos la acción de caché de impacto para que el
-   * ciudadano vea el peso de su voto reflejado instantáneamente.
+   * @section Integración SRE (Sync Sentry)
+   * 🛡️ SANEADO Zenith: Uso de selectores granulares del búnker 'shared-state-store'.
    */
   const {
     isNetworkOnlineBoolean,
@@ -82,6 +78,10 @@ export const usePublicReaction = (
   const [isExecutingBoolean, setIsExecutingBoolean] = useState(false);
   const [optimisticPolarityNumeric, setOptimisticPolarityNumeric] = useState(0);
 
+  /**
+   * @section Acción Primaria: submitReactionAction
+   * Orquesta el flujo sanguíneo digital de la interacción.
+   */
   const submitReactionAction = useCallback(async (
     polarityNumeric: number,
     emoticonIntentionLiteral?: string
@@ -89,25 +89,25 @@ export const usePublicReaction = (
     const correlationIdentifier = GenerateCorrelationIdentifier();
     const previousPolarityNumeric = optimisticPolarityNumeric;
 
-    // 1. ACTUALIZACIÓN VISUAL INMEDIATA (Optimistic UI)
+    // 1. ACTUALIZACIÓN VISUAL INMEDIATA (Optimistic Pattern)
     setOptimisticPolarityNumeric(polarityNumeric);
     setIsExecutingBoolean(true);
 
     try {
       // 2. CONSTRUCCIÓN Y PONDERACIÓN (Delegación Atómica)
       const rawInteractionPayloadSnapshot = BuildPublicReactionPayload(
-        parameters.targetEntityIdentifier,
+        targetEntityIdentifier,
         polarityNumeric,
-        parameters.activeCitizenIdentitySnapshot,
+        activeCitizenIdentitySnapshot,
         emoticonIntentionLiteral
       );
 
       const validatedReactionSnapshot = await ProcessPublicReactionTransaction(
         rawInteractionPayloadSnapshot,
-        parameters.activeCitizenIdentitySnapshot
+        activeCitizenIdentitySnapshot
       );
 
-      // 3. VIGILANCIA DE RED (Offline Mode Support)
+      // 3. VIGILANCIA DE RED (SRE Resiliencia)
       if (!isNetworkOnlineBoolean) {
         IncrementPendingQueueAction();
 
@@ -116,7 +116,7 @@ export const usePublicReaction = (
           moduleIdentifierLiteral: REACTION_HOOK_IDENTIFIER,
           operationCodeLiteral: 'REACTION_QUEUED_OFFLINE',
           correlationIdentifier,
-          messageContentLiteral: 'Sin conexión de red. Reacción encolada para sincronización diferida.',
+          messageContentLiteral: 'INTERACTION.LOGS.OFFLINE_DEFERRAL',
           semanticIntentTag: 'OFFLINE_STATE_DEFERRAL'
         });
 
@@ -124,48 +124,39 @@ export const usePublicReaction = (
         return;
       }
 
-      // 4. TRANSMISIÓN FÍSICA (Delegación Atómica)
+      // 4. TRANSMISIÓN FÍSICA (Delegación al Átomo de I/O)
       await TransmitPublicReactionToCloud(
-        parameters.targetApiEndpointLiteral,
+        targetApiEndpointLiteral,
         validatedReactionSnapshot
       );
 
-      /**
-       * 5. ACTUALIZACIÓN DE MEMORIA CACHÉ (Bayesian Reflection)
-       * Simulamos un impacto en el consenso para que la UI principal (Frontpage)
-       * no deba re-consultar la base de datos inmediatamente.
-       *
-       * NOTA: El cálculo es una aproximación optimista. El servidor calculará
-       * el valor real Bayesiano en background.
-       */
-      const simulatedConsensusIndexNumeric = polarityNumeric === 0 ? 0.5 : 1.0;
+      // 5. REFLEJO EN CACHÉ BAYESIANA (Delegación al Átomo de Lógica)
+      const simulatedConsensusIndexNumeric = CalculateOptimisticConsensus(polarityNumeric);
 
       CacheImpactIndicatorAction(
-        parameters.targetEntityIdentifier,
+        targetEntityIdentifier,
         validatedReactionSnapshot.calculatedImpactWeightNumeric,
         simulatedConsensusIndexNumeric
       );
 
-      // 6. REPORTE SRE (Nominal Success)
+      // 6. REPORTE DE ÉXITO (SRE Visibility)
       void EmitTelemetrySignal({
         severityLevelLiteral: 'INFO',
         moduleIdentifierLiteral: REACTION_HOOK_IDENTIFIER,
         operationCodeLiteral: 'REACTION_SYNC_SUCCESSFUL',
         correlationIdentifier,
-        messageContentLiteral: 'Reacción pública sincronizada exitosamente con la nube.',
+        messageContentLiteral: 'INTERACTION.LOGS.REACTION_RECEIVED',
         contextMetadataSnapshot: {
-          calculatedImpactWeightNumeric: validatedReactionSnapshot.calculatedImpactWeightNumeric,
-          targetEntityIdentifierLiteral: parameters.targetEntityIdentifier
+          impactWeight: validatedReactionSnapshot.calculatedImpactWeightNumeric,
+          entityId: targetEntityIdentifier
         }
       });
 
     } catch (caughtError: unknown) {
-      // 7. RECUPERACIÓN FORENSE (Optimistic Rollback)
+      // 7. RECUPERACIÓN FORENSE (Rollback)
       setOptimisticPolarityNumeric(previousPolarityNumeric);
 
-      const errorDescriptionLiteral = caughtError instanceof Error
-        ? caughtError.message
-        : String(caughtError);
+      const errorTraceLiteral = caughtError instanceof Error ? caughtError.message : String(caughtError);
 
       void EmitTelemetrySignal({
         severityLevelLiteral: 'ERROR',
@@ -173,14 +164,16 @@ export const usePublicReaction = (
         operationCodeLiteral: 'REACTION_SYNC_FAULT',
         correlationIdentifier,
         messageContentLiteral: 'Fallo al procesar la reacción. Estado visual revertido.',
-        contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
+        contextMetadataSnapshot: { errorTraceLiteral }
       });
     } finally {
       setIsExecutingBoolean(false);
     }
   }, [
     optimisticPolarityNumeric,
-    parameters,
+    targetEntityIdentifier,
+    targetApiEndpointLiteral,
+    activeCitizenIdentitySnapshot,
     isNetworkOnlineBoolean,
     IncrementPendingQueueAction,
     CacheImpactIndicatorAction

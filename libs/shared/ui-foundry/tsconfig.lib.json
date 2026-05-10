@@ -1,18 +1,104 @@
+/**
+ * @section tsconfig: Emitter (UI Foundry)
+ * @description Generador de ADN (.d.ts) con redirección física de Grafo.
+ * Orquesta la emisión de tipos para la Capa de Construcción Visual, garantizando
+ * la soberanía técnica de los componentes React 19 y Next.js 16+.
+ *
+ * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * SANEADO Zenith: Implementación de Mapeo de Soberanía para erradicar TS7016
+ * (Lucide/Framer), blindaje de rootDir y sincronización de la Triada Visual.
+ *
+ * @author Raz Podestá - MetaShark Tech
+ */
 {
-  "extends": "../../../tsconfig.base.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "rootDir": "src",
+    /* --- ESTRATEGIA DE SALIDA ZENITH (Flattened Output) --- */
     "outDir": "../../../dist/out-tsc/libs/shared/ui-foundry",
     "tsBuildInfoFile": "../../../dist/out-tsc/libs/shared/ui-foundry/tsconfig.lib.tsbuildinfo",
+
+    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
     "composite": true,
     "declaration": true,
+    "declarationMap": true,
     "emitDeclarationOnly": true,
-    "allowJs": true
+    "rootDir": "src",
+    "noEmit": false,
+    "importHelpers": true,
+    "ignoreDeprecations": "5.0",
+
+    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6059 / TS6305) --- */
+    /**
+     * 🛡️ LEY DEL ENJAMBRE: Consumimos exclusivamente firmas físicas (.d.ts)
+     * generadas en dist/out-tsc. Esto bloquea la invasión de archivos fuentes,
+     * elimina el error TS6059 y acelera el motor de resolución de Turbopack.
+     */
+    "baseUrl": ".",
+    "paths": {
+      /* 🧱 Cimientos Core */
+      "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
+      "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
+
+      /* 📐 Triada Visual (ADN + Planos) */
+      "@floripa-dignidade/shared-design-system": ["../../../dist/out-tsc/libs/shared/design-system/index.d.ts"],
+      "@floripa-dignidade/shared-ui-contracts": ["../../../dist/out-tsc/libs/shared/ui-contracts/index.d.ts"],
+
+      /* ⚙️ Utilidades y Estado */
+      "@floripa-dignidade/shared-utility": ["../../../dist/out-tsc/libs/shared/utility/index.d.ts"],
+      "@floripa-dignidade/shared-state-store": ["../../../dist/out-tsc/libs/shared/state-store/index.d.ts"],
+
+      /* 🛡️ MAPEO DE SOBERANÍA: Resolución de Asfixia de Identidad (Fix TS7016) */
+      /**
+       * Forzamos al compilador a ignorar los tipos corruptos o ausentes en
+       * node_modules y utilizar nuestro 'Santuario de Tipos' local.
+       */
+      "lucide-react": ["src/index.d.ts"],
+      "framer-motion": ["src/index.d.ts"]
+    },
+
+    /* --- RESOLUCIÓN NEXT-GEN (Bundler Ready) --- */
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+
+    /* --- ADN DEL ENTORNO (Visual Implementation Context) --- */
+    /**
+     * 🛡️ SANEADO Zenith: Inyectamos 'react' y 'react-dom' explícitamente para
+     * autorizar los namespaces de React 19 sin ceguera de compilador.
+     */
+    "types": ["node", "react", "react-dom"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx"
   },
-  "include":["src/**/*.ts", "src/**/*.tsx", "src/types.d.ts"],
-  "exclude":["src/**/*.spec.ts", "src/**/*.test.ts"],
-  "references":[
+
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/index.d.ts" // 🛡️ EL SANTUARIO: Única fuente de verdad para identidades externas.
+  ],
+
+  "exclude": [
+    /* 🛡️ LIMPIEZA DE JURISDICCIÓN: Evitamos rastro técnico en el ADN emitido */
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "jest.config.ts",
+    "dist",
+    "out-tsc",
+    "node_modules",
+    "../../../dist",
+    "../../../node_modules"
+  ],
+
+  /**
+   * @section Grafo de Referencias Soberanas
+   * Establece el vínculo físico con los búnkeres de los que depende la fundición.
+   */
+  "references": [
     { "path": "../../core/telemetry/tsconfig.lib.json" },
-    { "path": "../../shared/utility/tsconfig.lib.json" }
+    { "path": "../utility/tsconfig.lib.json" },
+    { "path": "../state-store/tsconfig.lib.json" },
+    { "path": "../design-system/tsconfig.lib.json" },
+    { "path": "../ui-contracts/tsconfig.lib.json" }
   ]
 }

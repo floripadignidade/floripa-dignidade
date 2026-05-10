@@ -1,11 +1,11 @@
 /**
  * @section Messaging Logic - Push Notification Orchestrator
  * @description Orquestador de élite encargado de la gestión de alertas PWA.
- * Coordina la validación de ADN visual, la detección de tokens de hardware
- * y el despacho físico mediante el enjambre de átomos especializados.
+ * Coordina la validación de ADN, la protección de privacidad (LGPD), la
+ * detección de alcance de hardware y el despacho físico hacia el Gateway.
  *
  * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Resolución de Paradoja Asíncrona (await) en Aduana de Entorno.
+ * SANEADO Zenith: Enmascaramiento de PII, atomización de alcance y rastro i18n.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -13,6 +13,7 @@
 
 import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
 import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
+import { MaskSovereignIdentity } from '@floripa-dignidade/shared-utility';
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
@@ -23,24 +24,21 @@ import {
 import { PushPayloadSchema } from '../../schemas/PushPayload.schema';
 import type { IPushPayload } from '../../schemas/PushPayload.schema';
 
-/* 2. Enjambre Atómico Interno (Swiss-Watch Swarm) */
-import { GetCitizenPushToken } from '../queries/GetCitizenPushToken';
-import { TransmitPushSignal } from './TransmitPushSignal';
+/* 2. Enjambre Atómico Local (Swiss-Watch Swarm) */
 import { CreateSovereignDatabaseHeaders } from './CreateSovereignDatabaseHeaders';
+import { TransmitPushSignal } from './TransmitPushSignal';
+import { VerifyCitizenPushReachability } from './atoms/VerifyCitizenPushReachability';
 
 /** Identificador técnico del aparato para el Neural Sentinel. */
-const PUSH_DISPATCHER_IDENTIFIER = 'WEB_PUSH_GATEWAY_ORCHESTRATOR';
+const PUSH_ORCHESTRATOR_IDENTIFIER = 'WEB_PUSH_GATEWAY_ORCHESTRATOR';
 
 /**
  * Ejecuta el despacho integral de una notificación Push al dispositivo del ciudadano.
- * Implementa el patrón "Cloud Sovereign" garantizando que los secretos de red
- * estén plenamente resueltos antes de la invocación del Gateway.
+ * Implementa el patrón "Cloud Sovereign" con protección de identidad forense.
  *
  * @param targetCitizenIdentifier - UUID del destinatario legítimo.
  * @param unvalidatedPushPayloadSnapshot - Datos crudos de la alerta visual.
- * @returns {Promise<boolean>} Verdadero si la señal fue aceptada por el Gateway de entrega.
- * @throws {ValidationException} Si el payload viola el contrato de integridad.
- * @throws {InternalSystemException} Si la infraestructura cloud colapsa.
+ * @returns {Promise<boolean>} Verdadero si la señal fue aceptada para entrega.
  */
 export const DispatchPushNotification = async (
   targetCitizenIdentifier: string,
@@ -48,17 +46,23 @@ export const DispatchPushNotification = async (
 ): Promise<boolean> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
+  /**
+   * 🛡️ PROTECCIÓN DE PRIVACIDAD (PII Masking)
+   * Enmascaramos el identificador del ciudadano para que el rastro de
+   * telemetría no exponga datos sensibles en logs de auditoría.
+   */
+  const maskedRecipientIdLiteral = MaskSovereignIdentity({
+    rawIdentityLiteral: targetCitizenIdentifier,
+    maskingStrategyLiteral: 'CITIZEN_NAME'
+  });
+
   return await TraceExecutionTime(
-    PUSH_DISPATCHER_IDENTIFIER,
+    PUSH_ORCHESTRATOR_IDENTIFIER,
     'EXECUTE_PUSH_NOTIFICATION_FLOW',
     correlationIdentifier,
     async () => {
       try {
-        /**
-         * 1. CAPTURA DE INFRAESTRUCTURA (Aislamiento de Hardware)
-         * 🛡️ SANEADO Zenith: Inyección de await para resolver el contrato de secretos.
-         * La aduana garantiza que SUPABASE_URL y SERVICE_KEY sean Branded Types válidos.
-         */
+        // 1. CAPTURA DE INFRAESTRUCTURA (Aduana de Entorno)
         const {
           SUPABASE_URL: cloudUrlLiteral,
           SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret,
@@ -68,60 +72,64 @@ export const DispatchPushNotification = async (
         const validationResult = PushPayloadSchema.safeParse(unvalidatedPushPayloadSnapshot);
 
         if (!validationResult.success) {
-          /** Reporte de violación estructural antes del colapso */
           void EmitTelemetrySignal({
-            severityLevelLiteral: 'WARNING',
-            moduleIdentifierLiteral: PUSH_DISPATCHER_IDENTIFIER,
-            operationCodeLiteral: 'PUSH_ADN_CONTRACT_VIOLATION',
+            severityLevelLiteral: 'CRITICAL',
+            moduleIdentifierLiteral: PUSH_ORCHESTRATOR_IDENTIFIER,
+            operationCodeLiteral: 'PUSH_PAYLOAD_DNA_CORRUPTION',
             correlationIdentifier,
-            messageContentLiteral: 'La estructura de la notificación Push es inválida o está corrupta.',
-            contextMetadataSnapshot: { issuesCollection: validationResult.error.flatten() }
+            messageContentLiteral: 'MESSAGING.ERRORS.MESSAGE_ADN_CORRUPTED',
+            contextMetadataSnapshot: {
+              recipientMask: maskedRecipientIdLiteral,
+              issuesCollection: validationResult.error.flatten()
+            }
           });
 
-          throw new ValidationException('CONTRATO_PUSH_INVALIDO', {
-            issuesCollection: validationResult.error.flatten()
-          });
+          throw new ValidationException('ADN_DE_NOTIFICACION_PUSH_CORRUPTO');
         }
 
         const validatedPayload: IPushPayload = validationResult.data;
 
-        // 3. SENSOR DE PRESENCIA (Recuperación de Token de Hardware)
-        const activePushTokenLiteral = await GetCitizenPushToken(
+        // 3. SENSOR DE ALCANCE (Hardware Detection)
+        const { isReachableBoolean, pushTokenSecret } = await VerifyCitizenPushReachability(
           targetCitizenIdentifier,
           cloudUrlLiteral,
           cloudSecurityKeySecret
         );
 
-        if (!activePushTokenLiteral) {
+        if (!isReachableBoolean || !pushTokenSecret) {
           void EmitTelemetrySignal({
             severityLevelLiteral: 'INFO',
-            moduleIdentifierLiteral: PUSH_DISPATCHER_IDENTIFIER,
-            operationCodeLiteral: 'CITIZEN_DEVICE_UNREACHABLE',
+            moduleIdentifierLiteral: PUSH_ORCHESTRATOR_IDENTIFIER,
+            operationCodeLiteral: 'CITIZEN_HARDWARE_UNREACHABLE',
             correlationIdentifier,
-            messageContentLiteral: 'Notificación cancelada: El ciudadano no posee PWA autorizada.',
+            messageContentLiteral: 'Despacho cancelado: El ciudadano no posee PWA vinculada.',
+            contextMetadataSnapshot: { recipientMask: maskedRecipientIdLiteral }
           });
           return false;
         }
 
-        // 4. SEGURIDAD Y TRANSMISIÓN (Delegación Atómica)
+        // 4. SEGURIDAD Y TRANSMISIÓN (I/O Delegation)
         const securityHeaders = CreateSovereignDatabaseHeaders(cloudSecurityKeySecret, 'minimal');
 
         await TransmitPushSignal(
           cloudUrlLiteral,
           securityHeaders,
-          activePushTokenLiteral,
+          pushTokenSecret,
           validatedPayload,
           correlationIdentifier
         );
 
-        // 5. REPORTE DE ÉXITO (SRE Analytics)
+        // 5. REPORTE DE ÉXITO (SRE Visibility)
         void EmitTelemetrySignal({
           severityLevelLiteral: 'INFO',
-          moduleIdentifierLiteral: PUSH_DISPATCHER_IDENTIFIER,
-          operationCodeLiteral: 'PUSH_DELIVERY_CONFIRMED',
+          moduleIdentifierLiteral: PUSH_ORCHESTRATOR_IDENTIFIER,
+          operationCodeLiteral: 'PUSH_SIGNAL_DISPATCHED_NOMINAL',
           correlationIdentifier,
-          messageContentLiteral: 'Señal de alerta entregada al sistema operativo del ciudadano.',
-          contextMetadataSnapshot: { citizenId: targetCitizenIdentifier }
+          messageContentLiteral: 'MESSAGING.LOGS.NOTIFICATION_BROADCAST_SUCCESS',
+          contextMetadataSnapshot: {
+            recipientMask: maskedRecipientIdLiteral,
+            tagIdentifier: validatedPayload.notificationTagIdentifier
+          }
         });
 
         return true;
@@ -136,15 +144,18 @@ export const DispatchPushNotification = async (
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
-          moduleIdentifierLiteral: PUSH_DISPATCHER_IDENTIFIER,
-          operationCodeLiteral: 'PUSH_FLOW_COLLAPSE',
+          moduleIdentifierLiteral: PUSH_ORCHESTRATOR_IDENTIFIER,
+          operationCodeLiteral: 'PUSH_ORCHESTRATION_COLLAPSE',
           correlationIdentifier,
-          messageContentLiteral: 'Colapso crítico en el orquestador de notificaciones Push.',
-          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
+          messageContentLiteral: 'Fallo catastrófico en el orquestador de alertas PWA.',
+          contextMetadataSnapshot: {
+            errorTrace: errorDescriptionLiteral,
+            recipientMask: maskedRecipientIdLiteral
+          },
         });
 
         throw new InternalSystemException('FALLO_EN_DESPACHO_PUSH_SRE', {
-          originalErrorLiteral: errorDescriptionLiteral,
+          originalError: errorDescriptionLiteral,
           correlationIdentifier,
         });
       }
