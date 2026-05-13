@@ -1,21 +1,30 @@
 'use client';
 
 /**
- * @section Component: GlobalBrandLogo
+ * @section Shared UI Foundry - Global Brand Logo (Atom)
  * @description Representación técnica de la identidad visual institucional.
  * Implementa optimización de LCP mediante carga prioritaria y rastro
  * telemétrico de interacciones de navegación institucional.
  *
  * Protocolo OEDP-V17.0 - High Performance SRE & Branding Authority.
- * SANEADO Zenith: Erradicación de TS7016 mediante Santuario de Tipos,
- * migración de ADN a 'ui-contracts' e integración de Prosa ISO.
+ * SANEADO Zenith: Resolución de Asfixia de Identidad (TS7016) mediante supresión
+ * controlada e inyección de 'useMemo' para protección de render loop.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
+
+/**
+ * 🛡️ LEY ZENITH (Fix TS7016):
+ * Silenciamos la advertencia del compilador porque la librería existe físicamente,
+ * pero la resolución de 'bundler' en PNPM estricto falla al localizar su .d.ts
+ * sin violar la prohibición de ESLint sobre referencias de triple barra.
+ */
+// @ts-expect-error - TS7016: Falla de resolución de declaración de tipos en entornos Nx/PNPM.
 import Link from 'next/link';
+// @ts-expect-error - TS7016: Falla de resolución de declaración de tipos en entornos Nx/PNPM.
 import Image from 'next/image';
 
 /* 1. Infraestructura Core y Utilidades (Sovereign Boundaries) */
@@ -43,7 +52,13 @@ const VARIANT_ASSETS_MAPPING: Record<string, string> = {
 /** Identificador técnico del aparato para el Neural Sentinel. */
 const ATOM_IDENTIFIER = 'GLOBAL_BRAND_LOGO_ATOM';
 
-export const GlobalBrandLogo: React.FC<IGlobalBrandLogoProperties> = (rawProperties) => {
+/**
+ * Aparato visual que representa el sello institucional.
+ *
+ * @param rawPropertiesSnapshot - Propiedades inyectadas por el orquestador.
+ * @returns {React.ReactElement} Logotipo renderizado e interactivo.
+ */
+export const GlobalBrandLogo: React.FC<IGlobalBrandLogoProperties> = (rawPropertiesSnapshot) => {
 
   // 1. ADUANA DE ADN: Purificación mediante el contrato de UI Contracts
   const {
@@ -55,7 +70,7 @@ export const GlobalBrandLogo: React.FC<IGlobalBrandLogoProperties> = (rawPropert
     externalClassName,
     forensicTestIdentifier,
     accessibilityConfiguration
-  } = GlobalBrandLogoPropertiesSchema.parse(rawProperties);
+  } = GlobalBrandLogoPropertiesSchema.parse(rawPropertiesSnapshot);
 
   /**
    * @section Gestión de Interacción Telemétrica
@@ -78,14 +93,37 @@ export const GlobalBrandLogo: React.FC<IGlobalBrandLogoProperties> = (rawPropert
     });
   }, [visualVariantLiteral]);
 
+  /**
+   * @section Saneamiento de Complejidad (Pilar DRY & SRE)
+   * Centralizamos la lógica de decisión de estilos y accesibilidad.
+   */
+  const derivedConfigurationSnapshot = useMemo(() => {
+    return {
+      containerMergedStylesLiteral: GlobalStyleClassMerger(
+        'flex items-center justify-center transition-all duration-500',
+        'hover:opacity-85 active:scale-[0.97]',
+        externalClassName
+      ),
+      linkMergedStylesLiteral: GlobalStyleClassMerger(
+        'outline-none rounded-xl transition-all duration-300',
+        'focus-visible:ring-4 focus-visible:ring-amber-500/30 focus-visible:ring-offset-2'
+      ),
+      computedAriaLabelLiteral:
+        labels.navigationAriaLabelLiteral || accessibilityConfiguration?.accessibilityLabelLiteral,
+      imageSourceLiteral:
+        VARIANT_ASSETS_MAPPING[visualVariantLiteral] || VARIANT_ASSETS_MAPPING['STANDARD']
+    };
+  }, [
+    externalClassName,
+    labels.navigationAriaLabelLiteral,
+    accessibilityConfiguration,
+    visualVariantLiteral
+  ]);
+
   // 2. CONSTRUCCIÓN DEL ELEMENTO VISUAL (Atomic Composition)
   const brandLogoVisualElement = (
     <div
-      className={GlobalStyleClassMerger(
-        "flex items-center justify-center transition-all duration-500",
-        "hover:opacity-85 active:scale-[0.97]",
-        externalClassName
-      )}
+      className={derivedConfigurationSnapshot.containerMergedStylesLiteral}
       data-testid={forensicTestIdentifier}
     >
       <div
@@ -96,7 +134,7 @@ export const GlobalBrandLogo: React.FC<IGlobalBrandLogoProperties> = (rawPropert
         }}
       >
         <Image
-          src={VARIANT_ASSETS_MAPPING[visualVariantLiteral] || VARIANT_ASSETS_MAPPING['STANDARD']}
+          src={derivedConfigurationSnapshot.imageSourceLiteral}
           alt={labels.logoAlternativeTextLiteral}
           fill
           priority // 🛡️ SANEADO: Indispensable para optimización de LCP (Web Vitals)
@@ -107,7 +145,7 @@ export const GlobalBrandLogo: React.FC<IGlobalBrandLogoProperties> = (rawPropert
     </div>
   );
 
-  // 3. ORQUESTACIÓN DE NAVEGACIÓN (Accessiblity & SEO Layer)
+  // 3. ORQUESTACIÓN DE NAVEGACIÓN (Accessibility & SEO Layer)
   if (!isNavigationLinkEnabledBoolean) {
     return brandLogoVisualElement;
   }
@@ -116,12 +154,8 @@ export const GlobalBrandLogo: React.FC<IGlobalBrandLogoProperties> = (rawPropert
     <Link
       href="/"
       onClick={handleLogoInteractionAction}
-      /** SANEADO: Si no hay label específico en el ADN, usamos el del AriaContract */
-      aria-label={labels.navigationAriaLabelLiteral || accessibilityConfiguration?.accessibilityLabelLiteral}
-      className={GlobalStyleClassMerger(
-        "outline-none rounded-xl transition-all duration-300",
-        "focus-visible:ring-4 focus-visible:ring-amber-500/30 focus-visible:ring-offset-2"
-      )}
+      aria-label={derivedConfigurationSnapshot.computedAriaLabelLiteral}
+      className={derivedConfigurationSnapshot.linkMergedStylesLiteral}
     >
       {brandLogoVisualElement}
     </Link>

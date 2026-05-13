@@ -8,14 +8,14 @@
  * contraste visual y el rendimiento (SRE Performance).
  *
  * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Atomización del disparador móvil, optimización de renderizado
- * mediante 'useMemo', cumplimiento de Rutas Limpias y Prosa ISO (ADR 0002).
+ * SANEADO Zenith: Resolución de asfixia de contrato (TS2322), inyección de
+ * telemetría de montaje atomizada y cumplimiento estricto de Prosa ISO.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 
 /* 1. Infraestructura Core y Utilidades (Sovereign Swarm) */
 import {
@@ -34,11 +34,6 @@ import { useHeaderSentry } from './navigation-header/hooks/useHeaderSentry';
 import { DesktopNavigationMenu } from './navigation-header/molecules/DesktopNavigationMenu';
 import { MobileNavigationDrawer } from './navigation-header/molecules/MobileNavigationDrawer';
 import { NavigationActionsSwarm } from './navigation-header/molecules/NavigationActionsSwarm';
-
-/**
- * 🛡️ LEY DE ATOMIZACIÓN: El disparador móvil ha sido elevado a Átomo Soberano.
- * Se entrega como búnker independiente en el siguiente ciclo.
- */
 import { NavigationMobileTrigger } from './navigation-header/atoms/NavigationMobileTrigger';
 
 /** Identificador técnico del aparato para el Neural Sentinel. */
@@ -49,7 +44,7 @@ const ORCHESTRATOR_IDENTIFIER = 'MAIN_NAVIGATION_HEADER_ORCHESTRATOR';
  * @description Contrato inmutable para la parametrización del encabezado global.
  * Sigue la norma ISO de Objeto + Propiedad + Representación.
  */
-interface IGlobalMainNavigationHeaderProperties {
+export interface IGlobalMainNavigationHeaderProperties {
   /** Diccionario de traducciones íntegro validado por la aduana Zod. */
   readonly translationDictionary: IMainNavigationHeaderI18n;
   /** Clases CSS externas para ajustes de posicionamiento perimetral. */
@@ -75,8 +70,14 @@ export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderPro
     toggleMobileMenuAction
   } = useHeaderSentry(ORCHESTRATOR_IDENTIFIER);
 
+  /** 🛡️ SRE SENTRY: Previene doble rastro en React 19 Strict Mode */
+  const hasMountedBooleanReference = useRef(false);
+
   // --- 2. TELEMETRÍA DE MONTAJE (Audit Trail) ---
   useEffect(() => {
+    if (hasMountedBooleanReference.current) return;
+    hasMountedBooleanReference.current = true;
+
     const correlationIdentifier = GenerateCorrelationIdentifier();
 
     void EmitTelemetrySignal({
@@ -90,7 +91,7 @@ export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderPro
         renderTimestampISO: new Date().toISOString()
       }
     });
-  }, []);
+  },[]);
 
   /**
    * @section Arquitectura de Estilos Dinámicos
@@ -112,7 +113,7 @@ export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderPro
     <header
       className={headerContainerStylesLiteral}
       role="banner"
-      aria-label="Navegação Institucional Principal"
+      aria-label="Navegación Institucional Principal"
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
 
@@ -131,8 +132,9 @@ export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderPro
         />
 
         {/* ÁREA B: NAVEGACIÓN ESCRITORIO (Molecule Swarm) */}
+        {/** 🛡️ SANEADO Zenith (Fix TS2322): Sincronización nominal de contrato */}
         <DesktopNavigationMenu
-          dictionary={translationDictionary.navigationPaths}
+          translationDictionarySnapshot={translationDictionary.navigationPaths}
         />
 
         {/* ÁREA C: ACCIONES DE CONVERSIÓN (Discovery & Conversion Swarm) */}

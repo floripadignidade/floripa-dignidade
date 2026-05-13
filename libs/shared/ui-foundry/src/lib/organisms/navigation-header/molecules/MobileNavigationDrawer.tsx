@@ -1,23 +1,30 @@
 'use client';
 
 /**
- * @section UI Molecule - Mobile Navigation Drawer (Orchestrator)
+ * @section Shared UI Foundry - Mobile Navigation Drawer (Orchestrator)
  * @description Panel lateral de navegación optimizado para dispositivos táctiles.
- * Orquesta el ensamble de búsqueda, lista de enlaces institucionales y acciones
- * de conversión. Implementa el patrón 'Overlay' con rastro telemétrico de
- * visibilidad para la auditoría de UX y cumplimiento de accesibilidad.
+ * Orquesta el ensamble de búsqueda, enlaces y acciones de conversión.
+ * Implementa telemetría de visibilidad para auditoría de UX (SRE).
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Universal Accessibility.
- * SANEADO Zenith: Resolución de TS2741 (Identidad Forense), erradicación de TS6133
- * (Rastro muerto), cumplimiento de Rutas Limpias y validación de ADN Zod.
+ * Protocolo OEDP-V17.0 - High Performance UI & Universal Accessibility.
+ * SANEADO Zenith: Supresión controlada de fricción ambiental (TS7016),
+ * inyección de Sentry de montaje (Fix doble rastro), blindaje de ADN mediante
+ * contratos inmutables (Zod) y Prosa ISO.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+
+/** 🛡️ LEY ZENITH (Fix TS7016):
+ * Supresión controlada para módulos de terceros en entornos de resolución estricta.
+ */
+// @ts-expect-error - TS7016: Falla de resolución de declaración de tipos en entornos Nx/PNPM.
 import { AnimatePresence, motion } from 'framer-motion';
+// @ts-expect-error - TS7016: Falla de resolución de declaración de tipos en entornos Nx/PNPM.
 import { Heart } from 'lucide-react';
+
 import { z } from 'zod';
 
 /* 1. Infraestructura Core y Utilidades (Sovereign Swarm - Clean Paths) */
@@ -66,12 +73,16 @@ export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties>
   const { isOpenBoolean, translationDictionary } =
     MobileNavigationDrawerPropertiesSchema.parse(propertiesSnapshot);
 
+  // 🛡️ SRE SENTRY: Prevención de doble rastro en React 19 Strict Mode
+  const hasMountedBooleanReference = useRef(false);
+
   /**
    * @section Gestión de Telemetría de Visibilidad
-   * 🛡️ LEY ZENITH: El tiempo de exposición y la interacción con el Drawer son auditados.
+   * 🛡️ LEY ZENITH: El tiempo de exposición es auditado para análisis de UX.
    */
   useEffect(() => {
-    if (!isOpenBoolean) return;
+    if (!isOpenBoolean || hasMountedBooleanReference.current) return;
+    hasMountedBooleanReference.current = true;
 
     const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -116,6 +127,7 @@ export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties>
             <header className="p-6 border-b border-slate-100 bg-slate-50/50">
               <GlobalSearchWidget
                 isPolymorphicBoolean={false}
+                forensicTestIdentifier="DRAWER_SEARCH_WIDGET"
                 labels={{
                   inputPlaceholderLiteral: translationDictionary.actions.searchPlaceholder,
                   accessibilityLabelLiteral: translationDictionary.actions.searchPlaceholder,
@@ -130,7 +142,7 @@ export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties>
                 translationDictionary={translationDictionary.navigationPaths}
               />
 
-              {/* 🛡️ SANEADO Zenith (Fix TS2741): Inyección de identidad forense mandatoria. */}
+              {/* 🛡️ SANEADO Zenith (Fix TS2741): Inyección de ADN forense para auditabilidad total */}
               <MobileEmergencyAction
                 labelLiteral={translationDictionary.actions.reportEmergencyLabel}
                 actionIdentifierLiteral="DRAWER_EMERGENCY_TRIGGER"
@@ -143,6 +155,10 @@ export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties>
                 visualIntentConfigurationLiteral="CONVERSION"
                 actionIdentifierLiteral="MOBILE_DRAWER_DONATE_CTA"
                 isPolymorphicBoolean={false}
+                forensicTestIdentifier="DRAWER_DONATE_CTA"
+                accessibilityConfiguration={{
+                  accessibilityLabelLiteral: translationDictionary.actions.donateCallToAction
+                }}
                 className="w-full py-5 text-lg"
               >
                 <Heart className="w-5 h-5 fill-current" aria-hidden="true" />

@@ -4,7 +4,10 @@
  * validación de pruebas mediante la Redirección de ADN Maestro.
  *
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Alineación de rootDir y blindaje de jurisdicción para CI.
+ * SANEADO Zenith: Alineación de rootDir, erradicación de TS6059 (Hemorragia de Fronteras)
+ * y blindaje de jurisdicción aislando los artefactos de configuración.
+ *
+ * @author Raz Podestá - MetaShark Tech
  */
 {
   "extends": "./tsconfig.json",
@@ -13,14 +16,18 @@
     "outDir": "../dist/out-tsc/tests",
     "tsBuildInfoFile": "../dist/out-tsc/tests/tsconfig.lib.tsbuildinfo",
 
+    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
     "composite": true,
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
-
-    /** 🛡️ LEY ZENITH: rootDir apunta al búnker para incluir specs en la validación */
-    "rootDir": ".",
     "noEmit": false,
+
+    /**
+     * 🛡️ LEY ZENITH: rootDir apunta estrictamente a 'src'.
+     * Los archivos de configuración de raíz (.js/.ts) están prohibidos en esta emisión.
+     */
+    "rootDir": "src",
 
     /* --- REDIRECCIÓN DE ADN MAESTRO (Consumo de CI) --- */
     "baseUrl": ".",
@@ -30,19 +37,20 @@
       "@floripa-dignidade/environment-validator": ["../dist/out-tsc/libs/core/environment-validator/index.d.ts"]
     },
 
+    /* --- RESOLUCIÓN NEXT-GEN --- */
     "module": "Preserve",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
+    /* --- ADN DEL ENTORNO DE PRUEBAS --- */
     "types": ["node", "jest"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
 
   "include": [
     "src/**/*.ts",
-    "src/**/*.tsx",
-    "jest.config.ts"
+    "src/**/*.tsx"
   ],
 
   "exclude": [
@@ -53,6 +61,9 @@
     "../node_modules"
   ],
 
+  /**
+   * @section Grafo de Referencias Soberanas
+   */
   "references": [
     { "path": "../libs/core/exceptions/tsconfig.lib.json" },
     { "path": "../libs/core/telemetry/tsconfig.lib.json" },

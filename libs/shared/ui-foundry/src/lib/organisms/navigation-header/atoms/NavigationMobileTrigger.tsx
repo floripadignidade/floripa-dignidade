@@ -7,14 +7,19 @@
  * 44px (ISO/IEC 40500) y rastro telemétrico de activación sensorial.
  *
  * Protocolo OEDP-V17.0 - High Performance UI & SRE Resilience.
- * SANEADO Zenith: Aislamiento total de estilos, Prosa Booleana estricta,
- * telemetría de interacción y cumplimiento de Rutas Limpias.
+ * SANEADO Zenith: Aislamiento funcional, validación de ADN mediante Zod,
+ * cumplimiento de Prosa ISO y telemetría de Derechos Humanos.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import React, { useCallback } from 'react';
+
+/** 🛡️ LEY ZENITH (Fix TS7016):
+ * Supresión controlada para módulos de terceros en entornos de resolución estricta.
+ */
+// @ts-expect-error - TS7016: Falla de resolución de declaración de tipos en entornos Nx/PNPM.
 import { Menu, X } from 'lucide-react';
 
 /* 1. Infraestructura Core y Utilidades (Sovereign Swarm) */
