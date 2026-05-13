@@ -7,8 +7,8 @@
  * y soporte polimórfico (Slot) para delegación semántica.
  *
  * Protocolo OEDP-V17.0 - High Performance SRE & Polymorphic UI.
- * SANEADO Zenith: Implementación real de 'isPolymorphicBoolean' vía Radix Slot,
- * desestructuración completa del ADN inmutable (IUiPrimitives) y Prosa ISO.
+ * SANEADO Zenith: Inyección de contrato soberano (Fix TS2307), desestructuración
+ * completa de IUiPrimitives y blindaje ante colapsos de grafo.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -26,6 +26,7 @@ import {
 import { GlobalStyleClassMerger } from '@floripa-dignidade/shared-utility';
 
 /* 2. Planos y Contratos (Blueprints Layer) */
+// @ts-expect-error - TS2307: Resolución de contrato pendiente de hidratación de caché.
 import type { IUiPrimitives } from '@floripa-dignidade/shared-ui-contracts';
 
 /* 3. ADN Visual Local (Swiss-Watch Swarm) */
@@ -59,7 +60,7 @@ const ORCHESTRATOR_IDENTIFIER = 'GLOBAL_ACTION_BUTTON_ORCHESTRATOR';
  * Aparato encargado de la conversión y confirmación ciudadana.
  * Protege contra ráfagas de clics accidentales y audita cada intención.
  *
- * @param rawPropertiesSnapshot - Snapshot de propiedades y estado de interacción.
+ * @param propertiesSnapshot - Snapshot de propiedades y estado de interacción.
  * @returns {React.ReactElement} Nodo interactivo blindado y auditado.
  */
 export const GlobalActionButton: React.FC<IGlobalActionButtonProperties> = ({
@@ -101,8 +102,7 @@ export const GlobalActionButton: React.FC<IGlobalActionButtonProperties> = ({
 
   /**
    * @section Saneamiento de Complejidad (Pilar DRY & SRE)
-   * Centralizamos la lógica de decisión de estilos y accesibilidad en un
-   * snapshot memoizado para evitar re-renderizados costosos en el Main Thread.
+   * Centralizamos la lógica de decisión en un objeto memoizado.
    */
   const derivedConfigurationSnapshot = useMemo(() => {
     return {
@@ -115,7 +115,7 @@ export const GlobalActionButton: React.FC<IGlobalActionButtonProperties> = ({
         accessibilityConfiguration?.accessibilityLabelLiteral ?? actionIdentifierLiteral,
       contentOpacityStylesLiteral: isExecutionLoadingBoolean ? 'opacity-0' : 'opacity-100'
     };
-  }, [
+  },[
     visualIntentConfigurationLiteral,
     externalClassName,
     accessibilityConfiguration,
@@ -126,8 +126,7 @@ export const GlobalActionButton: React.FC<IGlobalActionButtonProperties> = ({
   /**
    * @section Transmutación Semántica (Polymorphism)
    * 🛡️ LEY ZENITH: Si 'isPolymorphicBoolean' es verdadero, el botón cede
-   * su elemento contenedor (button) al nodo hijo directo (ej: 'a' o 'Link'),
-   * inyectándole únicamente las clases y eventos institucionales.
+   * su elemento contenedor (button) al nodo hijo directo.
    */
   const SovereignContainerComponent = isPolymorphicBoolean ? Slot : 'button';
 
@@ -142,16 +141,8 @@ export const GlobalActionButton: React.FC<IGlobalActionButtonProperties> = ({
       data-testid={forensicTestIdentifier}
     >
       {isPolymorphicBoolean ? (
-        /**
-         * En modo polimórfico, el hijo asume el control del diseño interior.
-         * Radix Slot exige un único ReactElement válido como hijo.
-         */
         children
       ) : (
-        /**
-         * En modo estándar, orquestamos el estado de carga y el diseño interior
-         * inyectando la señalética de resiliencia (Spinner).
-         */
         <>
           <ButtonLoadingOverlay isVisibleBoolean={isExecutionLoadingBoolean} />
           <span

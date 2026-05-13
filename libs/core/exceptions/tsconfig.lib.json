@@ -1,20 +1,24 @@
 /**
  * @section tsconfig: Emitter (Exceptions Engine)
- * @description Generador de ADN (.d.ts) con redirección física de Grafo.
- * Orquesta la emisión de tipos para la gestión unificada de anomalías,
- * garantizando la soberanía del motor de errores en todo el enjambre.
+ * @description Generador de ADN (.d.ts) con redirección física de Grafo hacia
+ * la caché de dist/out-tsc. Orquesta la emisión de tipos del motor de excepciones,
+ * garantizando que el resto del enjambre (Core, Engines, Modules) pueda consumir
+ * la gramática del fallo de forma Type-Safe.
  *
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * SANEADO Zenith: Resolución de Grafo físico (Fix TS6059) mediante normalización
+ * de rootDir y blindaje de jurisdicción física.
+ *
  * @author Raz Podestá - MetaShark Tech
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    /* --- ESTRATEGIA DE SALIDA ZENITH (Flattened Output) --- */
+    /* --- ESTRATEGIA DE SALIDA ZENITH --- */
     "outDir": "../../../dist/out-tsc/libs/core/exceptions",
     "tsBuildInfoFile": "../../../dist/out-tsc/libs/core/exceptions/tsconfig.lib.tsbuildinfo",
 
-    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
+    /* --- INTEGRIDAD SOBERANA --- */
     "composite": true,
     "declaration": true,
     "declarationMap": true,
@@ -24,31 +28,23 @@
     "importHelpers": true,
     "ignoreDeprecations": "5.0",
 
-    /* --- RESOLUCIÓN NEXT-GEN (Alineación Next.js 16+) --- */
-    /**
-     * 🛡️ LEY ZENITH: Preserve mantiene la estructura de módulos intacta
-     * para que Turbopack realice la optimización final de latencia cero.
-     */
+    /* --- RESOLUCIÓN NEXT-GEN (Bundler Ready) --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
+    "skipLibCheck": true,
 
-    /* --- ADN DEL ENTORNO (Isomorphic Context) --- */
-    "types": [],
+    /* --- ADN DEL ENTORNO --- */
+    "types": ["node"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
 
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.json"
-  ],
+  "include":["src/**/*.ts", "src/**/*.json"],
 
-  "exclude": [
-    /* 🛡️ LIMPIEZA DE JURISDICCIÓN: Evitamos fugas de rastro técnico en la emisión */
+  "exclude":[
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
-    "src/**/__tests__/*",
     "jest.config.ts",
     "dist",
     "out-tsc",

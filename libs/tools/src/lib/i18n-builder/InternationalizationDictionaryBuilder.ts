@@ -2,10 +2,12 @@
  * @section Tools - Internationalization Dictionary Weaver Orchestrator
  * @description Orquestador soberano del pipeline de compilación lingüística.
  * Coordina la secuencia de Higiene, Inicialización, Extracción y Persistencia.
- * Garantiza que la red de transparencia lingüística sea pura y determinista.
+ * Garantiza que la red de transparencia lingüística sea pura, determinista y
+ * auditable por el Neural Sentinel.
  *
- * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Integración de Fase de Higiene (Purge) y rastro forense absoluto.
+ * Protocolo OEDP-V17.0 - High Performance SRE & Swarm Intelligence.
+ * SANEADO Zenith: Inyección de espera atómica (Await Pipeline), normalización
+ * de rastro forense y consolidación de contratos de integridad (Prosa ISO).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -30,7 +32,8 @@ import { ExecuteRecursiveEmissionsPurge } from '../maintenance-tools/ExecuteRecu
 
 /**
  * Ejecuta el pipeline integral de consolidación de diccionarios multilingües.
- * Implementa la doctrina de "Estado Limpio" mediante la purga proactiva de emisiones.
+ * Implementa la doctrina de "Estado Limpio" mediante la purga proactiva de emisiones
+ * y garantiza la integridad física de los archivos antes de la persistencia.
  *
  * @returns {Promise<void>} Operación resuelta cuando el rastro lingüístico está en disco.
  * @throws {InternalSystemException} Si cualquier fase del pipeline sufre un colapso.
@@ -46,8 +49,8 @@ export const BuildInternationalizationDictionaries = async (): Promise<void> => 
       try {
         /**
          * @section FASE 0: Higiene de Jurisdicción (Clean Pre-flight)
-         * 🛡️ SANEADO Zenith: Eliminamos artefactos antiguos en el directorio de salida
-         * para evitar la persistencia de traducciones fantasma o corruptas.
+         * 🛡️ LEY ZENITH: Eliminamos artefactos antiguos en el directorio de salida
+         * para evitar la persistencia de traducciones fantasma o corruptas en producción.
          */
         await ExecuteRecursiveEmissionsPurge(
           WEAVER_CONFIGURATION.TARGET_OUTPUT_DIRECTORY_LITERAL,
@@ -58,19 +61,18 @@ export const BuildInternationalizationDictionaries = async (): Promise<void> => 
         await InitializeWeaverInfrastructure();
 
         // FASE 2: Extracción (Navegación Recursiva y Auditoría de ADN)
-        const { aggregatedLinguisticDictionaries, forensicAuditTrail } =
-          await ScanAndExtractLinguisticSilos(correlationIdentifier);
+        const extractionResultSnapshot = await ScanAndExtractLinguisticSilos(correlationIdentifier);
 
         // FASE 3: Volcado y Reporte (Persistencia Física y Generación de Evidencia)
         await PersistDictionariesAndAuditReport(
-          aggregatedLinguisticDictionaries,
-          forensicAuditTrail,
+          extractionResultSnapshot.aggregatedLinguisticDictionaries,
+          extractionResultSnapshot.forensicAuditTrail,
           correlationIdentifier
         );
 
         /**
          * @section Reporte de Cierre Nominal
-         * Notificamos al Neural Sentinel el éxito de la compilación con métricas.
+         * Notificamos al Neural Sentinel el éxito de la compilación con métricas detalladas.
          */
         void EmitTelemetrySignal({
           severityLevelLiteral: 'INFO',
@@ -78,8 +80,9 @@ export const BuildInternationalizationDictionaries = async (): Promise<void> => 
           operationCodeLiteral: 'WEAVER_PIPELINE_NOMINAL_SUCCESS',
           correlationIdentifier,
           messageContentLiteral: 'Tejido lingüístico finalizado: Diccionarios sincronizados con el enjambre.',
+          semanticIntentTag: 'I18N_COMPILATION_COMPLETE',
           contextMetadataSnapshot: {
-            processedModulesQuantity: forensicAuditTrail.length,
+            processedModulesQuantity: extractionResultSnapshot.forensicAuditTrail.length,
             targetPathLiteral: WEAVER_CONFIGURATION.TARGET_OUTPUT_DIRECTORY_LITERAL,
             executionTimestampISO: new Date().toISOString()
           }

@@ -6,7 +6,8 @@
  * institucional basada en roles (RBAC).
  *
  * Protocolo OEDP-V17.0 - High Performance & Zero Abbreviations.
- * SANEADO Zenith: Resolución de Paradoja Asíncrona (Fix TS2339) vía Top-Level Await.
+ * SANEADO Zenith: Resolución de Paradoja Asíncrona vía Top-Level Await,
+ * normalización de rutas físicas (Sovereign Path) e inyección de ADN tipado.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -26,6 +27,7 @@ import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-valida
 import { CreatePostgresDatabaseAdapter } from './infrastructure/PostgresDatabaseAdapter';
 import { LexicalEditorSovereign } from './infrastructure/LexicalEditorSovereign';
 import { CreateCloudStoragePlugin } from './infrastructure/CloudStoragePlugin';
+import { ResolveAbsoluteSovereignPath } from './utility/pathUtility';
 
 /* 4. Bóveda de Colecciones Soberanas (Domain Specific Logic) */
 import { CitizenUsersCollection } from './collections/identity/CitizenUsers.collection';
@@ -103,9 +105,13 @@ export default buildConfig({
 
   /**
    * @section Configuración de ADN Técnico (TypeScript)
-   * SANEADO: Ruta absoluta relativa al búnker para asegurar builds deterministas en Vercel.
+   * 🛡️ SANEADO Zenith: Resolución de ruta absoluta para asegurar builds deterministas
+   * evitando errores de IO en el sistema de archivos virtual de Vercel/Turbopack.
    */
   typescript: {
-    outputFile: 'apps/content-manager-system/src/payload-types.ts',
+    outputFile: ResolveAbsoluteSovereignPath(
+      process.cwd(),
+      'apps/content-manager-system/src/payload-types.ts'
+    ),
   },
 });

@@ -5,8 +5,8 @@
  * de ADN -> Captura de Infraestructura -> Mapeo Físico -> Transmisión Cloud.
  *
  * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Inyección de TSDocs Enterprise, eliminación de literales
- * hardcoded, optimización de rastro forense y blindaje de tipos nominales.
+ * SANEADO Zenith: Inyección de TSDocs Enterprise, consolidación del rastro forense
+ * en la aduana de infraestructura y blindaje de tipos nominales (Branded Types).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -20,7 +20,7 @@ import {
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-/* 1. ADN de Entrada y Esquemas (Verbatim Module Syntax - Clean Paths) */
+/* 1. ADN Estructural y Esquemas (Verbatim Module Syntax - Clean Paths) */
 import { SyncIdentityAuthoritySchema } from './atomic/schemas/SyncIdentityAuthority.schema';
 import { MapAuthorityToLedgerRecord } from './atomic/MapAuthorityToLedgerRecord';
 import { TransmitAuthorityLedgerPatch } from './atomic/TransmitAuthorityLedgerPatch';
@@ -56,10 +56,6 @@ export const SyncIdentityAuthority = async (
     async () => {
       try {
         // --- FASE 1: ADUANA DE ADN (Pre-flight Validation) ---
-        /**
-         * 🛡️ LEY ZENITH: Validamos los parámetros antes de consumir recursos de red.
-         * Asegura que el identificador y el snapshot sean conformes al estándar.
-         */
         const aduanaValidationResult = SyncIdentityAuthoritySchema.safeParse({
           citizenIdentifier,
           authoritySnapshot,
@@ -73,34 +69,22 @@ export const SyncIdentityAuthority = async (
           });
         }
 
-        // --- FASE 2: CAPTURA DE INFRAESTRUCTURA (Hardware Isolation) ---
         /**
-         * Resolvemos el contrato de secretos inyectados por el motor de entorno.
-         * El orquestador no accede a process.env, consume la aduana validada.
+         * --- FASE 2: CAPTURA DE INFRAESTRUCTURA (Sovereign Context) ---
+         * 🛡️ LEY ZENITH: Resolución dentro del Trace para medir costo de hardware.
          */
-        const {
-          SUPABASE_URL: cloudUrlLiteral,
-          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret
-        } = await ValidateEnvironmentAduana();
+        const infrastructureSnapshot = await ValidateEnvironmentAduana();
 
         // --- FASE 3: TRANSFORMACIÓN DE PROTOCOLO (Domain to Physics) ---
-        /**
-         * Delegamos en el átomo mapper para transformar el ADN de dominio
-         * al esquema snake_case exigido por la tabla 'citizen_identities_ledger'.
-         */
         const ledgerRecordSnapshot = MapAuthorityToLedgerRecord(
           authoritySnapshot,
           correlationIdentifier
         );
 
         // --- FASE 4: DESPACHO FÍSICO (Cloud I/O Delegation) ---
-        /**
-         * El despacho se realiza de forma atómica. El dispatcher gestiona
-         * los límites de tiempo (AbortSignal) y el protocolo PostgREST.
-         */
         await TransmitAuthorityLedgerPatch({
-          cloudUrlLiteral,
-          cloudSecurityKeySecret,
+          cloudUrlLiteral: infrastructureSnapshot.SUPABASE_URL,
+          cloudSecurityKeySecret: infrastructureSnapshot.SUPABASE_SERVICE_ROLE_KEY,
           citizenIdentifierLiteral: citizenIdentifier as string,
           ledgerRecordSnapshot,
         });
@@ -116,14 +100,14 @@ export const SyncIdentityAuthority = async (
           contextMetadataSnapshot: {
             citizenIdentifier,
             finalTrustWeightScoreNumeric: authoritySnapshot.authorityCoefficientNumeric,
-            isVerifiedHumanBoolean: authoritySnapshot.isVerifiedHumanBoolean
+            isVerifiedHumanBoolean: authoritySnapshot.isVerifiedHumanBoolean,
+            occurrenceTimestampISO: new Date().toISOString()
           }
         });
 
       } catch (caughtError: unknown) {
         // --- FASE 6: GESTIÓN FORENSE DE COLAPSO (Resilience Layer) ---
 
-        /** 🛡️ Propagación de excepciones ya tipadas por la aduana o dispatchers. */
         if (caughtError instanceof ValidationException || caughtError instanceof InternalSystemException) {
           throw caughtError;
         }

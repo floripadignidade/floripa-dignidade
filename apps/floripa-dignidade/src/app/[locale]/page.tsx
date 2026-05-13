@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * @section Localized Frontpage Orchestrator
  * @description Punto de ensamblaje soberano para el embudo de conversión social.
@@ -5,20 +7,14 @@
  * secciones atomizadas. Implementa validación dual (Input/Output) y telemetría forense.
  *
  * Protocolo OEDP-V17.0 - High Performance SRE & Swarm Intelligence.
- * SANEADO Zenith: Resolución de asfixia de tipos (TS7016), inyección de
- * blindaje para Next.js 16, y cumplimiento estricto de Prosa ISO (Zero Abbreviations).
+ * SANEADO Zenith: Resolución de asfixia de tipos (TS7016), blindaje para
+ * Next.js 16, normalización de fallos forenses y Prosa ISO (Zero Abbreviations).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-/**
- * 🛡️ LEY ZENITH (Fix TS7016):
- * Supresión controlada para permitir la resolución del motor de Next.js en entornos de monorepo.
- */
-// @ts-expect-error - TS7016: Falla de resolución de declaración en monorepo PNPM.
 import { notFound } from 'next/navigation';
-// @ts-expect-error - TS7016: Falla de resolución de declaración en monorepo PNPM.
 import type { Metadata } from 'next';
 
 /* 1. Infraestructura Core & Routing (Sovereign Boundaries) */
@@ -33,8 +29,14 @@ import {
 } from '@floripa-dignidade/routing';
 
 /* 2. Planos y Contratos (Blueprints Layer) */
-import { NewsletterSubscriptionFormI18nSchema } from '@floripa-dignidade/shared-ui-contracts';
-import { FrontpageI18nSchema } from './schemas/FrontpageI18n.schema';
+import {
+  NewsletterSubscriptionFormI18nSchema,
+  type INewsletterSubscriptionFormI18n
+} from '@floripa-dignidade/shared-ui-contracts';
+import {
+  FrontpageI18nSchema,
+  type IFrontpageI18n
+} from './schemas/FrontpageI18n.schema';
 
 /* 3. Secciones Atómicas (Pulverización SRP) */
 import { FrontpageHero } from './sections/FrontpageHero';
@@ -98,8 +100,8 @@ export default async function Frontpage(
       `../../i18n/dictionaries/${validatedLocaleIdentifier}.json`
     );
 
-    const frontpageSectionSnapshot = rawUnifiedDictionarySnapshot.default['apps/frontpage'];
-    const newsletterSectionSnapshot = rawUnifiedDictionarySnapshot.default['shared/ui-primitives'];
+    const frontpageSectionSnapshot = rawUnifiedDictionarySnapshot.default['apps/frontpage'] as IFrontpageI18n;
+    const newsletterSectionSnapshot = rawUnifiedDictionarySnapshot.default['shared/ui-primitives'] as INewsletterSubscriptionFormI18n;
 
     // 3. AUDITORÍA DE CONTRATO (Aduana Zod)
     ValidateLinguisticContract(
@@ -141,8 +143,21 @@ export default async function Frontpage(
       </main>
     );
 
-  } catch (_caughtWeaverError: unknown) {
-    // 🛡️ SANEADO (Fix TS7030): Not Found siempre retorna never.
+  } catch (caughtWeaverError: unknown) {
+    // 🛡️ GESTIÓN FORENSE DE FALLO (Resilience Layer)
+    const errorDescriptionLiteral = caughtWeaverError instanceof Error
+      ? caughtWeaverError.message
+      : String(caughtWeaverError);
+
+    void EmitTelemetrySignal({
+      severityLevelLiteral: 'CRITICAL',
+      moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
+      operationCodeLiteral: 'FRONTPAGE_PIPELINE_COLLAPSE',
+      correlationIdentifier,
+      messageContentLiteral: 'Fallo catastrófico en la orquestación de la portada.',
+      contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
+    });
+
     return notFound();
   }
 }

@@ -1,45 +1,62 @@
 /**
  * @section tsconfig: Emitter (UI Contracts)
+ * @description Generador de ADN (.d.ts) con redirección física de Grafo.
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Redirección física total para evitar polución de src.
+ * SANEADO Zenith: Normalización de jurisdicción de Grafo, erradicación de
+ * TS6059 mediante mapeo determinista y blindaje contra archivos de salida previos.
+ *
+ * @author Raz Podestá - MetaShark Tech
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    /* --- DESTINO SOBERANO (Fuera del Workspace) --- */
+    /* --- ESTRATEGIA DE SALIDA ZENITH --- */
     "outDir": "../../../dist/out-tsc/libs/shared/ui-contracts",
     "tsBuildInfoFile": "../../../dist/out-tsc/libs/shared/ui-contracts/tsconfig.lib.tsbuildinfo",
 
+    /* --- INTEGRIDAD SOBERANA --- */
     "composite": true,
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
-
-    /* 🛡️ LEY ZENITH: src es la única raíz, cualquier emisión aquí será error */
-    "rootDir": "src",
     "noEmit": false,
+    "importHelpers": true,
+    "ignoreDeprecations": "5.0",
 
+    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6059) --- */
     "baseUrl": ".",
     "paths": {
       "@floripa-dignidade/shared-design-system": ["../../../dist/out-tsc/libs/shared/design-system/index.d.ts"]
     },
 
+    /* --- RESOLUCIÓN NEXT-GEN --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
+    "skipLibCheck": true,
 
+    /* --- ADN DEL ENTORNO --- */
     "types": ["node"],
     "lib": ["ES2022", "DOM"]
   },
-  "include": ["src/**/*.ts"],
-  "exclude": [
+
+  "include":[
+    "src/**/*.ts",
+    "src/**/*.json"
+  ],
+
+  "exclude":[
     "src/**/*.spec.ts",
+    "src/**/*.test.ts",
     "dist",
     "out-tsc",
-    "node_modules"
+    "node_modules",
+    "../../../dist",
+    "../../../node_modules"
   ],
-  "references": [
+
+  "references":[
     { "path": "../design-system/tsconfig.lib.json" }
   ]
 }

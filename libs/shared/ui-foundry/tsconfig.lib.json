@@ -1,20 +1,19 @@
 /**
- * @section Shared UI Foundry - DNA Emitter (Zenith Configuration)
- * @description Generador de firmas físicas (.d.ts) para la Fundición Visual.
+ * @section tsconfig: Emitter (UI Foundry)
+ * @description Generador de ADN (.d.ts) con redirección física de Grafo.
+ * Orquesta la emisión de tipos para la Fundición Visual, garantizando
+ * que la UI consuma contratos inmutables de forma Type-Safe.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & SOLID Infrastructure.
- * SANEADO Zenith: Erradicación de TS2307 (Asfixia de Identidad) y TS6059
- * mediante la herencia del Grafo Maestro. Eliminamos 'rootDir' y el bloque
- * 'paths' local para permitir que el compilador consuma fuentes (.ts) en
- * memoria durante despliegues CI/CD. Las firmas ambientales (lucide-react)
- * se procesan de forma nativa a través del archivo index.d.ts.
+ * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * SANEADO Zenith: Inyección de Mapeo de Soberanía (Paths) para erradicar
+ * TS2307 y TS7016, y blindaje SRE mediante skipLibCheck.
  *
  * @author Raz Podestá - MetaShark Tech
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    /* --- ESTRATEGIA DE SALIDA ZENITH (Flattened Output) --- */
+    /* --- ESTRATEGIA DE SALIDA ZENITH --- */
     "outDir": "../../../dist/out-tsc/libs/shared/ui-foundry",
     "tsBuildInfoFile": "../../../dist/out-tsc/libs/shared/ui-foundry/tsconfig.lib.tsbuildinfo",
 
@@ -25,26 +24,39 @@
     "emitDeclarationOnly": true,
     "noEmit": false,
     "importHelpers": true,
+    "ignoreDeprecations": "5.0",
 
-    /* --- RESOLUCIÓN NEXT-GEN (Turbopack Ready) --- */
+    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS2307) --- */
+    "baseUrl": ".",
+    "paths": {
+      "@floripa-dignidade/telemetry":["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
+      "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
+      "@floripa-dignidade/shared-design-system":["../../../dist/out-tsc/libs/shared/design-system/index.d.ts"],
+      "@floripa-dignidade/shared-ui-contracts":["../../../dist/out-tsc/libs/shared/ui-contracts/index.d.ts"],
+      "@floripa-dignidade/shared-utility":["../../../dist/out-tsc/libs/shared/utility/index.d.ts"],
+      "@floripa-dignidade/shared-state-store":["../../../dist/out-tsc/libs/shared/state-store/index.d.ts"]
+    },
+
+    /* --- RESOLUCIÓN NEXT-GEN --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
+    "skipLibCheck": true,
 
-    /* --- ADN DEL ENTORNO (Visual Implementation Context) --- */
-    "types": ["node", "react", "react-dom"],
+    /* --- ADN DEL ENTORNO --- */
+    "types":["node", "react", "react-dom"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx"
   },
 
-  "include": [
+  "include":[
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.d.ts"
   ],
 
-  "exclude": [
+  "exclude":[
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
     "jest.config.ts",
@@ -56,7 +68,7 @@
   ],
 
   /**
-   * @section Grafo de Referencias Soberanas (SOLID Boundaries)
+   * @section Grafo de Referencias Soberanas
    */
   "references":[
     { "path": "../../core/telemetry/tsconfig.lib.json" },

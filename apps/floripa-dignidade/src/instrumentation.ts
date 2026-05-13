@@ -5,7 +5,8 @@
  * antes de habilitar el procesamiento de tráfico ciudadano en Next.js 16+.
  *
  * Protocolo OEDP-V17.0 - High Performance SRE & Async Bootstrap Integrity.
- * SANEADO Zenith: Erradicación de acceso a 'process.env' (Fix ESLint) y uso de Sensor Isomórfico.
+ * SANEADO Zenith: Erradicación de acceso directo a 'process.env', blindaje ante
+ * entornos de cliente y reporte forense de colapsos estructurales.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -17,7 +18,7 @@ import {
 } from '@floripa-dignidade/telemetry';
 
 import {
-  GatherEnvironmentMetadata, // 🛡️ SANEADO Zenith: Uso del sensor autorizado
+  GatherEnvironmentMetadata,
   ValidateEnvironmentAduana
 } from '@floripa-dignidade/environment-validator';
 
@@ -34,21 +35,16 @@ import {
 export async function register(): Promise<void> {
   /**
    * @section Validación de Ámbito de Ejecución
-   * SANEADO Zenith: Erradicado el uso directo de 'process.env' para cumplir con el
-   * estándar de soberanía de datos. Utilizamos el átomo 'GatherEnvironmentMetadata'
-   * que proporciona un acceso isomórfico y auditable al hardware.
+   * SANEADO Zenith: Determinación isomórfica del entorno.
+   * La instrumentación es exclusiva de la capa de servidor (Node/Edge).
    */
   const environmentMetadataSnapshot = GatherEnvironmentMetadata();
-  const executionRuntimeIdentifierLiteral = environmentMetadataSnapshot['NEXT_RUNTIME'];
+  const executionRuntimeIdentifierLiteral = environmentMetadataSnapshot['NEXT_RUNTIME'] ?? 'nodejs';
 
   const isServerEnvironmentBoolean =
     executionRuntimeIdentifierLiteral === 'nodejs' ||
     executionRuntimeIdentifierLiteral === 'edge';
 
-  /**
-   * Solo ejecutamos la instrumentación en el lado del servidor para evitar
-   * la fuga de secretos o cómputo redundante en el cliente.
-   */
   if (!isServerEnvironmentBoolean) {
     return;
   }
