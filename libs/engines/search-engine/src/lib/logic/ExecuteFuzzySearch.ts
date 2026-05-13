@@ -1,12 +1,12 @@
 /**
- * @section Discovery Logic - Universal Discovery Orchestrator
- * @description Orquestador superior encargado de coordinar la búsqueda institucional
+ * @section Discovery Logic - Universal Discovery Orchestrator (Master)
+ * @description Orquestador supremo encargado de coordinar la búsqueda institucional
  * con filtros de autoridad (RBAC). Actúa como la aduana de seguridad para el
- * descubrimiento de contenidos en el portal ciudadano.
+ * descubrimiento de contenidos, garantizando la soberanía de datos del ciudadano.
  *
  * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Sincronización con Driver Atómico, erradicación de obsolescencia
- * y cumplimiento estricto de Prosa ISO (ADR 0002).
+ * SANEADO Zenith: Atomización de filtrado perimetral, validación de ADN en
+ * frontera e integración de telemetría ontológica para la IA.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -18,31 +18,31 @@ import {
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-/* 1. ADN Estructural y Contratos (Verbatim Module Syntax) */
-import {
-  SearchResponseSchema
-} from '../schemas/SearchEngine.schema';
+import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
 
-import type {
-  ISearchableEntity,
-  SearchAuthorityRole,
-} from '../schemas/SearchEngine.schema';
+/* 1. ADN Estructural y Contratos (Verbatim Module Syntax) */
+import { SearchResponseSchema } from '../schemas/SearchEngine.schema';
+import type { ISearchableEntity, SearchAuthorityRole } from '../schemas/SearchEngine.schema';
+import { ExecuteFuzzySearchParametersSchema } from './atomic/schemas/ExecuteFuzzySearch.schema';
 
 /* 2. Enjambre Atómico Local (Swiss-Watch Swarm) */
-/** 🛡️ SANEADO Zenith: Importación del nuevo átomo de ejecución asíncrona. */
 import { ExecuteTechnicalFuzzySearch } from '../drivers/ExecuteTechnicalFuzzySearch';
+import { FilterSearchIndexByAuthority } from './atomic/FilterSearchIndexByAuthority';
 
 /** Identificador técnico del motor para el Neural Sentinel. */
-const SEARCH_ENGINE_IDENTIFIER = 'UNIVERSAL_SEARCH_ENGINE';
+const SEARCH_ORCHESTRATOR_IDENTIFIER = 'UNIVERSAL_SEARCH_ENGINE_ORCHESTRATOR';
 
 /**
  * Ejecuta una búsqueda difusa integral respetando la jerarquía de soberanía.
- * Implementa el patrón "Security-by-Design" filtrando el índice antes de la computación.
+ * Implementa el patrón "Security-by-Design": el filtrado ocurre antes de que el
+ * algoritmo de búsqueda toque el índice para prevenir fugas de información.
  *
  * @param searchQueryLiteral - Cadena de búsqueda ingresada por el ciudadano.
- * @param completeIndexCollection - Universo total de datos indexados.
+ * @param completeIndexCollection - Universo total de datos indexados (News, Reports, etc).
  * @param authenticatedUserAuthorityRole - Rango de autoridad del actor (Default: CITIZEN_ANONYMOUS).
  * @returns {Promise<ISearchableEntity[]>} Resultados filtrados, ordenados y validados.
+ * @throws {ValidationException} Si los parámetros o el resultado violan el ADN estructural.
+ * @throws {InternalSystemException} Si el motor de computación difusa colapsa.
  */
 export const ExecuteFuzzySearch = async (
   searchQueryLiteral: string,
@@ -51,65 +51,107 @@ export const ExecuteFuzzySearch = async (
 ): Promise<ISearchableEntity[]> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
-  // 1. FILTRO DE ATOMICIDAD (Return Early)
-  if (!searchQueryLiteral.trim()) {
-    return [];
-  }
-
   return await TraceExecutionTime(
-    SEARCH_ENGINE_IDENTIFIER,
+    SEARCH_ORCHESTRATOR_IDENTIFIER,
     'EXECUTE_FUZZY_DISCOVERY_TRANSACTION',
     correlationIdentifier,
     async () => {
-      /**
-       * 2. FILTRO PERIMETRAL (RBAC Enforcement)
-       * 🛡️ LEY ZENITH: El motor solo procesa entidades que el ciudadano está
-       * autorizado a ver, protegiendo la privacidad desde la memoria.
-       */
-      const authorizedEntityCollection = completeIndexCollection.filter((entitySnapshot) => {
-        const hasAdministrativeBypassBoolean =
-          authenticatedUserAuthorityRole === 'INFRASTRUCTURE_SOVEREIGN_AUDITOR' ||
-          authenticatedUserAuthorityRole === 'PLATFORM_GLOBAL_MANAGER';
+      try {
+        // --- FASE 1: ADUANA DE ENTRADA (Sovereign Validation) ---
+        /**
+         * 🛡️ LEY ZENITH: Validamos la integridad del índice y la consulta antes del despacho.
+         * Si la consulta está vacía, el esquema lanzará una ValidationException.
+         */
+        const inputValidationResult = ExecuteFuzzySearchParametersSchema.safeParse({
+          searchQueryLiteral,
+          completeIndexCollection,
+          authenticatedUserAuthorityRole
+        });
 
-        // Acceso total para auditores SRE y gestores globales.
-        if (hasAdministrativeBypassBoolean) return true;
-
-        // Acceso público nominal.
-        if (entitySnapshot.requiredAuthorityRole === 'CITIZEN_ANONYMOUS') return true;
-
-        // Coincidencia exacta de rango institucional.
-        return entitySnapshot.requiredAuthorityRole === authenticatedUserAuthorityRole;
-      });
-
-      /**
-       * 3. INVOCACIÓN DEL DRIVER (Delegación Atómica)
-       * SANEADO Zenith: Transición a llamada asíncrona hacia el nuevo motor Fuse.js.
-       */
-      const rawMatchResultsCollection = await ExecuteTechnicalFuzzySearch(
-        searchQueryLiteral,
-        authorizedEntityCollection
-      );
-
-      // 4. ADUANA DE ADN (Safe Parsing)
-      const validatedDiscoveryResults = SearchResponseSchema.parse(rawMatchResultsCollection);
-
-      // 5. REPORTE DE ÉXITO (SRE Visibility)
-      void EmitTelemetrySignal({
-        severityLevelLiteral: 'INFO',
-        moduleIdentifierLiteral: SEARCH_ENGINE_IDENTIFIER,
-        operationCodeLiteral: 'SEARCH_DISCOVERY_COMPLETED',
-        correlationIdentifier,
-        messageContentLiteral: `Operación de búsqueda finalizada con éxito. Hallazgos: [${validatedDiscoveryResults.length}]`,
-        /** Clasificación ontológica para el motor de salud algorítmica */
-        semanticIntentTag: 'USER_CONTENT_DISCOVERY',
-        contextMetadataSnapshot: {
-          resultsCountQuantity: validatedDiscoveryResults.length,
-          authorityRoleLiteral: authenticatedUserAuthorityRole,
-          indexVolumeQuantity: completeIndexCollection.length
+        if (!inputValidationResult.success) {
+          throw new ValidationException('CONTRATO_DE_SOLICITUD_DE_BUSQUEDA_CORRUPTO', {
+            structuralIssuesCollection: inputValidationResult.error.flatten(),
+            correlationIdentifier
+          });
         }
-      });
 
-      return [...validatedDiscoveryResults];
+        const {
+          searchQueryLiteral: validatedQuery,
+          completeIndexCollection: validatedIndex,
+          authenticatedUserAuthorityRole: validatedRole
+        } = inputValidationResult.data;
+
+        // --- FASE 2: FILTRO PERIMETRAL (RBAC Guard Delegation) ---
+        /**
+         * Delegamos en el átomo guardián para purgar el índice de contenidos no autorizados.
+         */
+        const authorizedEntityCollection = FilterSearchIndexByAuthority(
+          [...validatedIndex],
+          validatedRole
+        );
+
+        // --- FASE 3: COMPUTACIÓN DIFUSA (Asynchronous Driver) ---
+        /**
+         * Invocación del motor técnico (Fuse.js).
+         * Realiza la coincidencia semántica sobre el set de datos ya securizado.
+         */
+        const rawMatchResultsCollection = await ExecuteTechnicalFuzzySearch(
+          validatedQuery,
+          authorizedEntityCollection
+        );
+
+        // --- FASE 4: ADUANA DE SALIDA (Integrity Check) ---
+        /**
+         * Certificamos que los hallazgos cumplan con el contrato de respuesta del búnker.
+         */
+        const validatedDiscoveryResults = SearchResponseSchema.parse(rawMatchResultsCollection);
+
+        // --- FASE 5: REPORTE DE ÉXITO (SRE Visibility) ---
+        void EmitTelemetrySignal({
+          severityLevelLiteral: 'INFO',
+          moduleIdentifierLiteral: SEARCH_ORCHESTRATOR_IDENTIFIER,
+          operationCodeLiteral: 'SEARCH_DISCOVERY_NOMINAL',
+          correlationIdentifier,
+          /** Uso de clave soberana para internacionalización técnica */
+          messageContentLiteral: 'SEARCH_ENGINE.LOGS.SEARCH_COMPLETED',
+          semanticIntentTag: 'USER_CONTENT_DISCOVERY',
+          contextMetadataSnapshot: {
+            queryLengthQuantity: validatedQuery.length,
+            resultsFoundQuantity: validatedDiscoveryResults.length,
+            actorAuthorityRoleLiteral: validatedRole,
+            preFilterIndexSizeQuantity: completeIndexCollection.length
+          }
+        });
+
+        return [...validatedDiscoveryResults];
+
+      } catch (caughtError: unknown) {
+        // --- FASE 6: GESTIÓN FORENSE DE COLAPSO (Resilience Layer) ---
+
+        if (caughtError instanceof ValidationException) throw caughtError;
+
+        const errorDescriptionLiteral = caughtError instanceof Error
+          ? caughtError.message
+          : 'UNKNOWN_SEARCH_FAULT';
+
+        void EmitTelemetrySignal({
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: SEARCH_ORCHESTRATOR_IDENTIFIER,
+          operationCodeLiteral: 'SEARCH_ORCHESTRATION_COLLAPSE',
+          correlationIdentifier,
+          messageContentLiteral: 'Fallo catastrófico en el orquestador de búsqueda universal.',
+          semanticIntentTag: 'SEARCH_ENGINE_FAULT',
+          contextMetadataSnapshot: {
+            errorTraceLiteral: errorDescriptionLiteral,
+            searchQuerySnapshot: searchQueryLiteral
+          },
+        });
+
+        throw new InternalSystemException('FALLO_CRITICO_EN_MOTOR_DE_BUSQUEDA_SRE', {
+          originalErrorLiteral: errorDescriptionLiteral,
+          correlationIdentifier,
+        });
+      }
     },
   );
 };

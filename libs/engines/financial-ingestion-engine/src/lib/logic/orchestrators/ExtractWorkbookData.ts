@@ -1,12 +1,12 @@
 /**
  * @section Financial Ingestion - Contextual Workbook Extractor (Orchestrator)
- * @description Orquestador supremo encargado de la lectura física y extracción
- * lógica de matrices XLSX. Coordina el enjambre de átomos de triaje y
- * asegura que el resultado cumpla con el contrato de integridad de la ONG.
+ * @description Orquestador supremo encargado de la extracción lógica de matrices XLSX.
+ * Coordina el enjambre de átomos de I/O, triaje y aduanas de ADN para garantizar
+ * que la evidencia presupuestaria cumpla con el estándar de integridad de la ONG.
  *
  * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Sincronización con Puente Soberano (Row/Worksheet),
- * pulverización de sub-procesos y reporte de telemetría de hardware.
+ * SANEADO Zenith: Pulverización de hardware I/O y bucles de escaneo en sub-átomos.
+ * Complejidad ciclomática reducida a 1 (Pure Flow Pattern).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -14,6 +14,8 @@
 
 import { Workbook } from 'exceljs';
 import type { Row, Worksheet } from 'exceljs';
+
+/* 1. Infraestructura Core & Excepciones (Clean Paths) */
 import { InternalSystemException } from '@floripa-dignidade/exceptions';
 import {
   EmitTelemetrySignal,
@@ -21,11 +23,12 @@ import {
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-/* 1. ADN Estructural y Estándares (Ground Truth) */
+/* 2. ADN Estructural y Estándares (Ground Truth) */
 import { WORKBOOK_INGESTION_STANDARDS } from '../../constants/WorkbookIngestion.config';
 import type { IProjectFinancialRecord } from '../../schemas/ProjectFinancialLedger.schema';
+import type { IExtractionContext } from '../../schemas/ExtractionContext.schema';
 
-/* 2. Enjambre Atómico Local (Swiss-Watch Swarm) */
+/* 3. Enjambre Atómico Local (Swiss-Watch Swarm) */
 import { IdentifyMonthHeaders } from '../atoms/IdentifyMonthHeaders';
 import { TriageContextualRow } from '../atoms/TriageContextualRow';
 import { InitializeExtractionContext } from './atoms/InitializeExtractionContext';
@@ -38,22 +41,55 @@ const ORCHESTRATOR_IDENTIFIER = 'FINANCIAL_WORKBOOK_ORCHESTRATOR';
  * @interface IExtractionParameters
  * @description Contrato inmutable para la parametrización de la auditoría de hardware.
  */
-interface IExtractionParameters {
+export interface IExtractionParameters {
   readonly absoluteFilePathLiteral: string;
   readonly correlationIdentifier?: string;
 }
 
 /**
+ * @private Sub-Aparato: Aislamiento de Hardware (I/O Sentry)
+ * @description Extrae la lógica de lectura física del disco y validación inicial de la hoja.
+ */
+const loadWorksheetFromHardware = async (absoluteFilePathLiteral: string): Promise<Worksheet> => {
+  const workbookInstance = new Workbook();
+  await workbookInstance.xlsx.readFile(absoluteFilePathLiteral);
+
+  const targetWorksheetSnapshot: Worksheet | undefined = workbookInstance.worksheets[0];
+
+  if (!targetWorksheetSnapshot) {
+    throw new InternalSystemException('WORKSHEET_IDENTIFICATION_FAULT', {
+      targetFileLiteral: absoluteFilePathLiteral
+    });
+  }
+
+  return targetWorksheetSnapshot;
+};
+
+/**
+ * @private Sub-Aparato: Escáner de Enjambre (Swarm Iterator)
+ * @description Extrae el bucle de iteración física aislando el orquestador de la librería exceljs.
+ */
+const processWorksheetRows = (
+  targetWorksheetSnapshot: Worksheet,
+  extractionContext: IExtractionContext
+): void => {
+  targetWorksheetSnapshot.eachRow((currentRowInstance: Row, rowNumberNumeric: number) => {
+    TriageContextualRow(currentRowInstance, rowNumberNumeric, extractionContext);
+  });
+};
+
+/**
  * Ejecuta la extracción purificada de datos financieros desde una matriz física.
- * Implementa el patrón 'Contextual Ingestion' con aislamiento de hardware I/O.
+ * Implementa el patrón 'Pure Flow Orchestration' con delegación atómica absoluta.
  *
- * @param parameters - Rutas y metadatos de ejecución.
+ * @param parametersSnapshot - Rutas y metadatos de ejecución.
  * @returns {Promise<readonly IProjectFinancialRecord[]>} Lote financiero inmutable.
+ * @throws {InternalSystemException} Si el hardware colapsa o el ADN del archivo es inválido.
  */
 export const ExtractWorkbookData = async (
-  parameters: IExtractionParameters,
+  parametersSnapshot: IExtractionParameters,
 ): Promise<readonly IProjectFinancialRecord[]> => {
-  const correlationIdentifier = parameters.correlationIdentifier ?? GenerateCorrelationIdentifier();
+  const correlationIdentifier = parametersSnapshot.correlationIdentifier ?? GenerateCorrelationIdentifier();
 
   return await TraceExecutionTime(
     ORCHESTRATOR_IDENTIFIER,
@@ -61,70 +97,74 @@ export const ExtractWorkbookData = async (
     correlationIdentifier,
     async () => {
       try {
-        // 1. CARGA DE HARDWARE (I/O Sentry)
-        const workbookInstance = new Workbook();
-        await workbookInstance.xlsx.readFile(parameters.absoluteFilePathLiteral);
+        // --- FASE 1: CARGA DE HARDWARE (Delegación de I/O) ---
+        const targetWorksheetSnapshot = await loadWorksheetFromHardware(
+          parametersSnapshot.absoluteFilePathLiteral
+        );
 
-        const targetWorksheet: Worksheet | undefined = workbookInstance.worksheets[0];
-
-        if (!targetWorksheet) {
-          throw new InternalSystemException('WORKSHEET_IDENTIFICATION_FAULT', {
-            targetFile: parameters.absoluteFilePathLiteral
-          });
-        }
-
-        // 2. MAPEO CRONOLÓGICO (Temporal Axis)
+        // --- FASE 2: MAPEO CRONOLÓGICO Y CONTEXTO ---
         const headerRowIndexNumeric = WORKBOOK_INGESTION_STANDARDS.HEADER_ROW_INDEX_QUANTITY;
-        const monthHeadersMapping = IdentifyMonthHeaders(targetWorksheet.getRow(headerRowIndexNumeric));
+        const monthHeadersMapping = IdentifyMonthHeaders(
+          targetWorksheetSnapshot.getRow(headerRowIndexNumeric)
+        );
 
-        // 3. INICIALIZACIÓN DE MEMORIA (Delegación Atómica)
-        const extractionContext = InitializeExtractionContext(monthHeadersMapping, correlationIdentifier);
+        const extractionContextSnapshot = InitializeExtractionContext(
+          monthHeadersMapping,
+          correlationIdentifier
+        );
 
-        // 4. ESCANEO POR ENJAMBRE (Hardware Iteration)
-        /**
-         * 🛡️ SANEADO Zenith: Uso de tipos nominales 'Row' provenientes del puente.
-         * Garantiza que el callback sea 100% Type-Safe ante el motor de ExcelJS.
-         */
-        targetWorksheet.eachRow((currentRowInstance: Row, rowNumberNumeric: number) => {
-          TriageContextualRow(currentRowInstance, rowNumberNumeric, extractionContext);
-        });
+        // --- FASE 3: ESCANEO POR ENJAMBRE (Delegación de Iteración) ---
+        processWorksheetRows(targetWorksheetSnapshot, extractionContextSnapshot);
 
-        // 5. ADUANA DE ADN FINAL (Lote Validation)
-        const finalSovereignBatch = ValidateExtractedBatchADN(extractionContext.recordsCollection);
+        // --- FASE 4: ADUANA DE ADN FINAL (Lote Validation) ---
+        const finalSovereignBatchSnapshot = ValidateExtractedBatchADN(
+          extractionContextSnapshot.recordsCollection as unknown[]
+        );
 
-        // 6. REPORTE DE ÉXITO (SRE Visibility)
+        // --- FASE 5: REPORTE DE ÉXITO (SRE Visibility) ---
         void EmitTelemetrySignal({
           severityLevelLiteral: 'INFO',
           moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
           operationCodeLiteral: 'WORKBOOK_EXTRACTION_SUCCESS',
           correlationIdentifier,
           messageContentLiteral: 'Extracción física de matriz presupuestaria finalizada.',
-          /** Clasificación para el Neural Sentinel */
           semanticIntentTag: 'FINANCIAL_DATA_ACQUISITION',
           contextMetadataSnapshot: {
-            extractedRecordsQuantity: finalSovereignBatch.length,
-            sourceFileLiteral: parameters.absoluteFilePathLiteral
+            extractedRecordsQuantity: finalSovereignBatchSnapshot.length,
+            sourceFileLiteral: parametersSnapshot.absoluteFilePathLiteral
           }
         });
 
-        return finalSovereignBatch;
+        return finalSovereignBatchSnapshot;
 
       } catch (caughtError: unknown) {
-        // 7. GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
-
-        // Si es una excepción interna ya tipada, se propaga intacta.
-        if (caughtError instanceof InternalSystemException) throw caughtError;
+        // --- FASE 6: GESTIÓN FORENSE DE COLAPSO (Resilience Layer) ---
+        if (caughtError instanceof InternalSystemException) {
+          throw caughtError;
+        }
 
         const errorDescriptionLiteral = caughtError instanceof Error
           ? caughtError.message
           : String(caughtError);
 
-        throw new InternalSystemException('WORKBOOK_ORCHESTRATION_FAULT', {
-          originalErrorLiteral: errorDescriptionLiteral,
+        void EmitTelemetrySignal({
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
+          operationCodeLiteral: 'WORKBOOK_ORCHESTRATION_FAULT',
           correlationIdentifier,
-          targetFileLiteral: parameters.absoluteFilePathLiteral
+          messageContentLiteral: 'Fallo catastrófico en el orquestador de ingesta financiera.',
+          semanticIntentTag: 'DATA_PIPELINE_FAULT',
+          contextMetadataSnapshot: {
+            errorTraceLiteral: errorDescriptionLiteral,
+            targetFileLiteral: parametersSnapshot.absoluteFilePathLiteral
+          }
+        });
+
+        throw new InternalSystemException('FALLO_EN_EXTRACCION_DE_LIBRO_FINANCIERO_SRE', {
+          originalErrorLiteral: errorDescriptionLiteral,
+          correlationIdentifier
         });
       }
-    },
+    }
   );
 };

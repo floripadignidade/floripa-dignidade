@@ -1,21 +1,66 @@
+/**
+ * @section tsconfig: Emitter (Routing Core)
+ * @description Generador de ADN (.d.ts) con redirección física de Grafo.
+ * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * SANEADO Zenith: Inyección de visibilidad para Next.js Server mediante
+ * puente estructural y purga de tipos huérfanos.
+ */
 {
-  "extends": "../../../tsconfig.base.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "rootDir": "src",
+    /* --- ESTRATEGIA DE SALIDA ZENITH --- */
     "outDir": "../../../dist/out-tsc/libs/core/routing",
     "tsBuildInfoFile": "../../../dist/out-tsc/libs/core/routing/tsconfig.lib.tsbuildinfo",
+
+    /* --- INTEGRIDAD SOBERANA --- */
     "composite": true,
     "declaration": true,
+    "declarationMap": true,
     "emitDeclarationOnly": true,
-    "allowJs": true,
-    "baseUrl": "."
+    "rootDir": "src",
+    "noEmit": false,
+    "importHelpers": true,
+    "ignoreDeprecations": "5.0",
+
+    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6305) --- */
+    "baseUrl": ".",
+    "paths": {
+      "@floripa-dignidade/telemetry":["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
+      "@floripa-dignidade/exceptions":["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"]
+    },
+
+    /* --- RESOLUCIÓN NEXT-GEN (Bundler Ready) --- */
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+
+    /* --- ADN DEL ENTORNO (SRE Isolation) --- */
+    /**
+     * 🛡️ SANEADO Zenith (Fix TS2688):
+     * Eliminamos 'next' de types aquí para forzar su resolución desde el
+     * entorno de la app principal y evitar colisiones de búnker.
+     * Usaremos el archivo de puente types.d.ts local para los tipos de server.
+     */
+    "types": ["node"],
+    "lib":["ES2022", "DOM", "DOM.Iterable"]
   },
+
   "include":[
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/types.d.ts"
   ],
-  "exclude":["src/**/*.spec.ts", "src/**/*.test.ts"],
+
+  "exclude":[
+    "src/**/*.spec.ts",
+    "dist",
+    "out-tsc",
+    "node_modules",
+    "../../../dist",
+    "../../../node_modules"
+  ],
+
   "references":[
     { "path": "../telemetry/tsconfig.lib.json" },
     { "path": "../exceptions/tsconfig.lib.json" }

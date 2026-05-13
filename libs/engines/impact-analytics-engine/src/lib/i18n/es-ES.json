@@ -12,7 +12,13 @@
     "VOLATILE_RATING": "Percepción Volátil"
   },
   "explanations": {
-    "BAYESIAN_METHODOLOGY_HINT": "Este cálculo prioriza la opinión de ciudadanos con identidad verificada e historial de participación ética.",
-    "SAMPLE_SIZE_WARNING": "Los datos actuales representan una muestra pequeña; la precisión aumentará con más participaciones."
+    "BAYESIAN_METHODOLOGY_HINT": "Este cálculo prioriza la opinión de ciudadanos con identidad verificada e historial de participación ética en la red.",
+    "SAMPLE_SIZE_WARNING": "Los datos actuales representan una muestra pequeña; la precisión aumentará con un mayor volumen de participaciones."
+  },
+  "anomalies": {
+    "CRITICAL_DISCREPANCY_REASON": "Se detectó un gasto masivo con un nivel de confianza ciudadana inferior al umbral ético institucional (35%).",
+    "HIGH_POLARIZATION_REASON": "La comunidad presenta una fragmentación extrema de opiniones; el índice de consenso ha alcanzado niveles críticos.",
+    "LOW_PARTICIPATION_REASON": "El volumen de voces identificadas es insuficiente para certificar la legitimidad social de este gasto de alta magnitud.",
+    "NOMINAL_HEALTH_REASON": "La inversión muestra una correlación saludable y transparente entre el gasto público y la aceptación popular."
   }
 }

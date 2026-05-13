@@ -1,42 +1,96 @@
 /**
- * @section tsconfig: Emitter/Consumer
- * @description Configuracion de ejecucion para Payload CMS con Redireccion de ADN.
+ * @section CMS DNA - Application Emitter Configuration
+ * @description Generador de ADN para la Matriz de Gobernanza (Payload 3.0).
+ * Orquesta la visibilidad del motor Next.js 16+ y sincroniza el mapa de rutas
+ * mediante la Maniobra de Redirección de ADN hacia la caché del monorepo.
+ *
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Erradicación del array "types" para evitar Asfixia de Identidad (Fix TS7016).
+ * SANEADO Zenith: Inclusión de archivos de configuración raíz para resolver TS2307,
+ * blindaje de tipos de Node.js y normalización de la jurisdicción de escaneo.
+ *
+ * @author Raz Podestá - MetaShark Tech
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "jsx": "preserve",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "rootDir": ".",
+    "outDir": "../../dist/out-tsc/apps/content-manager-system",
+    "tsBuildInfoFile": "../../dist/out-tsc/apps/content-manager-system/tsconfig.app.tsbuildinfo",
+
+    /* --- RESOLUCIÓN NEXT-GEN (Bundler & Edge Ready) --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
     "allowJs": true,
     "strict": true,
     "noEmit": false,
 
-    "outDir": "../../dist/out-tsc/apps/content-manager-system",
-    "tsBuildInfoFile": "../../dist/out-tsc/apps/content-manager-system/tsconfig.app.tsbuildinfo",
+    /* --- RESILIENCIA SRE (Dependency & Deprecation Guard) --- */
+    /**
+     * 🛡️ LEY ZENITH: Silenciamos la advertencia de 'baseUrl' para mantener la
+     * compatibilidad con el mapeo de Nx mientras transicionamos a TS 7.0.
+     */
+    "ignoreDeprecations": "5.0",
+    "skipLibCheck": true,
 
+    /* --- MAPA DE RUTAS MAESTRO (Redirección de ADN) --- */
+    /**
+     * 🛡️ LEY ZENITH: Consumimos firmas físicas (.d.ts) para evitar TS6059.
+     */
+    "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@floripa-dignidade/exceptions":["../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/telemetry":["../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/environment-validator":["../../dist/out-tsc/libs/core/environment-validator/index.d.ts"],
+      "@floripa-dignidade/telemetry": ["../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
+      "@floripa-dignidade/exceptions": ["../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
+      "@floripa-dignidade/environment-validator": ["../../dist/out-tsc/libs/core/environment-validator/index.d.ts"],
       "@floripa-dignidade/identity": ["../../dist/out-tsc/libs/modules/identity/index.d.ts"]
     },
 
+    /* --- ADN DEL ENTORNO (Isomorphic Context) --- */
+    "types": ["node", "react", "react-dom"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+
+    /* --- PLUGINS DE MOTOR (Next.js Intelligence) --- */
     "plugins": [
-      { "name": "next" }
+      {
+        "name": "next"
+      }
     ]
-    /** 🛡️ LEY ZENITH: Se omite "types" para permitir resolución nativa de Payload y Next.js */
   },
-  "include":["src/**/*.ts", "src/**/*.tsx", "index.d.ts", "next-env.d.ts", ".next/types/**/*.ts"],
-  "exclude":["node_modules", "dist", ".next", "**/*.spec.ts", "**/*.test.ts"],
-  "references":[
-    { "path": "../../libs/core/exceptions/tsconfig.lib.json" },
-    { "path": "../../libs/modules/identity/tsconfig.lib.json" },
+
+  /* --- JURISDICCIÓN DE ESCANEO (Sovereign Inclusion) --- */
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    /* 🛡️ SANEADO Zenith: Inclusión formal de archivos de hardware/configuración */
+    "next.config.js",
+    "payload.config.ts",
+    "index.d.ts",
+    "next-env.d.ts",
+    ".next/types/**/*.ts"
+  ],
+
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".next",
+    "../../dist",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ],
+
+  /* --- GRAFO DE REFERENCIAS SOBERANAS --- */
+  "references": [
     { "path": "../../libs/core/telemetry/tsconfig.lib.json" },
-    { "path": "../../libs/core/environment-validator/tsconfig.lib.json" }
+    { "path": "../../libs/core/exceptions/tsconfig.lib.json" },
+    { "path": "../../libs/core/environment-validator/tsconfig.lib.json" },
+    { "path": "../../libs/modules/identity/tsconfig.lib.json" }
   ]
 }

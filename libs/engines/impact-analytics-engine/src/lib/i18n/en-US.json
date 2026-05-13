@@ -6,13 +6,19 @@
     "PARTICIPATION_VOLUME_LABEL": "Active Identified Voices"
   },
   "trends": {
-    "RISING_TRUST": "Rising Trust",
+    "RISING_TRUST": "Rising Confidence",
     "STABLE_CONSENSUS": "Stable Consensus",
     "DECLINING_TRUST": "Declining Credibility",
     "VOLATILE_RATING": "Volatile Perception"
   },
   "explanations": {
-    "BAYESIAN_METHODOLOGY_HINT": "This calculation prioritizes the opinion of citizens with verified identities and a history of ethical participation.",
-    "SAMPLE_SIZE_WARNING": "Current data represents a small sample; accuracy will increase with more participation."
+    "BAYESIAN_METHODOLOGY_HINT": "This calculation prioritizes the input of citizens with verified identities and a history of ethical participation.",
+    "SAMPLE_SIZE_WARNING": "Current data represents a small sample; statistical accuracy will improve as more citizens participate."
+  },
+  "anomalies": {
+    "CRITICAL_DISCREPANCY_REASON": "Massive spending detected with citizen trust levels below the institutional ethical threshold (35%).",
+    "HIGH_POLARIZATION_REASON": "The community shows extreme opinion fragmentation; the consensus index has reached critical conflict levels.",
+    "LOW_PARTICIPATION_REASON": "The volume of identified voices is insufficient to certify the social legitimacy of this high-magnitude expenditure.",
+    "NOMINAL_HEALTH_REASON": "The analysis indicates a healthy and transparent correlation between public investment and popular acceptance."
   }
 }

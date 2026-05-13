@@ -8,11 +8,17 @@
   "trends": {
     "RISING_TRUST": "Confiança em Ascensão",
     "STABLE_CONSENSUS": "Consenso Estável",
-    "DECLINING_TRUST": "Queda na Credibilidade",
+    "DECLINING_TRUST": "Degradação da Credibilidade",
     "VOLATILE_RATING": "Percepção Volátil"
   },
   "explanations": {
-    "BAYESIAN_METHODOLOGY_HINT": "Este cálculo prioriza a opinião de cidadãos com identidade verificada e histórico de participação ética.",
-    "SAMPLE_SIZE_WARNING": "Os dados atuais representam uma amostra pequena; a precisão aumentará com mais participações."
+    "BAYESIAN_METHODOLOGY_HINT": "Este cálculo prioriza a opinião de cidadãos com identidade verificada e histórico de participação ética na rede.",
+    "SAMPLE_SIZE_WARNING": "Os dados atuais representam uma amostra reduzida; a precisão estatística aumentará com a maior participação civil."
+  },
+  "anomalies": {
+    "CRITICAL_DISCREPANCY_REASON": "Detectado gasto massivo com nível de confiança cidadã inferior ao limite ético institucional (35%).",
+    "HIGH_POLARIZATION_REASON": "A comunidade apresenta extrema fragmentação de opiniões; o índice de consenso atingiu níveis críticos de conflito.",
+    "LOW_PARTICIPATION_REASON": "O volume de vozes identificadas é insuficiente para certificar a legitimidade social deste gasto de alta magnitude.",
+    "NOMINAL_HEALTH_REASON": "A análise indica uma correlação saudável e transparente entre o investimento público e a aceitação popular."
   }
 }

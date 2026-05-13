@@ -1,12 +1,14 @@
 /**
- * @section Impact Analytics - Expenditure to Social Impact Linker
+ * @section Impact Analytics - Expenditure to Social Impact Linker (Orchestrator)
  * @description Orquestador de cruzamiento encargado de vincular la ejecución
- * presupuestaria con los indicadores de impacto. Implementa la Auditoría de Eficiencia Social.
+ * presupuestaria con los indicadores de impacto popular. Implementa la auditoría
+ * de eficiencia social coordinando el enjambre de átomos de cálculo y ensamblaje.
  *
- * Protocolo OEDP-V17.0 - Swarm Intelligence & Boundary Fix.
- * SANEADO Zenith: Desacoplamiento de 'pmf-open-data-engine' y reducción de complejidad.
+ * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
+ * SANEADO Zenith: Atomización de búsqueda territorial, ensamblaje de reporte e integridad forense.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import {
@@ -15,31 +17,36 @@ import {
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-import { InternalSystemException } from '@floripa-dignidade/exceptions';
+import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
 
-/* 1. ADN Estructural (Internal Logic Contracts) */
+/* 1. ADN Estructural y Contratos (Verbatim Module Syntax) */
 import { SocialEfficiencyReportSchema } from '../schemas/SocialEfficiencyReport.schema';
 import type { IExpenditureInput } from '../schemas/ExpenditureInput.schema';
 import type { ISocialEfficiencyReport } from '../schemas/SocialEfficiencyReport.schema';
 import type { ITerritorialImpactReport } from '../schemas/TerritorialImpactReport.schema';
 
-/* 2. Enjambre Atómico de Inteligencia (Responsabilidad Única) */
+/* 2. Enjambre Atómico de Inteligencia (Swiss-Watch Swarm) */
 import { CalculateSocialEfficiencyRatio } from './atomic/CalculateSocialEfficiencyRatio';
 import { DetectSpendingAnomaly } from './atomic/DetectSpendingAnomaly';
+import { IdentifyTerritorialAprovalScore } from './atomic/IdentifyTerritorialAprovalScore';
+import { AssembleSocialEfficiencyReport } from './atomic/AssembleSocialEfficiencyReport';
 
 /** Identificador técnico para el Neural Sentinel. */
-const CROSS_LINKER_IDENTIFIER = 'SOCIAL_EFFICIENCY_CROSS_LINKER';
+const CROSS_LINKER_IDENTIFIER = 'SOCIAL_EFFICIENCY_CROSS_LINKER_ORCHESTRATOR';
 
 /**
- * Cruza un registro de gasto con el mapa de impacto territorial.
+ * Cruza un registro de gasto con el mapa de impacto territorial para auditar la eficiencia.
+ * Implementa el patrón "Data Linkage" con rastro de telemetría forense.
  *
- * @param expenditure - Gasto (Agnóstico a la fuente de datos).
- * @param globalImpactReport - Reporte de impacto generado por el motor.
+ * @param expenditureInputSnapshot - Gasto normalizado (Agnóstico a la fuente de datos).
+ * @param globalImpactReportSnapshot - Reporte de impacto territorial generado por el motor.
  * @returns {Promise<ISocialEfficiencyReport>} Reporte de eficiencia validado e inmutable.
+ * @throws {ValidationException} Si el cruce genera un ADN de reporte corrupto.
+ * @throws {InternalSystemException} Si ocurre un colapso en el motor de cruzamiento.
  */
 export const LinkPmfExpenditureToSocialImpact = async (
-  expenditure: IExpenditureInput,
-  globalImpactReport: ITerritorialImpactReport,
+  expenditureInputSnapshot: IExpenditureInput,
+  globalImpactReportSnapshot: ITerritorialImpactReport,
 ): Promise<ISocialEfficiencyReport> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -49,70 +56,79 @@ export const LinkPmfExpenditureToSocialImpact = async (
     correlationIdentifier,
     async () => {
       try {
-        // FASE 1: BÚSQUEDA DE AFINIDAD TERRITORIAL
-        const matchingTerritoryCluster = globalImpactReport.territorialClustersCollection.find(
-          (cluster) => cluster.territoryIdentifierLiteral === expenditure.targetTerritoryIdentifier,
+        // FASE 1: BÚSQUEDA DE AFINIDAD TERRITORIAL (Delegación Atómica)
+        const { trustScoreNumeric, territoryNameLiteral } = IdentifyTerritorialAprovalScore(
+          expenditureInputSnapshot.targetTerritoryIdentifier,
+          globalImpactReportSnapshot
         );
-
-        const communityTrustScoreNumeric =
-          matchingTerritoryCluster?.aggregatedTrustScoreNumeric ?? 0.5;
 
         // FASE 2: INTELIGENCIA ATÓMICA (Cálculos Puros)
         const efficiencyIndexNumeric = CalculateSocialEfficiencyRatio(
-          expenditure.totalExecutedAmountNumeric,
-          communityTrustScoreNumeric,
+          expenditureInputSnapshot.totalExecutedAmountNumeric,
+          trustScoreNumeric,
         );
 
         const isAnomalyDetectedBoolean = DetectSpendingAnomaly(
-          expenditure.totalExecutedAmountNumeric,
-          communityTrustScoreNumeric,
+          expenditureInputSnapshot.totalExecutedAmountNumeric,
+          trustScoreNumeric,
         );
 
-        // FASE 3: CONSTRUCCIÓN DEL SNAPSHOT FORENSE
-        const socialEfficiencySnapshot: ISocialEfficiencyReport = {
-          expenditureIdentifier: expenditure.expenditureIdentifier,
-          territorialContext: {
-            ibgeIdentifier: expenditure.targetTerritoryIdentifier,
-            territoryNameLiteral:
-              matchingTerritoryCluster?.territoryIdentifierLiteral ?? 'GLOBAL_FLORIPA',
-          },
-          analysisMetrics: {
-            executedAmountNumeric: expenditure.totalExecutedAmountNumeric,
-            communityTrustScoreNumeric: communityTrustScoreNumeric,
-            efficiencyIndexNumeric,
-          },
-          anomalyAlertBoolean: isAnomalyDetectedBoolean,
-          generationTimestampISO: new Date().toISOString(),
-        };
+        // FASE 3: ENSAMBLAJE SOBERANO (Delegación Atómica)
+        const socialEfficiencySnapshot = AssembleSocialEfficiencyReport({
+          expenditureIdentifier: expenditureInputSnapshot.expenditureIdentifier,
+          ibgeIdentifier: expenditureInputSnapshot.targetTerritoryIdentifier,
+          territoryNameLiteral,
+          executedAmountNumeric: expenditureInputSnapshot.totalExecutedAmountNumeric,
+          communityTrustScoreNumeric: trustScoreNumeric,
+          efficiencyIndexNumeric,
+          isAnomalyDetectedBoolean
+        });
 
-        // 4. ADUANA DE ADN (Validación Final)
+        // 4. ADUANA DE ADN (Validación de Integridad Final)
         const validationResult = SocialEfficiencyReportSchema.safeParse(socialEfficiencySnapshot);
 
         if (!validationResult.success) {
-          throw new Error('SOCIAL_EFFICIENCY_ADN_CORRUPTION');
+          void EmitTelemetrySignal({
+            severityLevelLiteral: 'CRITICAL',
+            moduleIdentifierLiteral: CROSS_LINKER_IDENTIFIER,
+            operationCodeLiteral: 'EFFICIENCY_REPORT_DNA_CORRUPTION',
+            correlationIdentifier,
+            messageContentLiteral: 'El cruce de datos generó un rastro de reporte inválido.',
+            contextMetadataSnapshot: { issues: validationResult.error.flatten() }
+          });
+
+          throw new ValidationException('CONTRATO_DE_EFICIENCIA_SOCIAL_CORRUPTO', {
+            structuralIssuesCollection: validationResult.error.flatten()
+          });
         }
 
-        // 5. REPORTE DE SALUD SRE
+        // 5. REPORTE DE SALUD SRE (Visibility)
         void EmitTelemetrySignal({
-          severityLevel: isAnomalyDetectedBoolean ? 'WARNING' : 'INFO',
-          moduleIdentifier: CROSS_LINKER_IDENTIFIER,
-          operationCode: 'SOCIAL_EFFICIENCY_CROSS_LINK_NOMINAL',
+          severityLevelLiteral: isAnomalyDetectedBoolean ? 'WARNING' : 'INFO',
+          moduleIdentifierLiteral: CROSS_LINKER_IDENTIFIER,
+          operationCodeLiteral: 'SOCIAL_EFFICIENCY_CROSS_LINK_NOMINAL',
           correlationIdentifier,
-          message: 'Cruce de eficiencia social completado exitosamente.',
-          contextMetadata: {
-            efficiencyIndex: efficiencyIndexNumeric,
-            isAnomaly: isAnomalyDetectedBoolean,
+          messageContentLiteral: 'Cruce de eficiencia social completado exitosamente.',
+          semanticIntentTag: 'CROSS_DATA_CORRELATION',
+          contextMetadataSnapshot: {
+            efficiencyIndexNumeric,
+            isAnomalyDetectedBoolean,
+            territoryLiteral: territoryNameLiteral
           },
         });
 
         return validationResult.data;
+
       } catch (caughtError: unknown) {
+        // 6. GESTIÓN FORENSE DE FALLO (Resilience Layer)
+        if (caughtError instanceof ValidationException) throw caughtError;
+
         const errorDescriptionLiteral =
           caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         throw new InternalSystemException('FALLO_EN_CRUZAMIENTO_DE_DATOS_SRE', {
           originalErrorLiteral: errorDescriptionLiteral,
-          expenditureIdentifierLiteral: expenditure.expenditureIdentifier,
+          expenditureIdentifierLiteral: expenditureInputSnapshot.expenditureIdentifier,
           correlationIdentifier,
         });
       }

@@ -1,79 +1,122 @@
 /**
- * @section Shared UI Contracts - Package Entry Point (Master Barrel)
- * @description Única Fuente de Verdad (SSOT) para los planos y contratos visuales
- * del ecosistema Floripa Dignidade. Centraliza la visibilidad de esquemas Zod,
- * contratos de accesibilidad y definiciones de layout institucional.
+ * @section Shared UI Contracts - Enterprise Package Entry Point (Master Barrel)
+ * @description Única Fuente de Verdad (SSOT) para los planos, contratos de datos
+ * y esquemas de validación visual del ecosistema Floripa Dignidade. Orquestra la
+ * visibilidad de la arquitectura de interfaz para que la Fundición Visual (Foundry)
+ * y las Aplicaciones operen bajo un Grafo de Tipos inexpugnable.
  *
- * Protocolo OEDP-V17.0 - Single Source Resolution & Verbatim Module Syntax.
- * SANEADO Zenith: Erradicación de 'Star Exports', inyección de exportaciones
- * nominales y sincronización con el patrón Base/Readonly (Fix TS2345).
+ * Protocolo OEDP-V17.0 - Single Source Resolution & Clean Paths.
+ * SANEADO Zenith: Erradicación de extensiones de archivo en exportaciones,
+ * sincronización de exportaciones nominales para Verbatim Module Syntax
+ * y cumplimiento de Prosa ISO (Zero Abbreviations).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 /**
- * @version 1.2.2
- * Estatus: Nivelación Zenith completada. Grafo de contratos estabilizado
- * tras la resolución de la paradoja de inmutabilidad en Zod.
+ * @version 1.3.0
+ * Estatus: Nivelación Zenith completada. Grafo de tipos estabilizado para
+ * compatibilidad con React 19 y Next.js 16.
  */
-export const SHARED_UI_CONTRACTS_VERSION = '1.2.2';
+export const SHARED_UI_CONTRACTS_VERSION = '1.3.0';
 
 /**
- * @section Capa 1: Accesibilidad Universal (WAI-ARIA DNA)
+ * @section Capa 0: Fundamentos de Accesibilidad (WAI-ARIA)
+ * @description Contratos de identidad para tecnologías asistivas.
  */
 export {
-  AriaAttributesSchema,
+  AriaAttributesSchema
 } from './lib/accessibility/AriaContract.schema';
 
 export type {
-  IAriaAttributes,
+  IAriaAttributes
 } from './lib/accessibility/AriaContract.schema';
 
-/**
- * @section Capa 2: Ladrillos Atómicos (Foundations)
- */
 
-// 2.1. Primitivos Base
+/**
+ * @section Capa 1: Primitivos Atómicos (Base ADN)
+ * @description Ladrillos estructurales compartidos por todos los componentes.
+ */
 export {
   UiPrimitivesBaseSchema,
-  UiPrimitivesSchema,
+  UiPrimitivesSchema
 } from './lib/primitives/UiPrimitives.schema';
 
 export type {
-  IUiPrimitives,
+  IUiPrimitives
 } from './lib/primitives/UiPrimitives.schema';
 
-// 2.2. Identidad Visual (Branding Atoms)
-export {
-  GlobalBrandLogoPropertiesSchema,
-} from './lib/primitives/GlobalBrandLogo.schema';
-
-export type {
-  IGlobalBrandLogoProperties,
-} from './lib/primitives/GlobalBrandLogo.schema';
 
 /**
- * @section Capa 3: Orquestación de Composición (Organisms & Layout)
+ * @section Capa 2: Identidad Institucional (Branding Atoms)
+ */
+export {
+  GlobalBrandLogoPropertiesSchema
+} from './lib/primitives/GlobalBrandLogo.schema';
+
+export type {
+  IGlobalBrandLogoProperties
+} from './lib/primitives/GlobalBrandLogo.schema';
+
+
+/**
+ * @section Capa 3: Motores de Descubrimiento (Search Blueprints)
+ */
+export {
+  GlobalSearchWidgetPropertiesSchema
+} from './lib/primitives/GlobalSearchWidget.schema';
+
+export type {
+  IGlobalSearchWidgetProperties
+} from './lib/primitives/GlobalSearchWidget.schema';
+
+
+/**
+ * @section Capa 4: Captación Ciudadana (Newsletter & Conversion)
+ * @description Contratos de datos para el embudo de suscripción institucional.
+ */
+export {
+  NewsletterSubscriptionFormPropertiesSchema,
+  NewsletterSubscriptionFormSchema
+} from './lib/primitives/NewsletterForm.schema';
+
+export type {
+  INewsletterSubscriptionForm,
+  INewsletterSubscriptionFormProperties
+} from './lib/primitives/NewsletterForm.schema';
+
+export {
+  NewsletterSubscriptionFormI18nSchema
+} from './lib/composition/NewsletterFormI18n.schema';
+
+export type {
+  INewsletterSubscriptionFormI18n
+} from './lib/composition/NewsletterFormI18n.schema';
+
+
+/**
+ * @section Capa 5: Orquestación de Composición (Layout & Organisms)
+ * @description Planos para ensambles complejos y jerarquías de visualización.
  */
 
-// 3.1. Esquemas de Composición Genéricos
+// 5.1. Composición Atómica de Layout
 export {
   CompositeUiSchema,
   InteractionStateSchema,
   ResponsiveVisibilitySchema,
-  VisualLayoutVariantSchema,
+  VisualLayoutVariantSchema
 } from './lib/composition/CompositeUi.schema';
 
 export type {
-  ICompositeUi,
+  ICompositeUi
 } from './lib/composition/CompositeUi.schema';
 
-// 3.2. Contratos de Navegación Institucional
+// 5.2. Navegación Institucional (Global Header)
 export {
-  MainNavigationHeaderI18nSchema,
+  MainNavigationHeaderI18nSchema
 } from './lib/composition/MainNavigationHeader.schema';
 
 export type {
-  IMainNavigationHeaderI18n,
+  IMainNavigationHeaderI18n
 } from './lib/composition/MainNavigationHeader.schema';

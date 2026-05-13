@@ -1,14 +1,10 @@
 /**
- * @section tsconfig: Emitter (UI Foundry)
- * @description Generador de ADN (.d.ts) con redirección física de Grafo.
- * Orquesta la emisión de tipos para la Capa de Construcción Visual, garantizando
- * la soberanía técnica de los componentes React 19 y Next.js 16+.
+ * @section Shared UI Foundry - DNA Emitter (Zenith Configuration)
+ * @description Generador de firmas físicas (.d.ts) con redirección de Grafo.
+ * Implementa el aislamiento total del rootDir mediante la Maniobra de Redirección.
  *
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Implementación de Mapeo de Soberanía para erradicar TS7016
- * (Lucide/Framer), blindaje de rootDir y sincronización de la Triada Visual.
- *
- * @author Raz Podestá - MetaShark Tech
+ * Protocolo OEDP-V17.0 - High Performance SRE & SOLID Infrastructure.
+ * SANEADO Zenith: Erradicación de redundancia (DRY) y Mapeo de Soberanía.
  */
 {
   "extends": "./tsconfig.json",
@@ -25,48 +21,36 @@
     "rootDir": "src",
     "noEmit": false,
     "importHelpers": true,
-    "ignoreDeprecations": "5.0",
+
+    /** 🛡️ SANEADO Zenith: 'ignoreDeprecations' se hereda del Gatekeeper (DRY). */
 
     /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6059 / TS6305) --- */
-    /**
-     * 🛡️ LEY DEL ENJAMBRE: Consumimos exclusivamente firmas físicas (.d.ts)
-     * generadas en dist/out-tsc. Esto bloquea la invasión de archivos fuentes,
-     * elimina el error TS6059 y acelera el motor de resolución de Turbopack.
-     */
     "baseUrl": ".",
     "paths": {
-      /* 🧱 Cimientos Core */
       "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
       "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-
-      /* 📐 Triada Visual (ADN + Planos) */
       "@floripa-dignidade/shared-design-system": ["../../../dist/out-tsc/libs/shared/design-system/index.d.ts"],
       "@floripa-dignidade/shared-ui-contracts": ["../../../dist/out-tsc/libs/shared/ui-contracts/index.d.ts"],
-
-      /* ⚙️ Utilidades y Estado */
       "@floripa-dignidade/shared-utility": ["../../../dist/out-tsc/libs/shared/utility/index.d.ts"],
       "@floripa-dignidade/shared-state-store": ["../../../dist/out-tsc/libs/shared/state-store/index.d.ts"],
 
-      /* 🛡️ MAPEO DE SOBERANÍA: Resolución de Asfixia de Identidad (Fix TS7016) */
       /**
-       * Forzamos al compilador a ignorar los tipos corruptos o ausentes en
-       * node_modules y utilizar nuestro 'Santuario de Tipos' local.
+       * 🛡️ MAPEO DE SOBERANÍA: Resolución de Asfixia de Identidad (Fix TS7016).
        */
       "lucide-react": ["src/index.d.ts"],
-      "framer-motion": ["src/index.d.ts"]
+      "framer-motion": ["src/index.d.ts"],
+      "next/link": ["src/index.d.ts"],
+      "next/image": ["src/index.d.ts"],
+      "next/navigation": ["src/index.d.ts"]
     },
 
-    /* --- RESOLUCIÓN NEXT-GEN (Bundler Ready) --- */
+    /* --- RESOLUCIÓN NEXT-GEN (Turbopack Ready) --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
     /* --- ADN DEL ENTORNO (Visual Implementation Context) --- */
-    /**
-     * 🛡️ SANEADO Zenith: Inyectamos 'react' y 'react-dom' explícitamente para
-     * autorizar los namespaces de React 19 sin ceguera de compilador.
-     */
     "types": ["node", "react", "react-dom"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx"
@@ -74,12 +58,10 @@
 
   "include": [
     "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/index.d.ts" // 🛡️ EL SANTUARIO: Única fuente de verdad para identidades externas.
+    "src/**/*.tsx"
   ],
 
   "exclude": [
-    /* 🛡️ LIMPIEZA DE JURISDICCIÓN: Evitamos rastro técnico en el ADN emitido */
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
     "jest.config.ts",
@@ -91,11 +73,11 @@
   ],
 
   /**
-   * @section Grafo de Referencias Soberanas
-   * Establece el vínculo físico con los búnkeres de los que depende la fundición.
+   * @section Grafo de Referencias Soberanas (SOLID Boundaries)
    */
   "references": [
     { "path": "../../core/telemetry/tsconfig.lib.json" },
+    { "path": "../../core/exceptions/tsconfig.lib.json" },
     { "path": "../utility/tsconfig.lib.json" },
     { "path": "../state-store/tsconfig.lib.json" },
     { "path": "../design-system/tsconfig.lib.json" },

@@ -1,26 +1,43 @@
 /**
- * @section Reputation Engine - Public Evaluation Pulse Schema
+ * @section Reputation Engine - Public Evaluation Pulse DNA
  * @description Define el contrato inmutable para los eventos de evaluación ciudadana.
  * Implementa el estándar ISO 20488 para la integridad de reseñas y juicios de valor.
- * Permite la captura de datos cuantitativos (puntuación) y cualitativos (comentarios).
+ * Actúa como la Única Fuente de Verdad (SSOT) para la ingesta de credibilidad popular.
  *
- * Protocolo OEDP-V16.0 - High Performance & ISO Technical Naming.
- * Vision: Multidimensional Trust Engine for Social Accountability.
+ * Protocolo OEDP-V17.0 - Sovereign Data & Branded Type Integrity.
+ * SANEADO Zenith: Inyección de Branding para identificadores, cumplimiento de
+ * Prosa ISO y descriptores técnicos para auditoría por IA.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import { z } from 'zod';
 
 /**
- * @section Tipado Nominal (Branded Types)
- * SANEADO: Nomenclatura verbosa según standard-naming-iso.md.
+ * @section ADN Criptográfico - Tipificación Nominal (Branding)
+ * @description Sellos de marca que impiden la confusión de identificadores en el
+ * motor de tipos, asegurando que un ID de transacción no sea usado como ID de usuario.
  */
-export const EvaluatedEntityIdentifierSchema = z.string().uuid().brand<'EvaluatedEntityIdentifier'>();
-export type EvaluatedEntityIdentifier = z.infer<typeof EvaluatedEntityIdentifierSchema>;
+
+export const EvaluationTransactionIdentifierSchema = z.string()
+  .uuid()
+  .brand<'EvaluationTransactionIdentifier'>();
+export type TEvaluationTransactionIdentifier = z.infer<typeof EvaluationTransactionIdentifierSchema>;
+
+export const EvaluatedEntityIdentifierSchema = z.string()
+  .uuid()
+  .brand<'EvaluatedEntityIdentifier'>();
+export type TEvaluatedEntityIdentifier = z.infer<typeof EvaluatedEntityIdentifierSchema>;
+
+export const EvaluatorIdentityIdentifierSchema = z.string()
+  .uuid()
+  .brand<'EvaluatorIdentityIdentifier'>();
+export type TEvaluatorIdentityIdentifier = z.infer<typeof EvaluatorIdentityIdentifierSchema>;
 
 /**
  * Categorías oficiales sujetas a evaluación por la comunidad.
+ * Define el radio de acción del motor de reputación.
  */
 export const EvaluatedEntityTypeSchema = z.enum([
   'CITIZEN_IDENTITY',           // Evaluación de conducta/credibilidad de un usuario.
@@ -29,58 +46,65 @@ export const EvaluatedEntityTypeSchema = z.enum([
   'HUMAN_RIGHTS_REPORT'         // Validación de la existencia de un hecho denunciado.
 ]).describe('Categoría técnica de la entidad que recibe la evaluación pública.');
 
+export type TEvaluatedEntityType = z.infer<typeof EvaluatedEntityTypeSchema>;
+
 /**
  * @name PublicEvaluationPulseSchema
  * @description Contrato maestro de una interacción de auditoría popular.
+ * Implementa inmutabilidad forzada para proteger el flujo sanguíneo digital.
  */
 export const PublicEvaluationPulseSchema = z.object({
-  /** Identificador único de la transacción de evaluación. */
-  evaluationTransactionIdentifier: z.string().uuid(),
+  /** Identificador único inalterable de la transacción de evaluación. */
+  evaluationTransactionIdentifier: EvaluationTransactionIdentifierSchema,
 
-  /** Identificador físico de la entidad (Noticia, ONG, Usuario) que es evaluada. */
+  /** Referencia física a la entidad que recibe la calificación. */
   targetEntityIdentifier: EvaluatedEntityIdentifierSchema,
 
-  /** Tipo de entidad para el triaje del motor de estadísticas. */
+  /** Clasificación ontológica del objetivo para triaje estadístico. */
   targetEntityType: EvaluatedEntityTypeSchema,
 
-  /** Identificador anonimizado del ciudadano que emite la evaluación. */
-  evaluatorIdentityIdentifier: z.string().uuid(),
+  /** Identificador nominal del ciudadano que emite el juicio. */
+  evaluatorIdentityIdentifier: EvaluatorIdentityIdentifierSchema,
 
   /**
    * EVALUACIÓN CUANTITATIVA (Puntuación de Confianza)
    * Rango: 0.0 (Falsedad/Desconfianza) a 1.0 (Verdad/Confianza Absoluta).
    */
-  quantitativeTrustScoreNumeric: z.number().min(0).max(1)
-    .describe('Valor numérico que representa el grado de credibilidad otorgado.'),
+  quantitativeTrustScoreNumeric: z.number()
+    .min(0)
+    .max(1)
+    .describe('Grado de credibilidad otorgado: 0 (Nulo) a 1 (Total).'),
 
   /**
-   * EVALUACIÓN CUALITATIVA (Comentario de Soporte)
-   * Permite al ciudadano argumentar su evaluación.
+   * EVALUACIÓN CUALITATIVA (Testimonio de Soporte)
+   * Aporta el rastro semántico para la auditoría de veracidad.
    */
   qualitativeCommentaryLiteral: z.string()
-    .min(10, { message: 'COMMENTARY_TOO_SHORT' })
-    .max(1000, { message: 'COMMENTARY_EXCEEDS_MAXIMUM_LENGTH' })
+    .min(10, { message: 'REPUTATION.ERRORS.COMMENTARY_TOO_SHORT' })
+    .max(1000, { message: 'REPUTATION.ERRORS.COMMENTARY_EXCEEDS_MAXIMUM_LENGTH' })
     .transform((value) => value.trim())
-    .describe('Argumentación textual o testimonio que fundamenta la puntuación.'),
+    .describe('Argumentación textual que fundamenta la puntuación numérica.'),
+
+  /** Determina si el pulso incluye rastro documental o multimedia adjunto. */
+  hasSupportingEvidenceBoolean: z.boolean()
+    .default(false)
+    .describe('Indica si el ciudadano ha vinculado pruebas físicas a su juicio.'),
 
   /**
-   * Indicador de Evidencia Física.
-   * Determina si el ciudadano adjuntó pruebas que respaldan su comentario.
+   * Contexto Territorial (Jurisdicción Geográfica).
+   * Vital para el motor de impacto por barrios de Florianópolis.
    */
-  hasSupportingEvidenceBoolean: z.boolean().default(false),
+  territorialContextLiteral: z.string()
+    .optional()
+    .describe('Ubicación física vinculada a la evaluación (ej: "TAPERA").'),
 
   /**
-   * Contexto Territorial (Barrio/Distrito).
-   * Vital para el búnker de analítica de impacto geográfico.
+   * Bóveda de Metadatos (Forensic Metadata).
+   * Almacena pesos de ponderación bayesiana o firmas de hardware.
    */
-  territorialContextLiteral: z.string().optional()
-    .describe('Ubicación física relacionada con la evaluación (ej: "Bairro Tapera").'),
-
-  /**
-   * Metadatos para el Statistics Engine (Impact Analytics).
-   * Almacena pesos de ponderación o flags de moderación previa.
-   */
-  metadata: z.record(z.string(), z.unknown()).optional(),
+  metadataSnapshot: z.record(z.string(), z.unknown())
+    .optional()
+    .describe('Captura de variables de entorno y estados del sensor emisor.'),
 
 }).readonly();
 

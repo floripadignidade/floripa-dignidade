@@ -1,18 +1,19 @@
 /**
  * @section PMF Engine Logic - Sovereign Persistence Sentry (Orchestrator)
- * @description Orquestador de persistencia encargado de la gestión del ciclo de vida
- * de los registros presupuestarios. Implementa la lógica de "Cero Duplicados"
- * mediante comparación de huellas digitales (Content Hashing) e historización.
+ * @description Orquestador supremo de persistencia. Gestiona la inmutabilidad
+ * de los registros mediante la detección de mutaciones (Content Hashing).
+ * Garantiza que solo los cambios reales impacten el Ledger, optimizando el Tier de Datos.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & ISO Technical Naming.
- * SANEADO Zenith: Resolución de error TS2339, inyección de Trace y blindaje I/O.
+ * Protocolo OEDP-V17.0 - High Performance SRE & Swarm Intelligence.
+ * SANEADO Zenith: Resolución de TS2307 (ESM Extension), validación de ADN en frontera
+ * e inyección de telemetría forense para el Neural Sentinel.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
-import { InternalSystemException } from '@floripa-dignidade/exceptions';
+import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
@@ -21,22 +22,29 @@ import {
 } from '@floripa-dignidade/telemetry';
 
 /* 1. ADN de Dominio (Verbatim Module Syntax) */
-import type { IPublicExpenditure } from '../../schemas/sovereign/PublicExpenditure.schema';
+import { PERSISTENCE_SENTRY_CONFIGURATION } from '../../constants/PersistenceSentry.config.js';
+import { PublicExpenditureSchema } from '../../schemas/sovereign/PublicExpenditure.schema.js';
+import type { IPublicExpenditure } from '../../schemas/sovereign/PublicExpenditure.schema.js';
 
 /* 2. Enjambre Atómico de Soporte (Internal Swarm) */
-import { CalculateContentSignature } from '../atomic/persistence/CalculateContentSignature';
-import { FetchExpenditureState } from '../atomic/persistence/FetchExpenditureState';
-import { UpdateExpenditureHeartbeat } from '../atomic/persistence/UpdateExpenditureHeartbeat';
+/**
+ * 🛡️ SANEADO Zenith (Fix TS2307): Inclusión obligatoria de extensiones '.js'
+ * para garantizar la resolución en el motor de ejecución ESM.
+ */
+import { CalculateContentSignature } from '../atomic/persistence/CalculateContentSignature.js';
+import { FetchExpenditureState } from '../atomic/persistence/FetchExpenditureState.js';
+import { UpdateExpenditureHeartbeat } from '../atomic/persistence/UpdateExpenditureHeartbeat.js';
+import { TransmitSovereignExpenditureToCloud } from '../atomic/persistence/TransmitSovereignExpenditureToCloud.js';
 
 /** Identificador técnico del aparato para el Neural Sentinel. */
-const PERSISTENCE_SENTRY_IDENTIFIER = 'SOVEREIGN_PERSISTENCE_SENTRY';
+const ORCHESTRATOR_IDENTIFIER = PERSISTENCE_SENTRY_CONFIGURATION.MODULE_IDENTIFIER_LITERAL;
 
 /**
- * Gestiona el guardado inteligente de un gasto público mediante triaje de firmas.
- * Garantiza la soberanía del dato mediante el patrón "Update-on-Mutation".
+ * Gestiona el ciclo de vida de un gasto público en la nube soberana.
+ * Implementa el patrón "Smart Ingestion" para evitar redundancia de datos.
  *
- * @param publicExpenditurePayload - Gasto normalizado y validado por el motor.
- * @param correlationIdentifier - Identificador de trazabilidad digital cross-module.
+ * @param publicExpenditurePayload - Gasto normalizado a ser auditado para persistencia.
+ * @param correlationIdentifier - Identificador de trazabilidad digital.
  */
 export const SovereignPersistenceSentry = async (
   publicExpenditurePayload: IPublicExpenditure,
@@ -44,103 +52,125 @@ export const SovereignPersistenceSentry = async (
 ): Promise<void> => {
 
   /**
-   * 🛡️ SANEADO Zenith: Resolución de TS2339.
-   * Se añade 'await' para resolver la promesa de la aduana de infraestructura.
+   * 🛡️ LEY ZENITH: Resolución obligatoria de infraestructura.
+   * Garantiza que los secretos del hardware estén disponibles antes de la decisión.
    */
-  const {
-    SUPABASE_URL: cloudUrlLiteral,
-    SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret
-  } = await ValidateEnvironmentAduana();
+  const infrastructureMetadata = await ValidateEnvironmentAduana();
 
   return await TraceExecutionTime(
-    PERSISTENCE_SENTRY_IDENTIFIER,
+    ORCHESTRATOR_IDENTIFIER,
     'EXECUTE_SMART_PERSISTENCE_TRANSACTION',
     correlationIdentifier,
     async () => {
       try {
-        // 1. GENERACIÓN DE HUELLA DIGITAL (Fingerprint SHA-256)
-        /** Creamos una firma basada en los datos técnicos para detectar cambios. */
+        // --- FASE 1: ADUANA DE ADN (Pre-flight Validation) ---
+        /**
+         * Validamos el payload en la frontera del orquestador para asegurar
+         * que no procesamos ADN corrupto antes del hashing.
+         */
+        const aduanaValidationResult = PublicExpenditureSchema.safeParse(publicExpenditurePayload);
+
+        if (!aduanaValidationResult.success) {
+          throw new ValidationException('CONTRATO_DE_GASTO_PARA_PERSISTENCIA_INVALIDO', {
+            structuralIssuesCollection: aduanaValidationResult.error.flatten(),
+            correlationIdentifier
+          });
+        }
+
+        const validatedExpenditure = aduanaValidationResult.data;
+
+        // --- FASE 2: GENERACIÓN DE HUELLA DIGITAL (Content Fingerprint) ---
+        /**
+         * Creamos una firma SHA-256 inalterable basada en los datos técnicos.
+         */
         const currentContentHashFingerprint = await CalculateContentSignature({
-          amount: publicExpenditurePayload.totalExecutedAmountNumeric,
-          description: publicExpenditurePayload.serviceDescriptionLiteral,
-          provider: publicExpenditurePayload.providerMetadata.taxIdentificationNumber,
-          unit: publicExpenditurePayload.managementUnitTechnicalCode
+          totalAmountNumeric: validatedExpenditure.totalExecutedAmountNumeric,
+          serviceDescriptionLiteral: validatedExpenditure.serviceDescriptionLiteral,
+          providerTaxIdentifier: validatedExpenditure.providerMetadata.taxIdentificationNumber,
+          managementUnitTechnicalCode: validatedExpenditure.managementUnitTechnicalCode
         }, correlationIdentifier);
 
-        // 2. CONSULTA DE ESTADO PREVIO (Sovereign State Check)
+        // --- FASE 3: CONSULTA DE ESTADO (Sovereign Cache Check) ---
         const previousStateSnapshot = await FetchExpenditureState(
-          cloudUrlLiteral,
-          cloudSecurityKeySecret,
-          publicExpenditurePayload.expenditureIdentifier
+          infrastructureMetadata.SUPABASE_URL,
+          infrastructureMetadata.SUPABASE_SERVICE_ROLE_KEY,
+          validatedExpenditure.expenditureIdentifier
         );
 
-        // 3. DECISIÓN LÓGICA: ¿Hay mutación real o redundancia gubernamental?
+        // --- FASE 4: TRIÁJE DE MUTACIÓN (Decision Logic) ---
         const isDataIdenticalBoolean = previousStateSnapshot?.contentHash === currentContentHashFingerprint;
 
         if (isDataIdenticalBoolean) {
           /**
-           * CASO A: Registro Idéntico.
-           * Refrescamos el pulso de vida (Heartbeat) para confirmar que el gasto
-           * sigue vigente en el portal de transparencia sin duplicar datos.
+           * CASO A: Registro Íntegro (Sin Cambios).
+           * Refrescamos el latido de vigencia para confirmar que el gasto sigue activo.
            */
           await UpdateExpenditureHeartbeat(
-            cloudUrlLiteral,
-            cloudSecurityKeySecret,
-            publicExpenditurePayload.expenditureIdentifier
+            infrastructureMetadata.SUPABASE_URL,
+            infrastructureMetadata.SUPABASE_SERVICE_ROLE_KEY,
+            validatedExpenditure.expenditureIdentifier
           );
+
+          void EmitTelemetrySignal({
+            severityLevelLiteral: 'DEBUG',
+            moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
+            operationCodeLiteral: 'EXPENDITURE_IDEMPOTENCY_CONFIRMED',
+            correlationIdentifier,
+            messageContentLiteral: 'Gasto idêntico detectado; ignorando persistência redundante.',
+            contextMetadataSnapshot: { id: validatedExpenditure.expenditureIdentifier }
+          });
+
           return;
         }
 
         /**
          * CASO B: Registro Nuevo o Mutado.
-         * Ejecutamos el volcado inmutable hacia el Ledger de transparencia.
+         * Ensamblamos el payload de persistencia física.
          */
-        const cloudPersistenceResponse = await fetch(`${cloudUrlLiteral}/rest/v1/territorial_master_data`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': cloudSecurityKeySecret,
-            'Authorization': `Bearer ${cloudSecurityKeySecret}`,
-            'Prefer': 'resolution=merge-duplicates'
+        const cloudPersistencePayload = {
+          ibge_id: validatedExpenditure.expenditureIdentifier,
+          name_literal: validatedExpenditure.governmentTechnicalReferenceLiteral,
+          metadata_snapshot: {
+            ...validatedExpenditure,
+            contentHash: currentContentHashFingerprint
           },
-          body: JSON.stringify({
-            ibge_id: publicExpenditurePayload.expenditureIdentifier,
-            name_literal: publicExpenditurePayload.governmentTechnicalReferenceLiteral,
-            /** Inyectamos el gasto y su nueva huella digital de integridad. */
-            metadata_snapshot: {
-              ...publicExpenditurePayload,
-              contentHash: currentContentHashFingerprint
-            },
-            last_sync_at: new Date().toISOString()
-          }),
-          /** SRE: Protección de tiempo de espera en el Edge */
-          signal: AbortSignal.timeout(15000)
+          last_sync_at: new Date().toISOString()
+        };
+
+        // --- FASE 5: DESPACHO FÍSICO (I/O Delegation) ---
+        await TransmitSovereignExpenditureToCloud({
+          cloudUrlLiteral: infrastructureMetadata.SUPABASE_URL,
+          cloudKeySecret: infrastructureMetadata.SUPABASE_SERVICE_ROLE_KEY,
+          payloadSnapshot: cloudPersistencePayload
         });
 
-        if (!cloudPersistenceResponse.ok) {
-          throw new Error(`CLOUD_LEDGER_ERROR_${cloudPersistenceResponse.status}`);
-        }
-
-        // 4. REPORTE DE SINCRONIZACIÓN NOMINAL (SRE Visibility)
-        const operationModeLiteral = previousStateSnapshot ? 'EXPENDITURE_MUTATED' : 'NEW_EXPENDITURE_SAVED';
+        // --- FASE 6: REPORTE DE ÉXITO (SRE Visibility) ---
+        const operationModeLiteral = previousStateSnapshot ? 'EXPENDITURE_MUTATED' : 'NEW_EXPENDITURE_CREATED';
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'INFO',
-          moduleIdentifierLiteral: PERSISTENCE_SENTRY_IDENTIFIER,
+          moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
           operationCodeLiteral: operationModeLiteral,
           correlationIdentifier,
-          messageContentLiteral: 'Sincronización de gasto público consolidada en el Data Lake.',
+          messageContentLiteral: 'Sincronização de transparência fiscal consolidada no Ledger.',
+          semanticIntentTag: 'DATA_LAKE_SYNCHRONIZATION',
           contextMetadataSnapshot: {
-            expenditureIdentifierLiteral: publicExpenditurePayload.expenditureIdentifier,
+            expenditureIdentifier: validatedExpenditure.expenditureIdentifier,
             isMutationBoolean: !!previousStateSnapshot,
-            contentHashSnapshot: currentContentHashFingerprint
+            contentHash: currentContentHashFingerprint
           }
         });
 
       } catch (caughtError: unknown) {
-        // 5. GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
+        // --- FASE 7: GESTIÓN FORENSE DE COLAPSO (Resilience) ---
+        if (caughtError instanceof ValidationException) throw caughtError;
+
+        const errorDescriptionLiteral = caughtError instanceof Error
+          ? caughtError.message
+          : 'UNKNOWN_PERSISTENCE_FAULT';
+
         const normalizedException = new InternalSystemException('FALLO_EN_PERSISTENCIA_DE_DATOS_ABIERTOS_SRE', {
-          originalErrorLiteral: caughtError instanceof Error ? caughtError.message : String(caughtError),
+          originalErrorLiteral: errorDescriptionLiteral,
           expenditureIdentifier: publicExpenditurePayload.expenditureIdentifier,
           correlationIdentifier
         });

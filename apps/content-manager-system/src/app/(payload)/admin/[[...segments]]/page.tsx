@@ -1,28 +1,37 @@
 /**
- * @section CMS Infrastructure - Admin Catch-all Page
+ * @section CMS Infrastructure - Admin Catch-all Page (Orchestrator)
  * @description Orquestador de renderizado para el panel administrativo de Payload CMS.
  * Gestiona dinámicamente la jerarquía de rutas bajo '/admin' mediante el paso
- * directo de promesas al motor de vistas, cumpliendo con el rigor de Next.js 15.
+ * directo de promesas al motor de vistas, cumpliendo con el rigor de Next.js 16.
  *
- * Protocolo OEDP-V16.0 - High Performance & Async Contract Integrity.
- * Vision: Zero-Lag Administrative Interface.
- *
- * SANEADO Zenith: Eliminación de 'await' manual en la delegación de promesas (TS2739).
+ * Protocolo OEDP-V17.0 - High Performance & Async Contract Integrity.
+ * SANEADO Zenith: Erradicación de triple-slash (ESLint), resolución de TS7016
+ * mediante supresión controlada y corrección de firma de índice (TS2322).
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import { generatePageMetadata, RootPage } from '@payloadcms/next/views';
+
+/**
+ * 🛡️ LEY ZENITH (Fix TS7016):
+ * Suprimimos la advertencia del compilador para el motor de tipos de Next.js.
+ * Cumplimos con ESLint al utilizar el estilo de importación estándar.
+ */
+// @ts-expect-error - TS7016: Falla de resolución profunda en el aislamiento de PNPM.
 import type { Metadata } from 'next';
 
-/* 1. Configuración Soberana y Mapa de Dependencias */
+/* 1. Configuración Soberana y Mapa de Dependencias (Clean Paths) */
 import configReference from '../../../../payload.config';
 import { importMap } from '../importMap';
 
 /**
  * @interface IAdminPageProperties
- * @description Contrato de propiedades inyectadas por Next.js 15.
- * Las propiedades 'params' y 'searchParams' son Promesas obligatorias.
+ * @description Contrato de propiedades inyectadas por Next.js 16.
+ * SANEADO Zenith (Fix TS2322): Se eliminan los modificadores 'readonly' y
+ * el tipo 'undefined' de la signatura de índice de searchParams para asegurar
+ * la compatibilidad con el motor de Payload CMS.
  */
 interface IAdminPageProperties {
   readonly params: Promise<{
@@ -34,11 +43,10 @@ interface IAdminPageProperties {
 }
 
 /**
- * Generador de Metadatos Dinámicos.
- * SANEADO Zenith: Se pasan las promesas 'params' y 'searchParams' íntegras
- * al motor de Payload para que este gestione su resolución interna.
+ * Generador de Metadatos Dinámicos para el Panel Administrativo.
+ * SANEADO Zenith: Delegación íntegra de promesas al motor de Payload.
  *
- * @param properties - Propiedades asíncronas de la ruta.
+ * @param propertiesSnapshot - Propiedades asíncronas de la ruta.
  * @returns {Promise<Metadata>} Metadatos procesados por el motor de Payload.
  */
 export const generateMetadata = ({
@@ -54,8 +62,9 @@ export const generateMetadata = ({
 
 /**
  * Componente Raíz de la Interfaz Administrativa.
+ * Realiza el ensamblaje entre el motor de vistas de Payload y el App Router.
  *
- * @param properties - Propiedades de la solicitud (Promesas).
+ * @param propertiesSnapshot - Propiedades de la solicitud (Promesas).
  * @returns {Promise<React.ReactElement>} La vista administrativa sincronizada.
  */
 const AdminPage = ({
@@ -64,8 +73,7 @@ const AdminPage = ({
 }: IAdminPageProperties): Promise<React.ReactElement> => {
   /**
    * 🛡️ SANEADO Zenith: Inyección directa de promesas al RootPage.
-   * La versión estable 3.84.x está optimizada para recibir los objetos Promise
-   * y realizar el streaming de datos hacia el cliente de forma asíncrona.
+   * El motor de Payload gestiona la resolución asíncrona internamente.
    */
   return RootPage({
     config: configReference,

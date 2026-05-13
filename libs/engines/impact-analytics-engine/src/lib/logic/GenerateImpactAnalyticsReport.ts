@@ -1,12 +1,12 @@
 /**
- * @section Impact Analytics - Comprehensive Report Orchestrator
+ * @section Impact Analytics - Comprehensive Report Orchestrator (Master)
  * @description Motor superior encargado de ensamblar la analítica bayesiana global
  * y el desglose territorial (Mapa de Calor). Orquesta el enjambre de lógica
  * estadística para generar evidencia inmutable de impacto social.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Swarm Intelligence.
- * SANEADO Zenith: Resolución de entropía en importaciones (sort-imports),
- * sincronización de telemetría forense y cumplimiento de Prosa ISO.
+ * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
+ * SANEADO Zenith: Resolución de TS2307, validación de ADN en frontera y
+ * cumplimiento estricto de la Prosa ISO (Zero Abbreviations).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -18,115 +18,150 @@ import {
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-import { InternalSystemException } from '@floripa-dignidade/exceptions';
+import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
 
-/* 1. ADN Estructural del Dominio (Interfaces Internas) */
+/* 1. ADN Estructural y Contratos (Verbatim Module Syntax) */
 import type { IEvaluationInput } from '../schemas/EvaluationInput.schema';
-import type {
-  EvaluatedEntityIdentifier,
-  IPopularAcceptanceIndicator,
-} from '../schemas/PopularAcceptanceIndicator.schema';
-import type { ITerritorialImpactReport } from '../schemas/TerritorialImpactReport.schema';
+import { GenerateImpactAnalyticsReportSchema } from './atomic/schemas/GenerateImpactAnalyticsReport.schema';
 
 /* 2. Enjambre Atómico de Inteligencia (Swiss-Watch Swarm) */
 import { AggregateBayesianImpactMetrics } from './AggregateBayesianImpactMetrics';
 import { AggregateTerritorialSentiment } from './atomic/AggregateTerritorialSentiment';
 import { ValidateTerritorialReportADN } from './atomic/ValidateTerritorialReportADN';
+import {
+  AssembleComprehensiveImpactReport,
+  type IComprehensiveReportResult
+} from './atomic/AssembleComprehensiveImpactReport';
 
-/** Identificador técnico del orquestador para el Neural Sentinel. */
-const IMPACT_REPORT_ORCHESTRATOR_IDENTIFIER = 'IMPACT_ANALYTICS_REPORT_ENGINE';
+/** Identificador técnico del motor para el Neural Sentinel. */
+const ORCHESTRATOR_IDENTIFIER = 'IMPACT_ANALYTICS_REPORT_ENGINE';
 
 /**
- * Genera un reporte de impacto multidimensional basado en entradas de evaluación ciudadana.
- * Implementa la elevación de tipos nominales para garantizar la integridad del Ledger.
+ * Genera un reporte de impacto multidimensional de grado forense.
+ * Coordina los motores de confianza bayesiana y agrupación territorial,
+ * garantizando la soberanía de la información mediante validación dual (Input/Output).
  *
- * @param targetEntityIdentifier - UUID de la entidad bajo auditoría (Gasto, Noticia o Denuncia).
- * @param evaluationInputsCollection - Colección agnóstica de pulsos de interacción capturados.
- * @returns {Promise<{ globalIndicator: IPopularAcceptanceIndicator, territorialReport: ITerritorialImpactReport }>}
- * @throws {InternalSystemException} Si el pipeline de agregación colapsa o viola el ADN de datos.
+ * @param targetEntityIdentifierLiteral - UUID de la entidad bajo auditoría (Gasto, Noticia o Denuncia).
+ * @param evaluationInputsCollection - Colección de pulsos de interacción capturados por los sensores.
+ * @returns {Promise<IComprehensiveReportResult>} Reporte consolidado, validado e inmutable.
+ * @throws {ValidationException} Si los parámetros de entrada o los contratos violan el ADN institucional.
+ * @throws {InternalSystemException} Si el pipeline estadístico colapsa por fallo de infraestructura.
  */
 export const GenerateImpactAnalyticsReport = async (
-  targetEntityIdentifier: string,
+  targetEntityIdentifierLiteral: string,
   evaluationInputsCollection: IEvaluationInput[],
-): Promise<{
-  readonly globalIndicator: IPopularAcceptanceIndicator;
-  readonly territorialReport: ITerritorialImpactReport;
-}> => {
+): Promise<IComprehensiveReportResult> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
   return await TraceExecutionTime(
-    IMPACT_REPORT_ORCHESTRATOR_IDENTIFIER,
+    ORCHESTRATOR_IDENTIFIER,
     'EXECUTE_FULL_ANALYTICS_REPORT_PIPELINE',
     correlationIdentifier,
     async () => {
       try {
+        // --- FASE 1: ADUANA DE ENTRADA (Sovereign Validation) ---
         /**
-         * 🛡️ SANEADO Zenith: Casting Soberano.
-         * Elevamos el identificador primitivo al tipo nominal 'EvaluatedEntityIdentifier'
-         * para cumplir con el contrato de integridad de los motores estadísticos.
+         * 🛡️ LEY ZENITH: Validamos y realizamos el casting nominal en la frontera física.
+         * Esto garantiza que los motores de cálculo reciban ADN purificado y tipado (Branded).
          */
-        const sealedEntityIdentifier = targetEntityIdentifier as EvaluatedEntityIdentifier;
+        const inputValidationResult = GenerateImpactAnalyticsReportSchema.safeParse({
+          targetEntityIdentifier: targetEntityIdentifierLiteral,
+          evaluationInputsCollection
+        });
 
-        // FASE 1: ANÁLISIS BAYESIANO GLOBAL (Confianza Ponderada por Autoridad)
+        if (!inputValidationResult.success) {
+          throw new ValidationException('CONTRATO_DE_SOLICITUD_DE_REPORTE_CORRUPTO', {
+            structuralIssuesCollection: inputValidationResult.error.flatten(),
+            correlationIdentifier
+          });
+        }
+
+        const {
+          targetEntityIdentifier,
+          evaluationInputsCollection: validatedEvaluationInputsCollection
+        } = inputValidationResult.data;
+
+        // --- FASE 2: ANALÍTICA BAYESIANA GLOBAL (Confianza Ponderada) ---
+        /**
+         * Calculamos el termómetro de credibilidad neutralizando el ruido de identidades anónimas.
+         */
         const globalIndicatorSnapshot = await AggregateBayesianImpactMetrics(
-          sealedEntityIdentifier,
-          evaluationInputsCollection,
+          targetEntityIdentifier,
+          validatedEvaluationInputsCollection,
         );
 
-        // FASE 2: DESGLOSE TERRITORIAL (Geographic Sentiment Clustering)
+        // --- FASE 3: DESGLOSE TERRITORIAL (Geographic Sentiment Clustering) ---
+        /**
+         * Agrupamos el sentimiento popular por barrios de Florianópolis (IBGE Sync).
+         */
         const rawTerritorialClustersCollection = await AggregateTerritorialSentiment(
-          evaluationInputsCollection,
+          [...validatedEvaluationInputsCollection],
           correlationIdentifier,
         );
 
-        // FASE 3: CONSOLIDACIÓN Y ADUANA DE ADN (Structural Integrity Check)
+        // --- FASE 4: ADUANA DE ADN TERRITORIAL (Integrity Check) ---
+        /**
+         * Certificamos que el reporte geográfico cumpla con el esquema de visualización.
+         */
         const territorialReportSnapshot = ValidateTerritorialReportADN({
-          targetEntityIdentifier: sealedEntityIdentifier,
+          targetEntityIdentifier: targetEntityIdentifier as string,
           territorialClustersCollection: rawTerritorialClustersCollection,
           generationTimestampISO: new Date().toISOString(),
         });
 
-        // 4. REPORTE DE ÉXITO OPERACIONAL (SRE Visibility)
+        // --- FASE 5: ENSAMBLAJE SOBERANO (Delegación Atómica) ---
+        /**
+         * Consolidamos los hallazgos en un artefacto inmutable sellado (Lost Artifact).
+         */
+        const finalComprehensiveReport = AssembleComprehensiveImpactReport(
+          globalIndicatorSnapshot,
+          territorialReportSnapshot
+        );
+
+        // --- FASE 6: REPORTE DE ÉXITO (SRE Visibility) ---
         void EmitTelemetrySignal({
           severityLevelLiteral: 'INFO',
-          moduleIdentifierLiteral: IMPACT_REPORT_ORCHESTRATOR_IDENTIFIER,
-          operationCodeLiteral: 'IMPACT_REPORT_CONSOLIDATED',
+          moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
+          operationCodeLiteral: 'COMPREHENSIVE_REPORT_CONSOLIDATED',
           correlationIdentifier,
-          messageContentLiteral: 'Reporte multidimensional de impacto generado con éxito.',
+          /** Clave de diccionario institucional para la IA */
+          messageContentLiteral: 'IMPACT_ANALYTICS.LOGS.REPORT_GENERATED_NOMINAL',
+          semanticIntentTag: 'FORENSIC_SOCIAL_ANALYTICS',
           contextMetadataSnapshot: {
-            targetEntityIdentifier: sealedEntityIdentifier,
-            territorialClusterCountQuantity: rawTerritorialClustersCollection.length,
-            totalEvaluationsProcessedQuantity: evaluationInputsCollection.length,
+            targetEntityIdentifier: targetEntityIdentifier as string,
+            totalEvaluationsProcessedQuantity: validatedEvaluationInputsCollection.length,
+            territorialClusterCountQuantity: rawTerritorialClustersCollection.length
           },
         });
 
-        return {
-          globalIndicator: globalIndicatorSnapshot,
-          territorialReport: territorialReportSnapshot,
-        };
+        return finalComprehensiveReport;
 
-      } catch (caughtExecutionError: unknown) {
-        // 5. GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
-        const errorDescriptionLiteral =
-          caughtExecutionError instanceof Error
-            ? caughtExecutionError.message
-            : String(caughtExecutionError);
+      } catch (caughtError: unknown) {
+        // --- FASE 7: GESTIÓN FORENSE DE COLAPSO (Resilience Layer) ---
+
+        /** Propagamos excepciones de validación o lógica ya niveladas. */
+        if (caughtError instanceof ValidationException) throw caughtError;
+        if (caughtError instanceof InternalSystemException) throw caughtError;
+
+        const errorDescriptionLiteral = caughtError instanceof Error
+          ? caughtError.message
+          : 'UNKNOWN_ANALYTICS_FAULT';
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
-          moduleIdentifierLiteral: IMPACT_REPORT_ORCHESTRATOR_IDENTIFIER,
-          operationCodeLiteral: 'REPORT_PIPELINE_COLLAPSE',
+          moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
+          operationCodeLiteral: 'COMPREHENSIVE_REPORT_PIPELINE_COLLAPSE',
           correlationIdentifier,
-          messageContentLiteral: 'Fallo catastrófico en la generación del reporte de impacto social.',
+          messageContentLiteral: 'Fallo catastrófico en la generación del reporte multidimensional.',
+          semanticIntentTag: 'IMPACT_ENGINE_FAULT',
           contextMetadataSnapshot: {
             errorTraceLiteral: errorDescriptionLiteral,
-            attemptedEntityId: targetEntityIdentifier,
+            attemptedEntityIdentifier: targetEntityIdentifierLiteral
           },
         });
 
         throw new InternalSystemException('FALLO_CRITICO_EN_GENERACION_DE_REPORTE_SRE', {
           originalErrorLiteral: errorDescriptionLiteral,
-          evaluatedEntityIdentifierLiteral: targetEntityIdentifier,
           correlationIdentifier,
         });
       }

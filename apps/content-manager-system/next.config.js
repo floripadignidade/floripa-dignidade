@@ -1,11 +1,14 @@
 // @ts-check
+
 /**
- * @section Next.js Configuration - CMS Shell (Payload 3.0)
+ * @section Next.js Configuration - CMS Governance Matrix (Payload 3.0)
  * @description Manifiesto de configuración soberano para el sistema de gestión
- * de contenidos. Orquesta la integración con Nx y la inyección del motor Payload.
+ * de contenidos. Orquesta la integración con el motor Payload y el grafo de Nx,
+ * garantizando la optimización de activos y seguridad de cabeceras.
  *
- * Protocolo OEDP-V17.0 - ESM-First Architecture & ISO Standard Naming.
- * SANEADO Zenith: Resolución de visibilidad de Project Service y Prosa ISO.
+ * Protocolo OEDP-V17.0 - ESM-First Architecture & ISO Technical Naming.
+ * SANEADO Zenith: Erradicación de TS8021 (JSDoc Ghost Tag) y consolidación de
+ * inferencia estructural nativa.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -16,54 +19,68 @@ import { withPayload } from '@payloadcms/next/withPayload';
 
 /**
  * @name cmsNextConfigurationFoundation
- * @description ADN base de la aplicación con optimización de medios y seguridad.
- * @type {import('next').NextConfig}
+ * @description ADN base de la aplicación con endurecimiento de seguridad y
+ * optimización de Core Web Vitals (LCP/CLS).
+ *
+ * 🛡️ LEY ZENITH: Se omite la declaración explicita de tipos JSDoc. El objeto es
+ * inferido estructuralmente por el motor 'composePlugins', evitando colapsos de resolución.
  */
 const cmsNextConfigurationFoundation = {
   reactStrictMode: true,
+
+  /**
+   * Desactivamos la cabecera de tecnología por seguridad forense
+   * (Previene fingerprinting de infraestructura).
+   */
   poweredByHeader: false,
 
   /**
-   * 🛡️ SANEADO Zenith: TS2353
-   * Utilizamos supresión de error controlada ya que esta propiedad es un
-   * requerimiento físico del motor de Nx que no existe en el tipo estándar de Next.
+   * @section Integración de Infraestructura Nx
+   * 🛡️ SANEADO: La propiedad 'nx' es reconocida nativamente por el plugin 'withNx'.
+   * Se erradican las directivas de supresión de errores.
    */
-  // @ts-expect-error - Propiedad inyectada para el orquestador '@nx/next'
   nx: {
     svgr: false,
   },
 
   /**
-   * @section Gobernanza de Imágenes
-   * Optimización de Core Web Vitals mediante soporte nativo de AVIF y WebP.
+   * @section Gobernanza de Imágenes (Cloud Sovereign)
+   * Configuración de optimización para activos de marca y evidencias ciudadanas.
+   * Soporta AVIF para máxima compresión con fidelidad forense.
    */
   images: {
-    formats: ['image/avif', 'image/webp'],
-    remotePatterns: [
+    formats:['image/avif', 'image/webp'],
+    remotePatterns:[
       {
         protocol: 'https',
-        hostname: '**'
+        hostname: '**', // Autorización delegada al S3 Gateway de Supabase
       },
     ],
   },
+
+  /**
+   * @section Resiliencia de Servidor
+   * Configuración para prevenir el agotamiento de memoria durante
+   * compilaciones masivas en el Edge Runtime.
+   */
+  experimental: {
+    /** Optimización de caché de compilación para Payload 3.0 */
+    serverSourceMaps: false,
+  }
 };
 
 /**
- * @name applicationPluginsCollection
- * @description Colección ordenada de orquestadores de compilación (Swarm Plugins).
- * Garantiza que el búnker de Nx y el motor de Payload se fusionen sin colisiones.
+ * @name applicationPluginsSwarm
+ * @description Colección ordenada de orquestadores de compilación.
+ * El orden es crítico: withNx debe preceder a withPayload para asegurar
+ * que el sistema de archivos virtual y los alias estén listos.
  */
-const applicationPluginsCollection = [
+const applicationPluginsSwarm =[
   withNx,
-  /**
-   * 🛡️ SANEADO Zenith: TS7006 (Erradicación de 'any' implícito).
-   * @param {import('next').NextConfig} nextConfigReference
-   * @returns {import('next').NextConfig}
-   */
-  (nextConfigReference) => withPayload(nextConfigReference),
+  withPayload
 ];
 
 /**
- * Exportación del ensamble final procesado por el motor de composición de plugins.
+ * Exportación del ensamble final procesado para el despliegue perfecto.
  */
-export default composePlugins(...applicationPluginsCollection)(cmsNextConfigurationFoundation);
+export default composePlugins(...applicationPluginsSwarm)(cmsNextConfigurationFoundation);

@@ -1,55 +1,101 @@
 'use client';
 
 /**
- * @section Composite UI - Main Navigation Header (Orchestrator)
- * @description Orquestador supremo de la navegación institucional.
+ * @section Shared UI Foundry - Main Navigation Header (Orchestrator)
+ * @description Orquestador supremo de la navegación institucional. Ensambla el
+ * enjambre de descubrimiento, identidad de marca y controles de acceso móvil.
+ * Implementa una arquitectura de respuesta al scroll para optimizar el
+ * contraste visual y el rendimiento (SRE Performance).
  *
  * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Erradicación de TS2305/TS7016, pulverización de acciones
- * y cumplimiento estricto de la Triada Visual.
+ * SANEADO Zenith: Atomización del disparador móvil, optimización de renderizado
+ * mediante 'useMemo', cumplimiento de Rutas Limpias y Prosa ISO (ADR 0002).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import React, { useMemo } from 'react';
-import { Menu, X } from 'lucide-react';
+import React, { useEffect, useMemo } from 'react';
 
-/* 1. Infraestructura y Hooks (Sovereign Swarm) */
+/* 1. Infraestructura Core y Utilidades (Sovereign Swarm) */
+import {
+  EmitTelemetrySignal,
+  GenerateCorrelationIdentifier,
+} from '@floripa-dignidade/telemetry';
+
 import { GlobalStyleClassMerger } from '@floripa-dignidade/shared-utility';
-import { useHeaderSentry } from './navigation-header/hooks/useHeaderSentry';
 
-/* 2. Átomos y Moléculas Locales (Swiss-Watch Swarm) */
+/* 2. Planos y Contratos (Blueprints Layer - Clean Paths) */
+import type { IMainNavigationHeaderI18n } from '@floripa-dignidade/shared-ui-contracts';
+
+/* 3. Enjambre Atómico Local (Swiss-Watch Swarm) */
 import { GlobalBrandLogo } from '../atoms/GlobalBrandLogo';
+import { useHeaderSentry } from './navigation-header/hooks/useHeaderSentry';
 import { DesktopNavigationMenu } from './navigation-header/molecules/DesktopNavigationMenu';
 import { MobileNavigationDrawer } from './navigation-header/molecules/MobileNavigationDrawer';
 import { NavigationActionsSwarm } from './navigation-header/molecules/NavigationActionsSwarm';
 
-/* 3. Planos y Contratos (Blueprints Layer) */
-import type { IMainNavigationHeaderI18n } from '@floripa-dignidade/shared-ui-contracts';
+/**
+ * 🛡️ LEY DE ATOMIZACIÓN: El disparador móvil ha sido elevado a Átomo Soberano.
+ * Se entrega como búnker independiente en el siguiente ciclo.
+ */
+import { NavigationMobileTrigger } from './navigation-header/atoms/NavigationMobileTrigger';
 
 /** Identificador técnico del aparato para el Neural Sentinel. */
-const HEADER_MODULE_IDENTIFIER = 'MAIN_NAVIGATION_HEADER_COMPOSITE';
+const ORCHESTRATOR_IDENTIFIER = 'MAIN_NAVIGATION_HEADER_ORCHESTRATOR';
 
+/**
+ * @interface IGlobalMainNavigationHeaderProperties
+ * @description Contrato inmutable para la parametrización del encabezado global.
+ * Sigue la norma ISO de Objeto + Propiedad + Representación.
+ */
 interface IGlobalMainNavigationHeaderProperties {
+  /** Diccionario de traducciones íntegro validado por la aduana Zod. */
   readonly translationDictionary: IMainNavigationHeaderI18n;
+  /** Clases CSS externas para ajustes de posicionamiento perimetral. */
   readonly externalClassName?: string;
 }
 
+/**
+ * Componente encargado de la orquestación de la identidad y tránsito ciudadano.
+ * Implementa vigilancia sensorial de hardware (Scroll) y telemetría de montaje.
+ *
+ * @param propertiesSnapshot - Snapshot de configuración y lenguaje.
+ * @returns {React.ReactElement} Estructura de navegación de alta fidelidad.
+ */
 export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderProperties> = ({
   translationDictionary,
   externalClassName,
 }) => {
 
-  // 1. INYECCIÓN DE INTELIGENCIA SENSORIAL (SRP Hook)
+  // --- 1. INYECCIÓN DE INTELIGENCIA SENSORIAL (Sensor Swarm) ---
   const {
     isMobileMenuOpenBoolean,
     isScrollThresholdExceededBoolean,
     toggleMobileMenuAction
-  } = useHeaderSentry(HEADER_MODULE_IDENTIFIER);
+  } = useHeaderSentry(ORCHESTRATOR_IDENTIFIER);
+
+  // --- 2. TELEMETRÍA DE MONTAJE (Audit Trail) ---
+  useEffect(() => {
+    const correlationIdentifier = GenerateCorrelationIdentifier();
+
+    void EmitTelemetrySignal({
+      severityLevelLiteral: 'INFO',
+      moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
+      operationCodeLiteral: 'HEADER_ORCHESTRATOR_MOUNTED',
+      correlationIdentifier,
+      messageContentLiteral: 'Encabezado institucional activo y sensores de hardware vinculados.',
+      semanticIntentTag: 'UI_COMPONENT_MOUNT',
+      contextMetadataSnapshot: {
+        renderTimestampISO: new Date().toISOString()
+      }
+    });
+  }, []);
 
   /**
-   * @section Arquitectura de Estilos (Atomic Consistency)
+   * @section Arquitectura de Estilos Dinámicos
+   * 🛡️ LEY SRE: El uso de 'useMemo' protege el Main Thread ante re-renderizados
+   * por ráfagas de scroll, asegurando que la fusión de clases no degrade el INP.
    */
   const headerContainerStylesLiteral = useMemo(() =>
     GlobalStyleClassMerger(
@@ -63,16 +109,20 @@ export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderPro
   );
 
   return (
-    <header className={headerContainerStylesLiteral} role="banner">
+    <header
+      className={headerContainerStylesLiteral}
+      role="banner"
+      aria-label="Navegação Institucional Principal"
+    >
       <div className="container mx-auto px-4 flex items-center justify-between">
 
-        {/* ÁREA A: IDENTIDAD (Logo) */}
+        {/* ÁREA A: IDENTIDAD (Logo Atom) */}
         <GlobalBrandLogo
           imageWidthPixelQuantity={isScrollThresholdExceededBoolean ? 140 : 180}
           imageHeightPixelQuantity={60}
           isNavigationLinkEnabledBoolean={true}
           isPolymorphicBoolean={false}
-          forensicTestIdentifier="BRAND_LOGO_MAIN"
+          forensicTestIdentifier="BRAND_LOGO_MAIN_HEADER"
           labels={{
             logoAlternativeTextLiteral: 'Floripa Dignidade',
             navigationAriaLabelLiteral: translationDictionary.navigationPaths.identity,
@@ -80,29 +130,26 @@ export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderPro
           visualVariantLiteral={isScrollThresholdExceededBoolean ? 'STANDARD' : 'MONOCHROME_WHITE'}
         />
 
-        {/* ÁREA B: NAVEGACIÓN DESKTOP */}
-        <DesktopNavigationMenu dictionary={translationDictionary.navigationPaths} />
+        {/* ÁREA B: NAVEGACIÓN ESCRITORIO (Molecule Swarm) */}
+        <DesktopNavigationMenu
+          dictionary={translationDictionary.navigationPaths}
+        />
 
-        {/* ÁREA C: ACCIONES (Swarm Delegation) */}
-        <NavigationActionsSwarm actionsDictionary={translationDictionary.actions} />
+        {/* ÁREA C: ACCIONES DE CONVERSIÓN (Discovery & Conversion Swarm) */}
+        <NavigationActionsSwarm
+          actionsDictionary={translationDictionary.actions}
+        />
 
-        {/* DISPARADOR MÓVIL (Touch-First Trigger) */}
-        <button
-          className={GlobalStyleClassMerger(
-            'lg:hidden p-3 rounded-2xl backdrop-blur shadow-sm border transition-all active:scale-90',
-            isScrollThresholdExceededBoolean
-              ? 'text-navy-900 bg-slate-50 border-slate-200'
-              : 'text-white bg-white/10 border-white/20',
-          )}
-          onClick={toggleMobileMenuAction}
-          aria-expanded={isMobileMenuOpenBoolean}
-          aria-label={translationDictionary.actions.mobileMenuToggle}
-        >
-          {isMobileMenuOpenBoolean ? <X size={28} /> : <Menu size={28} />}
-        </button>
+        {/* ÁREA D: DISPARADOR TÁCTIL (Atom Delegation) */}
+        <NavigationMobileTrigger
+          isOpenBoolean={isMobileMenuOpenBoolean}
+          isScrolledBoolean={isScrollThresholdExceededBoolean}
+          toggleAction={toggleMobileMenuAction}
+          ariaLabelLiteral={translationDictionary.actions.mobileMenuToggle}
+        />
       </div>
 
-      {/* CAJÓN MÓVIL (Off-canvas) */}
+      {/* CAJÓN DE NAVEGACIÓN MÓVIL (Off-canvas Molecule) */}
       <MobileNavigationDrawer
         isOpenBoolean={isMobileMenuOpenBoolean}
         translationDictionary={translationDictionary}

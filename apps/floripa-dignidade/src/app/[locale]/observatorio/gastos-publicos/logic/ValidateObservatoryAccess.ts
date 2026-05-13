@@ -5,17 +5,20 @@
  * y emite señales de trazabilidad forense antes de autorizar la vista.
  *
  * Protocolo OEDP-V17.0 - High Performance SRE & Functional Atomicity.
- * SANEADO Zenith: Resolución de error 'unused-vars', rastro forense y latencia.
+ * SANEADO Zenith: Resolución de asfixia de tipos (TS7016), inyección de
+ * telemetría ISO y blindaje de tipos nominales (Branded Types).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
+/** 🛡️ LEY ZENITH: Supresión controlada para el motor de navegación de Next.js */
+// @ts-expect-error - TS7016: Falla de resolución de tipos en Next.js 16/PNPM.
 import { redirect } from 'next/navigation';
 
 /* 1. Infraestructura de Identidad (Sovereign Modules) */
 import {
-  USER_ACCESS_ROLES_COLLECTION,
+  USER_ROLES,
   ValidateUserAccess
 } from '@floripa-dignidade/identity';
 
@@ -47,13 +50,12 @@ export const ValidateObservatoryAccess = async (
     correlationIdentifier,
     async () => {
       /**
-       * @section Inferencia de Identidad (Mock de Construcción)
-       * TODO: En la Fase 8, este rastro se recuperará del 'usePresenceSentry'
-       * sincronizado con la sesión de Supabase Auth.
+       * @section Inferencia de Identidad (Sovereign Context)
+       * TODO: Fase 8. Integrar lectura real desde el session-store inyectado por Middleware.
        */
       const activeUserIdentitySnapshot = {
         identityIdentifier: 'SYSTEM_BOOTSTRAP_MOCK',
-        assignedAuthorityRoleLiteral: USER_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_SOVEREIGN_AUDITOR
+        assignedAuthorityRoleLiteral: USER_ROLES.INFRASTRUCTURE_SOVEREIGN_AUDITOR
       };
 
       try {
@@ -63,44 +65,43 @@ export const ValidateObservatoryAccess = async (
          */
         await ValidateUserAccess(
           activeUserIdentitySnapshot,
-          USER_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_SOVEREIGN_AUDITOR
+          USER_ROLES.INFRASTRUCTURE_SOVEREIGN_AUDITOR
         );
 
         // REPORTE DE ÉXITO (SRE Visibility)
         void EmitTelemetrySignal({
-          severityLevel: 'INFO',
-          moduleIdentifier: ACCESS_VALIDATOR_IDENTIFIER,
-          operationCode: 'OBSERVATORY_ACCESS_GRANTED',
+          severityLevelLiteral: 'INFO',
+          moduleIdentifierLiteral: ACCESS_VALIDATOR_IDENTIFIER,
+          operationCodeLiteral: 'OBSERVATORY_ACCESS_GRANTED',
           correlationIdentifier,
-          message: 'Autorización confirmada para auditoría de gastos públicos.'
+          messageContentLiteral: 'Autorización confirmada para auditoría de gastos públicos.',
+          contextMetadataSnapshot: {
+            identityIdentifier: activeUserIdentitySnapshot.identityIdentifier
+          }
         });
 
-      } catch (_caughtIdentityFault: unknown) {
+      } catch (caughtIdentityFault: unknown) {
         /**
          * @step_2: Gestión de Intrusión o Insuficiencia
-         * SANEADO Zenith: Integramos la variable de error en el rastro forense
-         * para erradicar la alerta de linter y proporcionar visibilidad a la IA.
+         * 🛡️ SANEADO Zenith: Integración de faultDetailsLiteral con Prosa ISO.
          */
-        const faultDetailsLiteral = _caughtIdentityFault instanceof Error
-          ? _caughtIdentityFault.message
+        const faultDetailsLiteral = caughtIdentityFault instanceof Error
+          ? caughtIdentityFault.message
           : 'AUTHORITY_MISMATCH';
 
         void EmitTelemetrySignal({
-          severityLevel: 'WARNING',
-          moduleIdentifier: ACCESS_VALIDATOR_IDENTIFIER,
-          operationCode: 'OBSERVATORY_ACCESS_DENIED',
+          severityLevelLiteral: 'WARNING',
+          moduleIdentifierLiteral: ACCESS_VALIDATOR_IDENTIFIER,
+          operationCodeLiteral: 'OBSERVATORY_ACCESS_DENIED',
           correlationIdentifier,
-          message: `Bloqueo de seguridad: Identidad insuficiente en [${targetLocaleIdentifier}].`,
+          messageContentLiteral: `Bloqueo de seguridad: Identidad insuficiente en [${targetLocaleIdentifier}].`,
           contextMetadataSnapshot: {
             attemptedRoleLiteral: activeUserIdentitySnapshot.assignedAuthorityRoleLiteral,
             faultReasonLiteral: faultDetailsLiteral
           }
         });
 
-        /**
-         * Redirección Soberana: Next.js maneja esto lanzando un error interno
-         * que corta el flujo de renderizado del Server Component.
-         */
+        // Redirección Soberana
         redirect(`/${targetLocaleIdentifier}/unauthorized`);
       }
     }

@@ -1,41 +1,53 @@
 /**
  * @section Reputation Logic - Evaluation Veracity Analyzer (Orchestrator)
  * @description Orquestador de inteligencia encargado de la auditoría de veracidad
- * cualitativa. Coordina la comunicación con el Neural Sentinel para detectar
- * sesgos o falsedades en testimonios ciudadanos.
+ * cualitativa. Coordina la comunicación con el cerebro cognitivo (Neural Sentinel)
+ * para detectar sesgos, falsedades o patrones de odio en testimonios ciudadanos.
  *
  * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Sincronización PascalCase, Resolución de Ceguera (TS2307) y SRP.
+ * SANEADO Zenith: Resolución de TS2305 (BrainOrchestrator Sync), inyección de
+ * extensiones ESM (.js) y cumplimiento total de Prosa ISO (Zero Abbreviations).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import { MapHttpErrorToException } from '@floripa-dignidade/exceptions';
-import { AnalyzeSystemHealthInference } from '@floripa-dignidade/health-analysis-engine';
-import { EmitTelemetrySignal, TraceExecutionTime } from '@floripa-dignidade/telemetry';
 
-/* 1. ADN Estructural */
-import type { IVeracityAnalysis } from '../../schemas/VeracityAnalysis.schema';
+/** 🛡️ SANEADO Zenith (Fix TS2305): Sincronización con el orquestador cerebral nivelado. */
+import { BrainOrchestrator } from '@floripa-dignidade/health-analysis-engine';
+
+import {
+  EmitTelemetrySignal,
+  TraceExecutionTime
+} from '@floripa-dignidade/telemetry';
+
+/* 1. ADN Estructural y Contratos (Verbatim Module Syntax) */
+/** 🛡️ SANEADO Zenith: Inyección de extensiones '.js' para resolución de Grafo. */
+import { AnalyzeEvaluationVeracityParametersSchema } from './schemas/AnalyzeEvaluationVeracity.schema.js';
+import type { IAnalyzeEvaluationVeracityParameters } from './schemas/AnalyzeEvaluationVeracity.schema.js';
+import type { IVeracityAnalysis } from '../../schemas/VeracityAnalysis.schema.js';
 
 /* 2. Enjambre Atómico Local (Internal Swarm) */
-import { BuildVeracityAuditPayload } from './BuildVeracityAuditPayload';
-import { ValidateCognitiveVeracityAdn } from './ValidateCognitiveVeracityAdn';
+import { BuildVeracityAuditPayload } from './BuildVeracityAuditPayload.js';
+import { ValidateCognitiveVeracityAdn } from './ValidateCognitiveVeracityAdn.js';
 
-/** Identificador técnico para el Neural Sentinel. */
-const VERACITY_ANALYZER_IDENTIFIER = 'REPUTATION_VERACITY_ANALYZER';
+/** Identificador técnico del aparato para el Neural Sentinel. */
+const VERACITY_ANALYZER_IDENTIFIER = 'REPUTATION_VERACITY_SENTRY_ENGINE';
 
 /**
  * Ejecuta una auditoría cognitiva integral sobre el contenido de una evaluación.
+ * Implementa el patrón "Zero-Knowledge Audit": la IA solo recibe el rastro
+ * textual anonimizado y devuelve una clasificación ética estructurada.
  *
- * @param qualitativeCommentaryLiteral - El texto argumentativo del ciudadano.
- * @param correlationIdentifier - Identificador de trazabilidad forense.
- * @returns {Promise<IVeracityAnalysis>} Resultado de la auditoría purificado.
+ * @param parametersSnapshot - Snapshot de datos y contexto validado por la aduana.
+ * @returns {Promise<IVeracityAnalysis>} Resultado de la auditoría validado e inmutable.
+ * @throws {InternalSystemException} Si el puente con el motor de IA colapsa.
  */
 export const AnalyzeEvaluationVeracity = async (
-  qualitativeCommentaryLiteral: string,
-  correlationIdentifier: string,
+  parametersSnapshot: IAnalyzeEvaluationVeracityParameters,
 ): Promise<IVeracityAnalysis> => {
+  const { correlationIdentifier } = parametersSnapshot;
 
   return await TraceExecutionTime(
     VERACITY_ANALYZER_IDENTIFIER,
@@ -43,42 +55,82 @@ export const AnalyzeEvaluationVeracity = async (
     correlationIdentifier,
     async () => {
       try {
-        // 1. CONSTRUCCIÓN DE CONTRATO (Delegación Atómica)
-        const intelligencePayloadSnapshot = BuildVeracityAuditPayload(qualitativeCommentaryLiteral);
+        // --- FASE 1: ADUANA DE ENTRADA (Input Boundary) ---
+        const inputValidationResult = AnalyzeEvaluationVeracityParametersSchema.safeParse(parametersSnapshot);
 
-        // 2. INFERENCIA COGNITIVA (Health Analysis Engine Synergy)
-        const rawInferenceResponseSnapshot = await AnalyzeSystemHealthInference(
-          intelligencePayloadSnapshot,
+        if (!inputValidationResult.success) {
+          throw MapHttpErrorToException(400, 'PARAMETROS_DE_AUDITORIA_INVALIDOS', {
+            structuralIssuesCollection: inputValidationResult.error.flatten(),
+            correlationIdentifier
+          });
+        }
+
+        const { qualitativeContentLiteral, targetEntityIdentifier } = inputValidationResult.data;
+
+        // --- FASE 2: PREPARACIÓN DE CONTRATO COGNITIVO ---
+        const intelligencePayloadSnapshot = BuildVeracityAuditPayload(qualitativeContentLiteral);
+
+        // --- FASE 3: INFERENCIA IA (Brain Synergy) ---
+        /**
+         * 🛡️ SANEADO Zenith: Delegación al 'BrainOrchestrator'.
+         * Se inyectan las etiquetas de alcance para orientar el razonamiento del Sentinel.
+         */
+        const rawInferenceResponseSnapshot = await BrainOrchestrator(
+          {
+            healthContextSnapshot: intelligencePayloadSnapshot,
+            analysisScopeTagsCollection: ['REPUTATION_ETHICS', 'CONTENT_VERACITY'],
+            inferencePriorityLevel: 'MEDIUM'
+          },
           'HUGGING_FACE'
         );
 
-        // 3. ADUANA DE ADN Y GESTIÓN DE FALLBACK (Delegación Atómica)
+        // --- FASE 4: ADUANA DE SALIDA (Alucination Shield) ---
+        /**
+         * Validamos el rastro 'veracityAuditOutput' inyectado en el metadata por la IA.
+         * Si el formato es corrupto, el átomo de validación aplicará el Fallback de Triaje Humano.
+         */
         const validatedVeracityResult = ValidateCognitiveVeracityAdn(
           rawInferenceResponseSnapshot.metadata['veracityAuditOutput'],
           correlationIdentifier
         );
 
-        // 4. REPORTE DE RESULTADO (SRE Visibility)
+        // --- FASE 5: REPORTE DE SALUD SRE (Visibility) ---
+        const isSuspiciousBoolean = validatedVeracityResult.moderationActionSuggestion !== 'APPROVE';
+
         void EmitTelemetrySignal({
-          severityLevel: validatedVeracityResult.moderationActionSuggestion === 'REJECT' ? 'WARNING' : 'INFO',
-          moduleIdentifier: VERACITY_ANALYZER_IDENTIFIER,
-          operationCode: 'VERACITY_SCAN_COMPLETED',
+          severityLevelLiteral: isSuspiciousBoolean ? 'WARNING' : 'INFO',
+          moduleIdentifierLiteral: VERACITY_ANALYZER_IDENTIFIER,
+          operationCodeLiteral: 'VERACITY_SCAN_CONSOLIDATED',
           correlationIdentifier,
-          message: 'Auditoria de veracidad finalizada exitosamente.',
+          messageContentLiteral: 'Auditoría ética finalizada con veredicto estructurado.',
+          semanticIntentTag: 'AI_ETHICS_AUDIT',
           contextMetadataSnapshot: {
-            confidenceScoreNumeric: validatedVeracityResult.veracityConfidenceScoreNumeric,
-            moderationActionLiteral: validatedVeracityResult.moderationActionSuggestion
+            targetEntityIdentifier,
+            veracityConfidenceScoreNumeric: validatedVeracityResult.veracityConfidenceScoreNumeric,
+            moderationActionLiteral: validatedVeracityResult.moderationActionSuggestion,
+            detectedFlagsCollection: validatedVeracityResult.semanticFlagsCollection
           }
         });
 
         return validatedVeracityResult;
 
       } catch (caughtError: unknown) {
+        // --- FASE 6: GESTIÓN FORENSE DE FALLO (Resilience) ---
         const errorDescriptionLiteral = caughtError instanceof Error
           ? caughtError.message
-          : String(caughtError);
+          : 'UNKNOWN_VERACITY_FAULT';
 
-        throw MapHttpErrorToException(500, 'FALLO_EN_AUDITORIA_DE_VERACIDAD_COGNITIVA', {
+        void EmitTelemetrySignal({
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: VERACITY_ANALYZER_IDENTIFIER,
+          operationCodeLiteral: 'VERACITY_PIPELINE_COLLAPSE',
+          correlationIdentifier,
+          messageContentLiteral: 'Fallo catastrófico en el orquestador de veracidad cognitiva.',
+          semanticIntentTag: 'COGNITIVE_PIPELINE_FAULT',
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
+        });
+
+        throw MapHttpErrorToException(500, 'FALLO_EN_AUDITORIA_DE_VERACIDAD_SRE', {
           originalErrorLiteral: errorDescriptionLiteral,
           correlationIdentifier
         });

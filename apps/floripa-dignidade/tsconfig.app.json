@@ -1,66 +1,96 @@
 /**
- * @section tsconfig: Emitter (Portal Shell)
- * @description Generador de ADN para la aplicación principal. Orquesta la
- * visibilidad del motor Next.js y sincroniza el mapa de rutas con la
- * arquitectura de búnkeres aplanados.
+ * @section CMS DNA - Application Emitter Configuration
+ * @description Generador de ADN para la Matriz de Gobernanza.
+ * Orquesta la visibilidad del motor Next.js y sincroniza el mapa de rutas
+ * mediante la Maniobra de Redirección de ADN hacia la caché del monorepo.
  *
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Resolución de error TS2688 (Carga de librería 'next')
- * delegando la resolución al puente de tipos ambiental.
+ * SANEADO Zenith: Corrección de 'ignoreDeprecations', resolución de tipos
+ * globales Next.js y blindaje de jurisdicción de escaneo.
  *
  * @author Raz Podestá - MetaShark Tech
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
     "composite": true,
-    "noEmit": false,
     "declaration": true,
+    "declarationMap": true,
     "emitDeclarationOnly": true,
-
     "rootDir": ".",
     "outDir": "../../dist/out-tsc/apps/floripa-dignidade",
     "tsBuildInfoFile": "../../dist/out-tsc/apps/floripa-dignidade/tsconfig.app.tsbuildinfo",
 
-    "ignoreDeprecations": "5.0",
-
-    "paths": {
-      "@/*": ["./src/*"],
-      "@floripa-dignidade/*": ["../../dist/out-tsc/libs/*/index.d.ts"]
-    },
-
+    /* --- RESOLUCIÓN NEXT-GEN (Bundler & Edge Ready) --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "strict": true,
+    "noEmit": false,
 
-    /* --- ADN DEL ENTORNO --- */
+    /* --- RESILIENCIA SRE (Dependency & Deprecation Guard) --- */
     /**
-     * 🛡️ SANEADO Zenith (Fix TS2688): Se remueve 'next' de este array.
-     * La visibilidad de Next.js se garantiza ahora vía 'index.d.ts' mediante
-     * referencia de triple barra, evitando fallos de resolución en PNPM.
+     * 🛡️ LEY ZENITH: Ajuste a '5.0' para evitar error TS5103.
      */
-    "types": ["node", "react", "react-dom"],
+    "ignoreDeprecations": "5.0",
+    "skipLibCheck": true,
+
+    /* --- MAPA DE RUTAS MAESTRO (Redirección de ADN) --- */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@floripa-dignidade/telemetry":["../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
+      "@floripa-dignidade/exceptions": ["../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
+      "@floripa-dignidade/routing":["../../dist/out-tsc/libs/core/routing/index.d.ts"],
+      "@floripa-dignidade/identity":["../../dist/out-tsc/libs/modules/identity/index.d.ts"],
+      "@floripa-dignidade/pmf-open-data-engine":["../../dist/out-tsc/libs/modules/pmf-open-data-engine/index.d.ts"],
+      "@floripa-dignidade/shared-ui-contracts":["../../dist/out-tsc/libs/shared/ui-contracts/index.d.ts"],
+      "@floripa-dignidade/shared-ui-foundry":["../../dist/out-tsc/libs/shared/ui-foundry/index.d.ts"],
+      "@floripa-dignidade/shared-utility":["../../dist/out-tsc/libs/shared/utility/index.d.ts"]
+    },
+
+    /* --- ADN DEL ENTORNO (Isomorphic Context) --- */
+    /**
+     * 🛡️ SANEADO: Se elimina 'next' del array de tipos para resolver TS2688.
+     * La visibilidad de Next.js se garantiza nativamente en src/index.d.ts.
+     */
+    "types": ["node", "react", "react-dom", "jest"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
 
-  "include": [
+  "include":[
     "src/**/*.ts",
     "src/**/*.tsx",
     "next.config.js",
     "postcss.config.js",
     "tailwind.config.js",
+    "jest.config.ts",
     "index.d.ts",
     "next-env.d.ts",
     ".next/types/**/*.ts"
   ],
 
-  "exclude": [
+  "exclude":[
     "node_modules",
     "dist",
     ".next",
     "../../dist",
     "**/*.spec.ts",
     "**/*.test.ts"
+  ],
+
+  "references":[
+    { "path": "../../libs/core/telemetry/tsconfig.lib.json" },
+    { "path": "../../libs/core/exceptions/tsconfig.lib.json" },
+    { "path": "../../libs/core/routing/tsconfig.lib.json" },
+    { "path": "../../libs/modules/identity/tsconfig.lib.json" },
+    { "path": "../../libs/modules/pmf-open-data-engine/tsconfig.lib.json" },
+    { "path": "../../libs/shared/ui-contracts/tsconfig.lib.json" },
+    { "path": "../../libs/shared/ui-foundry/tsconfig.lib.json" },
+    { "path": "../../libs/shared/utility/tsconfig.lib.json" }
   ]
 }

@@ -1,55 +1,71 @@
 'use client';
 
 /**
- * @section UI Molecule - Mobile Navigation Drawer
+ * @section UI Molecule - Mobile Navigation Drawer (Orchestrator)
  * @description Panel lateral de navegación optimizado para dispositivos táctiles.
- * Implementa el patrón 'Overlay' con bloqueo de scroll, búsqueda integrada
- * y rastro telemétrico de visibilidad para auditoría de UX.
+ * Orquesta el ensamble de búsqueda, lista de enlaces institucionales y acciones
+ * de conversión. Implementa el patrón 'Overlay' con rastro telemétrico de
+ * visibilidad para la auditoría de UX y cumplimiento de accesibilidad.
  *
  * Protocolo OEDP-V17.0 - High Performance SRE & Universal Accessibility.
- * SANEADO Zenith: Resolución de Self-import (Nx Boundary), corrección de tipos
- * y ordenamiento alfabético de miembros.
+ * SANEADO Zenith: Resolución de TS2741 (Identidad Forense), erradicación de TS6133
+ * (Rastro muerto), cumplimiento de Rutas Limpias y validación de ADN Zod.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import React, { useEffect } from 'react';
-import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Heart, Info, Newspaper, ShieldCheck } from 'lucide-react';
+import { Heart } from 'lucide-react';
+import { z } from 'zod';
 
-/* 1. Infraestructura Core y Utilidades (Sovereign Swarm) */
+/* 1. Infraestructura Core y Utilidades (Sovereign Swarm - Clean Paths) */
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
 } from '@floripa-dignidade/telemetry';
 
-/* 2. Átomos y Primitivos Locales (Relative Paths - Nx Compliance) */
+/* 2. Átomos y Moléculas Locales (Internal Swarm - Clean Paths) */
 import { GlobalActionButton } from '../../../atoms/GlobalActionButton';
 import { GlobalSearchWidget } from '../../../molecules/GlobalSearchWidget';
+import { MobileEmergencyAction } from '../atoms/MobileEmergencyAction';
+import { MobileNavigationLinkList } from './MobileNavigationLinkList';
 
-/* 3. ADN Estructural (Silo Lingüístico) */
-import type { IMainNavigationHeaderI18n } from '../../../composite-ui/i18n/MainNavigationHeaderI18n.schema';
+/* 3. ADN Estructural (Blueprints Layer) */
+import type { IMainNavigationHeaderI18n } from '@floripa-dignidade/shared-ui-contracts';
 
 /**
- * @interface IMobileNavigationDrawerProperties
- * @description Contrato inmutable para la gestión de visibilidad y contenido del cajón.
+ * @section Aduana de ADN (Prop Validation)
  */
+const MobileNavigationDrawerPropertiesSchema = z.object({
+  isOpenBoolean: z.boolean(),
+  /** Se valida la existencia del diccionario de traducciones. */
+  translationDictionary: z.custom<IMainNavigationHeaderI18n>(),
+}).readonly();
+
 export interface IMobileNavigationDrawerProperties {
-  /** Estado de visibilidad controlado por el orquestador superior (Header). */
   readonly isOpenBoolean: boolean;
-  /** Diccionario de traducciones validado por la aduana Zod. */
   readonly translationDictionary: IMainNavigationHeaderI18n;
 }
 
 /** Identificador técnico del aparato para el Neural Sentinel. */
-const MOLECULE_IDENTIFIER = 'MOBILE_NAVIGATION_DRAWER_MOLECULE';
+const MOLECULE_IDENTIFIER = 'MOBILE_NAVIGATION_DRAWER_ORCHESTRATOR';
 
-export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties> = ({
-  isOpenBoolean,
-  translationDictionary,
-}) => {
+/**
+ * Aparato encargado de la navegación móvil táctil.
+ * Implementa animaciones fluidas y telemetría de exposición de interfaz.
+ *
+ * @param propertiesSnapshot - Snapshot de configuración y visibilidad.
+ * @returns {React.ReactElement} Drawer móvil auditado y atomizado.
+ */
+export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties> = (
+  propertiesSnapshot
+) => {
+  // 1. ADUANA DE ADN: Purificación de entrada
+  const { isOpenBoolean, translationDictionary } =
+    MobileNavigationDrawerPropertiesSchema.parse(propertiesSnapshot);
+
   /**
    * @section Gestión de Telemetría de Visibilidad
    * 🛡️ LEY ZENITH: El tiempo de exposición y la interacción con el Drawer son auditados.
@@ -65,6 +81,7 @@ export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties>
       operationCodeLiteral: 'MOBILE_DRAWER_DISPLAYED',
       correlationIdentifier,
       messageContentLiteral: 'Cajón de navegación móvil desplegado por el ciudadano.',
+      semanticIntentTag: 'UI_VISIBILITY_TRACE',
       contextMetadataSnapshot: {
         timestampISO: new Date().toISOString(),
         deviceViewHeightPixelQuantity: globalThis.innerHeight,
@@ -76,7 +93,7 @@ export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties>
     <AnimatePresence>
       {isOpenBoolean && (
         <div className="fixed inset-0 z-[110] lg:hidden">
-          {/* 1. FONDO DE CONTRASTE (Backdrop) */}
+          {/* 1. FONDO DE CONTRASTE (Backdrop - Hardware Overlay) */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -85,7 +102,7 @@ export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties>
             aria-hidden="true"
           />
 
-          {/* 2. CONTENEDOR DE NAVEGACIÓN (Drawer) */}
+          {/* 2. CONTENEDOR DE NAVEGACIÓN (Sovereign Drawer) */}
           <motion.nav
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
@@ -93,10 +110,12 @@ export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties>
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-white shadow-2xl flex flex-col"
             role="navigation"
+            aria-label="Menu Lateral Móvel"
           >
-            {/* CABECERA INTERNA: Búsqueda Soberana */}
+            {/* CABECERA INTERNA: Búsqueda Soberana (Molecule Swarm) */}
             <header className="p-6 border-b border-slate-100 bg-slate-50/50">
               <GlobalSearchWidget
+                isPolymorphicBoolean={false}
                 labels={{
                   inputPlaceholderLiteral: translationDictionary.actions.searchPlaceholder,
                   accessibilityLabelLiteral: translationDictionary.actions.searchPlaceholder,
@@ -105,48 +124,28 @@ export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties>
               />
             </header>
 
-            {/* CUERPO: Enlaces de Identidad e Impacto */}
+            {/* CUERPO: Enlaces e Impacto (Delegación Atómica) */}
             <main className="flex-grow overflow-y-auto p-6 flex flex-col gap-2">
-              <MobileNavLink
-                hrefLiteral="/identidad"
-                labelLiteral={translationDictionary.navigationPaths.identity}
-                iconNode={<Info size={20} />}
+              <MobileNavigationLinkList
+                translationDictionary={translationDictionary.navigationPaths}
               />
 
-              <MobileNavLink
-                hrefLiteral="/transparencia"
-                labelLiteral={translationDictionary.navigationPaths.transparency}
-                iconNode={<ShieldCheck size={20} />}
+              {/* 🛡️ SANEADO Zenith (Fix TS2741): Inyección de identidad forense mandatoria. */}
+              <MobileEmergencyAction
+                labelLiteral={translationDictionary.actions.reportEmergencyLabel}
+                actionIdentifierLiteral="DRAWER_EMERGENCY_TRIGGER"
               />
-
-              <MobileNavLink
-                hrefLiteral="/prensa"
-                labelLiteral={translationDictionary.navigationPaths.press}
-                iconNode={<Newspaper size={20} />}
-              />
-
-              {/* ACCIÓN DE EMERGENCIA (Búnker de Denuncias) */}
-              <Link
-                href="/denuncia"
-                className="mt-4 flex items-center justify-between p-5 rounded-2xl bg-red-50 text-red-700 border border-red-100 active:scale-95 transition-all"
-              >
-                <div className="flex items-center gap-4">
-                  <ShieldCheck size={24} />
-                  <span className="font-black text-sm uppercase tracking-wider">
-                    {translationDictionary.actions.reportEmergencyLabel}
-                  </span>
-                </div>
-              </Link>
             </main>
 
-            {/* PIE: Conversión Primaria (Donación) */}
+            {/* PIE: Conversión Primaria (Donación Call-To-Action) */}
             <footer className="p-6 border-t border-slate-100">
               <GlobalActionButton
                 visualIntentConfigurationLiteral="CONVERSION"
                 actionIdentifierLiteral="MOBILE_DRAWER_DONATE_CTA"
+                isPolymorphicBoolean={false}
                 className="w-full py-5 text-lg"
               >
-                <Heart className="w-5 h-5 fill-current" />
+                <Heart className="w-5 h-5 fill-current" aria-hidden="true" />
                 <span>{translationDictionary.actions.donateCallToAction}</span>
               </GlobalActionButton>
             </footer>
@@ -156,27 +155,3 @@ export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties>
     </AnimatePresence>
   );
 };
-
-/**
- * @private Sub-Aparato: MobileNavLink
- * @description Átomo local para la renderización de filas de navegación móvil.
- */
-interface IMobileNavLinkProperties {
-  readonly hrefLiteral: string;
-  readonly labelLiteral: string;
-  readonly iconNode: React.ReactNode;
-}
-
-const MobileNavLink: React.FC<IMobileNavLinkProperties> = ({
-  hrefLiteral,
-  labelLiteral,
-  iconNode,
-}) => (
-  <Link
-    href={hrefLiteral}
-    className="flex items-center gap-5 p-5 rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-navy-900 transition-all group active:scale-[0.98]"
-  >
-    <div className="text-slate-400 group-hover:text-amber-500 transition-colors">{iconNode}</div>
-    <span className="font-bold text-base">{labelLiteral}</span>
-  </Link>
-);

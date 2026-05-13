@@ -1,11 +1,12 @@
 /**
- * @section PMF Engine Logic - Municipality Expenditure Orchestrator
+ * @section PMF Engine Logic - Municipality Expenditure Orchestrator (Master)
  * @description Cerebro de flujo encargado de coordinar la sincronización integral
- * del gasto público. Implementa procesamiento concurrente con resiliencia atómica
- * y cumplimiento estricto de tipos opcionales.
+ * del gasto público. Orquesta el fetch externo, la transformación en enjambre
+ * y la auditoría de fidelidad bajo estándares de misión crítica.
  *
  * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Resolución de TS2379 (exactOptionalPropertyTypes) y Atomización SRP.
+ * SANEADO Zenith: Atomización de enjambre concurrente, blindaje de opcionales
+ * y cumplimiento de la Prosa ISO (Zero Abbreviations).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -17,47 +18,33 @@ import {
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-import { MapHttpErrorToException } from '@floripa-dignidade/exceptions';
+import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
 
 /* 1. ADN del Dominio y Contratos (Verbatim Module Syntax) */
 import type { IPublicExpenditure } from '../../schemas/sovereign/PublicExpenditure.schema';
+import { SyncMunicipalityExpenditureSchema } from '../atomic/schemas/SyncMunicipalityExpenditure.schema';
+import type { ISyncMunicipalityExpenditureParameters } from '../atomic/schemas/SyncMunicipalityExpenditure.schema';
 
 /* 2. Enjambre Atómico Local (Swiss-Watch Swarm) */
 import { FetchRawEPublicaData } from '../atomic/fetchers/FetchRawEPublicaData';
-import { ProcessExpenditureRecord } from '../atomic/mappers/ProcessExpenditureRecord';
 import { CalculateSyncMetrics } from '../atomic/mappers/CalculateSyncMetrics';
-
-/**
- * @interface ISyncExpenditureParameters
- * @description Contrato inmutable para la parametrización de la auditoría masiva.
- */
-export interface ISyncExpenditureParameters {
-  /** Identificador de la ciudad (ej: 'florianopolis'). */
-  readonly municipalitySlugLiteral: string;
-
-  /** Rango temporal de la auditoría. */
-  readonly periodRange: {
-    /** Formato: 'mm/aaaa'. */
-    readonly initialMonthYearLiteral: string;
-    /** Formato: 'mm/aaaa'. */
-    readonly finalMonthYearLiteral: string;
-  };
-
-  /** Código técnico de la unidad presupuestaria (Opcional). */
-  readonly managementUnitTechnicalIdentifier?: number | undefined;
-}
+import { ExecuteConcurrentRecordMapping } from '../atomic/mappers/ExecuteConcurrentRecordMapping';
 
 /** Identificador técnico del orquestador para el Neural Sentinel. */
 const SYNC_ORCHESTRATOR_IDENTIFIER = 'PMF_EXPENDITURE_SYNC_ORCHESTRATOR';
 
 /**
- * Ejecuta la sincronización integral de datos abiertos gubernamentales.
+ * Ejecuta la sincronización integral de datos abiertos de un municipio.
+ * Implementa el patrón "Cloud Sovereign" garantizando la integridad de la
+ * cadena de custodia desde la captura hasta la normalización.
  *
- * @param parametersSnapshot - Criterios de búsqueda y filtrado institucional.
- * @returns {Promise<IPublicExpenditure[]>} Colección de gastos purificados y firmados.
+ * @param synchronizationParametersSnapshot - Criterios de búsqueda y filtrado validables.
+ * @returns {Promise<IPublicExpenditure[]>} Colección de gastos purificados, firmados y listos para el Ledger.
+ * @throws {ValidationException} Si los parámetros violan el contrato de ADN.
+ * @throws {InternalSystemException} Si la infraestructura gubernamental o el motor colapsan.
  */
 export const SyncMunicipalityExpenditure = async (
-  parametersSnapshot: ISyncExpenditureParameters,
+  synchronizationParametersSnapshot: ISyncMunicipalityExpenditureParameters,
 ): Promise<IPublicExpenditure[]> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -67,91 +54,89 @@ export const SyncMunicipalityExpenditure = async (
     correlationIdentifier,
     async () => {
       try {
-        // 1. REPORTE DE INICIO (SRE Visibility)
-        void EmitTelemetrySignal({
-          severityLevel: 'INFO',
-          moduleIdentifier: SYNC_ORCHESTRATOR_IDENTIFIER,
-          operationCode: 'SYNC_PROCESS_STARTED',
-          correlationIdentifier,
-          message: 'PMF_ENGINE.LOGS.SYNC_STARTED',
-          contextMetadataSnapshot: { ...parametersSnapshot },
-        });
-
-        // 2. EXTRACCIÓN DE DATOS CRUDOS (I/O de Red - Stateless)
-        /**
-         * 🛡️ SANEADO Zenith: Resolución de TS2379.
-         * Usamos desestructuración y spread condicional para evitar pasar 'undefined'
-         * explícitamente a las propiedades opcionales del fetcher.
-         */
-        const rawGovernmentPayloadSnapshot = await FetchRawEPublicaData({
-          municipalitySlugLiteral: parametersSnapshot.municipalitySlugLiteral,
-          initialPeriodMonthYearLiteral: parametersSnapshot.periodRange.initialMonthYearLiteral,
-          finalPeriodMonthYearLiteral: parametersSnapshot.periodRange.finalMonthYearLiteral,
-          ...(parametersSnapshot.managementUnitTechnicalIdentifier !== undefined && {
-            managementUnitTechnicalIdentifier: parametersSnapshot.managementUnitTechnicalIdentifier
-          }),
-        }, correlationIdentifier);
-
-        /**
-         * 3. PROCESAMIENTO EN ENJAMBRE (Concurrent Mapping)
-         * Se envuelve cada ejecución en un bloque de resiliencia para que fallos
-         * individuales no detengan el lote (Fault Tolerance).
-         */
-        const processSwarmPromisesCollection = rawGovernmentPayloadSnapshot.registros.map(
-          async (governmentRecordSnapshot) => {
-            try {
-              return await ProcessExpenditureRecord(
-                governmentRecordSnapshot,
-                parametersSnapshot.municipalitySlugLiteral,
-                correlationIdentifier,
-              );
-            } catch (_ignoredRecordFault: unknown) {
-              return null; // Marcado para el contador de métricas.
-            }
-          }
+        // --- FASE 1: ADUANA DE ENTRADA (Sovereign Validation) ---
+        const inputValidationResult = SyncMunicipalityExpenditureSchema.safeParse(
+          synchronizationParametersSnapshot
         );
 
-        const normalizedResultsCollection = await Promise.all(processSwarmPromisesCollection);
+        if (!inputValidationResult.success) {
+          throw new ValidationException('ADN_DE_SINCRONIZACION_CORRUPTO', {
+            structuralIssuesCollection: inputValidationResult.error.flatten(),
+            correlationIdentifier
+          });
+        }
 
-        // 4. CÁLCULO DE MÉTRICAS (Delegación Atómica)
-        const metricsSnapshot = CalculateSyncMetrics(normalizedResultsCollection);
+        const {
+          municipalitySlugLiteral,
+          periodRange,
+          managementUnitTechnicalIdentifier
+        } = inputValidationResult.data;
 
-        // 5. REPORTE DE CIERRE NOMINAL (SRE Analytics)
+        // --- FASE 2: CAPTURA DE DATOS CRUDOS (External I/O) ---
+        /**
+         * 🛡️ LEY ZENITH: Inyección condicional para satisfacer 'exactOptionalPropertyTypes'.
+         * Asegura que no se transmita 'undefined' al fetcher atómico.
+         */
+        const rawGovernmentPayloadSnapshot = await FetchRawEPublicaData({
+          municipalitySlugLiteral,
+          initialPeriodMonthYearLiteral: periodRange.initialMonthYearLiteral,
+          finalPeriodMonthYearLiteral: periodRange.finalMonthYearLiteral,
+          ...(managementUnitTechnicalIdentifier !== undefined && { managementUnitTechnicalIdentifier }),
+        }, correlationIdentifier);
+
+        // --- FASE 3: PROCESAMIENTO EN ENJAMBRE (Concurrent Transformation) ---
+        /**
+         * Delegamos la ejecución paralela al átomo especializado para mantener el orquestador limpio.
+         */
+        const swarmResultsCollection = await ExecuteConcurrentRecordMapping({
+          rawRecordsCollection: rawGovernmentPayloadSnapshot.registros,
+          municipalitySlugLiteral,
+          correlationIdentifier
+        });
+
+        // --- FASE 4: AUDITORÍA DE FIDELIDAD (Metrics) ---
+        const syncMetricsSnapshot = CalculateSyncMetrics(swarmResultsCollection);
+
+        // --- FASE 5: REPORTE DE CIERRE ZENITH (SRE Visibility) ---
         void EmitTelemetrySignal({
-          severityLevel: metricsSnapshot.failedRecordsQuantity > 0 ? 'WARNING' : 'INFO',
-          moduleIdentifier: SYNC_ORCHESTRATOR_IDENTIFIER,
-          operationCode: 'SYNC_PROCESS_COMPLETED',
+          severityLevelLiteral: syncMetricsSnapshot.failedRecordsQuantity > 0 ? 'WARNING' : 'INFO',
+          moduleIdentifierLiteral: SYNC_ORCHESTRATOR_IDENTIFIER,
+          operationCodeLiteral: 'SYNC_PROCESS_NOMINAL_COMPLETED',
           correlationIdentifier,
-          message: 'PMF_ENGINE.LOGS.SYNC_SUCCESS',
+          messageContentLiteral: 'PMF_ENGINE.LOGS.SYNC_SUCCESS',
+          semanticIntentTag: 'MUNICIPALITY_OPEN_DATA_SYNC',
           contextMetadataSnapshot: {
-            ...metricsSnapshot,
-            municipalityLiteral: parametersSnapshot.municipalitySlugLiteral,
+            ...syncMetricsSnapshot,
+            municipalityLiteral: municipalitySlugLiteral,
+            executionTimestampISO: new Date().toISOString()
           },
         });
 
-        /** Retornamos solo los registros que superaron las aduanas de ADN. */
-        return normalizedResultsCollection.filter((item): item is IPublicExpenditure => item !== null);
+        /** Retornamos exclusivamente los registros que superaron todas las aduanas de ADN. */
+        return swarmResultsCollection.filter(
+          (expenditureSnapshot): expenditureSnapshot is IPublicExpenditure => expenditureSnapshot !== null
+        );
 
       } catch (caughtError: unknown) {
-        // 6. GESTIÓN FORENSE DE COLAPSO
-        if (caughtError instanceof Error && caughtError.name.includes('Exception')) {
-          throw caughtError;
-        }
+        // --- FASE 6: GESTIÓN FORENSE DE COLAPSO (Resilience Layer) ---
+
+        if (caughtError instanceof ValidationException) throw caughtError;
 
         const errorDescriptionLiteral = caughtError instanceof Error
           ? caughtError.message
-          : String(caughtError);
+          : 'UNKNOWN_SYNC_FAULT';
 
         void EmitTelemetrySignal({
-          severityLevel: 'CRITICAL',
-          moduleIdentifier: SYNC_ORCHESTRATOR_IDENTIFIER,
-          operationCode: 'SYNC_PIPELINE_CRITICAL_FAULT',
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: SYNC_ORCHESTRATOR_IDENTIFIER,
+          operationCodeLiteral: 'SYNC_PIPELINE_CATASTROPHIC_FAILURE',
           correlationIdentifier,
-          message: 'Fallo catastrófico en el orquestador de datos abiertos.',
+          messageContentLiteral: 'Fallo catastrófico en el orquestador de datos abiertos.',
+          semanticIntentTag: 'INFRASTRUCTURE_SYNC_FAULT',
           contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
         });
 
-        throw MapHttpErrorToException(500, 'PMF_ENGINE.ERRORS.PROTOCOL_CONTRACT_VIOLATION', {
+        throw new InternalSystemException('FALLO_EN_SINCRO_DE_DATOS_PMF_SRE', {
           originalErrorLiteral: errorDescriptionLiteral,
           correlationIdentifier,
         });

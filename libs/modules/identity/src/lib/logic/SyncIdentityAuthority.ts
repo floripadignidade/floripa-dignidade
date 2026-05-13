@@ -1,45 +1,50 @@
 /**
  * @section Identity Logic - Authority Synchronization Orchestrator
- * @description Orquestador soberano encargado de coordinar la persistencia del
- * peso bayesiano en el Ledger institucional. Une los átomos de mapeo y
- * transmisión física bajo un rastro de telemetría inalterable y vigilancia SRE.
+ * @description Orquestador supremo encargado de la persistencia del coeficiente de
+ * confianza bayesiana en el Ledger institucional. Coordina el flujo: Validación
+ * de ADN -> Captura de Infraestructura -> Mapeo Físico -> Transmisión Cloud.
  *
  * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Resolución de paradoja asíncrona (Fix TS2339) y blindaje I/O.
+ * SANEADO Zenith: Inyección de TSDocs Enterprise, eliminación de literales
+ * hardcoded, optimización de rastro forense y blindaje de tipos nominales.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
-import { InternalSystemException } from '@floripa-dignidade/exceptions';
+import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-/* 1. ADN de Entrada (Verbatim Types) */
-import type { IIdentityAuthorityResult } from './atomic/schemas/CalculateIdentityAuthority.schema';
-
-/* 2. Enjambre Atómico Local (Pulverized Logic Swarm) */
+/* 1. ADN de Entrada y Esquemas (Verbatim Module Syntax - Clean Paths) */
+import { SyncIdentityAuthoritySchema } from './atomic/schemas/SyncIdentityAuthority.schema';
 import { MapAuthorityToLedgerRecord } from './atomic/MapAuthorityToLedgerRecord';
 import { TransmitAuthorityLedgerPatch } from './atomic/TransmitAuthorityLedgerPatch';
 
-/** Identificador técnico del aparato para el Neural Sentinel. */
+import type { UserIdentifier } from '../schemas/UserIdentity.schema';
+import type { IIdentityAuthorityResult } from './atomic/schemas/CalculateIdentityAuthority.schema';
+
+/** Identificador técnico del orquestador para el Neural Sentinel. */
 const ORCHESTRATOR_IDENTIFIER = 'IDENTITY_AUTHORITY_SYNC_ORCHESTRATOR';
 
 /**
- * Ejecuta la transacción íntegra de sincronización de autoridad ciudadana.
- * Implementa el patrón "Cloud Sovereign" (ADR 0015) mediante persistencia stateless.
+ * Ejecuta la transacción íntegra de sincronización de autoridad ciudadana en la nube.
+ * Implementa el patrón "Cloud Sovereign" (ADR 0015) garantizando la resolución
+ * asíncrona de infraestructura antes de la mutación física en el Ledger.
  *
- * @param citizenIdentifierLiteral - UUID del ciudadano cuya autoridad será actualizada.
- * @param authoritySnapshot - Resultado del cálculo bayesiano de credibilidad.
- * @param correlationIdentifier - Identificador para la trazabilidad digital cross-module.
- * @returns {Promise<void>} Operación resuelta cuando el Ledger ha sido impactado.
+ * @param citizenIdentifier - UUID sellado nominalmente (Branded) del ciudadano.
+ * @param authoritySnapshot - Snapshot inmutable con el coeficiente bayesiano calculado.
+ * @param correlationIdentifier - Identificador para la cadena de custodia digital.
+ * @returns {Promise<void>} Operación resuelta tras el reconocimiento del Tier de Datos.
+ * @throws {ValidationException} Si el rastro de entrada viola el contrato de integridad.
+ * @throws {InternalSystemException} Si la infraestructura Cloud rechaza la persistencia.
  */
 export const SyncIdentityAuthority = async (
-  citizenIdentifierLiteral: string,
+  citizenIdentifier: UserIdentifier,
   authoritySnapshot: IIdentityAuthorityResult,
   correlationIdentifier: string = GenerateCorrelationIdentifier()
 ): Promise<void> => {
@@ -50,67 +55,93 @@ export const SyncIdentityAuthority = async (
     correlationIdentifier,
     async () => {
       try {
-        // 1. CAPTURA DE INFRAESTRUCTURA (Hardware Isolation)
+        // --- FASE 1: ADUANA DE ADN (Pre-flight Validation) ---
         /**
-         * 🛡️ SANEADO Zenith: Resolución de TS2339.
-         * Se añade 'await' mandatorio para resolver el contrato de secretos inyectados
-         * por el motor de infraestructura en el arranque.
+         * 🛡️ LEY ZENITH: Validamos los parámetros antes de consumir recursos de red.
+         * Asegura que el identificador y el snapshot sean conformes al estándar.
+         */
+        const aduanaValidationResult = SyncIdentityAuthoritySchema.safeParse({
+          citizenIdentifier,
+          authoritySnapshot,
+          correlationIdentifier
+        });
+
+        if (!aduanaValidationResult.success) {
+          throw new ValidationException('IDENTITY.ERRORS.SYNC_DNA_CORRUPTED', {
+            structuralIssuesCollection: aduanaValidationResult.error.flatten(),
+            correlationIdentifier
+          });
+        }
+
+        // --- FASE 2: CAPTURA DE INFRAESTRUCTURA (Hardware Isolation) ---
+        /**
+         * Resolvemos el contrato de secretos inyectados por el motor de entorno.
+         * El orquestador no accede a process.env, consume la aduana validada.
          */
         const {
           SUPABASE_URL: cloudUrlLiteral,
           SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret
         } = await ValidateEnvironmentAduana();
 
-        // 2. CONSTRUCCIÓN DE REGISTRO (Traducción de Protocolo)
-        /** Delegamos en el átomo mapper para obtener el rastro snake_case del Ledger. */
+        // --- FASE 3: TRANSFORMACIÓN DE PROTOCOLO (Domain to Physics) ---
+        /**
+         * Delegamos en el átomo mapper para transformar el ADN de dominio
+         * al esquema snake_case exigido por la tabla 'citizen_identities_ledger'.
+         */
         const ledgerRecordSnapshot = MapAuthorityToLedgerRecord(
           authoritySnapshot,
           correlationIdentifier
         );
 
-        // 3. DESPACHO FÍSICO (Cloud I/O)
+        // --- FASE 4: DESPACHO FÍSICO (Cloud I/O Delegation) ---
         /**
-         * Ejecutamos el parche físico en la base de datos soberana.
-         * El átomo dispatcher se encarga del protocolo stateless y los timeouts.
+         * El despacho se realiza de forma atómica. El dispatcher gestiona
+         * los límites de tiempo (AbortSignal) y el protocolo PostgREST.
          */
         await TransmitAuthorityLedgerPatch({
           cloudUrlLiteral,
           cloudSecurityKeySecret,
-          citizenIdentifierLiteral,
+          citizenIdentifierLiteral: citizenIdentifier as string,
           ledgerRecordSnapshot,
         });
 
-        // 4. REPORTE DE ÉXITO (SRE Visibility)
+        // --- FASE 5: REPORTE DE ÉXITO (SRE Visibility) ---
         void EmitTelemetrySignal({
           severityLevelLiteral: 'INFO',
           moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
           operationCodeLiteral: 'AUTHORITY_SYNC_NOMINAL_SUCCESS',
           correlationIdentifier,
-          messageContentLiteral: 'Sincronización de autoridad bayesiana consolidada exitosamente.',
-          /** Clasificación ontológica para el motor de impacto social */
+          messageContentLiteral: 'IDENTITY.LOGS.AUTHORITY_SYNC_NOMINAL',
           semanticIntentTag: 'IDENTITY_TRUST_SYNC',
           contextMetadataSnapshot: {
-            citizenIdentifierLiteral,
-            weightNumeric: authoritySnapshot.authorityCoefficientNumeric,
+            citizenIdentifier,
+            finalTrustWeightScoreNumeric: authoritySnapshot.authorityCoefficientNumeric,
             isVerifiedHumanBoolean: authoritySnapshot.isVerifiedHumanBoolean
           }
         });
 
       } catch (caughtError: unknown) {
-        // 5. GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
+        // --- FASE 6: GESTIÓN FORENSE DE COLAPSO (Resilience Layer) ---
+
+        /** 🛡️ Propagación de excepciones ya tipadas por la aduana o dispatchers. */
+        if (caughtError instanceof ValidationException || caughtError instanceof InternalSystemException) {
+          throw caughtError;
+        }
+
         const errorDescriptionLiteral = caughtError instanceof Error
           ? caughtError.message
-          : String(caughtError);
+          : 'UNKNOWN_ORCHESTRATION_FAULT';
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
           moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
           operationCodeLiteral: 'AUTHORITY_SYNC_CRITICAL_FAULT',
           correlationIdentifier,
-          messageContentLiteral: 'Fallo catastrófico al intentar grabar autoridad en el Ledger.',
+          messageContentLiteral: 'Fallo catastrófico en la persistencia de autoridad bayesiana.',
+          semanticIntentTag: 'PERSISTENCE_LAYER_FAULT',
           contextMetadataSnapshot: {
             errorTraceLiteral: errorDescriptionLiteral,
-            citizenId: citizenIdentifierLiteral
+            targetCitizen: citizenIdentifier
           }
         });
 

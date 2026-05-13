@@ -1,11 +1,10 @@
 /**
- * @section PMF Engine Logic - Municipality Data Ingestor (Orchestrator)
- * @description Orquestador superior encargado de la ingesta masiva de datos.
- * Implementa una estrategia de procesamiento concurrente con aislamiento de fallos,
- * transformando señales gubernamentales en registros soberanos firmados.
+ * @section PMF Engine Logic - Municipality Data Ingestor (Master Orchestrator)
+ * @description Orquestador supremo encargado de la ingesta masiva y multi-tenant.
+ * Coordina el enjambre de procesadores individuales y genera reportes de fidelidad.
  *
- * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Implementación de concurrencia, triaje de errores y métricas de fidelidad.
+ * Protocolo OEDP-V17.0 - Swarm Intelligence & Swant-tenant Architecture.
+ * SANEADO Zenith: Atomización completa, eliminación de 'any' e inyección de SRE.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -17,127 +16,110 @@ import {
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-import { InternalSystemException } from '@floripa-dignidade/exceptions';
+import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
 
-/* 1. ADN de Protocolo y Soberanía (Verbatim Module Syntax) */
+/* 1. ADN de Protocolo y Salida */
 import { EPublicaApiResponseSchema } from '../../schemas/protocol/EPublicaExpense.schema';
 import type { IEPublicaApiResponse } from '../../schemas/protocol/EPublicaExpense.schema';
 
-/* 2. Enjambre Atómico y Centinelas */
-import { ProcessExpenditureRecord } from '../atomic/mappers/ProcessExpenditureRecord';
-import { SovereignPersistenceSentry } from './SovereignPersistenceSentry';
+/* 2. Enjambre Atómico Local (Swiss-Watch Swarm) */
+import { ProcessIndividualMunicipalityRecord } from '../atomic/mappers/ProcessIndividualMunicipalityRecord';
+import { CalculateIngestionFidelity } from '../atomic/mappers/CalculateIngestionFidelity';
+import type { IIngestionFidelityMetrics } from '../atomic/mappers/CalculateIngestionFidelity';
 
-/** Identificador técnico del motor de ingesta para el Neural Sentinel. */
-const DATA_INGESTOR_IDENTIFIER = 'MUNICIPALITY_DATA_INGESTOR_ENGINE';
-
-/**
- * @interface IIngestionResult
- * @description Contrato de salida con métricas de éxito y fallo de la operación.
- */
-export interface IIngestionResult {
-  readonly totalProcessedQuantity: number;
-  readonly successfulIngestionQuantity: number;
-  readonly failedIngestionQuantity: number;
-}
+/** Identificador técnico para el Neural Sentinel. */
+const ORCHESTRATOR_IDENTIFIER = 'MUNICIPALITY_DATA_INGESTOR_MASTER';
 
 /**
- * Ejecuta el procesamiento de un paquete de datos, garantizando la resiliencia del lote.
+ * Ejecuta el procesamiento de un paquete de datos gubernamentales bajo rastro forense.
+ * Implementa ejecución concurrente con aislamiento de fallos por registro.
  *
- * @param unvalidatedDataPayloadSnapshot - El objeto JSON crudo (Protocolo E-Pública).
- * @param municipalitySlugLiteral - Identificador de la ciudad (ej: 'florianopolis').
- * @param correlationIdentifier - Identificador de trazabilidad forense.
- * @returns {Promise<IIngestionResult>} Resumen de ejecución auditado.
+ * @param unvalidatedDataPayloadSnapshot - Objeto JSON crudo del proveedor externo.
+ * @param municipalitySlugLiteral - Identificador del inquilino (Tenant/Municipio).
+ * @param correlationIdentifier - Identificador de trazabilidad del hilo superior.
+ * @returns {Promise<IIngestionFidelityMetrics>} Reporte de fidelidad inmutable.
  */
 export const IngestMunicipalityData = async (
   unvalidatedDataPayloadSnapshot: unknown,
   municipalitySlugLiteral: string,
   correlationIdentifier: string = GenerateCorrelationIdentifier(),
-): Promise<IIngestionResult> => {
+): Promise<IIngestionFidelityMetrics> => {
+
   return await TraceExecutionTime(
-    DATA_INGESTOR_IDENTIFIER,
-    'EXECUTE_CONCURRENT_INGESTION_FLOW',
+    ORCHESTRATOR_IDENTIFIER,
+    `EXECUTE_SWARM_INGESTION_FOR_${municipalitySlugLiteral.toUpperCase()}`,
     correlationIdentifier,
     async () => {
       try {
-        // 1. ADUANA DE ADN (Validación Estructural del Lote)
+        // --- FASE 1: ADUANA DE ADN (Batch Validation) ---
         const validationResult = EPublicaApiResponseSchema.safeParse(unvalidatedDataPayloadSnapshot);
 
         if (!validationResult.success) {
-          throw new Error('EXTERNAL_DATA_BATCH_CORRUPTION');
+          void EmitTelemetrySignal({
+            severityLevelLiteral: 'CRITICAL',
+            moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
+            operationCodeLiteral: 'BATCH_DNA_CORRUPTION',
+            correlationIdentifier,
+            messageContentLiteral: 'El paquete de datos del municipio es ilegible o corrupto.',
+            contextMetadataSnapshot: { issuesCollection: validationResult.error.flatten() }
+          });
+
+          throw new ValidationException('CONTRATO_DE_LOTE_PMF_VIOLADO');
         }
 
         const validatedPayload: IEPublicaApiResponse = validationResult.data;
-        const recordsCollection = validatedPayload.registros;
+        const recordsToProcessCollection = validatedPayload.registros;
 
+        // --- FASE 2: DESPACHO AL ENJAMBRE (Concurrent Processing) ---
         /**
-         * 2. PROCESAMIENTO EN ENJAMBRE (Concurrent Swarm Processing)
-         * Utilizamos Promise.all para procesar los registros en paralelo.
-         * Cada registro se envuelve en un try/catch para asegurar la continuidad.
+         * 🛡️ LEY SRE: Cada registro se delega a un átomo independiente.
+         * Promise.all garantiza velocidad, mientras que el átomo gestiona sus propios errores.
          */
-        const executionPromisesCollection = recordsCollection.map(async (rawRecord) => {
-          try {
-            // FASE A: Transformación Atómica (Inferencia Geográfica + Hash + Balance)
-            const sovereignExpenditure = await ProcessExpenditureRecord(
-              rawRecord,
-              municipalitySlugLiteral,
-              correlationIdentifier,
-            );
+        const swarmExecutionPromises = recordsToProcessCollection.map((rawRecord) =>
+          ProcessIndividualMunicipalityRecord({
+            rawRecordSnapshot: rawRecord,
+            tenantMunicipalitySlugLiteral: municipalitySlugLiteral,
+            correlationIdentifier
+          })
+        );
 
-            // FASE B: Persistencia Inteligente (Detección de Mutación)
-            await SovereignPersistenceSentry(sovereignExpenditure, correlationIdentifier);
+        const resultsCollection = await Promise.all(swarmExecutionPromises);
 
-            return { isSuccess: true };
-          } catch (caughtRecordError: unknown) {
-            // REPORTE DE FALLO INDIVIDUAL (No detiene el lote)
-            void EmitTelemetrySignal({
-              severityLevel: 'ERROR',
-              moduleIdentifier: DATA_INGESTOR_IDENTIFIER,
-              operationCode: 'INDIVIDUAL_RECORD_INGESTION_FAULT',
-              correlationIdentifier,
-              message: 'Fallo en un registro específico; continuando con el enjambre.',
-              contextMetadata: {
-                error: caughtRecordError instanceof Error ? caughtRecordError.message : 'Unknown',
-              },
-            });
-            return { isSuccess: false };
+        // --- FASE 3: CONSOLIDACIÓN DE FIDELIDAD (Metrics) ---
+        const fidelityMetricsSnapshot = CalculateIngestionFidelity(resultsCollection);
+
+        // --- FASE 4: REPORTE DE ESTADO FINAL (Visibility) ---
+        const hasLowFidelityBoolean = fidelityMetricsSnapshot.fidelityPercentageNumeric < 90;
+
+        void EmitTelemetrySignal({
+          severityLevelLiteral: hasLowFidelityBoolean ? 'WARNING' : 'INFO',
+          moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
+          operationCodeLiteral: 'BATCH_INGESTION_CONSOLIDATED',
+          correlationIdentifier,
+          messageContentLiteral: 'Ingesta municipal finalizada con auditoría de fidelidad.',
+          semanticIntentTag: 'MUNICIPALITY_INGESTION_REPORT',
+          contextMetadataSnapshot: {
+            ...fidelityMetricsSnapshot,
+            tenantMunicipalityLiteral: municipalitySlugLiteral
           }
         });
 
-        const resultsCollection = await Promise.all(executionPromisesCollection);
+        return fidelityMetricsSnapshot;
 
-        // 3. CONSOLIDACIÓN DE MÉTRICAS
-        const successfulIngestionQuantity = resultsCollection.filter((result) => result.isSuccess).length;
-        const failedIngestionQuantity = resultsCollection.length - successfulIngestionQuantity;
-
-        // 4. REPORTE DE FINALIZACIÓN NOMINAL
-        void EmitTelemetrySignal({
-          severityLevel: failedIngestionQuantity > 0 ? 'WARNING' : 'INFO',
-          moduleIdentifier: DATA_INGESTOR_IDENTIFIER,
-          operationCode: 'BATCH_INGESTION_FINISHED',
-          correlationIdentifier,
-          message: 'Ingesta de datos finalizada con reporte de fidelidad.',
-          contextMetadata: {
-            successfulIngestionQuantity,
-            failedIngestionQuantity,
-            sourceMunicipality: municipalitySlugLiteral,
-          },
-        });
-
-        return {
-          totalProcessedQuantity: recordsCollection.length,
-          successfulIngestionQuantity,
-          failedIngestionQuantity,
-        };
       } catch (caughtError: unknown) {
-        // 5. GESTIÓN DE COLAPSO DE ADUANA (Fallo de todo el lote)
-        const errorDescriptionLiteral =
-          caughtError instanceof Error ? caughtError.message : String(caughtError);
+        // --- FASE 5: GESTIÓN DE COLAPSO CATASTRÓFICO ---
+        if (caughtError instanceof ValidationException) throw caughtError;
 
-        throw new InternalSystemException('FALLO_CATASTROFICO_EN_MOTOR_DE_INGESTA', {
+        const errorDescriptionLiteral = caughtError instanceof Error
+          ? caughtError.message
+          : String(caughtError);
+
+        throw new InternalSystemException('COLAPSO_EN_MOTOR_DE_INGESTA_MUNICIPAL_SRE', {
           originalError: errorDescriptionLiteral,
-          correlationIdentifier,
+          tenant: municipalitySlugLiteral,
+          correlationIdentifier
         });
       }
-    },
+    }
   );
 };

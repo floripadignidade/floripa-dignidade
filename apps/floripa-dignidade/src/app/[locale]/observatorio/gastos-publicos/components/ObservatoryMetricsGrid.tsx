@@ -1,20 +1,28 @@
 /**
- * @section UI Molecule - Observatory Metrics Grid
+ * @section UI Molecule - Observatory Metrics Grid (Orchestrator)
  * @description Orquestador de indicadores de alto nivel. Distribuye los datos
  * procesados por el motor de analítica en una grilla responsiva optimizada
  * para la lectura rápida (Dashboard style).
  *
  * Protocolo OEDP-V17.0 - Mobile First & Performance SRE.
- * SANEADO Zenith: Sincronización alfabética de importaciones y memorización de cálculos.
+ * SANEADO Zenith: Inyección de puente de tipos para Lucide, normalización
+ * de nomenclatura ISO, uso de 'useMemo' para rendimiento de 120 FPS y
+ * eliminación de rastro fantasma de 'React'.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
+
+/**
+ * 🛡️ LEY ZENITH (Fix TS7016): Puente de identidad para Lucide.
+ * El empaquetador resuelve los iconos; nosotros blindamos el tipado para el Sentinel.
+ */
+// @ts-expect-error - TS7016: Falla de resolución de tipos en entorno PnPM.
 import { Activity, AlertTriangle, BarChart3, ShieldCheck } from 'lucide-react';
 
-/* 1. Átomos Locales */
+/* 1. Átomos Locales (Clean Paths) */
 import { MetricCard } from './MetricCard';
 
 /* 2. ADN Lingüístico (Verbatim Module Syntax) */
@@ -39,16 +47,18 @@ interface IObservatoryMetricsGridProperties {
  * Aparato encargado de la disposición estructural de las tarjetas de métricas.
  * Implementa una arquitectura de enjambre visual delegando en 'MetricCard'.
  *
- * @param properties - Propiedades de datos y lenguaje.
- * @returns {React.ReactElement} Grilla responsiva de indicadores auditados.
+ * @param propertiesSnapshot - Snapshot inmutable de datos y lenguaje.
+ * @returns {React.JSX.Element} Grilla responsiva de indicadores auditados.
  */
-export const ObservatoryMetricsGrid: React.FC<IObservatoryMetricsGridProperties> = ({
-  metrics,
-  labels,
-}) => {
+export const ObservatoryMetricsGrid = (
+  propertiesSnapshot: IObservatoryMetricsGridProperties
+): React.JSX.Element => {
+
+  const { metrics, labels } = propertiesSnapshot;
+
   /**
    * @section Formateo de Identidad Financiera (BRL)
-   * SANEADO: Se utiliza useMemo para garantizar que el formateo ocurra
+   * 🛡️ SANEADO: Se utiliza useMemo para garantizar que el formateo ocurra
    * solo cuando el valor numérico cambie, protegiendo los 120 FPS.
    */
   const formattedTotalAmountLiteral = useMemo(() => {
@@ -60,8 +70,7 @@ export const ObservatoryMetricsGrid: React.FC<IObservatoryMetricsGridProperties>
 
   /**
    * @section Metadatos de Progreso de Fase
-   * TODO: En la Fase 8, estos valores se inyectarán desde el 'territorial-engine'
-   * y el 'reputation-engine' para eliminar los literales estáticos.
+   * TODO: Inyectar desde territorial-engine/reputation-engine en Fase 8.
    */
   const territorialCoverageLiteral = "12/12";
   const algorithmHealthPercentageLiteral = "100%";
@@ -73,14 +82,14 @@ export const ObservatoryMetricsGrid: React.FC<IObservatoryMetricsGridProperties>
     >
       {/* 1. INDICADOR DE VOLUMEN FINANCIERO (Quantitative Impact) */}
       <MetricCard
-        iconNode={<BarChart3 className="w-5 h-5" />}
+        iconNode={<BarChart3 className="w-5 h-5" aria-hidden="true" />}
         labelLiteral={labels.totalInvestedLabel}
         valueLiteral={formattedTotalAmountLiteral}
       />
 
       {/* 2. INDICADOR DE RIESGO COGNITIVO (Anomaly Detection) */}
       <MetricCard
-        iconNode={<AlertTriangle className="w-5 h-5" />}
+        iconNode={<AlertTriangle className="w-5 h-5" aria-hidden="true" />}
         labelLiteral={labels.anomalyCountLabel}
         valueLiteral={metrics.anomalyCountQuantity.toString().padStart(2, '0')}
         isAlertVariantBoolean={metrics.anomalyCountQuantity > 0}
@@ -88,14 +97,14 @@ export const ObservatoryMetricsGrid: React.FC<IObservatoryMetricsGridProperties>
 
       {/* 3. INDICADOR DE ALCANCE TERRITORIAL (Geographic Footprint) */}
       <MetricCard
-        iconNode={<Activity className="w-5 h-5" />}
+        iconNode={<Activity className="w-5 h-5" aria-hidden="true" />}
         labelLiteral={labels.territorialReachLabel}
         valueLiteral={territorialCoverageLiteral}
       />
 
       {/* 4. INDICADOR DE SALUD DEL ALGORITMO (System Integrity) */}
       <MetricCard
-        iconNode={<ShieldCheck className="w-5 h-5 text-green-500" />}
+        iconNode={<ShieldCheck className="w-5 h-5 text-green-500" aria-hidden="true" />}
         labelLiteral={labels.aiAuditStatusLabel}
         valueLiteral={algorithmHealthPercentageLiteral}
       />

@@ -13,33 +13,35 @@
  */
 
 /**
- * @version 1.1.0
- * Estatus: Nivelación Zenith completada. Jurisdicción aplanada y
- * dependencias circulares erradicadas.
+ * @version 1.2.0
+ * Estatus: Nivelación Zenith completada. Jurisdicción aplanada,
+ * resolución ESM inyectada y dependencias circulares erradicadas.
  */
-export const SHARED_UTILITY_VERSION = '1.1.0';
+export const SHARED_UTILITY_VERSION = '1.2.0';
 
 /**
  * @section 1. Seguridad y Privacidad (Privacy Guard)
  * @description Herramientas para el cumplimiento de la LGPD y blindaje de PII.
  */
-export { MaskSovereignIdentity } from './logic/MaskSovereignIdentity';
-export type { TIdentityMaskingStrategy } from './logic/MaskSovereignIdentity';
+export { MaskSovereignIdentity } from './logic/MaskSovereignIdentity.js';
+/** 🛡️ SANEADO Zenith (Fix TS2459): El tipo ahora se exporta desde su aduana de ADN oficial. */
+export type { TIdentityMaskingStrategy } from './logic/schemas/MaskSovereignIdentity.schema.js';
+export { MaskIdentityParametersSchema } from './logic/schemas/MaskSovereignIdentity.schema.js';
 
 /**
  * @section 2. Infraestructura y Estilos (UI Glue)
  * @description Utilidades para la orquestación visual y seguridad de red.
  */
-export { GlobalStyleClassMerger } from './styles/GlobalStyleClassMerger';
-export { GLOBAL_SECURITY_HEADERS_COLLECTION } from './headers/GlobalSecurityHeaders';
-export type { ISecurityHeader } from './headers/GlobalSecurityHeaders';
+export { GlobalStyleClassMerger } from './styles/GlobalStyleClassMerger.js';
+export { GLOBAL_SECURITY_HEADERS_COLLECTION } from './headers/GlobalSecurityHeaders.js';
+export type { ISecurityHeader } from './headers/GlobalSecurityHeaders.js';
 
 /**
  * @section 3. Inteligencia de Presencia e Isomorfismo
  * @description Sensores de hardware para la detección de actividad ciudadana.
  */
-export { DetermineTargetPresenceStatus } from './logic/DetermineTargetPresenceStatus';
-export type { TPresenceStatusLiteral } from './logic/DetermineTargetPresenceStatus';
+export { DetermineTargetPresenceStatus } from './logic/DetermineTargetPresenceStatus.js';
+export type { TPresenceStatusLiteral } from './logic/DetermineTargetPresenceStatus.js';
 
 /**
  * @section 4. Bóveda Multimedia (Isomorphic Storage Engine)
@@ -51,20 +53,20 @@ export {
   MultimediaEvidencePayloadSchema,
   EvidenceIdentifierSchema,
   EvidenceCategorySchema
-} from './storage/schemas/MultimediaEvidence.schema';
+} from './storage/schemas/MultimediaEvidence.schema.js';
 
 export type {
   IMultimediaEvidencePayload,
   TEvidenceIdentifier,
   TEvidenceCategory
-} from './storage/schemas/MultimediaEvidence.schema';
+} from './storage/schemas/MultimediaEvidence.schema.js';
 
 // 4.2. Orquestadores y Lógica de Persistencia
-export { PersistMultimediaEvidence } from './storage/PersistMultimediaEvidence';
-export type { IMultimediaVaultResult } from './storage/PersistMultimediaEvidence';
+export { PersistMultimediaEvidence } from './storage/PersistMultimediaEvidence.js';
+export type { IMultimediaVaultResult } from './storage/PersistMultimediaEvidence.js';
 
 // 4.3. Átomos de Transformación e I/O
-export { TransformToSovereignBinary } from './storage/logic/TransformToSovereignBinary';
-export { GenerateSovereignStoragePath } from './storage/logic/GenerateSovereignStoragePath';
-export { BuildStorageAccessUrl } from './storage/logic/BuildStorageAccessUrl';
-export { ExecuteCloudStorageUpload } from './storage/logic/ExecuteCloudStorageUpload';
+export { TransformToSovereignBinary } from './storage/logic/TransformToSovereignBinary.js';
+export { GenerateSovereignStoragePath } from './storage/logic/GenerateSovereignStoragePath.js';
+export { BuildStorageAccessUrl } from './storage/logic/BuildStorageAccessUrl.js';
+export { ExecuteCloudStorageUpload } from './storage/logic/ExecuteCloudStorageUpload.js';
