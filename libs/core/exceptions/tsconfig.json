@@ -1,9 +1,19 @@
+/**
+ * @section Core Exceptions - Configuration Infrastructure
+ * @description Punto de entrada para el servidor de tipos de la librería de excepciones.
+ * Actúa como orquestador de visibilidad, delegando la validación de la lógica
+ * al manifiesto de biblioteca especializado (tsconfig.lib.json).
+ *
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * @author Raz Podestá - MetaShark Tech
+ */
 {
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     /**
-     * 🛡️ GATEKEEPER: Protege la frontera física.
-     * No compila, solo delega la emisión al tsconfig.lib.json.
+     * 🛡️ LEY SRE: Proteccion de frontera física.
+     * Se prohíbe la emisión de archivos y la complejidad de proyectos compuestos
+     * para forzar la resolución directa desde las fuentes (.ts).
      */
     "composite": false,
     "noEmit": true,
@@ -11,7 +21,7 @@
   },
   "files": [],
   "include": [],
-  "references":[
+  "references": [
     {
       "path": "./tsconfig.lib.json"
     }

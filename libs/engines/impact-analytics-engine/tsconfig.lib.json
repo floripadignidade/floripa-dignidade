@@ -35,7 +35,9 @@
     "paths": {
       "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
       "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/environment-validator": ["../../../dist/out-tsc/libs/core/environment-validator/index.d.ts"]
+      "@floripa-dignidade/environment-validator": [
+        "../../../dist/out-tsc/libs/core/environment-validator/index.d.ts"
+      ]
     },
 
     /* --- RESOLUCIÓN NEXT-GEN (Alineación Next.js 16+) --- */
@@ -67,8 +69,11 @@
    * Mantiene el vínculo físico exclusivamente con la capa inferior (CORE).
    */
   "references": [
-    { "path": "../../core/telemetry/tsconfig.lib.json" },
-    { "path": "../../core/exceptions/tsconfig.lib.json" },
-    { "path": "../../core/environment-validator/tsconfig.lib.json" }
+    {
+      "path": "../../modules/reputation-engine/tsconfig.lib.json"
+    },
+    {
+      "path": "../../core/environment-validator/tsconfig.lib.json"
+    }
   ]
 }

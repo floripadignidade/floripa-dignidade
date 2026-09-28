@@ -1,7 +1,9 @@
 /**
  * @section tsconfig: Emitter
- * @description Generador de ADN (.d.ts) con redireccion fisica de Grafo hacia dist.
+ * @description Generador de ADN (.d.ts) con redirección física de Grafo hacia dist.
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * SANEADO Zenith: Inyección del puente de visibilidad hacia 'shared-utility'
+ * para erradicar el colapso TS2307 y autorizar el PII Masking (LGPD).
  */
 {
   "extends": "./tsconfig.json",
@@ -18,12 +20,19 @@
     "noEmit": false,
     "importHelpers": true,
 
-    /* --- Redireccion de ADN (Solucion TS6059 / TS6305) --- */
+    /* --- Redireccion de ADN (Solucion TS6059 / TS2307) --- */
     "paths": {
       "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
       "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/environment-validator": ["../../../dist/out-tsc/libs/core/environment-validator/index.d.ts"],
-      "@floripa-dignidade/resend-provider": ["../../../dist/out-tsc/libs/core/communication-providers/resend/index.d.ts"]
+      "@floripa-dignidade/environment-validator": [
+        "../../../dist/out-tsc/libs/core/environment-validator/index.d.ts"
+      ],
+      "@floripa-dignidade/resend-provider": [
+        "../../../dist/out-tsc/libs/core/communication-providers/resend/index.d.ts"
+      ],
+
+      /* 🛡️ LEY DEL ENJAMBRE: Puente hacia el búnker de utilidades para privacidad */
+      "@floripa-dignidade/shared-utility": ["../../../dist/out-tsc/libs/shared/utility/index.d.ts"]
     },
 
     /* --- Resolucion Next-Gen --- */
@@ -48,9 +57,14 @@
     "../../../node_modules"
   ],
   "references": [
-    { "path": "../../core/environment-validator/tsconfig.lib.json" },
-    { "path": "../../core/telemetry/tsconfig.lib.json" },
-    { "path": "../../core/communication-providers/resend/tsconfig.lib.json" },
-    { "path": "../../core/exceptions/tsconfig.lib.json" }
+    {
+      "path": "../../shared/utility/tsconfig.lib.json"
+    },
+    {
+      "path": "../../core/communication-providers/resend/tsconfig.lib.json"
+    },
+    {
+      "path": "../../core/environment-validator/tsconfig.lib.json"
+    }
   ]
 }

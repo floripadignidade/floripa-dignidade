@@ -1,55 +1,56 @@
 /**
- * @section tsconfig: Emitter (Exceptions Engine)
- * @description Generador de ADN (.d.ts) con redirección física de Grafo hacia
- * la caché de dist/out-tsc. Orquesta la emisión de tipos del motor de excepciones,
- * garantizando que el resto del enjambre (Core, Engines, Modules) pueda consumir
- * la gramática del fallo de forma Type-Safe.
+ * @section Core Exceptions - Compiler Infrastructure
+ * @description Generador de ADN para el motor de tipos del búnker de excepciones.
+ * Implementa la doctrina Source-First: valida la integridad lógica directamente
+ * desde las fuentes para garantizar latencia cero en el desarrollo.
  *
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Resolución de Grafo físico (Fix TS6059) mediante normalización
- * de rootDir y blindaje de jurisdicción física.
- *
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
  * @author Raz Podestá - MetaShark Tech
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    /* --- ESTRATEGIA DE SALIDA ZENITH --- */
-    "outDir": "../../../dist/out-tsc/libs/core/exceptions",
-    "tsBuildInfoFile": "../../../dist/out-tsc/libs/core/exceptions/tsconfig.lib.tsbuildinfo",
+    /* --- ESTRATEGIA ZENITH: Cero Sobreingeniería --- */
+    /**
+     * 🛡️ LEY SRE: Desactivamos la emisión física y la complejidad 'composite'.
+     * TSC actúa exclusivamente como Auditor de Integridad (Typechecker).
+     */
+    "composite": false,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
 
-    /* --- INTEGRIDAD SOBERANA --- */
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
+    /* --- INTEGRIDAD DE RESOLUCIÓN (Next-Gen) --- */
     "rootDir": "src",
-    "noEmit": false,
-    "importHelpers": true,
-    "ignoreDeprecations": "5.0",
-
-    /* --- RESOLUCIÓN NEXT-GEN (Bundler Ready) --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
-    "skipLibCheck": true,
 
-    /* --- ADN DEL ENTORNO --- */
+    /* --- RIGOR DE IDENTIDAD (SRE Compatibility) --- */
+    "ignoreDeprecations": "5.0",
+    "importHelpers": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+
+    /* --- ADN DEL ENTORNO (Isomorphic Context) --- */
+    /**
+     * 🛡️ LEY SRE: Soporte para Node.js (Servidor) y Web (Edge).
+     * Prohibido cargar librerías DOM aquí para mantener el motor agnóstico.
+     */
     "types": ["node"],
-    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+    "lib": ["ES2022"]
   },
 
-  "include":["src/**/*.ts", "src/**/*.json"],
+  "include": ["src/**/*.ts"],
 
-  "exclude":[
+  "exclude": [
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
-    "jest.config.ts",
+    "node_modules",
     "dist",
     "out-tsc",
-    "node_modules",
-    "../../../dist",
-    "../../../node_modules"
+    "../../../../dist"
   ]
 }

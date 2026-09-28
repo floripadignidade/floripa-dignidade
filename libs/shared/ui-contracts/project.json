@@ -13,15 +13,20 @@
         "main": "libs/shared/ui-contracts/src/index.ts",
         "tsConfig": "libs/shared/ui-contracts/tsconfig.lib.json",
         "stripLeadingPaths": true
-      }
+      },
+      "cache": true
     },
     "typecheck": {
       "executor": "nx:run-commands",
-      "outputs": ["{workspaceRoot}/dist/out-tsc/libs/shared/ui-contracts"],
       "options": {
-        "command": "tsc -p libs/shared/ui-contracts/tsconfig.lib.json",
+        "command": "tsc -p libs/shared/ui-contracts/tsconfig.lib.json --noEmit",
         "color": true
-      }
+      },
+      "cache": true
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "cache": true
     }
   }
 }

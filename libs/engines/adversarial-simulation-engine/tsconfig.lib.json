@@ -45,8 +45,5 @@
     "../../../dist",
     "../../../node_modules"
   ],
-  "references": [
-    { "path": "../../core/telemetry/tsconfig.lib.json" },
-    { "path": "../../core/exceptions/tsconfig.lib.json" }
-  ]
+  "references": []
 }

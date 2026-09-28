@@ -1,21 +1,28 @@
 /**
- * @section Identity DNA - Authority Weight Ground Truth
- * @description Define os pesos e coeficientes inalteráveis para o cálculo da
- * credibilidade bayesiana. Centraliza a inteligência de negócio do búnker.
+ * @section User Management & Identity - Authority Calibration Standards
+ * @description Única Fuente de Verdad (SSOT) para los coeficientes y pesos del
+ * algoritmo de confianza. Define la sensibilidad del sistema ante la
+ * antigüedad y el origen de la identidad.
  *
- * Protocolo OEDP-V17.0 - Sovereign Data & ISO Standards.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
+/**
+ * @name AUTHORITY_WEIGHT_GROUND_TRUTH
+ * @description Matriz de pesos institucionales para el motor de cálculo.
+ */
 export const AUTHORITY_WEIGHT_GROUND_TRUTH = {
-  /** Peso base para identidades não identificadas. */
+  /** Peso inicial asignado a identidades sin rastro verificado. */
   BASE_ANONYMOUS_TRUST_WEIGHT_NUMERIC: 0.1,
 
-  /** Bônus por utilizar provedores federados confiáveis (Google, Apple, etc). */
+  /** Incremento por vinculación con proveedores federados (Google/Apple). */
   SOCIAL_FEDERATION_BONUS_NUMERIC: 0.2,
 
-  /** Bônus máximo por validação documental humana (Selo de Verificação). */
+  /** Incremento máximo por validación física de documentos. */
   LEGAL_VERIFICATION_BONUS_NUMERIC: 0.5,
 
-  /** Teto máximo de autoridade permitido pelo algoritmo (1.0 = 100%). */
+  /** Límite superior inquebrantable del coeficiente de autoridad. */
   MAXIMUM_AUTHORITY_THRESHOLD_NUMERIC: 1.0,
 } as const;

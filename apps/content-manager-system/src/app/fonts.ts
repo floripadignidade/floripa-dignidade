@@ -33,7 +33,7 @@ export interface IInstitutionalFont {
  * Silenciamos la advertencia del compilador porque la librería existe físicamente
  * en el 'node_modules', pero su declaración profunda (.d.ts) es invisible para PNPM.
  */
-// @ts-expect-error - TS7016: Falla de resolución profunda de Next.js en entornos Nx/PNPM estricto.
+ - TS7016: Falla de resolución profunda de Next.js en entornos Nx/PNPM estricto.
 import { Inter, Lexend } from 'next/font/google';
 
 /**

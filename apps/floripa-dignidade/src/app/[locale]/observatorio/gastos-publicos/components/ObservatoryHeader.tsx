@@ -21,7 +21,6 @@ import { useCallback } from 'react';
  * Declaración de módulo local para garantizar que Lucide sea tipado
  * incluso en entornos de PNPM estricto.
  */
-// @ts-expect-error - TS7016: Puente de identidad para librería de iconos.
 import { FileText, ShieldCheck } from 'lucide-react';
 
 /* 1. Infraestructura Core (Sovereign Boundaries) */

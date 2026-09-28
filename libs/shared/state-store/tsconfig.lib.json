@@ -40,8 +40,8 @@
     "../../../node_modules"
   ],
   "references": [
-    { "path": "../../core/exceptions/tsconfig.lib.json" },
-    { "path": "../../core/telemetry/tsconfig.lib.json" },
-    { "path": "../utility/tsconfig.lib.json" }
+    {
+      "path": "../utility/tsconfig.lib.json"
+    }
   ]
 }

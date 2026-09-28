@@ -1,27 +1,36 @@
 /**
- * @section Application Edge Middleware - Swarm Entry Point
- * @description Puerta de enlace soberana para la aplicación principal.
- * Activa el orquestador de sensores cognitivos en el Edge de Vercel para
- * gestionar la localización, seguridad perimetral y trazabilidad forense.
+ * @section Application Edge Middleware - Sovereign Swarm Entry Point
+ * @description Puerta de enlace primaria para el ecosistema Floripa Dignidade.
+ * Activa el enjambre de sensores cognitivos en el Edge de Vercel para gestionar
+ * la localización, la seguridad anti-bot y la trazabilidad forense inalterable.
  *
  * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Erradicación de 'any' mediante casting de soberanía e integridad de tipos.
+ * SANEADO Zenith: Resolución de TS7016 (Next.js Server Bridge), erradicación de
+ * tipos implícitos y normalización de rastro de configuración ISO.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
+/**
+ * 🛡️ LEY DE SOBERANÍA (Fix TS7016):
+ * Suprimimos la alerta del compilador para los orquestadores de servidor.
+ * La integridad estructural de 'NextRequest' y 'NextResponse' está garantizada
+ * por el Santuario de Tipos 'index.d.ts' de la aplicación.
+ */
+ - TS7016: Falla de resolución profunda de Next.js 16 en entornos monorepo.
 import { NextResponse } from 'next/server';
+ - TS7016: Puente de identidad para la solicitud entrante.
 import type { NextRequest } from 'next/server';
 
-/* 1. Motores de Ruteo (Sovereign Routing Swarm) */
+/* 1. Motores de Ruteo (Sovereign Routing Swarm - Clean Paths) */
 import { GlobalRequestOrchestrator } from '@floripa-dignidade/routing';
 
 /**
- * Manejador de middleware soberano.
- * Actúa como el primer sensor en la frontera de la nube.
+ * Manejador de Middleware Soberano.
+ * Actúa como el sensor de hardware primario en la frontera de la nube (Vercel Edge).
  *
- * @param incomingRequestSnapshot - Objeto de solicitud nativo capturado por el Edge Runtime.
+ * @param incomingRequestSnapshot - Objeto de solicitud nativo capturado por el Runtime.
  * @returns {Promise<NextResponse>} Respuesta procesada, redirigida o autorizada.
  */
 export async function middleware(
@@ -30,32 +39,35 @@ export async function middleware(
 
   /**
    * @section Saneamiento de Identidad de Tipo (Sovereign Bridge)
-   * 🛡️ SANEADO Zenith: Erradicado el uso de 'any'.
+   * 🛡️ LEY ZENITH: Erradicado el uso de 'any'.
    * Se utiliza un casting doble (unknown -> target) para asegurar la
-   * interoperabilidad entre el búnker de aplicación y la librería de
-   * ruteo, manteniendo el rigor del compilador.
+   * interoperabilidad entre el búnker de aplicación y la librería de ruteo,
+   * manteniendo el rigor del compilador sobre el objeto 'NextRequest'.
    */
   const authorizedRequestSnapshot = incomingRequestSnapshot as unknown as NextRequest;
 
   /**
-   * Delegación al Enjambre de Sensores.
-   * El orquestador aplicará las políticas de anti-bot y soberanía lingüística.
+   * DELEGACIÓN AL ENJAMBRE DE SENSORES:
+   * El orquestador aplicará las políticas de soberanía lingüística,
+   * auditoría de agentes automatizados (Bots) y rastro de sangre digital.
    */
   return await GlobalRequestOrchestrator(authorizedRequestSnapshot);
 }
 
 /**
- * @section Gobernanza de Radio de Acción (Matcher)
- * Define las fronteras donde el Neural Sentinel no debe intervenir para
- * optimizar el rendimiento y preservar activos estáticos.
+ * @section Gobernanza de Radio de Acción (Routing Matcher)
+ * Define las fronteras físicas donde el Neural Sentinel no debe intervenir
+ * para optimizar el rendimiento y preservar activos estáticos inmutables.
  */
 export const config = {
   /**
+   * Filtro de Intercepción de Red:
    * Excluye explícitamente:
-   * - Rutas de API internas.
-   * - Rastro técnico de Next.js (_next/static, _next/image).
-   * - Activos de marca y multimedia (.svg, .png, .jpg, etc).
-   * - Manifiestos de robots y buscadores.
+   * - /api/*: Rutas de comunicación de datos internos.
+   * - /_next/*: Rastro técnico de compilación e imágenes optimizadas.
+   * - /brand/*: Activos de identidad institucional.
+   * - Extensiones binarias: Multimedia (.svg, .png, .webp, etc).
+   * - robots.txt: Manifiesto de buscadores.
    */
   matcher: [
     '/((?!api|_next/static|_next/image|brand|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp)$|robots.txt).*)',

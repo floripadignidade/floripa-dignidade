@@ -1,0 +1,30 @@
+/**
+ * @section Global Contracts - Configuration Infrastructure
+ * @description Orquestador de visibilidad para el búnker de contratos.
+ * Implementa la resolución Source-First sin baseUrl, forzando el uso de
+ * rutas relativas explícitas para garantizar la integridad del Grafo.
+ *
+ * Protocolo OEDP-V18.1 - Reference Architecture.
+ * @author Raz Podestá - MetaShark Tech
+ */
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true,
+    /**
+     * 🛡️ LEY DE RESOLUCIÓN:
+     * Al no existir baseUrl, no definimos 'paths' locales aquí.
+     * El compilador utilizará automáticamente los definidos en la base
+     * mapeados correctamente hacia las fuentes (.ts).
+     */
+  },
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "out-tsc"
+  ]
+}

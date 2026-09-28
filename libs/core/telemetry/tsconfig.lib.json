@@ -1,81 +1,51 @@
 /**
- * @section tsconfig: Emitter (Telemetry Engine)
- * @description Generador de ADN (.d.ts) con redirección física de Grafo.
- * Orquesta la emisión de tipos para el sistema nervioso central, permitiendo
- * el procesamiento asíncrono en Web Workers y despacho SRE en el Edge.
+ * @section Core Telemetry - Compiler Infrastructure
+ * @description Manifiesto de validación para el motor de tipos del sistema nervioso.
+ * Implementa la doctrina OEDP-V18.1: eliminación de baseUrl y uso de rutas
+ * relativas explícitas para garantizar resoluciones deterministas.
  *
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Erradicación de TS6305 mediante el sellado de rutas físicas
- * y aislamiento del rootDir.
- *
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
  * @author Raz Podestá - MetaShark Tech
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    /* --- ESTRATEGIA DE SALIDA ZENITH (Flattened Output) --- */
-    "outDir": "../../../dist/out-tsc/libs/core/telemetry",
-    "tsBuildInfoFile": "../../../dist/out-tsc/libs/core/telemetry/tsconfig.lib.tsbuildinfo",
+    /* --- ESTRATEGIA ZENITH: Cero Sobreingeniería --- */
+    "composite": false,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
 
-    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "rootDir": "src",
-    "noEmit": false,
-    "importHelpers": true,
-    "ignoreDeprecations": "5.0",
-
-    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6305) --- */
-    "baseUrl": ".",
-    "paths": {
-      /**
-       * 🛡️ LEY DEL ENJAMBRE: Consumimos el ADN físico de las excepciones
-       * generado en el paso previo. Esto impide que tsc intente validar
-       * las fuentes de 'exceptions' dentro de la jurisdicción de 'telemetry'.
-       */
-      "@floripa-dignidade/exceptions": [
-        "../../../dist/out-tsc/libs/core/exceptions/index.d.ts"
-      ]
-    },
-
-    /* --- RESOLUCIÓN NEXT-GEN (Bundler Ready) --- */
+    /* --- INTEGRIDAD DE RESOLUCIÓN (Modern Standard) --- */
+    /**
+     * 🛡️ LEY SRE: 'rootDir' apunta al directorio de la librería (.) para
+     * permitir la visibilidad de los paths base sin ambigüedad.
+     */
+    "rootDir": ".",
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
-    /* --- ADN DEL ENTORNO (Shadow Threading Context) --- */
-    /**
-     * 🛡️ LEY SRE: Se incluye 'WebWorker' para autorizar el uso de APIs
-     * de hilos sombra en el TelemetryBackgroundProcessor.
-     */
+    /* --- RIGOR DE IDENTIDAD (SRE Compliance) --- */
+    "ignoreDeprecations": "5.0",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+
+    /* --- ADN DEL ENTORNO (Isomorphic Context) --- */
     "types": ["node"],
     "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"]
   },
 
-  "include": ["src/**/*.ts", "src/**/*.json"],
+  "include": ["src/**/*.ts"],
 
   "exclude": [
-    /* 🛡️ LIMPIEZA DE JURISDICCIÓN: Evitamos fugas de rastro técnico en la emisión */
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
-    "src/**/__tests__/*",
-    "jest.config.ts",
+    "node_modules",
     "dist",
     "out-tsc",
-    "node_modules",
-    "../../../dist",
-    "../../../node_modules"
-  ],
-
-  /**
-   * @section Grafo de Referencias Soberanas
-   */
-  "references": [
-    {
-      "path": "../exceptions/tsconfig.lib.json"
-    }
+    "../../../dist"
   ]
 }

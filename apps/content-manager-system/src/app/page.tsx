@@ -19,7 +19,7 @@ import React from 'react';
  * pero la resolución de 'bundler' en PNPM estricto falla al localizar su .d.ts
  * sin violar la prohibición de ESLint sobre referencias de triple barra.
  */
-// @ts-expect-error - TS7016: Falla de resolución de declaración de tipos en entornos Nx/PNPM.
+ - TS7016: Falla de resolución de declaración de tipos en entornos Nx/PNPM.
 import { LayoutDashboard, PlayCircle, Terminal } from 'lucide-react';
 
 /* 1. Infraestructura Core (Atmos PascalCase) */
@@ -36,7 +36,7 @@ import { LearningMaterialsSection } from './components/LearningMaterialsSection'
  * Suprimimos la alerta de módulo no encontrado para el CSS de Next.js.
  * Turbopack gestionará la resolución durante el proceso de compilación.
  */
-// @ts-expect-error - TS2307: La resolución del CSS Module está a cargo del bundler, no de tsc.
+ - TS2307: La resolución del CSS Module está a cargo del bundler, no de tsc.
 import styles from './page.module.css';
 
 /**

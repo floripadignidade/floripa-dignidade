@@ -1,0 +1,30 @@
+/**
+ * @section Technical Constitution - Root Gatekeeper
+ * @description Punto de entrada maestro para el motor de tipos del monorepo.
+ * Implementa la doctrina de Resolución de Fuente Única (Source-First),
+ * eliminando baseUrl para garantizar resoluciones deterministas.
+ *
+ * Protocolo OEDP-V18.1 - Reference Architecture.
+ * @author Raz Podestá - MetaShark Tech
+ */
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "paths": {
+      /**
+       * 🛡️ MAPEO GLOBAL:
+       * Permite que las herramientas de análisis resuelvan cualquier búnker
+       * directamente desde su origen físico.
+       */
+      "@floripa-dignidade/*": ["libs/*/src/index.ts"]
+    }
+  },
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./libs/tools"
+    }
+  ]
+}

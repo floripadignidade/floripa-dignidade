@@ -1,0 +1,25 @@
+{
+  "metadataDescriptions": {
+    "FULL_NAME_LABEL": "Full legal name and surname according to civil registry or identity provider.",
+    "EMAIL_ADDRESS_LABEL": "Electronic mail address linked to the institutional account.",
+    "AVATAR_IMAGE_LABEL": "Profile image URL retrieved from the verified provider.",
+    "TRUST_LEVEL_LABEL": "Algorithmic coefficient that determines the weight of identity actions."
+  },
+  "operationalSignals": {
+    "AUTHORITY_SYNCHRONIZATION_SUCCESS": "Authority synchronization successfully consolidated in the Primary Ledger."
+  },
+  "exceptionMessages": {
+    "INVALID_AVATAR_URL": "The profile photograph address does not meet security standards.",
+    "TRUST_LEVEL_OUT_OF_BOUNDS": "Trust level must be strictly between 0.1 and 1.0.",
+    "IDENTITY_NOT_FOUND": "No identity was identified with the provided criteria.",
+    "UNAUTHORIZED_IDENTITY_PROVIDER": "The requested identity provider does not have an institutional trust seal."
+  },
+  "authorityRoles": {
+    "INFRASTRUCTURE_CORE_AUDITOR": "Core Infrastructure Auditor (SRE)",
+    "PLATFORM_GLOBAL_MANAGER": "Global Platform Manager",
+    "ORGANIZATION_ADMINISTRATOR": "Organization Administrator",
+    "ORGANIZATION_OPERATOR": "Social Impact Operator",
+    "IDENTITY_REGISTERED": "Verified Identity",
+    "IDENTITY_ANONYMOUS": "Temporary System Identity"
+  }
+}

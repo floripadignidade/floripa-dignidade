@@ -42,11 +42,15 @@
         "^production",
         "{workspaceRoot}/libs/**/src/lib/i18n/*.json"
       ],
-      "outputs": ["{workspaceRoot}/apps/floripa-dignidade/src/app/i18n/dictionaries/*.json"]
+      "outputs": [
+        "{workspaceRoot}/apps/floripa-dignidade/src/app/i18n/dictionaries/*.json"
+      ]
     },
     "build": {
       "executor": "@nx/js:swc",
-      "outputs": ["{workspaceRoot}/dist/out-tsc/scripts"],
+      "outputs": [
+        "{workspaceRoot}/dist/out-tsc/scripts"
+      ],
       "options": {
         "outputPath": "dist/libs/scripts",
         "main": "scripts/src/index.ts",
@@ -57,7 +61,16 @@
     },
     "typecheck": {
       "executor": "nx:run-commands",
-      "outputs": ["{workspaceRoot}/dist/out-tsc/scripts"],
+      "outputs": [
+        "{workspaceRoot}/dist/out-tsc/scripts"
+      ],
+      "dependsOn": [
+     
+        {
+          "target": "typecheck",
+          "projects": "@floripa-dignidade/tools"
+        }
+      ],
       "options": {
         "command": "tsc -p scripts/tsconfig.lib.json"
       },

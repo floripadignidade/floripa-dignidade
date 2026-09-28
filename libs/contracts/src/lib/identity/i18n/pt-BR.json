@@ -1,0 +1,25 @@
+{
+  "metadataDescriptions": {
+    "FULL_NAME_LABEL": "Nome e sobrenome completos de acordo com o registro legal ou provedor de identidade.",
+    "EMAIL_ADDRESS_LABEL": "Endereço de correio eletrônico vinculado à conta institucional.",
+    "AVATAR_IMAGE_LABEL": "Endereço URL da imagem de perfil recuperada do provedor verificado.",
+    "TRUST_LEVEL_LABEL": "Coeficiente algorítmico que determina o peso das ações e participações."
+  },
+  "operationalSignals": {
+    "AUTHORITY_SYNCHRONIZATION_SUCCESS": "Sincronização de autoridade consolidada com sucesso no Ledger Primário."
+  },
+  "exceptionMessages": {
+    "INVALID_AVATAR_URL": "O endereço da fotografia de perfil não cumpre os padrões de segurança.",
+    "TRUST_LEVEL_OUT_OF_BOUNDS": "O nível de confiança deve estar compreendido entre 0.1 e 1.0.",
+    "IDENTITY_NOT_FOUND": "Nenhuma identidade foi identificada com os critérios fornecidos.",
+    "UNAUTHORIZED_IDENTITY_PROVIDER": "O provedor de identidade solicitado não possui selo de confiança institucional."
+  },
+  "authorityRoles": {
+    "INFRASTRUCTURE_CORE_AUDITOR": "Auditor de Infraestrutura Core (SRE)",
+    "PLATFORM_GLOBAL_MANAGER": "Gestor Global da Plataforma",
+    "ORGANIZATION_ADMINISTRATOR": "Administrador de Organização",
+    "ORGANIZATION_OPERATOR": "Operador de Impacto Social",
+    "IDENTITY_REGISTERED": "Identidade Verificada",
+    "IDENTITY_ANONYMOUS": "Identidade Temporária de Sistema"
+  }
+}

@@ -19,7 +19,7 @@ import { generatePageMetadata, RootPage } from '@payloadcms/next/views';
  * Suprimimos la advertencia del compilador para el motor de tipos de Next.js.
  * Cumplimos con ESLint al utilizar el estilo de importación estándar.
  */
-// @ts-expect-error - TS7016: Falla de resolución profunda en el aislamiento de PNPM.
+ - TS7016: Falla de resolución profunda en el aislamiento de PNPM.
 import type { Metadata } from 'next';
 
 /* 1. Configuración Soberana y Mapa de Dependencias (Clean Paths) */

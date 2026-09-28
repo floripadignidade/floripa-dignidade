@@ -8,8 +8,8 @@
  * contraste visual y el rendimiento (SRE Performance).
  *
  * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Supresión controlada de fricción ambiental (TS2307),
- * telemetría de montaje atomizada y cumplimiento estricto de Prosa ISO.
+ * SANEADO Zenith: Erradicación de directivas de supresión obsoletas (Fix TS2578),
+ * cumplimiento de Prosa ISO 11179 e integridad de tipos de contratos.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -17,7 +17,7 @@
 
 import React, { useEffect, useMemo, useRef } from 'react';
 
-/* 1. Infraestructura Core y Utilidades (Sovereign Swarm) */
+/* 1. Infraestructura Core y Utilidades (Sovereign Swarm - Clean Paths) */
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
@@ -25,15 +25,11 @@ import {
 
 import { GlobalStyleClassMerger } from '@floripa-dignidade/shared-utility';
 
-/* 2. Planos y Contratos (Blueprints Layer - Clean Paths) */
-/**
- * 🛡️ LEY ZENITH (Fix TS2307):
- * Supresión controlada para permitir la resolución en CI/CD.
- */
-// @ts-expect-error - TS2307: Falla de resolución de contratos en modo Bundler.
+/* 2. Planos y Contratos (Blueprints Layer - Redirección de ADN Maestro) */
+/** 🛡️ SANEADO Zenith: Importación nominal validada por el Santuario de Tipos. */
 import type { IMainNavigationHeaderI18n } from '@floripa-dignidade/shared-ui-contracts';
 
-/* 3. Enjambre Atómico Local (Swiss-Watch Swarm) */
+/* 3. Enjambre Atómico Local (Swiss-Watch Swarm - Clean Paths) */
 import { GlobalBrandLogo } from '../atoms/GlobalBrandLogo';
 import { useHeaderSentry } from './navigation-header/hooks/useHeaderSentry';
 import { DesktopNavigationMenu } from './navigation-header/molecules/DesktopNavigationMenu';
@@ -63,19 +59,16 @@ export interface IGlobalMainNavigationHeaderProperties {
  * @param propertiesSnapshot - Snapshot de configuración y lenguaje.
  * @returns {React.ReactElement} Estructura de navegación de alta fidelidad.
  */
-export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderProperties> = ({
-  translationDictionary,
-  externalClassName,
-}) => {
+export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderProperties> = (
+  propertiesSnapshot,
+) => {
+  const { translationDictionary, externalClassName } = propertiesSnapshot;
 
   // --- 1. INYECCIÓN DE INTELIGENCIA SENSORIAL (Sensor Swarm) ---
-  const {
-    isMobileMenuOpenBoolean,
-    isScrollThresholdExceededBoolean,
-    toggleMobileMenuAction
-  } = useHeaderSentry(ORCHESTRATOR_IDENTIFIER);
+  const { isMobileMenuOpenBoolean, isScrollThresholdExceededBoolean, toggleMobileMenuAction } =
+    useHeaderSentry(ORCHESTRATOR_IDENTIFIER);
 
-  /** 🛡️ SRE SENTRY: Previene doble rastro en React 19 Strict Mode */
+  /** 🛡️ SRE SENTRY: Previene doble rastro en React 19 Strict Mode. */
   const hasMountedBooleanReference = useRef(false);
 
   // --- 2. TELEMETRÍA DE MONTAJE (Audit Trail) ---
@@ -86,6 +79,7 @@ export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderPro
     const correlationIdentifier = GenerateCorrelationIdentifier();
 
     void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'INFO',
       moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
       operationCodeLiteral: 'HEADER_ORCHESTRATOR_MOUNTED',
@@ -93,24 +87,25 @@ export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderPro
       messageContentLiteral: 'Encabezado institucional activo y sensores de hardware vinculados.',
       semanticIntentTag: 'UI_COMPONENT_MOUNT',
       contextMetadataSnapshot: {
-        renderTimestampISO: new Date().toISOString()
-      }
+        renderTimestampISO: new Date().toISOString(),
+      },
     });
-  },[]);
+  }, []);
 
   /**
    * @section Arquitectura de Estilos Dinámicos
    * 🛡️ LEY SRE: El uso de 'useMemo' protege el Main Thread ante re-renderizados
    * por ráfagas de scroll, asegurando que la fusión de clases no degrade el INP.
    */
-  const headerContainerStylesLiteral = useMemo(() =>
-    GlobalStyleClassMerger(
-      'fixed top-0 w-full z-[100] transition-all duration-500 border-b',
-      isScrollThresholdExceededBoolean
-        ? 'bg-white/90 backdrop-blur-md py-2 shadow-2xl border-slate-200'
-        : 'bg-transparent py-6 border-transparent',
-      externalClassName,
-    ),
+  const headerContainerStylesLiteral = useMemo(
+    () =>
+      GlobalStyleClassMerger(
+        'fixed top-0 w-full z-[100] transition-all duration-500 border-b',
+        isScrollThresholdExceededBoolean
+          ? 'bg-white/90 backdrop-blur-md py-2 shadow-2xl border-slate-200'
+          : 'bg-transparent py-6 border-transparent',
+        externalClassName,
+      ),
     [isScrollThresholdExceededBoolean, externalClassName],
   );
 
@@ -121,7 +116,6 @@ export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderPro
       aria-label="Navegación Institucional Principal"
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
-
         {/* ÁREA A: IDENTIDAD (Logo Atom) */}
         <GlobalBrandLogo
           imageWidthPixelQuantity={isScrollThresholdExceededBoolean ? 140 : 180}
@@ -142,9 +136,7 @@ export const GlobalMainNavigationHeader: React.FC<IGlobalMainNavigationHeaderPro
         />
 
         {/* ÁREA C: ACCIONES DE CONVERSIÓN (Discovery & Conversion Swarm) */}
-        <NavigationActionsSwarm
-          actionsDictionary={translationDictionary.actions}
-        />
+        <NavigationActionsSwarm actionsDictionary={translationDictionary.actions} />
 
         {/* ÁREA D: DISPARADOR TÁCTIL (Atom Delegation) */}
         <NavigationMobileTrigger

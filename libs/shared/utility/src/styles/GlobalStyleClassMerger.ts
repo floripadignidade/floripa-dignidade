@@ -20,7 +20,7 @@ import type { ClassValue } from 'clsx';
  * ciega al compilador bajo PNPM estricto. Al forzar la salida de nuestra
  * función a ': string', la hemorragia de tipos queda 100% encapsulada aquí.
  */
-// @ts-expect-error - Desincronización de exportaciones ESM en la librería de terceros.
+
 import { twMerge } from 'tailwind-merge';
 
 /**

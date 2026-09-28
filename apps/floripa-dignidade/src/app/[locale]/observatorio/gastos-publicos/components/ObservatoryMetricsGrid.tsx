@@ -19,7 +19,7 @@ import { useMemo } from 'react';
  * 🛡️ LEY ZENITH (Fix TS7016): Puente de identidad para Lucide.
  * El empaquetador resuelve los iconos; nosotros blindamos el tipado para el Sentinel.
  */
-// @ts-expect-error - TS7016: Falla de resolución de tipos en entorno PnPM.
+ - TS7016: Falla de resolución de tipos en entorno PnPM.
 import { Activity, AlertTriangle, BarChart3, ShieldCheck } from 'lucide-react';
 
 /* 1. Átomos Locales (Clean Paths) */

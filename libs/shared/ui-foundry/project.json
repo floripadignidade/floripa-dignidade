@@ -3,7 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/ui-foundry/src",
   "projectType": "library",
-  "tags":[
+  "tags": [
     "scope:shared",
     "type:ui",
     "platform:web"
@@ -11,9 +11,7 @@
   "targets": {
     "build": {
       "executor": "@nx/js:swc",
-      "outputs":[
-        "{workspaceRoot}/dist/libs/shared/ui-foundry"
-      ],
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/shared/ui-foundry",
         "main": "libs/shared/ui-foundry/src/index.ts",
@@ -24,11 +22,9 @@
     },
     "typecheck": {
       "executor": "nx:run-commands",
-      "outputs":[
-        "{workspaceRoot}/dist/out-tsc/libs/shared/ui-foundry"
-      ],
       "options": {
-        "command": "tsc -p libs/shared/ui-foundry/tsconfig.lib.json"
+        "command": "tsc -p libs/shared/ui-foundry/tsconfig.lib.json --noEmit",
+        "color": true
       },
       "cache": true
     },

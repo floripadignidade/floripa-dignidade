@@ -19,6 +19,7 @@
     "@floripa-dignidade/exceptions": "workspace:*",
     "@floripa-dignidade/resend-provider": "workspace:*",
     "@floripa-dignidade/telemetry": "workspace:*",
+    "@floripa-dignidade/shared-utility": "workspace:*",
     "@swc/helpers": "~0.5.18",
     "zod": "^3.25.76"
   },

@@ -7,24 +7,16 @@
  * Implementa telemetría de visibilidad para auditoría de UX (SRE).
  *
  * Protocolo OEDP-V17.0 - High Performance UI & Universal Accessibility.
- * SANEADO Zenith: Supresión controlada de fricción ambiental (TS7016),
- * inyección de Sentry de montaje (Fix doble rastro), blindaje de ADN mediante
- * contratos inmutables (Zod) y Prosa ISO.
+ * SANEADO Zenith: Erradicación de supresiones obsoletas (Fix TS2578),
+ * sincronización de marcas temporales en telemetría y cumplimiento de Prosa ISO.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import React, { useEffect, useRef } from 'react';
-
-/** 🛡️ LEY ZENITH (Fix TS7016):
- * Supresión controlada para módulos de terceros en entornos de resolución estricta.
- */
-// @ts-expect-error - TS7016: Falla de resolución de declaración de tipos en entornos Nx/PNPM.
 import { AnimatePresence, motion } from 'framer-motion';
-// @ts-expect-error - TS7016: Falla de resolución de declaración de tipos en entornos Nx/PNPM.
 import { Heart } from 'lucide-react';
-
 import { z } from 'zod';
 
 /* 1. Infraestructura Core y Utilidades (Sovereign Swarm - Clean Paths) */
@@ -47,7 +39,7 @@ import type { IMainNavigationHeaderI18n } from '@floripa-dignidade/shared-ui-con
  */
 const MobileNavigationDrawerPropertiesSchema = z.object({
   isOpenBoolean: z.boolean(),
-  /** Se valida la existencia del diccionario de traducciones. */
+  /** Validación estructural del diccionario de navegación. */
   translationDictionary: z.custom<IMainNavigationHeaderI18n>(),
 }).readonly();
 
@@ -67,18 +59,18 @@ const MOLECULE_IDENTIFIER = 'MOBILE_NAVIGATION_DRAWER_ORCHESTRATOR';
  * @returns {React.ReactElement} Drawer móvil auditado y atomizado.
  */
 export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties> = (
-  propertiesSnapshot
+  propertiesSnapshot,
 ) => {
-  // 1. ADUANA DE ADN: Purificación de entrada
+  // 1. ADUANA DE ADN: Purificación técnica de entrada.
   const { isOpenBoolean, translationDictionary } =
     MobileNavigationDrawerPropertiesSchema.parse(propertiesSnapshot);
 
-  // 🛡️ SRE SENTRY: Prevención de doble rastro en React 19 Strict Mode
+  // 🛡️ SRE SENTRY: Prevención de doble rastro en React 19 Strict Mode.
   const hasMountedBooleanReference = useRef(false);
 
   /**
    * @section Gestión de Telemetría de Visibilidad
-   * 🛡️ LEY ZENITH: El tiempo de exposición es auditado para análisis de UX.
+   * 🛡️ LEY ZENITH: El tiempo de exposición es auditado para análisis de impacto.
    */
   useEffect(() => {
     if (!isOpenBoolean || hasMountedBooleanReference.current) return;
@@ -87,6 +79,7 @@ export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties>
     const correlationIdentifier = GenerateCorrelationIdentifier();
 
     void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'INFO',
       moduleIdentifierLiteral: MOLECULE_IDENTIFIER,
       operationCodeLiteral: 'MOBILE_DRAWER_DISPLAYED',
@@ -94,14 +87,13 @@ export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties>
       messageContentLiteral: 'Cajón de navegación móvil desplegado por el ciudadano.',
       semanticIntentTag: 'UI_VISIBILITY_TRACE',
       contextMetadataSnapshot: {
-        timestampISO: new Date().toISOString(),
         deviceViewHeightPixelQuantity: globalThis.innerHeight,
       },
     });
   }, [isOpenBoolean]);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {isOpenBoolean && (
         <div className="fixed inset-0 z-[110] lg:hidden">
           {/* 1. FONDO DE CONTRASTE (Backdrop - Hardware Overlay) */}
@@ -142,7 +134,6 @@ export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties>
                 translationDictionary={translationDictionary.navigationPaths}
               />
 
-              {/* 🛡️ SANEADO Zenith (Fix TS2741): Inyección de ADN forense para auditabilidad total */}
               <MobileEmergencyAction
                 labelLiteral={translationDictionary.actions.reportEmergencyLabel}
                 actionIdentifierLiteral="DRAWER_EMERGENCY_TRIGGER"
@@ -157,7 +148,7 @@ export const MobileNavigationDrawer: React.FC<IMobileNavigationDrawerProperties>
                 isPolymorphicBoolean={false}
                 forensicTestIdentifier="DRAWER_DONATE_CTA"
                 accessibilityConfiguration={{
-                  accessibilityLabelLiteral: translationDictionary.actions.donateCallToAction
+                  accessibilityLabelLiteral: translationDictionary.actions.donateCallToAction,
                 }}
                 className="w-full py-5 text-lg"
               >

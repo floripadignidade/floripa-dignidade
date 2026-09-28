@@ -13,7 +13,7 @@
  */
 
 /** 🛡️ LEY ZENITH: Supresión controlada para el motor de navegación de Next.js */
-// @ts-expect-error - TS7016: Falla de resolución de tipos en Next.js 16/PNPM.
+ - TS7016: Falla de resolución de tipos en Next.js 16/PNPM.
 import { redirect } from 'next/navigation';
 
 /* 1. Infraestructura de Identidad (Sovereign Modules) */

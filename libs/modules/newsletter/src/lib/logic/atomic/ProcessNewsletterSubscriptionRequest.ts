@@ -4,18 +4,26 @@
  * validación, persistencia en nube y despacho de desafío de identidad.
  *
  * Protocolo OEDP-V17.0 - High Performance SRE & Swarm Intelligence.
- * SANEADO Zenith: Resolución de Paradoja de Identidad (Fix TS2304/TS6133),
- * inyección de auditoría forense y cumplimiento de Prosa ISO (Zero Abbreviations).
+ * SANEADO Zenith: Erradicación de entropía visual (Fix sort-imports), inyección
+ * de PII Masking para cumplimiento LGPD y normalización de Prosa ISO.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
+
+/**
+ * 🛡️ LEY ZENITH (Fix sort-imports):
+ * Ordenamiento alfabético estricto de miembros (M < V).
+ */
 import {
-  ValidationException,
-  MapHttpErrorToException
+  MapHttpErrorToException,
+  ValidationException
 } from '@floripa-dignidade/exceptions';
+
+import { MaskSovereignIdentity } from '@floripa-dignidade/shared-utility';
+
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
@@ -58,20 +66,16 @@ export const ProcessNewsletterSubscriptionRequest = async (
       try {
         /**
          * 1. CAPTURA DE INFRAESTRUCTURA (Sovereign Secrets)
-         * 🛡️ SANEADO Zenith: Inyección de 'await' mandatorio. La infraestructura
-         * debe estar plenamente resuelta para acceder a los secretos (Resend/Supabase).
+         * 🛡️ LEY ZENITH: La infraestructura debe estar plenamente resuelta
+         * para acceder a los secretos (Resend/Supabase).
          */
         const infrastructureSnapshot = await ValidateEnvironmentAduana();
 
         // 2. ADUANA DE ADN: Validación de entrada (Safe Parsing)
-        /**
-         * 🛡️ SANEADO Zenith (Fix TS2304/TS6133): Sincronización nominal de
-         * la variable de validación para evitar colisiones en el grafo de tipos.
-         */
         const validationResultSnapshot = NewsletterSubscriptionRequestSchema.safeParse(rawSubscriptionPayloadSnapshot);
 
         if (!validationResultSnapshot.success) {
-          throw new ValidationException('ADN_SUSCRIPCION_CORRUPTO', {
+          throw new ValidationException('NEWSLETTER.ERRORS.ADN_CORRUPTED', {
             validationIssuesCollection: validationResultSnapshot.error.flatten(),
             correlationIdentifier
           });
@@ -79,6 +83,16 @@ export const ProcessNewsletterSubscriptionRequest = async (
 
         const validatedRequest: INewsletterSubscriptionRequest = validationResultSnapshot.data;
         const securityVerificationTokenLiteral = crypto.randomUUID();
+
+        /**
+         * 🛡️ PROTECCIÓN DE PRIVACIDAD (PII Masking - LGPD Compliance)
+         * Enmascaramos el identificador para que el rastro de telemetría no exponga
+         * el correo real del ciudadano en los logs institucionales.
+         */
+        const maskedCommunicationIdentifierLiteral = await MaskSovereignIdentity({
+          rawIdentityLiteral: validatedRequest.communicationIdentifierLiteral,
+          maskingStrategyLiteral: 'ELECTRONIC_MAIL'
+        });
 
         // 3. PERSISTENCIA STATELESS (Supabase Cloud)
         await SavePendingSubscriptionToSupabase({
@@ -106,15 +120,18 @@ export const ProcessNewsletterSubscriptionRequest = async (
           }
         });
 
-        // 6. CIERRE DE CICLO NOMINAL
+        // 6. CIERRE DE CICLO NOMINAL (SRE Visibility)
         void EmitTelemetrySignal({
           severityLevelLiteral: 'INFO',
           moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
           operationCodeLiteral: 'CITIZEN_SUBSCRIPTION_REQUESTED',
           correlationIdentifier,
-          messageContentLiteral: 'Ciclo de vida de suscripción iniciado y notificado.',
+          /** 🛡️ SANEADO: Uso de clave semántica internacionalizada. */
+          messageContentLiteral: 'NEWSLETTER.LOGS.SUBSCRIPTION_REQUESTED',
+          semanticIntentTag: 'NEWSLETTER_CONVERSION_START',
           contextMetadataSnapshot: {
-            preferredLocale: validatedRequest.preferredLinguisticLocaleIdentifier
+            preferredLocaleIdentifier: validatedRequest.preferredLinguisticLocaleIdentifier,
+            citizenMaskLiteral: maskedCommunicationIdentifierLiteral
           }
         });
 
@@ -126,7 +143,7 @@ export const ProcessNewsletterSubscriptionRequest = async (
          */
         const normalizedException = caughtError instanceof ValidationException
           ? caughtError
-          : MapHttpErrorToException(500, 'FALLO_EN_ORQUESTACION_DE_SUBSCRIPCION_SRE', {
+          : MapHttpErrorToException(500, 'NEWSLETTER.ERRORS.ORCHESTRATION_FAULT', {
               originalErrorLiteral: caughtError instanceof Error ? caughtError.message : String(caughtError),
               correlationIdentifier
             });

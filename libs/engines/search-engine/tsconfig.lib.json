@@ -37,11 +37,7 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
 
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.json",
-    "src/index.d.ts"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.json", "src/index.d.ts"],
 
   "exclude": [
     "src/**/*.spec.ts",
@@ -54,8 +50,5 @@
     "../../../node_modules"
   ],
 
-  "references": [
-    { "path": "../../core/exceptions/tsconfig.lib.json" },
-    { "path": "../../core/telemetry/tsconfig.lib.json" }
-  ]
+  "references": []
 }

@@ -17,9 +17,9 @@
     "dev:all": "nx run-many -t dev --parallel=1",
 
     "// --- 🛡️ QUALITY AUDIT: ZENITH SENTRY ---": "",
-    "audit:types": "nx run-many -t typecheck --parallel=1",
-    "audit:lint": "nx run-many -t lint --parallel=1",
-    "audit:fix": "nx run-many -t lint --fix --parallel=1",
+    "typecheck": "nx run-many -t typecheck --parallel=1",
+    "lint": "nx run-many -t lint --parallel=1",
+    "lint:fix": "nx run-many -t lint --fix --parallel=1",
     "format:check": "nx format:check",
     "format:write": "nx format:write",
 

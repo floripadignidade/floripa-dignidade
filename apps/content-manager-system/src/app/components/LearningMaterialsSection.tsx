@@ -18,7 +18,7 @@ import React from 'react';
  * pero la resolución de 'bundler' en PNPM estricto falla al localizar su .d.ts
  * sin violar la prohibición de ESLint sobre referencias de triple barra.
  */
-// @ts-expect-error - TS7016: Falla de resolución de declaración de tipos en entornos Nx/PNPM.
+ - TS7016: Falla de resolución de declaración de tipos en entornos Nx/PNPM.
 import { BookOpen, ExternalLink, Terminal } from 'lucide-react';
 
 /**

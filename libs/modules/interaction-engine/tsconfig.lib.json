@@ -34,8 +34,12 @@
 
       /* 🛡️ SANEADO: Redirección hacia los nuevos búnkeres fragmentados tras la poda de 'shared' */
       "@floripa-dignidade/shared-utility": ["../../../dist/out-tsc/libs/shared/utility/index.d.ts"],
-      "@floripa-dignidade/shared-state-store": ["../../../dist/out-tsc/libs/shared/state-store/index.d.ts"],
-      "@floripa-dignidade/shared-ui-foundry": ["../../../dist/out-tsc/libs/shared/ui-foundry/index.d.ts"]
+      "@floripa-dignidade/shared-state-store": [
+        "../../../dist/out-tsc/libs/shared/state-store/index.d.ts"
+      ],
+      "@floripa-dignidade/shared-ui-foundry": [
+        "../../../dist/out-tsc/libs/shared/ui-foundry/index.d.ts"
+      ]
     },
 
     /* --- RESOLUCIÓN NEXT-GEN --- */
@@ -68,13 +72,11 @@
    * 🛡️ SANEADO Zenith: Vínculos físicos de proyecto actualizados a la nueva topología.
    */
   "references": [
-    { "path": "../../core/telemetry/tsconfig.lib.json" },
-    { "path": "../../core/exceptions/tsconfig.lib.json" },
-    { "path": "../../modules/identity/tsconfig.lib.json" },
-
-    /* Referencias a la nueva capa Shared pulverizada */
-    { "path": "../../shared/utility/tsconfig.lib.json" },
-    { "path": "../../shared/state-store/tsconfig.lib.json" },
-    { "path": "../../shared/ui-foundry/tsconfig.lib.json" }
+    {
+      "path": "../../shared/state-store/tsconfig.lib.json"
+    },
+    {
+      "path": "../../shared/utility/tsconfig.lib.json"
+    }
   ]
 }

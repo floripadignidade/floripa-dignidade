@@ -25,8 +25,8 @@
     /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6305) --- */
     "baseUrl": ".",
     "paths": {
-      "@floripa-dignidade/telemetry":["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/exceptions":["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"]
+      "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
+      "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"]
     },
 
     /* --- RESOLUCIÓN NEXT-GEN (Bundler Ready) --- */
@@ -43,16 +43,12 @@
      * Usaremos el archivo de puente types.d.ts local para los tipos de server.
      */
     "types": ["node"],
-    "lib":["ES2022", "DOM", "DOM.Iterable"]
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
 
-  "include":[
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/types.d.ts"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/types.d.ts"],
 
-  "exclude":[
+  "exclude": [
     "src/**/*.spec.ts",
     "dist",
     "out-tsc",
@@ -61,8 +57,5 @@
     "../../../node_modules"
   ],
 
-  "references":[
-    { "path": "../telemetry/tsconfig.lib.json" },
-    { "path": "../exceptions/tsconfig.lib.json" }
-  ]
+  "references": []
 }

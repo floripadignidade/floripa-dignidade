@@ -34,12 +34,8 @@
        * 🛡️ LEY DEL ENJAMBRE: Consumimos las firmas físicas emitidas en dist.
        * Esto blinda la frontera física y acelera la compilación incremental.
        */
-      "@floripa-dignidade/exceptions": [
-        "../../../dist/out-tsc/libs/core/exceptions/index.d.ts"
-      ],
-      "@floripa-dignidade/telemetry": [
-        "../../../dist/out-tsc/libs/core/telemetry/index.d.ts"
-      ]
+      "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
+      "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"]
     },
 
     /* --- RESOLUCIÓN NEXT-GEN (Bundler Ready) --- */
@@ -74,8 +70,5 @@
   /**
    * @section Grafo de Referencias Soberanas
    */
-  "references": [
-    { "path": "../exceptions/tsconfig.lib.json" },
-    { "path": "../telemetry/tsconfig.lib.json" }
-  ]
+  "references": []
 }

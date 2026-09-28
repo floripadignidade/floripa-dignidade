@@ -1,0 +1,79 @@
+/**
+ * @section tsconfig: Emitter (PMF Open Data Engine)
+ * @description Generador de ADN (.d.ts) con redirección física de Grafo.
+ * Orquesta la emisión de tipos para la auditoría de datos abiertos de la PMF,
+ * integrando la soberanía territorial y la infraestructura core de fallos.
+ *
+ * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * @author Raz Podestá - MetaShark Tech
+ */
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    /* --- ESTRATEGIA DE SALIDA ZENITH (Flattened Output) --- */
+    "outDir": "../../../dist/out-tsc/libs/modules/pmf-open-data-engine",
+    "tsBuildInfoFile": "../../../dist/out-tsc/libs/modules/pmf-open-data-engine/tsconfig.lib.tsbuildinfo",
+
+    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "src",
+    "noEmit": false,
+    "importHelpers": true,
+    "ignoreDeprecations": "5.0",
+
+    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6059 / TS6305) --- */
+    /**
+     * 🛡️ LEY DEL ENJAMBRE: Consumimos el ADN físico del búnker territorial
+     * y las bases core para garantizar la inalterabilidad del grafo de tipos.
+     */
+    "baseUrl": ".",
+    "paths": {
+      "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
+      "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
+      "@floripa-dignidade/environment-validator": [
+        "../../../dist/out-tsc/libs/core/environment-validator/index.d.ts"
+      ],
+      "@floripa-dignidade/territorial-engine": [
+        "../../../dist/out-tsc/libs/modules/territorial-engine/index.d.ts"
+      ]
+    },
+
+    /* --- RESOLUCIÓN NEXT-GEN (Turbopack Ready) --- */
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+
+    /* --- ADN DEL ENTORNO (Isomorphic Data Context) --- */
+    "types": ["node"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+  },
+
+  "include": ["src/**/*.ts", "src/**/*.json"],
+
+  "exclude": [
+    /* 🛡️ LIMPIEZA DE JURISDICCIÓN: Evitamos fugas de rastro técnico en la emisión */
+    "src/**/*.spec.ts",
+    "dist",
+    "out-tsc",
+    "node_modules",
+    "../../../dist",
+    "../../../node_modules"
+  ],
+
+  /**
+   * @section Grafo de Referencias Soberanas
+   * Establece el vínculo físico con los cimientos y motores de los que depende.
+   */
+  "references": [
+    {
+      "path": "../../modules/territorial-engine/tsconfig.lib.json"
+    },
+    {
+      "path": "../../core/environment-validator/tsconfig.lib.json"
+    }
+  ]
+}

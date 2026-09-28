@@ -22,9 +22,9 @@
     },
     "typecheck": {
       "executor": "nx:run-commands",
-      "outputs": ["{workspaceRoot}/dist/out-tsc/libs/core/telemetry"],
       "options": {
-        "command": "tsc -p libs/core/telemetry/tsconfig.lib.json"
+        "command": "tsc -p libs/core/telemetry/tsconfig.lib.json --noEmit",
+        "color": true
       },
       "cache": true
     },

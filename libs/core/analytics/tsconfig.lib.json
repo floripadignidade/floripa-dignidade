@@ -45,7 +45,5 @@
     "../../../dist",
     "../../../node_modules"
   ],
-  "references": [
-    { "path": "../telemetry/tsconfig.lib.json" }
-  ]
+  "references": []
 }

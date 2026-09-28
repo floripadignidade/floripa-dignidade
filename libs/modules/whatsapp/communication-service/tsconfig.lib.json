@@ -22,7 +22,9 @@
     "paths": {
       "@floripa-dignidade/telemetry": ["../../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
       "@floripa-dignidade/exceptions": ["../../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/environment-validator": ["../../../../dist/out-tsc/libs/core/environment-validator/index.d.ts"]
+      "@floripa-dignidade/environment-validator": [
+        "../../../../dist/out-tsc/libs/core/environment-validator/index.d.ts"
+      ]
     },
 
     /* --- Resolucion Next-Gen --- */
@@ -45,8 +47,8 @@
     "../../../../node_modules"
   ],
   "references": [
-    { "path": "../../../core/telemetry/tsconfig.lib.json" },
-    { "path": "../../../core/exceptions/tsconfig.lib.json" },
-    { "path": "../../../core/environment-validator/tsconfig.lib.json" }
+    {
+      "path": "../../../core/environment-validator/tsconfig.lib.json"
+    }
   ]
 }

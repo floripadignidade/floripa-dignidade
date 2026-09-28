@@ -17,7 +17,9 @@
     "paths": {
       "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
       "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/environment-validator": ["../../../dist/out-tsc/libs/core/environment-validator/index.d.ts"]
+      "@floripa-dignidade/environment-validator": [
+        "../../../dist/out-tsc/libs/core/environment-validator/index.d.ts"
+      ]
     },
 
     /* --- RESOLUCIÓN NEXT-GEN --- */
@@ -30,11 +32,7 @@
     "types": ["node"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-  "include":[
-    "src/index.d.ts",
-    "src/**/*.ts",
-    "src/**/*.json"
-  ],
+  "include": ["src/index.d.ts", "src/**/*.ts", "src/**/*.json"],
   "exclude": [
     "src/**/*.spec.ts",
     "dist",
@@ -44,8 +42,8 @@
     "../../../node_modules"
   ],
   "references": [
-    { "path": "../../core/exceptions/tsconfig.lib.json" },
-    { "path": "../../core/telemetry/tsconfig.lib.json" },
-    { "path": "../../core/environment-validator/tsconfig.lib.json" }
+    {
+      "path": "../../core/environment-validator/tsconfig.lib.json"
+    }
   ]
 }

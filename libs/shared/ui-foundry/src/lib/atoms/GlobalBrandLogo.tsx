@@ -7,35 +7,26 @@
  * telemétrico de interacciones de navegación institucional.
  *
  * Protocolo OEDP-V17.0 - High Performance SRE & Branding Authority.
- * SANEADO Zenith: Resolución de Asfixia de Identidad (TS7016) mediante supresión
- * controlada e inyección de 'useMemo' para protección de render loop.
+ * SANEADO Zenith: Erradicación de directivas de supresión obsoletas (Fix TS2578),
+ * cumplimiento estricto de Prosa ISO 11179 e integridad de tipos Next.js.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import React, { useCallback, useMemo } from 'react';
-
-/**
- * 🛡️ LEY ZENITH (Fix TS7016):
- * Silenciamos la advertencia del compilador porque la librería existe físicamente,
- * pero la resolución de 'bundler' en PNPM estricto falla al localizar su .d.ts
- * sin violar la prohibición de ESLint sobre referencias de triple barra.
- */
-// @ts-expect-error - TS7016: Falla de resolución de declaración de tipos en entornos Nx/PNPM.
 import Link from 'next/link';
-// @ts-expect-error - TS7016: Falla de resolución de declaración de tipos en entornos Nx/PNPM.
 import Image from 'next/image';
 
-/* 1. Infraestructura Core y Utilidades (Sovereign Boundaries) */
+/* 1. Infraestructura Core y Utilidades (Sovereign Swarm - Clean Paths) */
 import {
   EmitTelemetrySignal,
-  GenerateCorrelationIdentifier
+  GenerateCorrelationIdentifier,
 } from '@floripa-dignidade/telemetry';
 
 import { GlobalStyleClassMerger } from '@floripa-dignidade/shared-utility';
 
-/* 2. Planos y Contratos (Blueprints Layer) */
+/* 2. Planos y Contratos (Blueprints Layer - Redirección de ADN) */
 import { GlobalBrandLogoPropertiesSchema } from '@floripa-dignidade/shared-ui-contracts';
 import type { IGlobalBrandLogoProperties } from '@floripa-dignidade/shared-ui-contracts';
 
@@ -53,14 +44,14 @@ const VARIANT_ASSETS_MAPPING: Record<string, string> = {
 const ATOM_IDENTIFIER = 'GLOBAL_BRAND_LOGO_ATOM';
 
 /**
- * Aparato visual que representa el sello institucional.
+ * Aparato encargado de la identidad visual y navegación institucional.
+ * Implementa el patrón "Sovereign UI": validación de ADN en entrada y telemetría de salida.
  *
  * @param rawPropertiesSnapshot - Propiedades inyectadas por el orquestador.
  * @returns {React.ReactElement} Logotipo renderizado e interactivo.
  */
 export const GlobalBrandLogo: React.FC<IGlobalBrandLogoProperties> = (rawPropertiesSnapshot) => {
-
-  // 1. ADUANA DE ADN: Purificación mediante el contrato de UI Contracts
+  // 1. ADUANA DE ADN: Purificación mediante el contrato de UI Contracts (Blueprints)
   const {
     imageWidthPixelQuantity,
     imageHeightPixelQuantity,
@@ -69,55 +60,56 @@ export const GlobalBrandLogo: React.FC<IGlobalBrandLogoProperties> = (rawPropert
     visualVariantLiteral,
     externalClassName,
     forensicTestIdentifier,
-    accessibilityConfiguration
+    accessibilityConfiguration,
   } = GlobalBrandLogoPropertiesSchema.parse(rawPropertiesSnapshot);
 
   /**
    * @section Gestión de Interacción Telemétrica
-   * 🛡️ LEY ZENITH: El rastro de navegación hacia 'Home' es auditado como evento de conversión.
+   * 🛡️ LEY ZENITH: El rastro de navegación hacia 'Home' es un sensor de conversión.
    */
   const handleLogoInteractionAction = useCallback(() => {
     const correlationIdentifier = GenerateCorrelationIdentifier();
 
     void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'INFO',
       moduleIdentifierLiteral: ATOM_IDENTIFIER,
       operationCodeLiteral: 'BRAND_HOME_NAVIGATION_TRIGGERED',
       correlationIdentifier,
-      messageContentLiteral: 'Navegación institucional hacia raíz detectada.',
+      messageContentLiteral: 'Navegación institucional hacia raíz detectada desde el logotipo.',
       semanticIntentTag: 'NAVIGATION_TO_ROOT',
       contextMetadataSnapshot: {
         variantLiteral: visualVariantLiteral,
-        timestampISO: new Date().toISOString()
-      }
+      },
     });
   }, [visualVariantLiteral]);
 
   /**
    * @section Saneamiento de Complejidad (Pilar DRY & SRE)
-   * Centralizamos la lógica de decisión de estilos y accesibilidad.
+   * 🛡️ LEY SRE: Memoizamos la configuración visual para proteger los 120 FPS
+   * y garantizar la consistencia de los labels de accesibilidad.
    */
   const derivedConfigurationSnapshot = useMemo(() => {
     return {
       containerMergedStylesLiteral: GlobalStyleClassMerger(
         'flex items-center justify-center transition-all duration-500',
         'hover:opacity-85 active:scale-[0.97]',
-        externalClassName
+        externalClassName,
       ),
       linkMergedStylesLiteral: GlobalStyleClassMerger(
         'outline-none rounded-xl transition-all duration-300',
-        'focus-visible:ring-4 focus-visible:ring-amber-500/30 focus-visible:ring-offset-2'
+        'focus-visible:ring-4 focus-visible:ring-amber-500/30 focus-visible:ring-offset-2',
       ),
       computedAriaLabelLiteral:
         labels.navigationAriaLabelLiteral || accessibilityConfiguration?.accessibilityLabelLiteral,
       imageSourceLiteral:
-        VARIANT_ASSETS_MAPPING[visualVariantLiteral] || VARIANT_ASSETS_MAPPING['STANDARD']
+        VARIANT_ASSETS_MAPPING[visualVariantLiteral] || VARIANT_ASSETS_MAPPING['STANDARD'],
     };
   }, [
     externalClassName,
     labels.navigationAriaLabelLiteral,
     accessibilityConfiguration,
-    visualVariantLiteral
+    visualVariantLiteral,
   ]);
 
   // 2. CONSTRUCCIÓN DEL ELEMENTO VISUAL (Atomic Composition)

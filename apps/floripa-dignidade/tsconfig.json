@@ -1,36 +1,14 @@
-/**
- * @section tsconfig: Gatekeeper (Portal Shell)
- * @description Orquestador de la configuración para el Portal Ciudadano.
- * Proporciona el pasaporte de visibilidad para archivos de configuración
- * de raíz (Next, Tailwind, PostCSS) permitiendo que el motor de tipos
- * los audite sin colapsar el rootDir de la aplicación.
- *
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Resolución de Asfixia de Identidad (Fix TS7016).
- *
- * @author Raz Podestá - MetaShark Tech
- * @license UNLICENSED
- */
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    /* 🛡️ LEY DEL GATEKEEPER: Solo gestiona referencias, no emite código. */
-    "composite": false,
-    "noEmit": true,
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
     "ignoreDeprecations": "5.0"
   },
-  "files": [
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
     "index.d.ts",
-    "next-env.d.ts",
-    "next.config.js",
-    "tailwind.config.js",
-    "postcss.config.js",
-    "jest.config.ts"
-  ],
-  "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    }
+    "next-env.d.ts"
   ]
 }

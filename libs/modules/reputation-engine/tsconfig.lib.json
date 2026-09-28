@@ -20,7 +20,9 @@
     "paths": {
       "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
       "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/health-analysis-engine": ["../../../dist/out-tsc/libs/engines/health-analysis/index.d.ts"]
+      "@floripa-dignidade/health-analysis-engine": [
+        "../../../dist/out-tsc/libs/engines/health-analysis/index.d.ts"
+      ]
     },
 
     "module": "Preserve",
@@ -34,8 +36,8 @@
   "include": ["src/**/*.ts", "src/**/*.json"],
   "exclude": ["dist", "out-tsc", "node_modules", "../../../dist", "../../../node_modules"],
   "references": [
-    { "path": "../../core/exceptions/tsconfig.lib.json" },
-    { "path": "../../core/telemetry/tsconfig.lib.json" },
-    { "path": "../../engines/health-analysis/tsconfig.lib.json" }
+    {
+      "path": "../../engines/health-analysis/tsconfig.lib.json"
+    }
   ]
 }

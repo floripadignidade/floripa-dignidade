@@ -1,122 +1,123 @@
 /**
- * @section Shared UI Contracts - Enterprise Package Entry Point (Master Barrel)
+ * @section Shared UI Contracts - Enterprise Global Package Entry Point (Master Barrel)
  * @description Única Fuente de Verdad (SSOT) para los planos, contratos de datos
  * y esquemas de validación visual del ecosistema Floripa Dignidade. Orquestra la
  * visibilidad de la arquitectura de interfaz para que la Fundición Visual (Foundry)
  * y las Aplicaciones operen bajo un Grafo de Tipos inexpugnable.
  *
- * Protocolo OEDP-V17.0 - Single Source Resolution & Clean Paths.
- * SANEADO Zenith: Erradicación de extensiones de archivo en exportaciones,
- * sincronización de exportaciones nominales para Verbatim Module Syntax
- * y cumplimiento de Prosa ISO (Zero Abbreviations).
+ * Protocolo OEDP-V17.0 - Single Source Resolution & Verbatim Module Syntax.
+ * SANEADO Zenith: Inyección de extensiones de archivo (.js) para resolución ESM
+ * profesional, cumplimiento de Prosa ISO y sellado de ADN Técnico.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 /**
- * @version 1.3.0
- * Estatus: Nivelación Zenith completada. Grafo de tipos estabilizado para
- * compatibilidad con React 19 y Next.js 16.
+ * @version 1.3.1
+ * Estatus: Nivelación Zenith completada. Grafo de visibilidad sanado para
+ * compatibilidad total con React 19 y motores de resolución 'bundler'.
  */
-export const SHARED_UI_CONTRACTS_VERSION = '1.3.0';
+export const SHARED_UI_CONTRACTS_VERSION = '1.3.1';
 
 /**
- * @section Capa 0: Fundamentos de Accesibilidad (WAI-ARIA)
- * @description Contratos de identidad para tecnologías asistivas.
+ * @domain 1. ACCESIBILIDAD UNIVERSAL (WAI-ARIA DNA)
+ * @description Contratos de identidad para tecnologías asistivas (ISO/IEC 40500).
  */
 export {
   AriaAttributesSchema
-} from './lib/accessibility/AriaContract.schema';
+} from './lib/accessibility/AriaContract.schema.js';
 
 export type {
   IAriaAttributes
-} from './lib/accessibility/AriaContract.schema';
+} from './lib/accessibility/AriaContract.schema.js';
 
 
 /**
- * @section Capa 1: Primitivos Atómicos (Base ADN)
- * @description Ladrillos estructurales compartidos por todos los componentes.
+ * @domain 2. PRIMITIVOS ATÓMICOS (Base UI Blueprints)
+ * @description Ladrillos estructurales compartidos por todos los componentes del sistema.
  */
 export {
   UiPrimitivesBaseSchema,
   UiPrimitivesSchema
-} from './lib/primitives/UiPrimitives.schema';
+} from './lib/primitives/UiPrimitives.schema.js';
 
 export type {
   IUiPrimitives
-} from './lib/primitives/UiPrimitives.schema';
+} from './lib/primitives/UiPrimitives.schema.js';
 
 
 /**
- * @section Capa 2: Identidad Institucional (Branding Atoms)
+ * @domain 3. IDENTIDAD INSTITUCIONAL (Branding Atoms)
+ * @description Esquemas de validación para logotipos y activos de marca.
  */
 export {
   GlobalBrandLogoPropertiesSchema
-} from './lib/primitives/GlobalBrandLogo.schema';
+} from './lib/primitives/GlobalBrandLogo.schema.js';
 
 export type {
   IGlobalBrandLogoProperties
-} from './lib/primitives/GlobalBrandLogo.schema';
+} from './lib/primitives/GlobalBrandLogo.schema.js';
 
 
 /**
- * @section Capa 3: Motores de Descubrimiento (Search Blueprints)
+ * @domain 4. MOTORES DE DESCUBRIMIENTO (Search Intelligence)
+ * @description Planos para el widget de búsqueda universal y triaje de resultados.
  */
 export {
   GlobalSearchWidgetPropertiesSchema
-} from './lib/primitives/GlobalSearchWidget.schema';
+} from './lib/primitives/GlobalSearchWidget.schema.js';
 
 export type {
   IGlobalSearchWidgetProperties
-} from './lib/primitives/GlobalSearchWidget.schema';
+} from './lib/primitives/GlobalSearchWidget.schema.js';
 
 
 /**
- * @section Capa 4: Captación Ciudadana (Newsletter & Conversion)
- * @description Contratos de datos para el embudo de suscripción institucional.
+ * @domain 5. CAPTACIÓN CIUDADANA (Newsletter & Conversion)
+ * @description Contratos de datos para el embudo de suscripción y validación LGPD.
  */
 export {
   NewsletterSubscriptionFormPropertiesSchema,
   NewsletterSubscriptionFormSchema
-} from './lib/primitives/NewsletterForm.schema';
+} from './lib/primitives/NewsletterForm.schema.js';
 
 export type {
   INewsletterSubscriptionForm,
   INewsletterSubscriptionFormProperties
-} from './lib/primitives/NewsletterForm.schema';
+} from './lib/primitives/NewsletterForm.schema.js';
 
 export {
   NewsletterSubscriptionFormI18nSchema
-} from './lib/composition/NewsletterFormI18n.schema';
+} from './lib/composition/NewsletterFormI18n.schema.js';
 
 export type {
   INewsletterSubscriptionFormI18n
-} from './lib/composition/NewsletterFormI18n.schema';
+} from './lib/composition/NewsletterFormI18n.schema.js';
 
 
 /**
- * @section Capa 5: Orquestación de Composición (Layout & Organisms)
- * @description Planos para ensambles complejos y jerarquías de visualización.
+ * @domain 6. ORQUESTACIÓN DE COMPOSICIÓN (Layout & Organisms)
+ * @description Planos para ensambles complejos, navegación y jerarquías visuales.
  */
 
-// 5.1. Composición Atómica de Layout
+/** 6.1. Composición Atómica de Layout y Estados de Interacción */
 export {
   CompositeUiSchema,
   InteractionStateSchema,
   ResponsiveVisibilitySchema,
   VisualLayoutVariantSchema
-} from './lib/composition/CompositeUi.schema';
+} from './lib/composition/CompositeUi.schema.js';
 
 export type {
   ICompositeUi
-} from './lib/composition/CompositeUi.schema';
+} from './lib/composition/CompositeUi.schema.js';
 
-// 5.2. Navegación Institucional (Global Header)
+/** 6.2. Navegación Institucional (Global Header & Sentry) */
 export {
   MainNavigationHeaderI18nSchema
-} from './lib/composition/MainNavigationHeader.schema';
+} from './lib/composition/MainNavigationHeader.schema.js';
 
 export type {
   IMainNavigationHeaderI18n
-} from './lib/composition/MainNavigationHeader.schema';
+} from './lib/composition/MainNavigationHeader.schema.js';

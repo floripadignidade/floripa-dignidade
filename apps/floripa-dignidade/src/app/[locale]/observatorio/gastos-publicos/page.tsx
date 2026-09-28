@@ -5,8 +5,8 @@
  * y el montaje del enjambre visual del dashboard forense.
  *
  * Protocolo OEDP-V17.0 - High Performance SRE & Swarm Intelligence.
- * SANEADO Zenith: Resolución de TS2454 (Asignación Insegura), TS2345 (Branded Types),
- * TS6133 (Rastro de React) y alineación estricta de contratos de parámetros PMF.
+ * SANEADO Zenith: Erradicación de 'any' (ESLint Fix), normalización del rastro
+ * de error, blindaje de tipos bridados y sellado de flujo de retorno.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -14,112 +14,116 @@
 
 import { notFound } from 'next/navigation';
 
-/* 1. Infraestructura Core & Routing (Sovereign Boundaries) */
-import {
-  SupportedLocaleSchema,
-  ValidateLinguisticContract
-} from '@floripa-dignidade/routing';
-
+/* 1. Infraestructura Core & Routing (Sovereign Boundaries - Clean Paths) */
 import {
   EmitTelemetrySignal,
-  GenerateCorrelationIdentifier
+  GenerateCorrelationIdentifier,
+  ReportForensicException,
 } from '@floripa-dignidade/telemetry';
 
-/* 2. Motores de Datos (PMF Domain) */
+import {
+  GlobalBaseException,
+  InternalSystemException,
+} from '@floripa-dignidade/exceptions';
+
+import {
+  SupportedLocaleSchema,
+  ValidateLinguisticContract,
+} from '@floripa-dignidade/routing';
+
+/* 2. Motores de Datos (PMF Domain - Redirección de ADN) */
+/**
+ * 🛡️ NOTA SRE: Si el error TS2307 persiste tras esta limpieza, se debe a una
+ * desincronización en el 'tsconfig.app.json' que corregiremos en el Paso 3.
+ */
 import { SyncMunicipalityExpenditure } from '@floripa-dignidade/pmf-open-data-engine';
 import type { IPublicExpenditure } from '@floripa-dignidade/pmf-open-data-engine';
 
-/* 3. Enjambre Atómico Local (UI & Logic) */
-import { ObservatoryI18nSchema } from '../i18n/ObservatoryI18n.schema';
-import { CalculateObservatoryMetrics } from './logic/CalculateObservatoryMetrics';
-import { ValidateObservatoryAccess } from './logic/ValidateObservatoryAccess';
-import { ExpenditureTable } from './components/ExpenditureTable';
-import { ObservatoryHeader } from './components/ObservatoryHeader';
-import { ObservatoryMetricsGrid } from './components/ObservatoryMetricsGrid';
+/* 3. Enjambre Atómico Local (UI & Logic - Clean Paths) */
+import { ObservatoryI18nSchema } from '../i18n/ObservatoryI18n.schema.js';
+import { CalculateObservatoryMetrics } from './logic/CalculateObservatoryMetrics.js';
+import { ValidateObservatoryAccess } from './logic/ValidateObservatoryAccess.js';
+import { ExpenditureTable } from './components/ExpenditureTable.js';
+import { ObservatoryHeader } from './components/ObservatoryHeader.js';
+import { ObservatoryMetricsGrid } from './components/ObservatoryMetricsGrid.js';
 
 /** Identificador técnico del aparato para el Neural Sentinel. */
 const ORCHESTRATOR_IDENTIFIER = 'PUBLIC_EXPENDITURE_OBSERVATORY_SHELL';
 
 /**
  * @interface IObservatoryPageProperties
- * @description Contrato inmutable de parámetros de ruta para el App Router.
+ * @description Contrato inmutable para las propiedades de la ruta Next.js.
  */
 interface IObservatoryPageProperties {
-  readonly params: Promise<{
-    readonly locale: string;
-  }>;
+  /** Promesa de parámetros de ruta (Next.js 16 Ready). */
+  readonly params: Promise<{ readonly locale: string }>;
 }
 
 /**
  * Componente de Servidor principal del Observatorio (SSR).
- * Implementa el patrón de ingesta "Data Fetching Guard" con RBAC Sentry.
+ * Implementa el patrón "Data Fetching Guard" con RBAC Sentry integral.
  *
- * @param propertiesSnapshot - Snapshot inmutable con los parámetros de ruta.
+ * @param propertiesSnapshot - Snapshot de parámetros inyectado por el App Router.
  */
 export default async function PublicExpenditureObservatoryPage(
-  propertiesSnapshot: IObservatoryPageProperties
+  propertiesSnapshot: IObservatoryPageProperties,
 ) {
   const { locale: rawLocaleIdentifierLiteral } = await propertiesSnapshot.params;
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
-  // --- 1. ADUANA DE ADN LINGÜÍSTICO ---
+  // --- 1. ADUANA DE ADN LINGÜÍSTICO (Security Border) ---
   const localeValidationResultSnapshot = SupportedLocaleSchema.safeParse(rawLocaleIdentifierLiteral);
 
   if (!localeValidationResultSnapshot.success) {
-    notFound();
+    return notFound();
   }
 
-  const validatedLocaleIdentifier = localeValidationResultSnapshot.data;
-
-  // --- 2. SEGURIDAD PERIMETRAL (RBAC Guard) ---
-  /**
-   * 🛡️ SANEADO Zenith: 'await' mandatorio y casting soberano 'as string'
-   * para cumplir con el contrato sin perder el Branded Type.
-   */
-  await ValidateObservatoryAccess(validatedLocaleIdentifier as string);
+  const validatedLocaleIdentifierLiteral = localeValidationResultSnapshot.data;
 
   try {
+    // --- 2. SEGURIDAD PERIMETRAL (RBAC Guard) ---
+    /** 🛡️ LEY ZENITH: Validación asíncrona mandatoria antes de la ingesta de datos. */
+    await ValidateObservatoryAccess(validatedLocaleIdentifierLiteral as string);
+
     // --- 3. CARGA DE ALMA LINGÜÍSTICA (Isomorphic Dictionary) ---
-    const rawDictionaryData = await import(`../i18n/${validatedLocaleIdentifier}.json`);
+    const rawDictionaryDataSnapshot = await import(`../i18n/${validatedLocaleIdentifierLiteral as string}.json`);
 
     ValidateLinguisticContract(
       'OBSERVATORY_SHELL',
       ObservatoryI18nSchema,
-      rawDictionaryData.default,
-      validatedLocaleIdentifier as string
+      rawDictionaryDataSnapshot.default,
+      validatedLocaleIdentifierLiteral as string,
     );
 
-    const linguisticDictionarySnapshot = rawDictionaryData.default;
+    const linguisticDictionarySnapshot = rawDictionaryDataSnapshot.default;
 
     // --- 4. CAPTURA DE DATOS GUBERNAMENTALES (Data Acquisition) ---
-    /**
-     * 🛡️ LEY ZENITH: Sincronización de llaves con el contrato 'ISyncMunicipalityExpenditureParameters'.
-     */
-    const publicExpenditureCollection: IPublicExpenditure[] = await SyncMunicipalityExpenditure({
+    const expenditureCollectionSnapshot: IPublicExpenditure[] = await SyncMunicipalityExpenditure({
       municipalitySlugLiteral: 'florianopolis',
       periodRange: {
         initialMonthYearLiteral: '01/2026',
-        finalMonthYearLiteral: '04/2026'
-      }
+        finalMonthYearLiteral: '04/2026',
+      },
     });
 
     // --- 5. INTELIGENCIA DE DASHBOARD (Aritmética Pura) ---
-    const calculatedMetricsSnapshot = CalculateObservatoryMetrics(publicExpenditureCollection);
+    const observatoryMetricsSnapshot = CalculateObservatoryMetrics(expenditureCollectionSnapshot);
 
-    // --- 6. REPORTE DE ESTADO (SRE Visibility) ---
+    // --- 6. REPORTE DE ÉXITO (SRE Visibility) ---
     void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'INFO',
       moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
       operationCodeLiteral: 'FORENSIC_DASHBOARD_ASSEMBLED',
       correlationIdentifier,
-      messageContentLiteral: `Dashboard del observatorio montado para [${validatedLocaleIdentifier}].`,
+      messageContentLiteral: `Dashboard del observatorio montado para [${validatedLocaleIdentifierLiteral}].`,
       semanticIntentTag: 'UI_OBSERVATORY_MOUNT',
       contextMetadataSnapshot: {
-        recordCountQuantity: publicExpenditureCollection.length
-      }
+        recordCountQuantity: expenditureCollectionSnapshot.length,
+      },
     });
 
-    // --- 7. ENSAMBLAJE VISUAL ---
+    // --- 7. ENSAMBLAJE VISUAL (Atomic Assembly) ---
     return (
       <main className="min-h-screen bg-slate-50 p-4 md:p-8 lg:p-12 print:bg-white animate-in fade-in duration-1000">
         <ObservatoryHeader
@@ -129,24 +133,50 @@ export default async function PublicExpenditureObservatoryPage(
         />
 
         <ObservatoryMetricsGrid
-          metrics={calculatedMetricsSnapshot}
+          metrics={observatoryMetricsSnapshot}
           labels={linguisticDictionarySnapshot.dashboard}
         />
 
         <ExpenditureTable
-          publicExpenditureCollection={publicExpenditureCollection}
+          publicExpenditureCollection={expenditureCollectionSnapshot}
           tableHeadlineLiteral={linguisticDictionarySnapshot.table.columnEntity}
         />
       </main>
     );
 
-  } catch (_caughtError: unknown) {
+  } catch (caughtError: unknown) {
     /**
-     * @section Resiliencia de Fallo
-     * Si la carga del diccionario o la adquisición de datos de la PMF sufren un
-     * colapso no controlado, derivamos al ciudadano a un estado seguro (404/Fallback)
-     * en lugar de renderizar componentes huérfanos.
+     * @section Gestión de Resiliencia (SRE Exit)
+     * 🛡️ SANEADO Zenith (Fix no-explicit-any): Normalizamos el rastro desconocido.
      */
-    notFound();
+    const errorDescriptionLiteral = caughtError instanceof Error
+      ? caughtError.message
+      : 'UNKNOWN_OBSERVATORY_FAULT';
+
+    /**
+     * Transformamos el error en una excepción institucional para que el Neural Sentinel
+     * posea un contrato de datos íntegro.
+     */
+    const normalizedException = caughtError instanceof GlobalBaseException
+      ? caughtError
+      : new InternalSystemException('OBSERVATORY_ORCHESTRATION_COLLAPSE', {
+          originalErrorLiteral: errorDescriptionLiteral,
+          correlationIdentifier
+        });
+
+    void EmitTelemetrySignal({
+      severityLevelLiteral: 'CRITICAL',
+      moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
+      operationCodeLiteral: 'OBSERVATORY_FAULT_TRACE',
+      correlationIdentifier,
+      messageContentLiteral: 'Fallo crítico al intentar orquestar el observatorio de gastos.',
+      contextMetadataSnapshot: { ...normalizedException.runtimeContextSnapshot }
+    });
+
+    /** Reporte forense tipado (Zero-Any Compliance). */
+    ReportForensicException(normalizedException, correlationIdentifier);
+
+    /** Saneamos el flujo de retorno para cumplir con TS7030. */
+    return notFound();
   }
 }

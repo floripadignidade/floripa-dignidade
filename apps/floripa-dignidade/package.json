@@ -6,14 +6,19 @@
   "type": "module",
   "author": "Raz Podesta - MetaShark Tech",
   "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "nx": {
-    "tags":[
+    "tags": [
       "scope:app",
       "type:app",
       "platform:web"
     ]
   },
   "dependencies": {
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.8.0",
     "next": "~16.1.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

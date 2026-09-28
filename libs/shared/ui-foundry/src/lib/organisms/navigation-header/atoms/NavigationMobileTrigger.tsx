@@ -7,22 +7,17 @@
  * 44px (ISO/IEC 40500) y rastro telemétrico de activación sensorial.
  *
  * Protocolo OEDP-V17.0 - High Performance UI & SRE Resilience.
- * SANEADO Zenith: Aislamiento funcional, validación de ADN mediante Zod,
- * cumplimiento de Prosa ISO y telemetría de Derechos Humanos.
+ * SANEADO Zenith: Erradicación de directivas de supresión obsoletas (Fix TS2578),
+ * cumplimiento de Prosa ISO 11179 e integridad de tipos de iconografía.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import React, { useCallback } from 'react';
-
-/** 🛡️ LEY ZENITH (Fix TS7016):
- * Supresión controlada para módulos de terceros en entornos de resolución estricta.
- */
-// @ts-expect-error - TS7016: Falla de resolución de declaración de tipos en entornos Nx/PNPM.
 import { Menu, X } from 'lucide-react';
 
-/* 1. Infraestructura Core y Utilidades (Sovereign Swarm) */
+/* 1. Infraestructura Core y Utilidades (Sovereign Swarm - Clean Paths) */
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
@@ -45,23 +40,21 @@ export interface INavigationMobileTriggerProperties {
   readonly isScrolledBoolean: boolean;
   /** Acción atómica para alternar el estado de visibilidad en el orquestador superior. */
   readonly toggleAction: () => void;
-  /** Etiqueta de accesibilidad localizada para lectores de pantalla (A11y). */
+  /** Etiqueta de accesibilidad localizada para lectores de pantalla (WCAG). */
   readonly ariaLabelLiteral: string;
 }
 
 /**
  * Aparato encargado de la señalética visual y disparador de navegación móvil.
- * Implementa micro-interacciones de escala y contraste dinámico adaptativo.
+ * Implementa micro-interacciones de escala y rastro de intención de descubrimiento.
  *
- * @param propertiesSnapshot - Snapshot de estado inyectado por el Header.
+ * @param propertiesSnapshot - Snapshot de estado inyectado por el orquestador.
  * @returns {React.ReactElement} Botón táctil optimizado y auditado.
  */
-export const NavigationMobileTrigger: React.FC<INavigationMobileTriggerProperties> = ({
-  isOpenBoolean,
-  isScrolledBoolean,
-  toggleAction,
-  ariaLabelLiteral,
-}) => {
+export const NavigationMobileTrigger: React.FC<INavigationMobileTriggerProperties> = (
+  propertiesSnapshot,
+) => {
+  const { isOpenBoolean, isScrolledBoolean, toggleAction, ariaLabelLiteral } = propertiesSnapshot;
 
   /**
    * @section Gestión de Telemetría de Interacción
@@ -71,6 +64,7 @@ export const NavigationMobileTrigger: React.FC<INavigationMobileTriggerPropertie
     const correlationIdentifier = GenerateCorrelationIdentifier();
 
     void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'INFO',
       moduleIdentifierLiteral: ATOM_IDENTIFIER,
       operationCodeLiteral: 'MOBILE_TRIGGER_INTERACTED',
@@ -79,11 +73,11 @@ export const NavigationMobileTrigger: React.FC<INavigationMobileTriggerPropertie
       semanticIntentTag: 'UI_NAVIGATION_TOGGLE',
       contextMetadataSnapshot: {
         targetStateBoolean: !isOpenBoolean,
-        isHeaderSolidBoolean: isScrolledBoolean
-      }
+        isHeaderSolidBoolean: isScrolledBoolean,
+      },
     });
 
-    // Ejecución de la acción delegada por el orquestador superior.
+    // Ejecución de la acción delegada por el orquestador superior (Header).
     toggleAction();
   }, [isOpenBoolean, isScrolledBoolean, toggleAction]);
 
@@ -96,7 +90,7 @@ export const NavigationMobileTrigger: React.FC<INavigationMobileTriggerPropertie
     'lg:hidden p-3 rounded-2xl backdrop-blur shadow-sm border transition-all active:scale-90 touch-target-min',
     isScrolledBoolean
       ? 'text-navy-900 bg-slate-50 border-slate-200'
-      : 'text-white bg-white/10 border-white/20'
+      : 'text-white bg-white/10 border-white/20',
   );
 
   return (

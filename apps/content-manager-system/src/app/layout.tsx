@@ -19,7 +19,7 @@ import React from 'react';
  * Silenciamos la advertencia del compilador porque la librería existe físicamente,
  * pero la resolución de 'bundler' en PNPM estricto falla al localizar el .d.ts de Next.js.
  */
-// @ts-expect-error - TS7016: Falla de resolución profunda de Next.js en entornos Nx/PNPM.
+ - TS7016: Falla de resolución profunda de Next.js en entornos Nx/PNPM.
 import type { Metadata, Viewport } from 'next';
 
 /* 1. Infraestructura de Estilos (Global Reset) */

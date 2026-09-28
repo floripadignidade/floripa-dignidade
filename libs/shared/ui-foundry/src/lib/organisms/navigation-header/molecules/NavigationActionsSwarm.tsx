@@ -6,52 +6,48 @@
  * Orquesta la búsqueda universal y el llamado a la acción primario.
  *
  * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Supresión controlada de fricción ambiental (TS7016),
- * inyección de contratos de internacionalización purificados y Prosa ISO.
+ * SANEADO Zenith: Erradicación de supresiones obsoletas (Fix TS2578),
+ * sincronización de contratos de internacionalización y Prosa ISO 11179.
  *
  * @author Neural Sentinel (IA) en colaboración con Raz Podestá
  * @license UNLICENSED
  */
 
 import React from 'react';
-
-/**
- * 🛡️ LEY ZENITH (Fix TS7016):
- * Supresión controlada para módulos de terceros en entornos de resolución estricta.
- */
-// @ts-expect-error - TS7016: Falla de resolución de declaración de tipos en entornos Nx/PNPM.
 import { Heart } from 'lucide-react';
 
-/* 1. Átomos y Moléculas (Swiss-Watch Swarm) */
-import { GlobalActionButton } from '../../../atoms/GlobalActionButton';
-import { GlobalSearchWidget } from '../../../molecules/GlobalSearchWidget';
+/* 1. Átomos y Moléculas Locales (Swiss-Watch Swarm - Clean Paths) */
+import { GlobalActionButton } from '../../../atoms/GlobalActionButton.js';
+import { GlobalSearchWidget } from '../../../molecules/GlobalSearchWidget.js';
 
-/* 2. Planos y Contratos (Blueprints Layer) */
+/* 2. Planos y Contratos (Blueprints Layer - Redirección de ADN Maestro) */
 import type { IMainNavigationHeaderI18n } from '@floripa-dignidade/shared-ui-contracts';
 
 /**
  * @interface INavigationActionsProperties
  * @description Contrato inmutable para los gatillos de conversión del encabezado.
- * Sigue la norma ISO 11179 de Objeto + Propiedad + Representación.
+ * Sigue la norma ISO de Objeto + Propiedad + Representación.
  */
 interface INavigationActionsProperties {
-  /** Fragmento del diccionario lingüístico dedicado a las acciones. */
+  /** Fragmento del diccionario lingüístico dedicado a las acciones institucionales. */
   readonly actionsDictionary: IMainNavigationHeaderI18n['actions'];
 }
 
 /**
- * Aparato encargado de agrupar las herramientas de interacción rápida.
+ * Aparato encargado de agrupar las herramientas de interacción rápida en Desktop.
+ * Implementa el patrón de ensamble atómico preservando la accesibilidad WAI-ARIA.
  *
- * @param properties - Literales de texto y labels de accesibilidad inyectados.
+ * @param propertiesSnapshot - Snapshot de literales de texto e identificadores.
  * @returns {React.ReactElement} Enjambre de herramientas de búsqueda y conversión.
  */
-export const NavigationActionsSwarm: React.FC<INavigationActionsProperties> = ({
-  actionsDictionary
-}) => {
+export const NavigationActionsSwarm: React.FC<INavigationActionsProperties> = (
+  propertiesSnapshot,
+) => {
+  const { actionsDictionary } = propertiesSnapshot;
+
   return (
     <div className="hidden lg:flex items-center gap-8">
-
-      {/* 1. MOTOR DE DESCUBRIMIENTO (Search Widget) */}
+      {/* 1. MOTOR DE DESCUBRIMIENTO (Search Widget Orchestrator) */}
       <div className="w-80">
         <GlobalSearchWidget
           forensicTestIdentifier="HEADER_SEARCH_WIDGET"
@@ -63,20 +59,22 @@ export const NavigationActionsSwarm: React.FC<INavigationActionsProperties> = ({
         />
       </div>
 
-      {/* 2. GATILLO DE CONVERSIÓN PRIMARIA (Donation CTA) */}
+      {/* 2. GATILLO DE CONVERSIÓN PRIMARIA (Donation Call-To-Action) */}
       <GlobalActionButton
         visualIntentConfigurationLiteral="CONVERSION"
         actionIdentifierLiteral="HEADER_DONATE_CTA"
         className="px-10"
-        /** 🛡️ SANEADO: Cumplimiento del contrato UI Primitives */
+        /** 🛡️ SANEADO Zenith: Cumplimiento del contrato inmutable de UI Primitives. */
         isPolymorphicBoolean={false}
         forensicTestIdentifier="CTA_HEADER_DONATE"
         accessibilityConfiguration={{
-          accessibilityLabelLiteral: actionsDictionary.donateCallToAction
+          accessibilityLabelLiteral: actionsDictionary.donateCallToAction,
         }}
       >
         <Heart className="w-4 h-4 fill-current" aria-hidden="true" />
-        <span>{actionsDictionary.donateCallToAction}</span>
+        <span className="uppercase tracking-widest text-xs font-black">
+          {actionsDictionary.donateCallToAction}
+        </span>
       </GlobalActionButton>
     </div>
   );

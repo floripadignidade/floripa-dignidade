@@ -1,18 +1,25 @@
 /**
  * @section tsconfig: Emitter (Tools & Automation)
- * @description Generador de ADN (.d.ts) para procesos de automatización.
+ * @description Generador de ADN (.d.ts) con redirección física de Grafo hacia
+ * la caché de dist/out-tsc. Orquesta la emisión de tipos para las herramientas
+ * de mantenimiento e ingesta, garantizando que los disparadores CLI (Scripts)
+ * operen bajo un contrato de tipos inexpugnable.
+ *
  * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Erradicación de TS2307 y TS6059 mediante la herencia
- * del Grafo Maestro. Eliminamos 'rootDir' y 'paths' para permitir que el
- * compilador consuma fuentes (.ts) si las firmas físicas aún no existen,
- * habilitando la resiliencia de compilación en Vercel.
+ * SANEADO Zenith: Rectificación de profundidad (Fix Path Overflow), habilitación
+ * de mapeo profundo (Wildcards) y aplanamiento de estructura de salida.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    /* --- ESTRATEGIA DE SALIDA ZENITH (Jurisdicción Física) --- */
+    /* --- ESTRATEGIA DE SALIDA ZENITH (Tools Cache) --- */
+    /**
+     * 🛡️ LEY DE PROFUNDIDAD: Desde 'libs/tools' a la raíz son 2 niveles (../../).
+     * El outDir debe residir estrictamente dentro del ecosistema del monorepo.
+     */
     "outDir": "../../dist/out-tsc/libs/tools",
     "tsBuildInfoFile": "../../dist/out-tsc/libs/tools/tsconfig.lib.tsbuildinfo",
 
@@ -22,10 +29,47 @@
     "declarationMap": true,
     "emitDeclarationOnly": true,
     "noEmit": false,
+
+    /**
+     * 🛡️ LEY ZENITH: Forzamos rootDir a 'src'.
+     * Esto garantiza que el ADN en dist NO posea el segmento /src/ redundante.
+     */
+    "rootDir": "src",
     "importHelpers": true,
     "ignoreDeprecations": "5.0",
 
-    /* --- RESOLUCIÓN NEXT-GEN (Bundler Ready) --- */
+    /* --- REDIRECCIÓN DE ADN MAESTRO (High Performance SRE) --- */
+    /**
+     * 🛡️ LEY DEL ENJAMBRE: Consumimos firmas físicas (.d.ts) desde dist.
+     * SANEADO: Se inyectan wildcards (/*) para autorizar importaciones profundas
+     * necesarias en procesos de ingesta financiera y auditoría de excepciones.
+     */
+    "baseUrl": ".",
+    "paths": {
+      /* Capa CORE: Cimientos Inmutables */
+      "@floripa-dignidade/telemetry": ["../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
+      "@floripa-dignidade/telemetry/*": ["../../dist/out-tsc/libs/core/telemetry/*"],
+
+      "@floripa-dignidade/exceptions": ["../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
+      "@floripa-dignidade/exceptions/*": ["../../dist/out-tsc/libs/core/exceptions/*"],
+
+      "@floripa-dignidade/environment-validator": [
+        "../../dist/out-tsc/libs/core/environment-validator/index.d.ts"
+      ],
+      "@floripa-dignidade/environment-validator/*": [
+        "../../dist/out-tsc/libs/core/environment-validator/*"
+      ],
+
+      /* Capa ENGINES: Motores de Negocio */
+      "@floripa-dignidade/financial-ingestion-engine": [
+        "../../dist/out-tsc/libs/engines/financial-ingestion-engine/index.d.ts"
+      ],
+      "@floripa-dignidade/financial-ingestion-engine/*": [
+        "../../dist/out-tsc/libs/engines/financial-ingestion-engine/*"
+      ]
+    },
+
+    /* --- RESOLUCIÓN NEXT-GEN (Node.js & ESM Ready) --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
@@ -39,7 +83,6 @@
   "include": ["src/**/*.ts"],
 
   "exclude": [
-    /* 🛡️ LIMPIEZA DE JURISDICCIÓN */
     "src/**/*.spec.ts",
     "dist",
     "out-tsc",
@@ -52,8 +95,11 @@
    * @section Grafo de Referencias Soberanas
    */
   "references": [
-    { "path": "../core/exceptions/tsconfig.lib.json" },
-    { "path": "../core/telemetry/tsconfig.lib.json" },
-    { "path": "../engines/financial-ingestion-engine/tsconfig.lib.json" }
+    {
+      "path": "../engines/financial-ingestion-engine/tsconfig.lib.json"
+    },
+    {
+      "path": "../core/environment-validator/tsconfig.lib.json"
+    }
   ]
 }
