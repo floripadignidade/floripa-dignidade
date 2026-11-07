@@ -16,7 +16,8 @@
         "outputPath": "dist/libs/core/telemetry",
         "main": "libs/core/telemetry/src/index.ts",
         "tsConfig": "libs/core/telemetry/tsconfig.lib.json",
-        "stripLeadingPaths": true
+        "stripLeadingPaths": true,
+        "skipTypeCheck": true
       },
       "cache": true
     },

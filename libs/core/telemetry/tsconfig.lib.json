@@ -5,7 +5,11 @@
  * relativas explícitas para garantizar resoluciones deterministas.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * SANEADO Zenith: Remoción de 'rootDir' para erradicar las 40 colisiones TS6059
+ * en entornos CI/CD de Vercel y Linux.
+ *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
   "extends": "./tsconfig.json",
@@ -17,11 +21,6 @@
     "declarationMap": false,
 
     /* --- INTEGRIDAD DE RESOLUCIÓN (Modern Standard) --- */
-    /**
-     * 🛡️ LEY SRE: 'rootDir' apunta al directorio de la librería (.) para
-     * permitir la visibilidad de los paths base sin ambigüedad.
-     */
-    "rootDir": ".",
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,

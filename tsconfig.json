@@ -1,23 +1,26 @@
 /**
  * @section Technical Constitution - Root Gatekeeper
- * @description Punto de entrada maestro para el motor de tipos del monorepo.
+ * @description Punto de entrada maestro para el servidor de tipos del monorepo.
  * Implementa la doctrina de Resolución de Fuente Única (Source-First),
- * eliminando baseUrl para garantizar resoluciones deterministas.
+ * eliminando baseUrl para garantizar resoluciones deterministas bajo estándares ISO.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture.
+ * SANEADO Zenith: Inyección del prefijo relativo './' en paths (Erradicación TS5090)
+ * y purga de declaraciones redundantes de rootDir.
+ *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": ".",
     "paths": {
       /**
-       * 🛡️ MAPEO GLOBAL:
-       * Permite que las herramientas de análisis resuelvan cualquier búnker
-       * directamente desde su origen físico.
+       * 🛡️ MAPEO GLOBAL SANEADO (Fix TS5090):
+       * En ausencia de 'baseUrl', todo destino de resolución en 'paths'
+       * debe iniciar estrictamente con './' para cumplir con TypeScript 5.x.
        */
-      "@floripa-dignidade/*": ["libs/*/src/index.ts"]
+      "@floripa-dignidade/*": ["./libs/*/src/index.ts"]
     }
   },
   "files": [],
