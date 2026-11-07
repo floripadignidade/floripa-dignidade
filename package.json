@@ -5,28 +5,23 @@
   "scripts": {
     "// --- 🏗️ INFRASTRUCTURE: I18N WEAVER ---": "",
     "weaver:build": "tsx scripts/src/run-weaver.ts",
-
     "// --- 🚀 DEPLOYMENT PIPELINE (Vercel Production) ---": "",
     "build:portal": "nx build floripa-dignidade --prod",
     "build:cms": "nx build content-manager-system --prod",
     "vercel-build": "pnpm weaver:build && nx run-many -t build --projects=floripa-dignidade,content-manager-system --prod",
-
     "// --- 🛠️ DEVELOPMENT: ORCHESTRATION ---": "",
     "dev:portal": "nx serve floripa-dignidade",
     "dev:cms": "nx serve content-manager-system",
     "dev:all": "nx run-many -t dev --parallel=1",
-
     "// --- 🛡️ QUALITY AUDIT: ZENITH SENTRY ---": "",
     "typecheck": "nx run-many -t typecheck --parallel=1",
     "lint": "nx run-many -t lint --parallel=1",
     "lint:fix": "nx run-many -t lint --fix --parallel=1",
     "format:check": "nx format:check",
     "format:write": "nx format:write",
-
     "// --- 🧪 QA: FORENSIC TESTING ---": "",
     "test:unit": "nx run-many -t test",
     "test:e2e": "nx e2e floripa-dignidade-e2e",
-
     "// --- 🧹 WORKSPACE UTILITIES (Forensic Purge) ---": "",
     "purge:emissions": "tsx scripts/src/purge-rogue-emissions.ts",
     "audit:exceptions": "tsx scripts/src/audit-exceptions.ts",
@@ -60,7 +55,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.73.1",
     "sharp": "^0.34.5",
-    "vercel": "^52.0.0",
+    "vercel": "^65.12.1",
     "vercel-plugin": "github:vercel/vercel-plugin",
     "zod": "^3.25.76",
     "zustand": "^5.0.12"
