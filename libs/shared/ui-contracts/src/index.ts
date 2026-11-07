@@ -6,8 +6,8 @@
  * y las Aplicaciones operen bajo un Grafo de Tipos inexpugnable.
  *
  * Protocolo OEDP-V17.0 - Single Source Resolution & Verbatim Module Syntax.
- * SANEADO Zenith: Inyección de extensiones de archivo (.js) para resolución ESM
- * profesional, cumplimiento de Prosa ISO y sellado de ADN Técnico.
+ * SANEADO: Normalización de resolución de rutas a especificación canónica 'bundler'
+ * (remoción de extensiones virtuales .js para empaquetado directo en Next.js/Turbopack).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -25,12 +25,12 @@ export const SHARED_UI_CONTRACTS_VERSION = '1.3.1';
  * @description Contratos de identidad para tecnologías asistivas (ISO/IEC 40500).
  */
 export {
-  AriaAttributesSchema
-} from './lib/accessibility/AriaContract.schema.js';
+  AriaAttributesSchema,
+} from './lib/accessibility/AriaContract.schema';
 
 export type {
-  IAriaAttributes
-} from './lib/accessibility/AriaContract.schema.js';
+  IAriaAttributes,
+} from './lib/accessibility/AriaContract.schema';
 
 
 /**
@@ -39,12 +39,12 @@ export type {
  */
 export {
   UiPrimitivesBaseSchema,
-  UiPrimitivesSchema
-} from './lib/primitives/UiPrimitives.schema.js';
+  UiPrimitivesSchema,
+} from './lib/primitives/UiPrimitives.schema';
 
 export type {
-  IUiPrimitives
-} from './lib/primitives/UiPrimitives.schema.js';
+  IUiPrimitives,
+} from './lib/primitives/UiPrimitives.schema';
 
 
 /**
@@ -52,12 +52,12 @@ export type {
  * @description Esquemas de validación para logotipos y activos de marca.
  */
 export {
-  GlobalBrandLogoPropertiesSchema
-} from './lib/primitives/GlobalBrandLogo.schema.js';
+  GlobalBrandLogoPropertiesSchema,
+} from './lib/primitives/GlobalBrandLogo.schema';
 
 export type {
-  IGlobalBrandLogoProperties
-} from './lib/primitives/GlobalBrandLogo.schema.js';
+  IGlobalBrandLogoProperties,
+} from './lib/primitives/GlobalBrandLogo.schema';
 
 
 /**
@@ -65,12 +65,12 @@ export type {
  * @description Planos para el widget de búsqueda universal y triaje de resultados.
  */
 export {
-  GlobalSearchWidgetPropertiesSchema
-} from './lib/primitives/GlobalSearchWidget.schema.js';
+  GlobalSearchWidgetPropertiesSchema,
+} from './lib/primitives/GlobalSearchWidget.schema';
 
 export type {
-  IGlobalSearchWidgetProperties
-} from './lib/primitives/GlobalSearchWidget.schema.js';
+  IGlobalSearchWidgetProperties,
+} from './lib/primitives/GlobalSearchWidget.schema';
 
 
 /**
@@ -79,21 +79,21 @@ export type {
  */
 export {
   NewsletterSubscriptionFormPropertiesSchema,
-  NewsletterSubscriptionFormSchema
-} from './lib/primitives/NewsletterForm.schema.js';
+  NewsletterSubscriptionFormSchema,
+} from './lib/primitives/NewsletterForm.schema';
 
 export type {
   INewsletterSubscriptionForm,
-  INewsletterSubscriptionFormProperties
-} from './lib/primitives/NewsletterForm.schema.js';
+  INewsletterSubscriptionFormProperties,
+} from './lib/primitives/NewsletterForm.schema';
 
 export {
-  NewsletterSubscriptionFormI18nSchema
-} from './lib/composition/NewsletterFormI18n.schema.js';
+  NewsletterSubscriptionFormI18nSchema,
+} from './lib/composition/NewsletterFormI18n.schema';
 
 export type {
-  INewsletterSubscriptionFormI18n
-} from './lib/composition/NewsletterFormI18n.schema.js';
+  INewsletterSubscriptionFormI18n,
+} from './lib/composition/NewsletterFormI18n.schema';
 
 
 /**
@@ -106,18 +106,18 @@ export {
   CompositeUiSchema,
   InteractionStateSchema,
   ResponsiveVisibilitySchema,
-  VisualLayoutVariantSchema
-} from './lib/composition/CompositeUi.schema.js';
+  VisualLayoutVariantSchema,
+} from './lib/composition/CompositeUi.schema';
 
 export type {
-  ICompositeUi
-} from './lib/composition/CompositeUi.schema.js';
+  ICompositeUi,
+} from './lib/composition/CompositeUi.schema';
 
 /** 6.2. Navegación Institucional (Global Header & Sentry) */
 export {
-  MainNavigationHeaderI18nSchema
-} from './lib/composition/MainNavigationHeader.schema.js';
+  MainNavigationHeaderI18nSchema,
+} from './lib/composition/MainNavigationHeader.schema';
 
 export type {
-  IMainNavigationHeaderI18n
-} from './lib/composition/MainNavigationHeader.schema.js';
+  IMainNavigationHeaderI18n,
+} from './lib/composition/MainNavigationHeader.schema';

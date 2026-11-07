@@ -1,27 +1,51 @@
+/**
+ * @section Shared UI Contracts - Compiler Infrastructure
+ * @description Generador de ADN para el motor de tipos de contratos de interfaz.
+ * Doctrina Source-First: valida la integridad de los contratos visuales y accesibilidad
+ * directamente desde las fuentes TypeScript sin emisión intermedia.
+ *
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * SANEADO: Sincronización con módulo 'preserve' y blindaje de no-emisión.
+ *
+ * @author Raz Podestá - MetaShark Tech
+ */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    /* --- ESTRATEGIA ZENITH: Cero Sobreingeniería --- */
+    "composite": false,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+
+    /* --- INTEGRIDAD DE RESOLUCIÓN (Next-Gen) --- */
     "target": "ES2022",
-    "module": "esnext",
+    "module": "preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
-    "noEmit": true,
+
+    /* --- RIGOR DE IDENTIDAD (SRE Compatibility) --- */
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strict": true,
+
+    /* --- CONTEXTO REACT 19 & DOM --- */
     "jsx": "react-jsx",
-    "baseUrl": ".",
     "types": ["node", "react", "react-dom"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
+
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx"
   ],
+
   "exclude": [
     "**/*.spec.ts",
+    "**/*.test.ts",
     "dist",
-    "node_modules"
+    "node_modules",
+    "out-tsc"
   ]
 }

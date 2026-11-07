@@ -37,11 +37,11 @@ export type {
  * @section Capa 2: Almas Lingüísticas (Internationalization)
  */
 export {
-  ExceptionsLinguisticDictionarySchema
+  ExceptionsLinguisticDictionarySchema,
 } from './lib/i18n/ExceptionsI18n.schema';
 
 export type {
-  IExceptionsLinguisticDictionary
+  IExceptionsLinguisticDictionary,
 } from './lib/i18n/ExceptionsI18n.schema';
 
 /**
@@ -54,5 +54,6 @@ export { ValidationException } from './lib/codes/ValidationException';
 /**
  * @section Capa 4: Adaptadores de Protocolo (Mappers)
  * Traductores atómicos para estados de red.
+ * Sincronizado para resolución estricta en entornos POSIX/Linux.
  */
-export { MapHttpErrorToException } from './lib/mappers/MapHttpErrorToException';
+export { MapHttpErrorToException } from './lib/mappers/mapHttpErrorToException';

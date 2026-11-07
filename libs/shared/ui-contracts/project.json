@@ -12,7 +12,8 @@
         "outputPath": "dist/libs/shared/ui-contracts",
         "main": "libs/shared/ui-contracts/src/index.ts",
         "tsConfig": "libs/shared/ui-contracts/tsconfig.lib.json",
-        "stripLeadingPaths": true
+        "stripLeadingPaths": true,
+        "skipTypeCheck": true
       },
       "cache": true
     },

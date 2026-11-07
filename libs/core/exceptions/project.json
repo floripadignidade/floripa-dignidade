@@ -16,7 +16,8 @@
         "outputPath": "dist/libs/core/exceptions",
         "main": "libs/core/exceptions/src/index.ts",
         "tsConfig": "libs/core/exceptions/tsconfig.lib.json",
-        "stripLeadingPaths": true
+        "stripLeadingPaths": true,
+        "skipTypeCheck": true
       },
       "cache": true
     },

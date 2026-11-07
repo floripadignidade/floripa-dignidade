@@ -5,6 +5,8 @@
  * desde las fuentes para garantizar latencia cero en el desarrollo.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * SANEADO: Remoción de 'rootDir' para eliminar colisiones TS6059 en entornos CI/CD de Vercel.
+ *
  * @author Raz Podestá - MetaShark Tech
  */
 {
@@ -21,8 +23,7 @@
     "declarationMap": false,
 
     /* --- INTEGRIDAD DE RESOLUCIÓN (Next-Gen) --- */
-    "rootDir": "src",
-    "module": "Preserve",
+    "module": "preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
