@@ -31,6 +31,6 @@ Disallow: /*?*token=*
 Disallow: /*?*correlationIdentifier=*
 
 # ------------------------------------------------------------------------------------
-# 3. REFERENCIA AL MAPA DEL SITIO SOBERANO (Dynamic Sitemap)
+# 3. REFERENCIA AL MAPA DEL SITIO INSTITUCIONAL (Sitemap)
 # ------------------------------------------------------------------------------------
 Sitemap: https://floripa-dignidade.org/sitemap.xml
