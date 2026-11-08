@@ -7,7 +7,7 @@
   "author": "Raz Podesta - MetaShark Tech",
   "license": "UNLICENSED",
   "engines": {
-    "node": ">=20.0.0"
+    "node": "24.x"
   },
   "nx": {
     "tags": [
@@ -17,19 +17,19 @@
     ]
   },
   "dependencies": {
-    "framer-motion": "^12.38.0",
-    "lucide-react": "^1.8.0",
-    "next": "~16.1.6",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
     "@floripa-dignidade/environment-validator": "workspace:*",
     "@floripa-dignidade/exceptions": "workspace:*",
     "@floripa-dignidade/newsletter": "workspace:*",
     "@floripa-dignidade/routing": "workspace:*",
-    "@floripa-dignidade/shared-utility": "workspace:*",
     "@floripa-dignidade/shared-state-store": "workspace:*",
     "@floripa-dignidade/shared-ui-foundry": "workspace:*",
+    "@floripa-dignidade/shared-utility": "workspace:*",
     "@floripa-dignidade/telemetry": "workspace:*",
-    "@floripa-dignidade/whatsapp-communication-service": "workspace:*"
+    "@floripa-dignidade/whatsapp-communication-service": "workspace:*",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.8.0",
+    "next": "~16.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }

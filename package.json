@@ -25,7 +25,7 @@
     "// --- 🧹 WORKSPACE UTILITIES (Forensic Purge) ---": "",
     "purge:emissions": "tsx scripts/src/purge-rogue-emissions.ts",
     "audit:exceptions": "tsx scripts/src/audit-exceptions.ts",
-    "workspace:clean": "nx reset && rm -rf dist .nx tmp reports",
+    "workspace:clean": "nx reset && node -e \"['dist','.nx','tmp','reports'].forEach(directoryPathLiteral => fs.rmSync(directoryPathLiteral, { recursive: true, force: true }))\"",
     "workspace:graph": "nx graph"
   },
   "private": true,
@@ -41,22 +41,18 @@
     "@radix-ui/react-navigation-menu": "^1.2.14",
     "@tanstack/react-query": "^5.100.5",
     "@tanstack/react-query-persist-client": "^5.100.10",
-    "add": "^2.0.6",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.38.0",
     "fuse.js": "^7.3.0",
     "graphql": "^16.13.2",
     "graphql-tag": "^2.12.6",
     "lucide-react": "^1.8.0",
-    "next": "~16.2.6",
+    "next": "~16.1.7",
     "payload": "^3.84.1",
     "react": "^19.0.0",
-    "react-doctor": "^0.1.6",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.73.1",
     "sharp": "^0.34.5",
-    "vercel": "^65.12.1",
-    "vercel-plugin": "github:vercel/vercel-plugin",
     "zod": "^3.25.76",
     "zustand": "^5.0.12"
   },
@@ -109,12 +105,11 @@
     "tailwindcss-animate": "^1.0.7",
     "ts-jest": "^29.4.0",
     "ts-node": "10.9.1",
-    "tslib": "^2.3.0",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.40.0"
   },
   "packageManager": "pnpm@10.26.1+sha512.664074abc367d2c9324fdc18037097ce0a8f126034160f709928e9e9f95d98714347044e5c3164d65bd5da6c59c6be362b107546292a8eecb7999196e5ce58fa",
   "engines": {
-    "node": "24.x"
+    "node": "20.x || 24.x"
   }
 }

@@ -1,0 +1,36 @@
+# ====================================================================================
+# ARCHIVO OFICIAL: apps/floripa-dignidade/public/robots.txt
+# ESTÁNDAR: ISO/IEC 25010 (Seguridad y Gobernanza de Rastreabilidad)
+# PROTOCOLO: OEDP-V18.1 - High Performance SEO & Crawler Policy
+# ORGANIZACIÓN: Associação Floripa Dignidade
+# ====================================================================================
+
+# ------------------------------------------------------------------------------------
+# 1. DIRECTIVAS PARA RASTREADORES GENERALES (Search Engine Optimization)
+# ------------------------------------------------------------------------------------
+User-agent: *
+Allow: /
+Allow: /pt-BR/
+Allow: /es-ES/
+Allow: /en-US/
+Allow: /identidad
+Allow: /transparencia
+Allow: /prensa
+Allow: /ecosistema-solidario
+Allow: /observatorio/gastos-publicos
+
+# ------------------------------------------------------------------------------------
+# 2. BLOQUEO PERIMETRAL DE PRIVACIDAD (Protección LGPD & Rutas Administrativas)
+# ------------------------------------------------------------------------------------
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /privado/
+Disallow: /denuncia-ciudadana/
+Disallow: /*?*token=*
+Disallow: /*?*correlationIdentifier=*
+
+# ------------------------------------------------------------------------------------
+# 3. REFERENCIA AL MAPA DEL SITIO SOBERANO (Dynamic Sitemap)
+# ------------------------------------------------------------------------------------
+Sitemap: https://floripa-dignidade.org/sitemap.xml
