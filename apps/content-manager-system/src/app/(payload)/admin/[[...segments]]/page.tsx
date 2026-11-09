@@ -1,37 +1,27 @@
 /**
- * @section CMS Infrastructure - Admin Catch-all Page (Orchestrator)
+ * @section CMS Infrastructure - Admin Catch-all Page Orchestrator
  * @description Orquestador de renderizado para el panel administrativo de Payload CMS.
  * Gestiona dinámicamente la jerarquía de rutas bajo '/admin' mediante el paso
- * directo de promesas al motor de vistas, cumpliendo con el rigor de Next.js 16.
+ * directo de promesas al motor de vistas, cumpliendo con el rigor de Next.js 16 y Payload 3.84.
  *
- * Protocolo OEDP-V17.0 - High Performance & Async Contract Integrity.
- * SANEADO Zenith: Erradicación de triple-slash (ESLint), resolución de TS7016
- * mediante supresión controlada y corrección de firma de índice (TS2322).
+ * Protocolo OEDP-V18.1 - High Performance & Async Contract Integrity.
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Calidad y Mantenibilidad).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import { generatePageMetadata, RootPage } from '@payloadcms/next/views';
-
-/**
- * 🛡️ LEY ZENITH (Fix TS7016):
- * Suprimimos la advertencia del compilador para el motor de tipos de Next.js.
- * Cumplimos con ESLint al utilizar el estilo de importación estándar.
- */
- - TS7016: Falla de resolución profunda en el aislamiento de PNPM.
 import type { Metadata } from 'next';
 
-/* 1. Configuración Soberana y Mapa de Dependencias (Clean Paths) */
-import configReference from '../../../../payload.config';
+/* 1. Configuración Central Institucional y Mapa de Dependencias */
+import payloadConfigurationReference from '../../../../payload.config';
 import { importMap } from '../importMap';
 
 /**
  * @interface IAdminPageProperties
- * @description Contrato de propiedades inyectadas por Next.js 16.
- * SANEADO Zenith (Fix TS2322): Se eliminan los modificadores 'readonly' y
- * el tipo 'undefined' de la signatura de índice de searchParams para asegurar
- * la compatibilidad con el motor de Payload CMS.
+ * @description Contrato inmutable de propiedades inyectadas por Next.js 16 en el App Router.
+ * Sigue la norma ISO de Objeto + Propiedad + Representación.
  */
 interface IAdminPageProperties {
   readonly params: Promise<{
@@ -44,17 +34,17 @@ interface IAdminPageProperties {
 
 /**
  * Generador de Metadatos Dinámicos para el Panel Administrativo.
- * SANEADO Zenith: Delegación íntegra de promesas al motor de Payload.
+ * Delega el procesamiento de las promesas de ruta al motor de vistas de Payload.
  *
- * @param propertiesSnapshot - Propiedades asíncronas de la ruta.
- * @returns {Promise<Metadata>} Metadatos procesados por el motor de Payload.
+ * @param propertiesSnapshot - Propiedades asíncronas de la ruta solicitada.
+ * @returns {Promise<Metadata>} Metadatos procesados por el motor de vistas.
  */
 export const generateMetadata = ({
   params,
   searchParams,
 }: IAdminPageProperties): Promise<Metadata> => {
   return generatePageMetadata({
-    config: configReference,
+    config: payloadConfigurationReference,
     params,
     searchParams,
   });
@@ -62,21 +52,17 @@ export const generateMetadata = ({
 
 /**
  * Componente Raíz de la Interfaz Administrativa.
- * Realiza el ensamblaje entre el motor de vistas de Payload y el App Router.
+ * Realiza el ensamblaje asíncrono entre el motor de vistas de Payload y el App Router de Next.js.
  *
- * @param propertiesSnapshot - Propiedades de la solicitud (Promesas).
- * @returns {Promise<React.ReactElement>} La vista administrativa sincronizada.
+ * @param propertiesSnapshot - Propiedades asíncronas de la solicitud.
+ * @returns {Promise<React.ReactElement>} La vista administrativa renderizada y sincronizada.
  */
 const AdminPage = ({
   params,
   searchParams,
 }: IAdminPageProperties): Promise<React.ReactElement> => {
-  /**
-   * 🛡️ SANEADO Zenith: Inyección directa de promesas al RootPage.
-   * El motor de Payload gestiona la resolución asíncrona internamente.
-   */
   return RootPage({
-    config: configReference,
+    config: payloadConfigurationReference,
     importMap,
     params,
     searchParams,

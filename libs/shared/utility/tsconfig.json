@@ -1,3 +1,16 @@
+/**
+ * @section Shared Utility - Configuration Gatekeeper
+ * @description Orquestador de la frontera física para la biblioteca de utilidades transversales y privacidad (LGPD).
+ * Actúa como pasaporte de visibilidad e índice de proyecto para el servidor de tipos (Project Service) y el IDE,
+ * delegando la verificación de fuentes al manifiesto especializado de biblioteca bajo la doctrina Source-First.
+ *
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Estabilidad).
+ * SANEADO: Erradicación definitiva de autorreferencia circular (TS5060) y alineación con la herencia base raíz.
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
+ */
 {
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {

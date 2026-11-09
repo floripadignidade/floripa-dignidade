@@ -1,12 +1,134 @@
 {
-  "core/lib": {
-    "signals": {
-      "START_PROCESS": "Iniciando procesamiento atómico.",
-      "END_PROCESS": "Procesamiento finalizado con éxito.",
-      "LATENCY_REPORT": "Latencia de ejecución medida en milisegundos."
+  "contracts/src": {
+    "metadataDescriptions": {
+      "FULL_NAME_LABEL": "Nombre y apellidos completos según el registro legal o proveedor de identidad.",
+      "EMAIL_ADDRESS_LABEL": "Dirección de correo electrónico vinculada a la cuenta institucional.",
+      "AVATAR_IMAGE_LABEL": "Dirección URL de la imagen de perfil recuperada del proveedor verificado.",
+      "TRUST_LEVEL_LABEL": "Coeficiente algorítmico que determina el peso de las acciones ciudadanas."
+    },
+    "operationalSignals": {
+      "AUTHORITY_SYNCHRONIZATION_SUCCESS": "Sincronización de autoridad consolidada con éxito en el Ledger Primario."
+    },
+    "exceptionMessages": {
+      "INVALID_AVATAR_URL": "La dirección de la fotografía de perfil no cumple con los estándares de seguridad.",
+      "TRUST_LEVEL_OUT_OF_BOUNDS": "El nivel de confianza debe estar comprendido entre 0.1 y 1.0.",
+      "IDENTITY_NOT_FOUND": "No se ha identificado ninguna identidad con los criterios proporcionados.",
+      "UNAUTHORIZED_IDENTITY_PROVIDER": "El proveedor de identidad solicitado no posee el sello de confianza institucional."
+    },
+    "authorityRoles": {
+      "INFRASTRUCTURE_CORE_AUDITOR": "Auditor de Infraestructura Core (SRE)",
+      "PLATFORM_GLOBAL_MANAGER": "Gestor Global de la Plataforma",
+      "ORGANIZATION_ADMINISTRATOR": "Administrador de Organización",
+      "ORGANIZATION_OPERATOR": "Operador de Impacto Social",
+      "IDENTITY_REGISTERED": "Identidad Verificada",
+      "IDENTITY_ANONYMOUS": "Identidad Temporal de Sistema"
     }
   },
-  "modules/lib": {
+  "core/analytics": {
+    "errors": {
+      "ADN_CORRUPTO": "El evento analítico fue rechazado por no cumplir la estructura de seguridad.",
+      "PERDIDA_CONEXION": "Falla de sincronización telemétrica. Reintentando en segundo plano."
+    },
+    "logs": {
+      "EVENTO_CAPTURADO": "Evento de usuario anonimizado capturado exitosamente."
+    }
+  },
+  "core/environment-validator": {
+    "logs": {
+      "INTEGRITY_VIOLATION": "Violación de integridad detectada en los secretos de infraestructura. El arranque del sistema ha sido bloqueado por el Neural Sentinel.",
+      "VERIFICATION_SUCCESS": "Aduana de hardware superada. Infraestructura soberana validada con éxito."
+    },
+    "errors": {
+      "ENVIRONMENT_ADN_CORRUPT": "El contrato de ADN de la infraestructura está corrompido o posee campos obligatorios ausentes."
+    }
+  },
+  "core/exceptions": {
+    "localizedErrorMessagesMapping": {
+      "VALIDATION_FAILED": "Los datos proporcionados no cumplen los criterios de integridad o seguridad técnica del ecosistema.",
+      "UNAUTHORIZED_ACCESS": "Su identidad no posee autoridad institucional suficiente para realizar esta operación.",
+      "INTERNAL_SYSTEM_FAILURE": "Ha ocurrido un colapso interno en la plataforma. El Neural Sentinel ya ha notificado al equipo de ingeniería.",
+      "RESOURCE_NOT_FOUND": "El recurso solicitado no ha sido identificado o fue eliminado permanentemente del Ledger de datos.",
+      "EXTERNAL_SERVICE_TIMEOUT": "Un proveedor de infraestructura externo ha excedido el límite de latencia. Por favor, intente de nuevo."
+    }
+  },
+  "core/telemetry": {
+    "telemetrySignalsMapping": {
+      "START_PROCESS": "Iniciando ejecución atómica en el núcleo del sistema.",
+      "END_PROCESS": "Ejecución finalizada con éxito. Señal nominal detectada.",
+      "LATENCY_REPORT": "Latencia de ejecución capturada en milisegundos (Auditoría Forense)."
+    }
+  },
+  "engines/adversarial-simulation-engine": {
+    "logs": {
+      "SIMULATION_STARTED": "Simulación adversaria iniciada contra el aparato: {target}",
+      "SIMULATION_COMPLETED": "Auditoría de seguridad finalizada. Total de vectores: {quantity}",
+      "BREACH_DETECTED": "🚨 VIOLACIÓN DETECTADA: El payload penetró la aduana Zod en {target}",
+      "DEFENSES_HELD": "🛡️ Defensas nominales en {target}. Ningún vector de ataque tuvo éxito."
+    },
+    "threatLevels": {
+      "CRITICAL_COLLAPSE": "COLAPSO CRÍTICO: Riesgo de ejecución de código o fuga masiva de PII.",
+      "HIGH_RISK": "RIESGO ALTO: Posible bypass de autorización o falla de integridad criptográfica.",
+      "MODERATE_FLAW": "FALLA MODERADA: El esquema acepta datos inconsistentes que pueden generar errores de lógica.",
+      "LOW_FRICTION": "FRICCIÓN BAJA: Información técnica innecesaria expuesta en snapshots de error."
+    },
+    "audit": {
+      "reportHeadlineLiteral": "Reporte de Auditoría Forense - Floripa Dignidade Red Team",
+      "remediationPreambleLiteral": "Para mitigar esta vulnerabilidad, se recomienda la siguiente acción:",
+      "noVulnerabilitiesFoundLiteral": "El enjambre de seguridad no detectó brechas en los contratos de ADN auditados."
+    }
+  },
+  "engines/impact-analytics-engine": {
+    "metrics": {
+      "WEIGHTED_TRUST_LABEL": "Nivel de Credibilidad Ponderada",
+      "CONFIDENCE_LEVEL_LABEL": "Índice de Certeza Estadística",
+      "CONSENSUS_INDEX_LABEL": "Grado de Consenso Comunitario",
+      "PARTICIPATION_VOLUME_LABEL": "Voces Activas Identificadas"
+    },
+    "trends": {
+      "RISING_TRUST": "Confianza en Ascenso",
+      "STABLE_CONSENSUS": "Consenso Estable",
+      "DECLINING_TRUST": "Caída en la Credibilidad",
+      "VOLATILE_RATING": "Percepción Volátil"
+    },
+    "explanations": {
+      "BAYESIAN_METHODOLOGY_HINT": "Este cálculo prioriza la opinión de ciudadanos con identidad verificada e historial de participación ética en la red.",
+      "SAMPLE_SIZE_WARNING": "Los datos actuales representan una muestra pequeña; la precisión aumentará con un mayor volumen de participaciones."
+    },
+    "anomalies": {
+      "CRITICAL_DISCREPANCY_REASON": "Se detectó un gasto masivo con un nivel de confianza ciudadana inferior al umbral ético institucional (35%).",
+      "HIGH_POLARIZATION_REASON": "La comunidad presenta una fragmentación extrema de opiniones; el índice de consenso ha alcanzado niveles críticos.",
+      "LOW_PARTICIPATION_REASON": "El volumen de voces identificadas es insuficiente para certificar la legitimidad social de este gasto de alta magnitud.",
+      "NOMINAL_HEALTH_REASON": "La inversión muestra una correlación saludable y transparente entre el gasto público y la aceptación popular."
+    }
+  },
+  "modules/messaging-engine": {
+    "interface": {
+      "emptyInboxTitleLiteral": "Tu bandeja de entrada está limpia",
+      "emptyInboxDescriptionLiteral": "No tienes nuevas notificaciones en este momento. Te avisaremos cuando haya actualizaciones sobre tus reportes o alertas territoriales.",
+      "markAllAsReadActionLiteral": "Marcar todas como leídas",
+      "unreadMessagesCountLiteral": "notificaciones sin leer",
+      "replyActionLiteral": "Responder",
+      "presenceStates": {
+        "ONLINE": "En línea",
+        "AWAY": "Ausente",
+        "DO_NOT_DISTURB": "No molestar",
+        "OFFLINE": "Desconectado"
+      }
+    },
+    "logs": {
+      "NOTIFICATION_BROADCAST_SUCCESS": "Alerta de sistema emitida con éxito hacia la red de ciudadanos.",
+      "DIRECT_MESSAGE_DISPATCHED": "Mensaje directo cifrado y enviado con éxito.",
+      "THREAD_ARCHIVED_NOMINAL": "Ciclo de vida de la conversación finalizado. Hilo archivado lógicamente.",
+      "HEARTBEAT_NOMINAL": "Pulso de presencia del ciudadano recibido con éxito."
+    },
+    "errors": {
+      "MAXIMUM_ATTACHMENTS_EXCEEDED": "Se ha excedido el límite máximo de evidencias adjuntas (10).",
+      "MESSAGE_EXCEEDS_MAXIMUM_LENGTH": "El contenido del mensaje excede el límite técnico de 5000 caracteres.",
+      "UNAUTHORIZED_THREAD_ACCESS": "Tu identidad no posee autoridad para acceder a este canal de comunicación.",
+      "MESSAGE_ADN_CORRUPTED": "La estructura del mensaje es inválida o está corrompida."
+    }
+  },
+  "modules/newsletter": {
     "email": {
       "confirmationSubjectLiteral": "Confirma tu suscripción | Floripa Dignidade",
       "greetingLiteral": "Hola,",
@@ -14,50 +136,28 @@
       "trackingFooterLiteral": "ID de Seguimiento Forense:"
     }
   },
-  "shared/composite-ui": {
-    "navigationPaths": {
-      "identity": "Identidad",
-      "transparency": "Transparencia",
-      "solidarity": "Ecosistema Solidario",
-      "press": "Noticias",
-      "complaint": "Denuncias"
+  "modules/reputation-engine": {
+    "logs": {
+      "INVALID_PULSE_STRUCTURE": "Violación de integridad estructural detectada en el pulso de evaluación.",
+      "SUBMISSION_NOMINAL": "Evaluación pública integrada con éxito en la red de confianza.",
+      "ANOMALY_DETECTED": "Anomalía detectada en el comportamiento de evaluación: posible automatización bloqueada."
     },
-    "actions": {
-      "donateCallToAction": "Dona Ahora",
-      "searchPlaceholder": "Buscar información...",
-      "mobileMenuToggle": "Alternar menú de navegación",
-      "reportEmergencyLabel": "Denuncia Urgente"
+    "errors": {
+      "REPUTATION_PULSE_ADN_CORRUPTO": "El ADN de la evaluación es inválido o está corrompido.",
+      "COMMENTARY_TOO_SHORT": "El comentario argumentativo debe tener al menos 10 caracteres.",
+      "COMMENTARY_EXCEEDS_MAXIMUM_LENGTH": "El comentario excede el límite técnico de 1000 caracteres."
     }
   },
-  "apps/frontpage": {
-    "hero": {
-      "badgeLabelLiteral": "Protección de Derechos Humanos",
-      "headlineMainLiteral": "Tecnología al servicio de la",
-      "headlineAccentLiteral": "dignidad humana",
-      "descriptionLiteral": "Plataforma de transparencia y acción social para la defensa de los ciudadanos en Florianópolis. Únete a la red que vigila y protege.",
-      "primaryActionLabelLiteral": "Apoyar la Causa",
-      "secondaryActionLabelLiteral": "Ver Noticias"
+  "modules/territorial-engine": {
+    "logs": {
+      "IBGE_CONNECTION_ERROR": "Fallo de conexión con los servidores de datos abiertos del IBGE.",
+      "SYNC_NOMINAL": "Sincronización territorial finalizada con éxito.",
+      "DATA_NORMALIZED": "Datos del IBGE convertidos al estándar de integridad institucional."
     },
-    "features": [
-      {
-        "identifier": "TRANSPARENCY",
-        "titleLiteral": "Transparencia Real",
-        "descriptionLiteral": "Datos abiertos y auditoría forense sobre las violaciones de derechos en la región."
-      },
-      {
-        "identifier": "ALERTS",
-        "titleLiteral": "Alertas de Impacto",
-        "descriptionLiteral": "Recibe información crítica sobre vulnerabilidades sociales en tiempo real."
-      },
-      {
-        "identifier": "ACTION",
-        "titleLiteral": "Acción Comunitaria",
-        "descriptionLiteral": "Conectamos donantes y voluntarios con las necesidades más urgentes de la ciudad."
-      }
-    ],
-    "newsletter": {
-      "sectionHeadlineLiteral": "Únete a nuestra red de protección.",
-      "sectionDescriptionLiteral": "Recibe actualizaciones soberanas sobre derechos humanos y transparencia directamente en tu correo electrónico."
+    "errors": {
+      "MUNICIPALITY_NOT_FOUND": "El municipio solicitado no ha sido identificado en la base del IBGE.",
+      "PERSISTENCE_FAULT": "Error al intentar grabar las entidades territoriales en la base de datos en la nube.",
+      "ADN_CORRUPTION": "El formato de datos devuelto por el IBGE es incompatible con el contrato actual."
     }
   }
 }

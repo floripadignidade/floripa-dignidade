@@ -1,23 +1,27 @@
 /**
  * @section Observatory Shell - Public Expenditure Page (Orchestrator)
- * @description Punto de acceso soberano para la auditoría de recursos públicos.
- * Coordina la captura de datos gubernamentales, la validación de autoridad
- * y el montaje del enjambre visual del dashboard forense.
+ * @description Punto de acceso institucional para la auditoría de recursos públicos.
+ * Coordina la verificación de acceso perimetral, la captura de datos fiscales gubernamentales,
+ * la auditoría de contratos lingüísticos y el montaje de los componentes del dashboard forense.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Swarm Intelligence.
- * SANEADO Zenith: Erradicación de 'any' (ESLint Fix), normalización del rastro
- * de error, blindaje de tipos bridados y sellado de flujo de retorno.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Mantenibilidad).
+ * SANEADO: Conexión canónica con data-ingestion-engine, inmunización de redirección perimetral
+ * y tipado estricto de retorno para React 19 / Next.js 16.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
+import React from 'react';
 import { notFound } from 'next/navigation';
 
-/* 1. Infraestructura Core & Routing (Sovereign Boundaries - Clean Paths) */
+/* 1. Infraestructura Core y Ruteo Institucional */
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  type OperationCode,
   ReportForensicException,
 } from '@floripa-dignidade/telemetry';
 
@@ -31,47 +35,45 @@ import {
   ValidateLinguisticContract,
 } from '@floripa-dignidade/routing';
 
-/* 2. Motores de Datos (PMF Domain - Redirección de ADN) */
-/**
- * 🛡️ NOTA SRE: Si el error TS2307 persiste tras esta limpieza, se debe a una
- * desincronización en el 'tsconfig.app.json' que corregiremos en el Paso 3.
- */
-import { SyncMunicipalityExpenditure } from '@floripa-dignidade/pmf-open-data-engine';
-import type { IPublicExpenditure } from '@floripa-dignidade/pmf-open-data-engine';
+/* 2. Contratos y Motores Canónicos de Datos Fiscales */
+import { SyncMunicipalityExpenditure } from '@floripa-dignidade/data-ingestion-engine';
+import type { IPublicExpenditure } from '@floripa-dignidade/contracts';
 
-/* 3. Enjambre Atómico Local (UI & Logic - Clean Paths) */
-import { ObservatoryI18nSchema } from '../i18n/ObservatoryI18n.schema.js';
-import { CalculateObservatoryMetrics } from './logic/CalculateObservatoryMetrics.js';
-import { ValidateObservatoryAccess } from './logic/ValidateObservatoryAccess.js';
-import { ExpenditureTable } from './components/ExpenditureTable.js';
-import { ObservatoryHeader } from './components/ObservatoryHeader.js';
-import { ObservatoryMetricsGrid } from './components/ObservatoryMetricsGrid.js';
+/* 3. Componentes y Lógica Local del Observatorio */
+import { ObservatoryI18nSchema } from '../i18n/ObservatoryI18n.schema';
+import { CalculateObservatoryMetrics } from './logic/CalculateObservatoryMetrics';
+import { ValidateObservatoryAccess } from './logic/ValidateObservatoryAccess';
+import { ExpenditureTable } from './components/ExpenditureTable';
+import { ObservatoryHeader } from './components/ObservatoryHeader';
+import { ObservatoryMetricsGrid } from './components/ObservatoryMetricsGrid';
 
-/** Identificador técnico del aparato para el Neural Sentinel. */
-const ORCHESTRATOR_IDENTIFIER = 'PUBLIC_EXPENDITURE_OBSERVATORY_SHELL';
+/** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
+const ORCHESTRATOR_IDENTIFIER = 'PUBLIC_EXPENDITURE_OBSERVATORY_SHELL' as ModuleIdentifier;
 
 /**
  * @interface IObservatoryPageProperties
- * @description Contrato inmutable para las propiedades de la ruta Next.js.
+ * @description Contrato inmutable para las propiedades de la ruta Next.js App Router.
+ * Sigue la norma ISO de Objeto + Propiedad + Representación.
  */
 interface IObservatoryPageProperties {
-  /** Promesa de parámetros de ruta (Next.js 16 Ready). */
+  /** Promesa asíncrona de parámetros de ruta (Next.js 16 Standard). */
   readonly params: Promise<{ readonly locale: string }>;
 }
 
 /**
- * Componente de Servidor principal del Observatorio (SSR).
- * Implementa el patrón "Data Fetching Guard" con RBAC Sentry integral.
+ * Componente de Servidor principal del Observatorio de Gastos Públicos (RSC).
+ * Implementa el patrón de acceso protegido con guardia de autoridad institucional.
  *
- * @param propertiesSnapshot - Snapshot de parámetros inyectado por el App Router.
+ * @param propertiesSnapshot - Snapshot inmutable de parámetros inyectados por el enrutador.
+ * @returns {Promise<React.JSX.Element>} Interfaz del observatorio renderizada en el servidor.
  */
 export default async function PublicExpenditureObservatoryPage(
   propertiesSnapshot: IObservatoryPageProperties,
-) {
+): Promise<React.JSX.Element> {
   const { locale: rawLocaleIdentifierLiteral } = await propertiesSnapshot.params;
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
-  // --- 1. ADUANA DE ADN LINGÜÍSTICO (Security Border) ---
+  // --- 1. VALIDACIÓN PERIMETRAL DE IDIOMA ---
   const localeValidationResultSnapshot = SupportedLocaleSchema.safeParse(rawLocaleIdentifierLiteral);
 
   if (!localeValidationResultSnapshot.success) {
@@ -80,50 +82,58 @@ export default async function PublicExpenditureObservatoryPage(
 
   const validatedLocaleIdentifierLiteral = localeValidationResultSnapshot.data;
 
-  try {
-    // --- 2. SEGURIDAD PERIMETRAL (RBAC Guard) ---
-    /** 🛡️ LEY ZENITH: Validación asíncrona mandatoria antes de la ingesta de datos. */
-    await ValidateObservatoryAccess(validatedLocaleIdentifierLiteral as string);
+  // --- 2. CONTROL DE ACCESO INSTITUCIONAL (RBAC Guard) ---
+  /**
+   * 🛡️ LEY DE FLUJO DE CONTROL SRE:
+   * Se ejecuta fuera del bloque try/catch para permitir que las señales de redirección
+   * perimetral (NEXT_REDIRECT) fluyan libremente sin ser capturadas como excepciones de falla.
+   */
+  await ValidateObservatoryAccess(validatedLocaleIdentifierLiteral);
 
-    // --- 3. CARGA DE ALMA LINGÜÍSTICA (Isomorphic Dictionary) ---
-    const rawDictionaryDataSnapshot = await import(`../i18n/${validatedLocaleIdentifierLiteral as string}.json`);
+  try {
+    // --- 3. CARGA DE DICCIONARIO LINGÜÍSTICO LOCALIZADO ---
+    const rawDictionaryDataSnapshot = await import(
+      `../i18n/${validatedLocaleIdentifierLiteral}.json`
+    );
 
     ValidateLinguisticContract(
       'OBSERVATORY_SHELL',
       ObservatoryI18nSchema,
       rawDictionaryDataSnapshot.default,
-      validatedLocaleIdentifierLiteral as string,
+      validatedLocaleIdentifierLiteral,
     );
 
     const linguisticDictionarySnapshot = rawDictionaryDataSnapshot.default;
 
-    // --- 4. CAPTURA DE DATOS GUBERNAMENTALES (Data Acquisition) ---
+    // --- 4. CAPTURA Y NORMALIZACIÓN DE PARTIDAS FISCALES ---
     const expenditureCollectionSnapshot: IPublicExpenditure[] = await SyncMunicipalityExpenditure({
       municipalitySlugLiteral: 'florianopolis',
       periodRange: {
         initialMonthYearLiteral: '01/2026',
         finalMonthYearLiteral: '04/2026',
       },
+      correlationIdentifier,
     });
 
-    // --- 5. INTELIGENCIA DE DASHBOARD (Aritmética Pura) ---
+    // --- 5. CÁLCULO DE INDICADORES DE RENDIMIENTO Y ANOMALÍAS ---
     const observatoryMetricsSnapshot = CalculateObservatoryMetrics(expenditureCollectionSnapshot);
 
-    // --- 6. REPORTE DE ÉXITO (SRE Visibility) ---
+    // --- 6. REPORTE DE TELEMETRÍA FORENSE (SRE Visibility) ---
     void EmitTelemetrySignal({
       occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'INFO',
       moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
-      operationCodeLiteral: 'FORENSIC_DASHBOARD_ASSEMBLED',
+      operationCodeLiteral: 'FORENSIC_DASHBOARD_ASSEMBLED' as OperationCode,
       correlationIdentifier,
-      messageContentLiteral: `Dashboard del observatorio montado para [${validatedLocaleIdentifierLiteral}].`,
+      messageContentLiteral: `Dashboard del observatorio montado nominalmente para [${validatedLocaleIdentifierLiteral}].`,
       semanticIntentTag: 'UI_OBSERVATORY_MOUNT',
       contextMetadataSnapshot: {
         recordCountQuantity: expenditureCollectionSnapshot.length,
+        localeIdentifierLiteral: validatedLocaleIdentifierLiteral,
       },
     });
 
-    // --- 7. ENSAMBLAJE VISUAL (Atomic Assembly) ---
+    // --- 7. ENSAMBLAJE VISUAL DE COMPONENTES ---
     return (
       <main className="min-h-screen bg-slate-50 p-4 md:p-8 lg:p-12 print:bg-white animate-in fade-in duration-1000">
         <ObservatoryHeader
@@ -145,38 +155,31 @@ export default async function PublicExpenditureObservatoryPage(
     );
 
   } catch (caughtError: unknown) {
-    /**
-     * @section Gestión de Resiliencia (SRE Exit)
-     * 🛡️ SANEADO Zenith (Fix no-explicit-any): Normalizamos el rastro desconocido.
-     */
+    // --- 8. GESTIÓN FORENSE DE RESILIENCIA ---
     const errorDescriptionLiteral = caughtError instanceof Error
       ? caughtError.message
       : 'UNKNOWN_OBSERVATORY_FAULT';
 
-    /**
-     * Transformamos el error en una excepción institucional para que el Neural Sentinel
-     * posea un contrato de datos íntegro.
-     */
     const normalizedException = caughtError instanceof GlobalBaseException
       ? caughtError
       : new InternalSystemException('OBSERVATORY_ORCHESTRATION_COLLAPSE', {
           originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier
+          correlationIdentifier,
         });
 
     void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'CRITICAL',
       moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
-      operationCodeLiteral: 'OBSERVATORY_FAULT_TRACE',
+      operationCodeLiteral: 'OBSERVATORY_FAULT_TRACE' as OperationCode,
       correlationIdentifier,
-      messageContentLiteral: 'Fallo crítico al intentar orquestar el observatorio de gastos.',
-      contextMetadataSnapshot: { ...normalizedException.runtimeContextSnapshot }
+      messageContentLiteral: 'Fallo crítico al intentar orquestar el observatorio de gastos públicos.',
+      semanticIntentTag: 'UI_OBSERVATORY_COLLAPSE',
+      contextMetadataSnapshot: { ...normalizedException.runtimeContextSnapshot },
     });
 
-    /** Reporte forense tipado (Zero-Any Compliance). */
     ReportForensicException(normalizedException, correlationIdentifier);
 
-    /** Saneamos el flujo de retorno para cumplir con TS7030. */
     return notFound();
   }
 }

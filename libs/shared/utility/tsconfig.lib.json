@@ -1,49 +1,61 @@
+/**
+ * @section Shared Utility - Library Compiler Infrastructure
+ * @description Manifiesto de verificación de tipos para la biblioteca de utilidades transversales y privacidad (LGPD).
+ * Rige bajo la doctrina Source-First (OEDP-V18.1), consumiendo directamente el código fuente
+ * de las librerías del monorepo a través del mapa de rutas unificado de tsconfig.base.json
+ * sin sobreingeniería de proyectos compuestos, emisión intermedia, baseUrl ni referencias a dist.
+ *
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
+ * SANEADO: Erradicación definitiva de baseUrl (ADR 0018), purga de punteros hacia
+ * dist/out-tsc (Fix TS2307), purga de referencias compuestas (Fix TS6306/TS6310) y
+ * desactivación total de composite/declaration (Fix TS6305).
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
+ */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../../dist/out-tsc/libs/shared/utility",
-    "tsBuildInfoFile": "../../../dist/out-tsc/libs/shared/utility/tsconfig.lib.tsbuildinfo",
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "rootDir": "src",
-    "noEmit": false,
-    "importHelpers": true,
-    "ignoreDeprecations": "5.0",
 
-    /* --- REDIRECCIÓN DE ADN MAESTRO --- */
-    "baseUrl": ".",
-    "paths": {
-      "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/environment-validator": [
-        "../../../dist/out-tsc/libs/core/environment-validator/index.d.ts"
-      ]
-    },
+    /* --- ESTRATEGIA SOURCE-FIRST: Auditoría de Fuentes Pura --- */
+    "composite": false,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
 
-    /* --- RESOLUCIÓN NEXT-GEN --- */
+    /* --- INTEGRIDAD DE RESOLUCIÓN (Standard Next-Gen) --- */
+    "target": "ES2022",
     "module": "Preserve",
     "moduleResolution": "bundler",
-    "resolvePackageJsonExports": true,
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
+    /* --- RIGOR DE IDENTIDAD (SRE Compliance) --- */
+    "ignoreDeprecations": "5.0",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* --- CONTEXTO DE EJECUCIÓN ISOMÓRFICO --- */
     "types": ["node"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-  "include": ["src/index.d.ts", "src/**/*.ts", "src/**/*.json"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json"
+  ],
   "exclude": [
     "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "jest.config.ts",
     "dist",
     "out-tsc",
     "node_modules",
     "../../../dist",
     "../../../node_modules"
   ],
-  "references": [
-    {
-      "path": "../../core/environment-validator/tsconfig.lib.json"
-    }
-  ]
+  "references": []
 }

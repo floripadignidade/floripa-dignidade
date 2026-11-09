@@ -1,18 +1,60 @@
+/**
+ * @section Shared Design System - Library Compiler Infrastructure
+ * @description Manifiesto de verificación de tipos para la biblioteca de diseño, tokens cromáticos y tipografía.
+ * Rige bajo la doctrina Source-First (OEDP-V18.1), consumiendo directamente el código fuente
+ * de las librerías del monorepo a través del mapa de rutas unificado de tsconfig.base.json
+ * sin sobreingeniería de proyectos compuestos, emisión intermedia ni referencias a dist.
+ *
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
+ * SANEADO: Erradicación definitiva de composite y emission (noEmit: true, composite: false),
+ * purga de rootDir e inyección de banderas canónicas de rigor estricto.
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
+ */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../../dist/out-tsc/libs/shared/design-system",
-    "tsBuildInfoFile": "../../../dist/out-tsc/libs/shared/design-system/tsconfig.lib.tsbuildinfo",
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "rootDir": "src",
-    "noEmit": false,
+
+    /* --- ESTRATEGIA SOURCE-FIRST: Auditoría de Fuentes Pura --- */
+    "composite": false,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+
+    /* --- INTEGRIDAD DE RESOLUCIÓN (Standard Next-Gen) --- */
+    "target": "ES2022",
     "module": "Preserve",
     "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+
+    /* --- RIGOR DE IDENTIDAD (SRE Compliance) --- */
+    "ignoreDeprecations": "5.0",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* --- CONTEXTO DE EJECUCIÓN VISUAL ISOMÓRFICO --- */
+    "types": [],
     "lib": ["ES2022", "DOM"]
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "jest.config.ts",
+    "dist",
+    "out-tsc",
+    "node_modules",
+    "../../../dist",
+    "../../../node_modules"
+  ],
+  "references": []
 }

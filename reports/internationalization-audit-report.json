@@ -1,0 +1,126 @@
+{
+  "generationTimestampISO": "2026-11-08T19:50:22.887Z",
+  "correlationIdentifier": "c515da26-d8af-4114-b584-9005056e653f",
+  "totalModulesProcessedQuantity": 15,
+  "auditTrail": [
+    {
+      "moduleIdentifierLiteral": "contracts/src",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\contracts\\src\\lib\\identity\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ]
+    },
+    {
+      "moduleIdentifierLiteral": "core/analytics",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\core\\analytics\\src\\lib\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ]
+    },
+    {
+      "moduleIdentifierLiteral": "core/environment-validator",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\core\\environment-validator\\src\\lib\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ]
+    },
+    {
+      "moduleIdentifierLiteral": "core/exceptions",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\core\\exceptions\\src\\lib\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ]
+    },
+    {
+      "moduleIdentifierLiteral": "core/telemetry",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\core\\telemetry\\src\\lib\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ]
+    },
+    {
+      "moduleIdentifierLiteral": "engines/adversarial-simulation-engine",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\engines\\adversarial-simulation-engine\\src\\lib\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ]
+    },
+    {
+      "moduleIdentifierLiteral": "engines/impact-analytics-engine",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\engines\\impact-analytics-engine\\src\\lib\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ]
+    },
+    {
+      "moduleIdentifierLiteral": "engines/search-engine",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\engines\\search-engine\\src\\lib\\i18n",
+      "processedLocalesCollection": []
+    },
+    {
+      "moduleIdentifierLiteral": "modules/interaction-engine",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\modules\\interaction-engine\\src\\lib\\i18n",
+      "processedLocalesCollection": []
+    },
+    {
+      "moduleIdentifierLiteral": "modules/messaging-engine",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\modules\\messaging-engine\\src\\lib\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ]
+    },
+    {
+      "moduleIdentifierLiteral": "modules/newsletter",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\modules\\newsletter\\src\\lib\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ]
+    },
+    {
+      "moduleIdentifierLiteral": "modules/reputation-engine",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\modules\\reputation-engine\\src\\lib\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ]
+    },
+    {
+      "moduleIdentifierLiteral": "modules/territorial-engine",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\modules\\territorial-engine\\src\\lib\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ]
+    },
+    {
+      "moduleIdentifierLiteral": "modules/whatsapp",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\modules\\whatsapp\\communication-service\\src\\lib\\i18n",
+      "processedLocalesCollection": []
+    },
+    {
+      "moduleIdentifierLiteral": "tools/src",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\tools\\src\\lib\\build-auditor\\i18n",
+      "processedLocalesCollection": []
+    }
+  ]
+}

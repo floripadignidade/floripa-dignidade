@@ -1,10 +1,10 @@
 {
-  "name": "@floripa-dignidade/pmf-open-data-engine",
+  "name": "@floripa-dignidade/data-ingestion-engine",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/modules/pmf-open-data-engine/src",
+  "sourceRoot": "libs/engines/data-ingestion-engine/src",
   "projectType": "library",
   "tags": [
-    "scope:modules",
+    "scope:engines",
     "type:data",
     "platform:isomorphic"
   ],
@@ -13,18 +13,18 @@
       "executor": "@nx/js:swc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/modules/pmf-open-data-engine",
-        "main": "libs/modules/pmf-open-data-engine/src/index.ts",
-        "tsConfig": "libs/modules/pmf-open-data-engine/tsconfig.lib.json",
+        "outputPath": "dist/libs/engines/data-ingestion-engine",
+        "main": "libs/engines/data-ingestion-engine/src/index.ts",
+        "tsConfig": "libs/engines/data-ingestion-engine/tsconfig.lib.json",
         "stripLeadingPaths": true
       },
       "cache": true
     },
     "typecheck": {
       "executor": "nx:run-commands",
-      "outputs": ["{workspaceRoot}/dist/out-tsc/libs/modules/pmf-open-data-engine"],
+      "outputs": ["{workspaceRoot}/dist/out-tsc/libs/engines/data-ingestion-engine"],
       "options": {
-        "command": "tsc -p libs/modules/pmf-open-data-engine/tsconfig.lib.json"
+        "command": "tsc -p libs/engines/data-ingestion-engine/tsconfig.lib.json"
       },
       "cache": true
     },

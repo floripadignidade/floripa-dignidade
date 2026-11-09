@@ -1,59 +1,46 @@
 /**
- * @section tscheck: Spec Emitter (QA Mirror Bunker)
- * @description Generador de ADN para archivos de prueba (.spec.ts). Orquesta la
- * visibilidad del motor de aserciones garantizando que las pruebas se ejecuten
- * contra las firmas físicas (.d.ts) de la capa de producción.
+ * @section Quality Assurance - Spec Compiler Infrastructure (QA Mirror)
+ * @description Manifiesto de verificación de tipos para archivos de prueba unitaria y de integración (.spec.ts).
+ * Rige bajo la doctrina Source-First (OEDP-V18.1), consumiendo directamente el código fuente
+ * de las librerías del monorepo a través del mapa de rutas unificado de tsconfig.base.json
+ * sin sobreingeniería de proyectos compuestos, emisión intermedia, baseUrl ni referencias a dist.
  *
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Implementación de Redirección de ADN Maestro para CI/CD
- * y blindaje de jurisdicción física.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
+ * SANEADO Zenith: Erradicación definitiva de baseUrl (ADR 0018), purga de punteros hacia
+ * dist/out-tsc (Fix TS2307), alineación al estándar noEmit: true y soporte JSX para React 19.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    /* --- ESTRATEGIA DE SALIDA ZENITH (Test Cache) --- */
     "outDir": "../dist/out-tsc/tests-spec",
 
-    /**
-     * 🛡️ LEY DE EMISIÓN:
-     * Para ser referenciado por el motor de Jest y Nx, este proyecto
-     * DEBE ser compuesto y emitir exclusivamente su ADN técnico.
-     */
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "noEmit": false,
+    /* --- ESTRATEGIA SOURCE-FIRST: Auditoría de Fuentes Pura --- */
+    "composite": false,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
 
-    /* --- RIGOR DE IDENTIDAD (SRE Compatibility) --- */
-    "ignoreDeprecations": "5.0",
-    "baseUrl": ".",
-
-    /* --- REDIRECCIÓN DE ADN MAESTRO (High Fidelity Testing) --- */
-    /**
-     * 🛡️ LEY DEL ESPEJO: Las pruebas no consumen los fuentes .ts de 'libs/'.
-     * Consumen las firmas .d.ts en 'dist/out-tsc' para asegurar que el
-     * contrato emitido sea íntegro y compatible con el despliegue final.
-     */
-    "paths": {
-      "@floripa-dignidade/exceptions": ["../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/telemetry": ["../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/environment-validator": ["../dist/out-tsc/libs/core/environment-validator/index.d.ts"],
-      "@floripa-dignidade/identity": ["../dist/out-tsc/libs/modules/identity/index.d.ts"],
-      "@floripa-dignidade/shared-utility": ["../dist/out-tsc/libs/shared/utility/index.d.ts"],
-      "@floripa-dignidade/shared-state-store": ["../dist/out-tsc/libs/shared/state-store/index.d.ts"]
-    },
-
-    /* --- RESOLUCIÓN NEXT-GEN --- */
+    /* --- INTEGRIDAD DE RESOLUCIÓN (Standard Next-Gen) --- */
+    "target": "ES2022",
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
+    /* --- RIGOR DE IDENTIDAD (SRE Compliance) --- */
+    "ignoreDeprecations": "5.0",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
+
     /* --- ADN DEL ENTORNO DE PRUEBAS --- */
-    "types": ["jest", "node", "react", "react-dom"],
+    "types": ["jest", "node", "react", "react-dom", "@testing-library/jest-dom"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
 
@@ -66,6 +53,10 @@
   "exclude": [
     "node_modules",
     "dist",
-    "../dist"
-  ]
+    "out-tsc",
+    "../dist",
+    "../node_modules"
+  ],
+
+  "references": []
 }

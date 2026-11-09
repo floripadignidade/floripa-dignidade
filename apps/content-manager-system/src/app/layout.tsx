@@ -1,52 +1,39 @@
 /**
  * @section CMS Infrastructure - Root Administrative Layout
- * @description Carcasa estructural primaria para el sistema de gestión de contenidos.
+ * @description Carcasa estructural primaria para el sistema de gestión de contenidos (CMS).
  * Proporciona el contexto global de renderizado y el soporte de hidratación para
- * Payload 3.0. Orquesta la inyección de fuentes institucionales y variables CSS.
+ * Payload 3.84. Orquesta la inyección de fuentes institucionales y variables CSS nativas.
  *
- * Protocolo OEDP-V17.0 - High Performance, Type Safety & Zero CLS.
- * SANEADO Zenith: Resolución de TS2304 (Parsing JSX Fault) mediante la reubicación
- * de metadatos descriptivos y delegación de inferencia de retorno.
+ * Protocolo OEDP-V18.1 - High Performance, Type Safety & Zero CLS.
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Calidad y Eficiencia).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import React from 'react';
-
-/**
- * 🛡️ LEY ZENITH (Fix TS7016):
- * Silenciamos la advertencia del compilador porque la librería existe físicamente,
- * pero la resolución de 'bundler' en PNPM estricto falla al localizar el .d.ts de Next.js.
- */
- - TS7016: Falla de resolución profunda de Next.js en entornos Nx/PNPM.
 import type { Metadata, Viewport } from 'next';
 
-/* 1. Infraestructura de Estilos (Global Reset) */
-/**
- * 🛡️ LEY ZENITH (Fix TS2882):
- * Suprimimos la alerta de módulo no encontrado para efectos secundarios CSS.
- */
-
+/* 1. Infraestructura de Estilos y Reseteo Global */
 import './global.css';
 
-/* 2. ADN Tipográfico (Separado para cumplimiento de SRP) */
+/* 2. Fundación Tipográfica Institucional */
 import {
   institutionalDisplayFontInstance,
-  institutionalSansFontInstance
+  institutionalSansFontInstance,
 } from './fonts';
 
 /**
  * @section Gobernanza de Metadatos
- * Define la identidad del búnker administrativo y bloquea el rastro de robots
- * para proteger la superficie de ataque institucional de la ONG.
+ * Define la identidad del panel administrativo y bloquea el rastro de motores de búsqueda
+ * para proteger la superficie de exposición institucional.
  */
 export const metadata: Metadata = {
   title: {
     template: '%s | Admin Floripa Dignidade',
     default: 'Painel de Controle | Floripa Dignidade',
   },
-  description: 'Infraestrutura soberana para a gestão de direitos humanos.',
+  description: 'Infraestrutura institucional para a gestão de direitos humanos.',
   icons: {
     icon: '/brand/favicon.ico',
   },
@@ -59,7 +46,7 @@ export const metadata: Metadata = {
 
 /**
  * @section Configuración de Viewport
- * Optimización de experiencia móvil para el panel de operadores de impacto.
+ * Optimización de experiencia móvil para operadores y auditores institucionales.
  */
 export const viewport: Viewport = {
   themeColor: '#003366', // Azul Hercules Institucional
@@ -69,31 +56,26 @@ export const viewport: Viewport = {
 
 /**
  * @interface IRootLayoutProperties
- * @description Contrato de propiedades inmutables para el layout administrativo.
+ * @description Contrato inmutable de propiedades para el layout administrativo.
  * Sigue la norma ISO de Objeto + Propiedad + Representación.
  */
 interface IRootLayoutProperties {
-  /** Colección de nodos hijos (Panel administrativo o rutas API de Payload). */
+  /** Colección de nodos hijos (Vistas del panel administrativo o rutas de API de Payload). */
   readonly children: React.ReactNode;
 }
 
 /**
  * Componente de diseño raíz para el Content Manager System.
- * Implementa el patrón "Sovereign Shell" inyectando el ADN visual en el DOM.
+ * Implementa la carcasa institucional inyectando las fuentes y variables CSS en el DOM.
  *
- * @param propertiesSnapshot - Snapshot de propiedades de renderizado inmutables.
+ * @param propertiesSnapshot - Snapshot inmutable de propiedades de renderizado.
+ * @returns {React.JSX.Element} Estructura HTML5 raíz del panel administrativo.
  */
 export default function RootLayout(
-  propertiesSnapshot: IRootLayoutProperties
-) {
+  propertiesSnapshot: IRootLayoutProperties,
+): React.JSX.Element {
   const { children } = propertiesSnapshot;
 
-  /**
-   * @section Inyección Soberana en el DOM
-   * 🛡️ SANEADO Zenith: Comentario ubicado fuera del bloque de retorno para
-   * asegurar que el parser reconozca inmediatamente el nodo JSX.
-   * 'pt-BR' se establece como lenguaje soberano del enjambre administrativo.
-   */
   return (
     <html
       lang="pt-BR"
@@ -101,7 +83,7 @@ export default function RootLayout(
       className={`${institutionalSansFontInstance.variable} ${institutionalDisplayFontInstance.variable}`}
     >
       <body className="antialiased min-h-screen bg-slate-50 text-slate-900 font-sans">
-        {/* 🛡️ RENDERIZADO DEL ENJAMBRE DE PAYLOAD */}
+        {/* Renderizado de vistas administrativas de Payload CMS */}
         {children}
       </body>
     </html>

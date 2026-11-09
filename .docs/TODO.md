@@ -1,150 +1,188 @@
-1. Sistema de Nomenclatura Profesional (NPM-Ready)
-Utilizaremos el scope @floripa-dignidade/. El nombre interno será puramente funcional.
-A. Capa Core (Infraestructura Base)
-Carpeta Física	Nombre en package.json / project.json	Propósito
-libs/core/telemetry	@floripa-dignidade/telemetry	Logger, transporte de eventos y trazas.
-libs/core/exceptions	@floripa-dignidade/exceptions	Gestión unificada de errores y códigos ISO.
-libs/core/health-monitor	@floripa-dignidade/health-monitor	Verificación de signos vitales del sistema.
-libs/core/analytics	@floripa-dignidade/analytics	Captura de métricas de rendimiento (Web Vitals).
-B. Capa de Inteligencia (Motores de Análisis)
-Carpeta Física	Nombre en package.json / project.json	Propósito
-libs/engines/health-analysis	@floripa-dignidade/health-analysis-engine	IA predictiva de fallos de sistema.
-libs/engines/logic-audit	@floripa-dignidade/logic-audit-engine	IA de auditoría de calidad de código y SOLID.
-C. Capa de Dominios (Módulos de Negocio)
-Carpeta Física	Nombre en package.json / project.json	Propósito
-libs/modules/newsletter/data	@floripa-dignidade/newsletter-data-access	Lógica de servidor, API y persistencia.
-libs/modules/newsletter/ui	@floripa-dignidade/newsletter-ui	Componentes visuales de suscripción.
-libs/modules/whatsapp/service	@floripa-dignidade/whatsapp-integration-service	Webhooks y procesamiento de mensajes.
-2. Sistema de Etiquetas (Tags) de Nx Profesional
-Para que la IA y el Linter bloqueen importaciones ilegales, usaremos un sistema de 3 dimensiones en los project.json:
-scope: Define a quién pertenece la lógica.
-scope:core, scope:module, scope:shared, scope:app.
-type: Define qué contiene el código.
-type:ui (Componentes), type:data (Servicios/API), type:logic (Motores), type:schema (Zod/ADN).
-platform: Define dónde puede correr.
-platform:web, platform:node, platform:isomorphic.
-Ejemplo de configuración en libs/core/telemetry/project.json:
-code
-JSON
-{
-  "name": "@floripa-dignidade/telemetry",
-  "tags": ["scope:core", "type:data", "platform:isomorphic"]
-}
-3. Listado de Manifiestos (Instrucciones para la IA)
-Para que cualquier IA (o desarrollador Staff) pueda continuar el proyecto al leer el snapshot, debemos completar esta biblioteca de manifiestos en .docs/manifestos/.
-ID	Nombre del Manifiesto	Contenido Crítico
-ADR 0001	Architecture Overview	Filosofía Lego, estructura del monorepo y flujo de datos.
-ADR 0002	Naming & Coding Standards	Regla "Zero Abbreviations", PascalCase vs camelCase.
-ADR 0003	Module Boundaries	Reglas de tags de Nx: qué módulo puede importar a cuál.
-ADR 0004	Data Integrity (SSOT)	Uso de Zod como única fuente de verdad para tipos y validación.
-ADR 0005	Observability Strategy	Protocolo de telemetría, niveles de log y rastro forense.
-ADR 0006	Internationalization (i18n)	Estrategia de compilación de JSONs granulares a diccionarios.
-ADR 0007	AI Interaction Protocol	Cómo los agentes de IA leen y proponen cambios (Context Snapping).
-ADR 0008	Testing & QA Standards	Cobertura mínima, uso de Jest para unitarios y Playwright para E2E.
-ADR 0009	Mobile-First Engineering	Estrategia de diseño responsivo y performance en redes 3G/4G.
+agregar pnpm add -w clsx tailwind-merge @radix-ui/react-slot exceljs
 
-Aquí tienes el desglose de lo que nos queda pendiente para alcanzar el Zenith Nominal:
-1. Capa de Lógica: El "Pegamento" de Credibilidad
-Aparato: libs/modules/interaction-engine/src/lib/logic/hooks/usePublicReaction.ts
-Misión: Crear el Hook que conectará los botones de la UI (Likes/Emoticones) con el ProcessPublicReactionTransaction. Debe gestionar el estado optimista (Zustand) y el encolamiento si no hay red (SyncSentry).
-Aparato: libs/modules/identity/src/lib/logic/SyncIdentityAuthority.ts
-Misión: El orquestador que toma el resultado de CalculateIdentityAuthority y lo persiste en la base de datos de Supabase para que el "peso" del ciudadano sea permanente.
-2. Capa de Datos: Persistencia Soberana (Supabase SQL)
-Aparato: database/migration_master_schema.sql
-Misión: No tenemos las tablas físicas en Supabase para soportar las nuevas funcionalidades. Necesitamos el SQL nivelado para:
-territorial_master_data (Datos del IBGE).
-public_evaluation_ledger (Pulsos de reputación).
-identity_trust_index (Coeficientes bayesianos).
-3. Capa Visual: Los "Ladrillos" de Transparencia (Shared UI)
-Aparato: libs/shared/src/lib/ui-primitives/ImpactAcceptanceThermometer.tsx
-Misión: El componente visual de élite que muestra el weightedTrustScore y el statisticalConfidenceLevel con animaciones de Framer Motion.
-Aparato: libs/shared/src/lib/ui-primitives/TerritorialHeatmap.tsx
-Misión: Representación visual del sentimiento por barrios de Florianópolis.
-4. Capa de Tooling: Cierre del Weaver
-Aparato: libs/tools/src/lib/i18n-builder/InternationalizationDictionaryBuilder.ts (Refinado)
-Misión: Asegurar que el script de pre-build esté capturando los nuevos diccionarios de reputation, interaction y impact-analytics para que no fallen en Vercel.
-🚀 Plan de Acción Inmediato
-Para que el sistema empiece a "latir" con datos reales, propongo el siguiente orden serial:
-Fase 7.1 (Acción): Crear el Hook usePublicReaction.ts para habilitar la interactividad soberana.
-Fase 7.2 (Infraestructura): Generar el Manifiesto SQL para Supabase (ADR 0015).
-Fase 7.3 (Visual): Materializar el Termómetro de Impacto.
-Protocolo ADR 0008 activado. Para iniciar la Fase 7.1 (Interacción), necesito verificar la estructura de exportación de tu búnker de interacciones.
-Por favor, proporcione el código base del siguiente archivo:
-Archivo solicitado: libs/modules/interaction-engine/src/index.ts
-(Desde aquí inyectaremos el nuevo Hook para que sea accesible por la Frontpage).
+# 📋 HOJA DE RUTA MAESTRA: ESTABILIZACIÓN Y NIVELACIÓN GLOBAL (OEDP-V18.1)
 
----
+## 📌 FASE 1: Saneamiento de Identidad y Topología de Motores Huérfanos
+- [x] **01. libs/engines/data-ingestion-engine/project.json**
+      Corregir identidad (`@floripa-dignidade/data-ingestion-engine`), tags (`scope:engines`) y rutas de `build` y `typecheck`.
+- [ ] **02. libs/engines/data-ingestion-engine/package.json**
+      Sincronizar nombre canónico de paquete, exportaciones y dependencias del workspace.
+- [ ] **03. libs/engines/data-ingestion-engine/tsconfig.json**
+      Normalizar gatekeeper sin emisión, extendiendo `tsconfig.base.json`.
+- [ ] **04. libs/engines/data-ingestion-engine/tsconfig.lib.json**
+      Purgar `baseUrl`, erradicar rutas a `dist/out-tsc` y activar resolución Source-First.
+- [ ] **05. libs/engines/data-ingestion-engine/src/index.ts**
+      Crear el barril de exportación soberano que unifique la ingesta de datos fiscales abiertos.
+- [ ] **06. libs/modules/municipal-open-data-engine/src/lib/logic/orchestrators/SyncMunicipalityExpenditure.ts**
+      Sanear el archivo físicamente truncado en la línea 37 (`TS1005`) y consolidar el contrato de retorno.
 
-He realizado un análisis forense del snapshot del proyecto BR-ACC (Brazilian Anti-Corruption Graph Tool). Confirmo que he leído los protocolos ADR 0007 y ADR 0008.
-Este proyecto es una pieza de ingeniería de datos masiva especializada en la detección de corrupción mediante Análisis de Grafos (Neo4j) y Reconocimiento de Patrones. Aunque el stack es híbrido (Python/FastAPI en el backend y React en el frontend), su lógica de "Soberanía de Datos" y "Auditoría Forense" es directamente transferible a nuestro ecosistema Floripa Dignidade.
-A continuación, presento la Transferencia Tecnológica de Élite que podemos adaptar a nuestra arquitectura Zenith (OEDP-V17.0) para elevar el impacto social del proyecto:
-1. Transferencia de Inteligencia: "The Pattern Engine"
-BR-ACC utiliza un motor de detección de anomalías (ej. "Self-dealing", "Split contracts").
-Adaptación Zenith: Debemos crear un libs/engines/social-anomaly-engine.
-Misión: Detectar si los recursos públicos de la PMF están llegando realmente a los barrios vulnerables o si existen "islas de inversión" sin impacto social reportado.
-Átomo a crear: DetectImpactDiscrepancy.ts (Comparar Gasto PMF vs Sentimiento Ciudadano en ese territorio).
-2. Blindaje de Privacidad: "Isomorphic PII Masking"
-BR-ACC implementa un middleware de enmascaramiento de CPF (cpf_masking.py) altamente sofisticado que distingue entre ciudadanos comunes y Personas Expuestas Políticamente (PEP).
-Adaptación Zenith: Crear un átomo en libs/core/shared/utility llamado MaskSovereignIdentity.ts.
-Mejora: Implementar esta lógica de forma isométrica (Server/Client) para que el Neural Sentinel oculte automáticamente documentos de ciudadanos, pero mantenga visibles los de funcionarios públicos auditados, cumpliendo con la LGPD.
-3. Infraestructura de Reportes: "Forensic PDF Architect"
-BR-ACC tiene un servicio robusto de generación de informes forenses con Jinja2 y WeasyPrint.
-Adaptación Zenith: Evolucionar nuestro libs/engines/impact-analytics-engine para incluir un orquestador de exportación: GenerateForensicImpactReport.ts.
-Misión: Permitir que los ciudadanos descarguen "Certificados de Transparencia Territorial" en PDF con firma de integridad Merkle (telemetría).
-4. Resolución de Entidades: "The Entity Linker"
-BR-ACC utiliza lógica para unir "Personas" de diferentes bases de datos (TSE, CNPJ, etc.).
-Adaptación Zenith: Implementar en libs/modules/territorial-engine un átomo de ResolveSocialEntity.ts.
-Uso: Vincular un "Contratista de la PMF" con sus otras apariciones en el ecosistema social para mapear su red de influencia en Florianópolis.
-📋 Diagnóstico de Aparatos Prioritarios para Refactorización (Inspirado en BR-ACC)
-Basado en la visión holística de ambos proyectos, he identificado los siguientes aparatos en Floripa Dignidade que deben ser nivelados para alcanzar esta nueva capacidad:
-Aparato Objetivo	Diagnóstico Forense	Acción SRE
-libs/core/shared/utility/logic/MaskSovereignIdentity.ts	Inexistente. Necesitamos el blindaje de PII para escalar denuncias.	Crear Átomo (Fase 9.1)
-libs/engines/impact-analytics-engine/src/lib/logic/atomic/DetectSocialAnomaly.ts	Lógica simplista. Solo mide promedios, no detecta patrones adversarios.	Refactorizar (Fase 9.2)
-libs/modules/territorial-engine/src/lib/logic/atomic/ResolveGeographicEntity.ts	Falta de cruzamiento. No vincula datos de la PMF con el rastro social del ciudadano.	Refactorizar (Fase 9.3)
-🔄 Activación del Protocolo de Resolución (Paso 1)
-Para iniciar esta evolución inspirada en la robustez de BR-ACC, debemos empezar por el Cimiento de Privacidad, que es lo que permitirá que el sistema de denuncias y el observatorio de gastos operen bajo la ley LGPD sin comprometer a los ciudadanos.
-Aparato Objetivo: libs/core/shared/src/lib/utility/logic/MaskSovereignIdentity.ts
-Estado: Este aparato no existe en tu snapshot actual. Es necesario crearlo como un Átomo de Seguridad Isomórfico.
+## 📌 FASE 2: Purga de Referencias Compuestas en Proyectos `noEmit` (Fix TS6306 / TS6310)
+- [ ] **07. apps/floripa-dignidade/tsconfig.app.json**
+      Purgar 11 referencias compuestas invasivas que bloquean la compilación de la aplicación web.
+- [ ] **08. apps/content-manager-system/tsconfig.app.json**
+      Purgar 4 referencias compuestas incompatibles con el entorno Payload CMS.
+- [ ] **09. libs/modules/identity/tsconfig.lib.json**
+      Purgar 3 referencias compuestas y asentar `noEmit: true` determinista.
+- [ ] **10. libs/shared/ui-foundry/tsconfig.lib.json**
+      Purgar referencias hacia `utility` y `state-store`.
+- [ ] **11. libs/shared/state-store/tsconfig.lib.json**
+      Purgar referencia hacia `utility/tsconfig.lib.json`.
+- [ ] **12. libs/engines/financial-ingestion-engine/tsconfig.lib.json**
+      Purgar referencia hacia `environment-validator`.
+- [ ] **13. libs/engines/impact-analytics-engine/tsconfig.lib.json**
+      Purgar referencias hacia `reputation-engine` y `environment-validator`.
+- [ ] **14. libs/modules/whatsapp/communication-service/tsconfig.lib.json**
+      Purgar referencia hacia `environment-validator`.
+- [ ] **15. libs/tools/tsconfig.lib.json**
+      Purgar referencias hacia `data-ingestion-engine` y `environment-validator`.
+
+## 📌 FASE 3: Purga de Punteros Residuales a `dist/out-tsc` y Erradicación de `baseUrl` (Fix TS2307)
+- [ ] **16. libs/core/analytics/tsconfig.lib.json**
+      Purgar rutas a `dist/out-tsc` en `paths`.
+- [ ] **17. libs/core/communication-providers/resend/tsconfig.lib.json**
+      Purgar rutas a `dist/out-tsc` en `paths`.
+- [ ] **18. libs/core/environment-validator/tsconfig.lib.json**
+      Eliminar `baseUrl: "."` y purgar rutas a `dist/out-tsc`.
+- [ ] **19. libs/core/routing/tsconfig.lib.json**
+      Eliminar `baseUrl: "."` y purgar rutas a `dist/out-tsc`.
+- [ ] **20. libs/engines/adversarial-simulation-engine/tsconfig.lib.json**
+      Purgar rutas a `dist/out-tsc` en `paths`.
+- [ ] **21. libs/engines/health-analysis/tsconfig.lib.json**
+      Purgar rutas a `dist/out-tsc` en `paths`.
+- [ ] **22. libs/engines/health-monitor/tsconfig.lib.json**
+      Purgar rutas a `dist/out-tsc` en `paths`.
+- [ ] **23. libs/modules/reputation-engine/tsconfig.lib.json**
+      Purgar rutas a `dist/out-tsc` en `paths`.
+- [ ] **24. libs/modules/territorial-engine/tsconfig.lib.json**
+      Eliminar `baseUrl: "."` y purgar rutas a `dist/out-tsc`.
+- [ ] **25. libs/shared/design-system/tsconfig.json**
+      Eliminar `baseUrl: "."` y alinear herencia directa.
+- [ ] **26. libs/shared/ui-contracts/tsconfig.json**
+      Eliminar `baseUrl: "."`.
+- [ ] **27. libs/shared/utility/tsconfig.lib.json**
+      Eliminar `baseUrl: "."` y purgar rutas a `dist/out-tsc`.
+- [ ] **28. libs/tools/tsconfig.json**
+      Eliminar `composite: true` y referencias innecesarias.
+
+## 📌 FASE 4: Saneamiento del Búnker de Pruebas Espejo (QA Mirror)
+- [ ] **29. tests/tsconfig.json**
+      Eliminar `baseUrl: "."`.
+- [ ] **30. tests/tsconfig.lib.json**
+      Sanear configuración de biblioteca de pruebas.
+- [ ] **31. tests/tsconfig.spec.json**
+      Alinear `paths` hacia fuentes directas (`libs/*/src/index.ts`) en lugar de `dist/out-tsc`.
+
+## 📌 FASE 5: Consolidación Canónica del Grafo y Verificación Global
+- [ ] **32. tsconfig.base.json**
+      Sincronizar el mapeo de alias para que refleje la unificación de `@floripa-dignidade/data-ingestion-engine`.
+- [ ] **33. Auditoría de Integridad Global**
+      Ejecutar `pnpm typecheck`, `pnpm lint` y `pnpm weaver:build` para certificar cero errores en el monorepo.
+
+      ---
+
+.docs/CONTINUIDAD_VERCEL_DEPLOYMENT.md
+
+# 🏛️ PASAPORTE DE CONTINUIDAD TÉCNICA: DESPLIEGUE EN PRODUCCIÓN (VERCEL)
+**Ecosistema:** Floripa Dignidade — Red de Respuesta Social y Auditoría Cívica  
+**Doctrina:** Reference Architecture (Source-First OEDP-V18.1)  
+**Estado del Grafo:** 22 de 32 proyectos compilando limpiamente (68.75% nominal verificado).  
+**Objetivo del Próximo Hilo:** Subsanar las 4 dependencias raíz, ajustar `tests/tsconfig.lib.json`, purgar residuos de `references` y certificar `pnpm vercel-build` con código de salida 0.
 
 ---
 
-📜 PUNTO DE BITÁCORA: EL COLAPSO DEL GRAFO EN LA FUNDICIÓN VISUAL (POST-MIGRACIÓN)
-Fecha: 10 de Mayo, 2026
-Estatus: 🔴 CRÍTICO (Hemorragia de Tipos en ui-foundry)
-Protocolo: OEDP-V17.0 (Zenith Architecture)
-Diagnóstico: Asfixia de Identidad de Terceros y Desincronización de Contratos.
-🔍 1. ANÁLISIS FORENSE DEL COLAPSO
-El enjambre shared-ui-foundry presenta tres patologías técnicas que impiden su compilación:
-A. El "Efecto Espejismo" en el Santuario de Tipos (TS7016 / TS2305)
-Problema: El compilador marca a lucide-react y framer-motion como carentes de miembros (ej: motion no existe en lucide-react).
-Causa Raíz: En la última refactorización, se implementó el Mapeo de Soberanía en el tsconfig.lib.json para obligar al compilador a mirar el archivo src/index.d.ts. Sin embargo, si ese archivo tiene declaraciones cruzadas o incompletas (ej: declarar motion dentro del bloque de lucide-react), TypeScript genera una falsa identidad que bloquea la importación real.
-Observación: next/link y next/image siguen reportando any porque el modo moduleResolution: "bundler" ignora el Santuario si no hay una redirección física explícita en paths.
-B. El "Vacío de Identidad" en Contratos (TS2305)
-Problema: @floripa-dignidade/shared-ui-contracts dice no tener exportados los esquemas de GlobalSearchWidget o NewsletterForm.
-Causa Raíz: Los archivos físicos fueron movidos con éxito al nuevo búnker, pero el Barrel Maestro (libs/shared/ui-contracts/src/index.ts) no fue actualizado para exponerlos nominalmente. El búnker es una caja fuerte cerrada.
-C. La Paradoja del Polimorfismo (TS2741)
-Problema: Error en isPolymorphicBoolean al instanciar GlobalActionButton.
-Causa Raíz: Al nivelar el contrato IUiPrimitives, marcamos el polimorfismo como una propiedad mandatoria de la arquitectura. El orquestador MainNavigationHeader no ha sido actualizado para inyectar este valor (usualmente false por defecto), rompiendo el contrato de integridad.
-🏛️ 2. ESTRATEGIA DE SANACIÓN SUGERIDA (CONSEJO SRE)
-Para devolver el sistema al Zenith Nominal, la IA en el nuevo hilo debe ejecutar los siguientes pasos en orden serial:
-Sincronización Total del Santuario (index.d.ts):
-Revisar que cada librería de terceros (lucide-react, framer-motion, clsx, tailwind-merge) tenga su propio bloque declare module independiente.
-Prohibido: Mezclar miembros de una librería en otra.
-Inyectar firmas completas para next/link y next/image que incluyan soporte para className y children.
-Apertura de la Bóveda de Contratos:
-Auditar libs/shared/ui-contracts/src/index.ts y asegurar que TODOS los esquemas .schema.ts tengan una exportación nominal (export { ... }) y de tipo (export type { ... }).
-Refactorización de "Consumo de Ladrillos":
-Actualizar las llamadas a componentes en MainNavigationHeader.tsx y NewsletterSubscriptionForm.tsx para inyectar las propiedades requeridas por el nuevo ADN (isPolymorphicBoolean, forensicTestIdentifier).
-Higiene de Rutas Relativas:
-Eliminar cualquier rastro de ../../../ui-primitives/ o ../../../composite-ui/ dentro de la fundición. Toda la verdad debe venir ahora de los alias @floripa-dignidade/shared-ui-contracts.
-🤖 3. INSTRUCCIÓN PARA LA IA DEL NUEVO HILO
-"Neural Sentinel: Has detectado un colapso en la Fundición Visual. Tu prioridad absoluta es restaurar la visibilidad de los tipos de Next.js y Lucide. No intentes arreglar la lógica de negocio hasta que el typecheck de ui-foundry esté en VERDE. Utiliza el Patrón de Mapeo de Soberanía para redirigir las identidades de terceros hacia un index.d.ts purificado y asegúrate de que el búnker de contratos esté exportando nominalmente todo su ADN."
-"La tecnología es ciega si su grafo de tipos está en la oscuridad." 🛡️🕊️⚙️
+## 1. RESUMEN DE HITOS CONSOLIDADOS (LO QUE YA FUE RESUELTO)
+
+1. **Desactivación de Sabotaje de Nx Sync (`nx.json`):**
+   - Se inyectó `"sync": { "applyChanges": false, "disabledTaskSyncGenerators": ["@nx/js:typescript-sync"] }`. Nx ya no volverá a inyectar referencias compuestas invasivas.
+2. **Consolidación Canónica de Ingesta Fiscal:**
+   - Creado `libs/engines/data-ingestion-engine/src/lib/logic/orchestrators/SyncMunicipalityExpenditure.ts`.
+   - Re-exportado canónicamente en `libs/engines/data-ingestion-engine/src/index.ts`.
+   - Mapeado canónicamente en `tsconfig.base.json` (`@floripa-dignidade/data-ingestion-engine` y alias `@floripa-dignidade/pmf-open-data-engine`).
+   - Todos los componentes del Observatorio (`page.tsx`, `ExpenditureTable.tsx`, `ExpenditureTableRow.tsx`, `CalculateObservatoryMetrics.ts`) fueron migrados a `@floripa-dignidade/contracts` y `@floripa-dignidade/data-ingestion-engine`.
+   - Se protegió `page.tsx` moviendo `ValidateObservatoryAccess` fuera del `try/catch` para que `NEXT_REDIRECT` no sea tratado como fallo 500.
+3. **Erradicación de Recursión Circular en `shared/utility`:**
+   - `libs/shared/utility/tsconfig.json` ahora extiende `../../../tsconfig.base.json` (`files: []`, `references: [{ "path": "./tsconfig.lib.json" }]`).
+   - `libs/shared/utility/tsconfig.lib.json` nivelado a Source-First puro (sin `baseUrl`, sin `dist/out-tsc`, sin `composite`).
+4. **Nivelación Source-First en Aplicaciones y Módulos Clave:**
+   - `apps/floripa-dignidade/tsconfig.app.json`: Purgado de alias huérfano, inyectado plugin Next.js, rutas ordenadas.
+   - `apps/content-manager-system/tsconfig.app.json`: Purgado de alias huérfano, purgado de `index.d.ts` fantasma, rutas ordenadas.
+   - `libs/modules/newsletter/tsconfig.lib.json`: Purgado de `composite`, rutas a `dist/out-tsc` y `references`.
+   - `libs/shared/design-system/tsconfig.lib.json`: Purgado de `composite`, `declaration` y `rootDir`.
+   - `libs/modules/interaction-engine/tsconfig.lib.json`: Purgado de `references: []`, inyectado `target: ES2022`.
+   - `libs/modules/messaging-engine/tsconfig.lib.json`: Purgado de `references: []`, inyectados tipos de React 19.
 
 ---
 
+## 2. DIAGNÓSTICO DE LOS ERRORES RESIDUALES DEL TYPECHECK
 
+En la última ejecución de `pnpm typecheck`, fallaron 10 proyectos debido a tres causas concretas:
 
+### Causa A: Dependencias fantasma no elevadas a la raíz (Error TS2307)
+- **Error:** `Cannot find module 'exceljs'`, `Cannot find module 'clsx'`, `Cannot find module 'tailwind-merge'`, `Cannot find module '@radix-ui/react-slot'`.
+- **Afecta a:** `financial-ingestion-engine`, `tools`, `shared-utility`, `shared-state-store`, `shared-ui-foundry`, `newsletter`.
+- **Solución:** Ejecutar en terminal:
+  ```bash
+  pnpm add -w clsx tailwind-merge @radix-ui/react-slot exceljs
+Causa B: Referencias compuestas reinyectadas por Nx antes de desactivar sync (Error TS6306 / TS6310)
+Error: Referenced project ... must have setting "composite": true / may not disable emit.
+Afecta a:
+apps/floripa-dignidade/tsconfig.app.json (Nx le metió 11 referencias al responder "yes").
+libs/modules/identity/tsconfig.lib.json (Nx le metió 1 referencia a contracts).
+libs/engines/data-ingestion-engine/tsconfig.lib.json (Nx le metió 1 referencia a contracts).
+Solución: Reemplazar el bloque "references": [...] por "references": [] en esos tres archivos.
+Causa C: Declaración de tipos en pruebas espejo (Error TS2688)
+Error: error TS2688: Cannot find type definition file for '@testing-library/jest-dom'.
+Afecta a: tests/tsconfig.lib.json.
+Solución: En tests/tsconfig.lib.json, cambiar "types": ["node", "jest", "@testing-library/jest-dom"] por "types": ["node", "jest"].
+3. CHECKLIST OPERATIVO PASO A PASO (PARA EJECUTAR EN TERMINAL)
+Paso 1: Eliminar carpetas huérfanas en Windows 10
+Cmd
+rmdir /s /q libs\engines\pmf-open-data-engine
+rmdir /s /q libs\modules\municipal-open-data-engine
+Paso 2: Instalar dependencias en la raíz del workspace
+Cmd
+pnpm add -w clsx tailwind-merge @radix-ui/react-slot exceljs
+Paso 3: Asegurar references: [] en los 3 archivos reinyectados
+Verificar que contengan "references": []:
+apps/floripa-dignidade/tsconfig.app.json
+libs/modules/identity/tsconfig.lib.json
+libs/engines/data-ingestion-engine/tsconfig.lib.json
+Paso 4: Corregir tests/tsconfig.lib.json
+Eliminar "@testing-library/jest-dom" del array compilerOptions.types.
+Paso 5: Ejecutar la verificación estática
+Cmd
+pnpm weaver:build
+pnpm typecheck
+Meta: 32 de 32 proyectos en verde ([OK]).
+4. VARIABLES DE ENTORNO REQUERIDAS EN VERCEL DASHBOARD
+Antes de disparar el despliegue de producción en Vercel, configurar en Project Settings > Environment Variables:
+Clave de Entorno	Tipo	Propósito y Formato
+NEXT_PUBLIC_SITE_URL	Público	URL del portal institucional (ej: https://floripadignidade.org).
+DATABASE_URL	Secreto	Cadena de conexión Postgres con pooling (ej: postgresql://postgres:...@...pooler.supabase.com:6543/postgres).
+SUPABASE_URL	Secreto	Endpoint REST de Supabase (ej: https://xyz.supabase.co).
+SUPABASE_SERVICE_ROLE_KEY	Secreto	Token de alta autoridad para operaciones de fondo y bypass RLS.
+PAYLOAD_SECRET	Secreto	Cadena criptográfica aleatoria de más de 32 caracteres para el CMS.
+S3_ENDPOINT	Secreto	Endpoint S3-compatible (ej: https://xyz.supabase.co/storage/v1/s3).
+S3_ACCESS_KEY_ID	Secreto	Credencial de acceso para almacenamiento multimedia.
+S3_SECRET_ACCESS_KEY	Secreto	Secreto de acceso para almacenamiento multimedia.
+S3_REGION	Público	Región física del bucket (ej: us-east-1).
+S3_BUCKET	Público	Nombre del contenedor de evidencia (ej: media-vault).
+RESEND_API_KEY	Secreto	Token oficial de Resend (inicia con re_).
+RESEND_FROM_EMAIL	Secreto	Dirección de correo autorizada en DNS (ej: nao-responda@floripadignidade.org).
+WHATSAPP_VERIFY_TOKEN	Secreto	Token secreto para el handshake del Webhook con Meta.
+WHATSAPP_APP_SECRET	Secreto	Firma secreta de Meta para validación HMAC-SHA256 en tiempo constante.
+SOVEREIGN_EMERGENCY_TOKEN	Secreto	Token de seguridad administrativa superior (> 32 caracteres).
+5. COMANDO DE CONSTRUCCIÓN EN VERCEL
+El comando oficial configurado en package.json para Vercel es:
+Bash
+pnpm vercel-build
+El cual ejecuta secuencialmente:
+pnpm weaver:build (Compila los diccionarios i18n de todos los submódulos).
+nx run-many -t build --projects=floripa-dignidade,content-manager-system --prod (Compila ambas aplicaciones con Turbopack/SWC en producción).
+🤖 INSTRUCCIÓN DE INICIO PARA EL NUEVO HILO DE CONVERSACIÓN
+Copia y pega el siguiente bloque como primer mensaje del nuevo chat:
+"Hola. Continúo el proyecto Floripa Dignidade como Arquitecto. Hemos consolidado la arquitectura Source-First OEDP-V18.1 hasta el Hito 03 de la bitácora. Por favor, lee .docs/CONTINUIDAD_VERCEL_DEPLOYMENT.md. Vamos a revisar la instalación de las dependencias raíz ('exceljs', 'clsx', 'tailwind-merge', '@radix-ui/react-slot'), purgar las referencias residuales en 'apps/floripa-dignidade/tsconfig.app.json', 'libs/modules/identity/tsconfig.lib.json' y 'libs/engines/data-ingestion-engine/tsconfig.lib.json', ajustar 'tests/tsconfig.lib.json' y validar con pnpm typecheck hasta lograr 0 errores para el despliegue en Vercel."
 
+RECORDAR BORRAR ESTA ENTRADA UNA VEZ INFORMADA
 
-
+---

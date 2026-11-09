@@ -1,29 +1,30 @@
+// libs/modules/identity/tsconfig.lib.json
+
 /**
  * @section User Management & Identity - Compiler Infrastructure
- * @description Manifiesto de validación para el motor de tipos del búnker de identidad.
- * Implementa la doctrina OEDP-V18.1: eliminación de restricciones de rootDir
- * para permitir la resolución nativa de dependencias cruzadas entre búnkeres.
+ * @description Manifiesto de verificación de tipos para el módulo de identidad y acceso institucional.
+ * Rige bajo la doctrina Source-First (OEDP-V18.1), consumiendo directamente el código fuente
+ * de las librerías del monorepo a través del mapa de rutas unificado de tsconfig.base.json
+ * sin sobreingeniería de proyectos compuestos ni bloqueos de emisión.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Seguridad).
+ *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../../dist/out-tsc/libs/modules/identity",
 
-    /* --- ESTRATEGIA ZENITH: Cero Sobreingeniería --- */
+    /* --- ESTRATEGIA SOURCE-FIRST: Auditoría de Fuentes Pura --- */
     "composite": false,
     "noEmit": true,
     "declaration": false,
     "declarationMap": false,
 
     /* --- INTEGRIDAD DE RESOLUCIÓN (Standard Next-Gen) --- */
-    /**
-     * 🛡️ SOLUCIÓN TS6059: Se elimina 'rootDir: src'.
-     * El compilador ahora utiliza la base del monorepo como punto de anclaje,
-     * permitiendo la visibilidad de los paths definidos en tsconfig.base.json.
-     */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
@@ -35,7 +36,7 @@
     "skipLibCheck": true,
     "strict": true,
 
-    /* --- ADN DEL ENTORNO (Isomorphic Identity Context) --- */
+    /* --- CONTEXTO DE EJECUCIÓN ISOMÓRFICO --- */
     "types": ["node"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
@@ -52,13 +53,7 @@
   ],
   "references": [
     {
-      "path": "../../shared/utility/tsconfig.lib.json"
-    },
-    {
       "path": "../../contracts"
-    },
-    {
-      "path": "../../core/environment-validator/tsconfig.lib.json"
     }
   ]
 }

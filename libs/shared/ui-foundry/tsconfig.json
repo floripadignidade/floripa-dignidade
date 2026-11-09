@@ -1,40 +1,25 @@
 /**
  * @section Shared UI Foundry - Configuration Gatekeeper
  * @description Orquestador de la frontera física del búnker de construcción visual.
- * Actúa como el pasaporte de visibilidad para el IDE y el motor de tipos,
- * delegando la emisión física de ADN al contrato 'tsconfig.lib.json'.
+ * Actúa como el pasaporte de visibilidad e índice para el motor de tipos y el IDE,
+ * rigiéndose bajo el estándar de verificación sobre fuentes directas (Source-First).
  *
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * 🛡️ LEY DEL GATEKEEPER: Protege la jurisdicción de origen prohibiendo emisiones locales.
- * SANEADO Zenith: Erradicación del rastro fantasma 'next-env.d.ts' (Fix TS6053).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * SANEADO Zenith: Erradicación definitiva del error TS6053 mediante la purga del archivo
+ * fantasma 'src/index.d.ts' y erradicación de TS6306/TS6310 eliminando referencias
+ * compuestas inválidas en un entorno 'noEmit: true'.
  *
- * @author Neural Sentinel (IA) en colaboración con Raz Podestá
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "composite": false,
     "noEmit": true,
-
-    /**
-     * 🛡️ RIGOR DE IDENTIDAD (SRE Compliance):
-     * Elevamos el nivel de supresión a '6.0' para neutralizar la advertencia
-     * de 'baseUrl' y preparar el búnker para la migración a TypeScript 7.0.
-     */
     "ignoreDeprecations": "5.0"
   },
-  /**
-   * @section Inclusión de ADN Ambiental
-   * SANEADO Zenith: Registramos exclusivamente el Santuario de Tipos real.
-   * La visibilidad de Next.js se gestiona mediante referencias en 'src/index.d.ts'.
-   */
-  "files": [
-    "src/index.d.ts"
-  ],
+  "files": [],
   "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.lib.json"
-    }
-  ]
+  "references": []
 }

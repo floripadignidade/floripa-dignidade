@@ -1,58 +1,51 @@
+// libs/engines/impact-analytics-engine/tsconfig.lib.json
+
 /**
- * @section tsconfig: Emitter (Impact Analytics Engine)
- * @description Generador de ADN (.d.ts) con redirección física de Grafo.
- * Orquesta la emisión de tipos para el cerebro estadístico, garantizando
- * el aislamiento total de los dominios de negocio (ADR 0003).
+ * @section Impact Analytics Engine - Compiler Infrastructure
+ * @description Manifiesto de verificación de tipos para el motor de analítica de impacto social.
+ * Implementa la doctrina Source-First (OEDP-V18.1), consumiendo dependencias directamente
+ * desde las fuentes TypeScript a través del mapa de rutas institucional de tsconfig.base.json
+ * sin sobreingeniería de proyectos compuestos ni bloqueos de emisión.
  *
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Erradicación de dependencia ilegal sobre 'reputation-engine'.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    /* --- ESTRATEGIA DE SALIDA ZENITH (Flattened Output) --- */
     "outDir": "../../../dist/out-tsc/libs/engines/impact-analytics-engine",
-    "tsBuildInfoFile": "../../../dist/out-tsc/libs/engines/impact-analytics-engine/tsconfig.lib.tsbuildinfo",
 
-    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "rootDir": "src",
-    "noEmit": false,
-    "importHelpers": true,
-    "ignoreDeprecations": "5.0",
+    /* --- ESTRATEGIA SOURCE-FIRST: Auditoría de Fuentes Pura --- */
+    "composite": false,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
 
-    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6059 / TS6305) --- */
-    /**
-     * 🛡️ LEY DEL ENJAMBRE: El motor consume solo infraestructura CORE.
-     * Se elimina el acceso a la capa de MODULES para preservar la pureza algorítmica.
-     */
-    "baseUrl": ".",
-    "paths": {
-      "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/environment-validator": [
-        "../../../dist/out-tsc/libs/core/environment-validator/index.d.ts"
-      ]
-    },
-
-    /* --- RESOLUCIÓN NEXT-GEN (Alineación Next.js 16+) --- */
+    /* --- INTEGRIDAD DE RESOLUCIÓN (Standard Next-Gen) --- */
+    "target": "ES2022",
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
-    /* --- ADN DEL ENTORNO (Isomorphic Math Context) --- */
-    "types": [],
+    /* --- RIGOR DE IDENTIDAD (SRE Compliance) --- */
+    "ignoreDeprecations": "5.0",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* --- CONTEXTO DE EJECUCIÓN ISOMÓRFICO --- */
+    "types": ["node"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-
-  "include": ["src/**/*.ts", "src/**/*.json"],
-
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json"
+  ],
   "exclude": [
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
@@ -63,17 +56,5 @@
     "../../../dist",
     "../../../node_modules"
   ],
-
-  /**
-   * @section Grafo de Referencias Soberanas
-   * Mantiene el vínculo físico exclusivamente con la capa inferior (CORE).
-   */
-  "references": [
-    {
-      "path": "../../modules/reputation-engine/tsconfig.lib.json"
-    },
-    {
-      "path": "../../core/environment-validator/tsconfig.lib.json"
-    }
-  ]
+  "references": []
 }

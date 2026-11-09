@@ -1,73 +1,53 @@
 /**
- * @section Application Edge Middleware - Sovereign Swarm Entry Point
+ * @section Application Edge Middleware - Edge Routing Interceptor
  * @description Puerta de enlace primaria para el ecosistema Floripa Dignidade.
- * Activa el enjambre de sensores cognitivos en el Edge de Vercel para gestionar
- * la localización, la seguridad anti-bot y la trazabilidad forense inalterable.
+ * Intercepta el tráfico en el Edge Runtime de Vercel para coordinar la localización,
+ * la seguridad perimetral y la trazabilidad forense inalterable (Correlation ID).
  *
- * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Resolución de TS7016 (Next.js Server Bridge), erradicación de
- * tipos implícitos y normalización de rastro de configuración ISO.
+ * Protocolo OEDP-V18.1 - High Performance SRE & Edge Routing Integrity.
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Calidad y Eficiencia).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-/**
- * 🛡️ LEY DE SOBERANÍA (Fix TS7016):
- * Suprimimos la alerta del compilador para los orquestadores de servidor.
- * La integridad estructural de 'NextRequest' y 'NextResponse' está garantizada
- * por el Santuario de Tipos 'index.d.ts' de la aplicación.
- */
- - TS7016: Falla de resolución profunda de Next.js 16 en entornos monorepo.
 import { NextResponse } from 'next/server';
- - TS7016: Puente de identidad para la solicitud entrante.
 import type { NextRequest } from 'next/server';
 
-/* 1. Motores de Ruteo (Sovereign Routing Swarm - Clean Paths) */
+/* 1. Orquestación de Ruteo e Infraestructura Perimetral */
 import { GlobalRequestOrchestrator } from '@floripa-dignidade/routing';
 
 /**
- * Manejador de Middleware Soberano.
- * Actúa como el sensor de hardware primario en la frontera de la nube (Vercel Edge).
+ * Manejador principal de intercepción de borda (Next.js Edge Middleware).
+ * Actúa como sensor primario en la frontera de red antes del renderizado de páginas.
  *
- * @param incomingRequestSnapshot - Objeto de solicitud nativo capturado por el Runtime.
- * @returns {Promise<NextResponse>} Respuesta procesada, redirigida o autorizada.
+ * @param incomingRequestSnapshot - Solicitud física entrante capturada por el Edge Runtime.
+ * @returns {Promise<NextResponse>} Respuesta procesada, redirigida o autorizada para el App Router.
  */
 export async function middleware(
-  incomingRequestSnapshot: NextRequest
+  incomingRequestSnapshot: NextRequest,
 ): Promise<NextResponse> {
-
   /**
-   * @section Saneamiento de Identidad de Tipo (Sovereign Bridge)
-   * 🛡️ LEY ZENITH: Erradicado el uso de 'any'.
-   * Se utiliza un casting doble (unknown -> target) para asegurar la
-   * interoperabilidad entre el búnker de aplicación y la librería de ruteo,
-   * manteniendo el rigor del compilador sobre el objeto 'NextRequest'.
+   * @section Delegación al Orquestador Perimetral
+   * El orquestador aplica las políticas de soberanía lingüística, auditoría
+   * de agentes automatizados y emisión de identificadores de correlación forense.
    */
-  const authorizedRequestSnapshot = incomingRequestSnapshot as unknown as NextRequest;
-
-  /**
-   * DELEGACIÓN AL ENJAMBRE DE SENSORES:
-   * El orquestador aplicará las políticas de soberanía lingüística,
-   * auditoría de agentes automatizados (Bots) y rastro de sangre digital.
-   */
-  return await GlobalRequestOrchestrator(authorizedRequestSnapshot);
+  return await GlobalRequestOrchestrator(incomingRequestSnapshot);
 }
 
 /**
- * @section Gobernanza de Radio de Acción (Routing Matcher)
- * Define las fronteras físicas donde el Neural Sentinel no debe intervenir
- * para optimizar el rendimiento y preservar activos estáticos inmutables.
+ * @section Gobernanza de Radio de Acción (Routing Matcher Configuration)
+ * Define las fronteras de red donde el interceptor no debe ejecutarse,
+ * optimizando el consumo de cómputo en el Edge y preservando activos estáticos.
  */
 export const config = {
   /**
-   * Filtro de Intercepción de Red:
-   * Excluye explícitamente:
-   * - /api/*: Rutas de comunicación de datos internos.
-   * - /_next/*: Rastro técnico de compilación e imágenes optimizadas.
-   * - /brand/*: Activos de identidad institucional.
-   * - Extensiones binarias: Multimedia (.svg, .png, .webp, etc).
-   * - robots.txt: Manifiesto de buscadores.
+   * Filtro de exclusión perimetral:
+   * - /api/*: Rutas de comunicación de datos internos (Data Lake / Webhooks).
+   * - /_next/*: Rastro técnico de compilación, chunks y optimización de imágenes.
+   * - /brand/*: Activos estáticos de identidad institucional.
+   * - Extensiones binarias: Activos multimedia (.svg, .png, .jpg, .jpeg, .webp).
+   * - /robots.txt: Manifiesto institucional para rastreadores de búsqueda.
    */
   matcher: [
     '/((?!api|_next/static|_next/image|brand|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp)$|robots.txt).*)',

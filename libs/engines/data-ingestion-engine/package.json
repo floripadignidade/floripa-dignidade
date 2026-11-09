@@ -1,8 +1,8 @@
 {
-  "name": "@floripa-dignidade/pmf-open-data-engine",
+  "name": "@floripa-dignidade/data-ingestion-engine",
   "version": "1.2.1",
   "private": true,
-  "description": "ISO-Standard: Bunker de Inteligencia de Datos Abiertos y Auditoria Fiscal de la PMF.",
+  "description": "Motor de ingestión, normalización y auditoría de datos abiertos gubernamentales e indicadores de gasto público.",
   "type": "module",
   "sideEffects": false,
   "author": "Raz Podesta - MetaShark Tech",
@@ -15,6 +15,7 @@
     }
   },
   "dependencies": {
+    "@floripa-dignidade/contracts": "workspace:*",
     "@floripa-dignidade/environment-validator": "workspace:*",
     "@floripa-dignidade/exceptions": "workspace:*",
     "@floripa-dignidade/telemetry": "workspace:*",
@@ -24,7 +25,7 @@
   },
   "nx": {
     "tags": [
-      "scope:modules",
+      "scope:engines",
       "type:data",
       "platform:isomorphic"
     ]

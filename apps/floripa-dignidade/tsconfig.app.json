@@ -1,3 +1,18 @@
+/**
+ * @section Application Shell - TypeScript Compiler Configuration
+ * @description Manifiesto de verificación de tipos para el Portal Ciudadano Floripa Dignidade.
+ * Rige bajo la doctrina Source-First (OEDP-V18.1), consumiendo directamente el código fuente
+ * de las librerías del monorepo a través del mapa de rutas institucional sin sobreingeniería
+ * de proyectos compuestos ni bloqueos de emisión.
+ *
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
+ * SANEADO: Erradicación del alias huérfano pmf-open-data-engine, inyección del plugin oficial
+ * de Next.js 16 para App Router y ordenamiento alfabético determinista de rutas.
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
+ */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
@@ -11,52 +26,104 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
+    "verbatimModuleSyntax": true,
     "incremental": true,
-    /* 🛡️ SANEADO: La coma final fue eliminada. Se inyectan tipos globales de Next.js */
     "types": ["node", "next", "react", "react-dom"],
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "paths": {
       "@/*": ["./src/*"],
-      "@floripa-dignidade/*": ["../../libs/*/src/index.ts"]
+      "@floripa-dignidade/adversarial-simulation-engine": [
+        "../../libs/engines/adversarial-simulation-engine/src/index.ts"
+      ],
+      "@floripa-dignidade/analytics": ["../../libs/core/analytics/src/index.ts"],
+      "@floripa-dignidade/contracts": ["../../libs/contracts/src/index.ts"],
+      "@floripa-dignidade/data-ingestion-engine": [
+        "../../libs/engines/data-ingestion-engine/src/index.ts"
+      ],
+      "@floripa-dignidade/environment-validator": [
+        "../../libs/core/environment-validator/src/index.ts"
+      ],
+      "@floripa-dignidade/exceptions": ["../../libs/core/exceptions/src/index.ts"],
+      "@floripa-dignidade/financial-ingestion-engine": [
+        "../../libs/engines/financial-ingestion-engine/src/index.ts"
+      ],
+      "@floripa-dignidade/health-analysis-engine": [
+        "../../libs/engines/health-analysis/src/index.ts"
+      ],
+      "@floripa-dignidade/health-monitor": ["../../libs/engines/health-monitor/src/index.ts"],
+      "@floripa-dignidade/identity": ["../../libs/modules/identity/src/index.ts"],
+      "@floripa-dignidade/impact-analytics-engine": [
+        "../../libs/engines/impact-analytics-engine/src/index.ts"
+      ],
+      "@floripa-dignidade/interaction-engine": [
+        "../../libs/modules/interaction-engine/src/index.ts"
+      ],
+      "@floripa-dignidade/messaging-engine": ["../../libs/modules/messaging-engine/src/index.ts"],
+      "@floripa-dignidade/newsletter": ["../../libs/modules/newsletter/src/index.ts"],
+      "@floripa-dignidade/reputation-engine": ["../../libs/modules/reputation-engine/src/index.ts"],
+      "@floripa-dignidade/resend-provider": [
+        "../../libs/core/communication-providers/resend/src/index.ts"
+      ],
+      "@floripa-dignidade/routing": ["../../libs/core/routing/src/index.ts"],
+      "@floripa-dignidade/search-engine": ["../../libs/engines/search-engine/src/index.ts"],
+      "@floripa-dignidade/shared-design-system": ["../../libs/shared/design-system/src/index.ts"],
+      "@floripa-dignidade/shared-state-store": ["../../libs/shared/state-store/src/index.ts"],
+      "@floripa-dignidade/shared-ui-contracts": ["../../libs/shared/ui-contracts/src/index.ts"],
+      "@floripa-dignidade/shared-ui-foundry": ["../../libs/shared/ui-foundry/src/index.ts"],
+      "@floripa-dignidade/shared-utility": ["../../libs/shared/utility/src/index.ts"],
+      "@floripa-dignidade/social-media": ["../../libs/modules/social-media/src/index.ts"],
+      "@floripa-dignidade/telemetry": ["../../libs/core/telemetry/src/index.ts"],
+      "@floripa-dignidade/territorial-engine": [
+        "../../libs/modules/territorial-engine/src/index.ts"
+      ],
+      "@floripa-dignidade/tools": ["../../libs/tools/src/index.ts"],
+      "@floripa-dignidade/whatsapp-communication-service": [
+        "../../libs/modules/whatsapp/communication-service/src/index.ts"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "index.d.ts", "src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules", "dist", ".next"],
+  "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", "dist", "out-tsc", ".next"],
   "references": [
     {
-      "path": "../../libs/modules/identity"
+      "path": "../../libs/engines/data-ingestion-engine"
     },
     {
-      "path": "../../libs/engines/data-ingestion-engine/tsconfig.lib.json"
+      "path": "../../libs/contracts"
     },
     {
       "path": "../../libs/shared/ui-contracts"
     },
     {
-      "path": "../../libs/modules/whatsapp/communication-service/tsconfig.lib.json"
+      "path": "../../libs/modules/whatsapp/communication-service"
     },
     {
       "path": "../../libs/core/telemetry"
     },
     {
+      "path": "../../libs/shared/utility"
+    },
+    {
       "path": "../../libs/shared/ui-foundry"
     },
     {
-      "path": "../../libs/shared/state-store/tsconfig.lib.json"
+      "path": "../../libs/shared/state-store"
     },
     {
-      "path": "../../libs/shared/utility/tsconfig.lib.json"
+      "path": "../../libs/core/routing"
     },
     {
-      "path": "../../libs/core/routing/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/modules/newsletter/tsconfig.lib.json"
+      "path": "../../libs/modules/newsletter"
     },
     {
       "path": "../../libs/core/exceptions"
     },
     {
-      "path": "../../libs/core/environment-validator/tsconfig.lib.json"
+      "path": "../../libs/core/environment-validator"
     }
   ]
 }

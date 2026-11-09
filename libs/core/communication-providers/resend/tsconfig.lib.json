@@ -1,45 +1,63 @@
 /**
- * @section tsconfig: Emitter
- * @description Generador de ADN (.d.ts) con profundidad de 4 niveles hacia dist.
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * @section Communication Providers - Resend Compiler Infrastructure
+ * @description Manifiesto de verificación de tipos para el búnker de integración transaccional Resend.
+ * Rige bajo la doctrina Source-First (OEDP-V18.1), consumiendo directamente el código fuente
+ * de las librerías del monorepo a través del mapa de rutas unificado de tsconfig.base.json
+ * sin sobreingeniería de proyectos compuestos, emisión intermedia ni referencias a dist.
+ *
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
+ * SANEADO Zenith: Erradicación definitiva de TS2307 purgando los punteros hacia dist/out-tsc,
+ * desactivación de composite/declaration y alineación estricta al estándar noEmit: true.
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../../../dist/out-tsc/libs/core/communication-providers/resend",
-    "tsBuildInfoFile": "../../../../dist/out-tsc/libs/core/communication-providers/resend/tsconfig.lib.tsbuildinfo",
 
-    /* --- Integridad Soberana --- */
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "rootDir": "src",
-    "noEmit": false,
+    /* --- ESTRATEGIA SOURCE-FIRST: Auditoría de Fuentes Pura --- */
+    "composite": false,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
 
-    /* --- Redireccion de ADN (Solucion TS6059) --- */
-    "paths": {
-      "@floripa-dignidade/exceptions": ["../../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/telemetry": ["../../../../dist/out-tsc/libs/core/telemetry/index.d.ts"]
-    },
-
-    /* --- Resolucion Next-Gen --- */
+    /* --- INTEGRIDAD DE RESOLUCIÓN (Standard Next-Gen) --- */
+    "target": "ES2022",
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
+    /* --- RIGOR DE IDENTIDAD (SRE Compliance) --- */
+    "ignoreDeprecations": "5.0",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* --- ADN DEL ENTORNO (Node.js & Fetch Context) --- */
     "types": ["node"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-  "include": ["src/**/*.ts", "src/**/*.json"],
+
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json"
+  ],
+
   "exclude": [
     "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "jest.config.ts",
     "dist",
     "out-tsc",
     "node_modules",
     "../../../../dist",
     "../../../../node_modules"
   ],
+
   "references": []
 }

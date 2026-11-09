@@ -1,46 +1,48 @@
+// libs/engines/financial-ingestion-engine/tsconfig.lib.json
+
 /**
- * @section tsconfig: Emitter (Financial Ingestion Engine)
- * @description Generador de ADN (.d.ts) con redirección física de Grafo.
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Mapeo de soberanía para 'exceljs' y resolución de TS7016.
+ * @section Financial Ingestion Engine - Compiler Infrastructure
+ * @description Manifiesto de verificación de tipos para el motor de extracción presupuestaria.
+ * Implementa la doctrina Source-First (OEDP-V18.1), consumiendo dependencias directamente
+ * desde las fuentes TypeScript y permitiendo la resolución natural de dependencias externas.
+ *
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../../dist/out-tsc/libs/engines/financial-ingestion-engine",
-    "tsBuildInfoFile": "../../../dist/out-tsc/libs/engines/financial-ingestion-engine/tsconfig.lib.tsbuildinfo",
 
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "rootDir": "src",
-    "noEmit": false,
-    "importHelpers": true,
-    "ignoreDeprecations": "5.0",
+    /* --- ESTRATEGIA SOURCE-FIRST: Auditoría de Fuentes Pura --- */
+    "composite": false,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
 
-    "baseUrl": ".",
-    "paths": {
-      /* 🛡️ LEY DEL ENJAMBRE: Redirección de ADN Core */
-      "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/environment-validator": [
-        "../../../dist/out-tsc/libs/core/environment-validator/index.d.ts"
-      ],
-
-      /* 🛡️ MAPEO DE SOBERANÍA: Bypass para la resolución de ExcelJS */
-      "exceljs": ["src/index.d.ts"]
-    },
-
+    /* --- INTEGRIDAD DE RESOLUCIÓN (Standard Next-Gen) --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
+    /* --- RIGOR DE IDENTIDAD (SRE Compliance) --- */
+    "ignoreDeprecations": "5.0",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+
+    /* --- CONTEXTO DE EJECUCIÓN ISOMÓRFICO --- */
     "types": ["node"],
-    "lib": ["ES2022"]
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-  "include": ["src/**/*.ts", "src/**/*.json", "src/index.d.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json"
+  ],
   "exclude": [
     "src/**/*.spec.ts",
     "dist",
@@ -49,9 +51,5 @@
     "../../../dist",
     "../../../node_modules"
   ],
-  "references": [
-    {
-      "path": "../../core/environment-validator/tsconfig.lib.json"
-    }
-  ]
+  "references": []
 }

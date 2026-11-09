@@ -1,29 +1,20 @@
 /**
- * @section Core Infrastructure - Telemetry Configuration Matrix
- * @description Punto de entrada para el servidor de tipos del búnker de telemetría.
- * Actúa como orquestador de visibilidad local, delegando la validación física
- * al manifiesto de biblioteca especializado (tsconfig.lib.json).
+ * @section Technical Constitution - Root Gatekeeper
+ * @description Punto de entrada maestro para el servidor de tipos del monorepo.
+ * Implementa la doctrina de Resolución de Fuente Única (Source-First),
+ * heredando íntegramente el mapa de rutas canónico de 'tsconfig.base.json'.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * SANEADO Zenith: Erradicación del sombreado de rutas (Paths Shadowing Bug)
+ * que anulaba la resolución de librerías anidadas en core, engines, modules y shared.
+ *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
-  "extends": "../../../tsconfig.base.json",
-  "compilerOptions": {
-    /**
-     * 🛡️ LEY SRE: Protección de frontera física.
-     * Se prohíbe la emisión local y la complejidad de proyectos compuestos
-     * para forzar la validación directamente sobre los archivos fuente (.ts).
-     */
-    "composite": false,
-    "noEmit": true,
-    "ignoreDeprecations": "5.0"
-  },
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {},
   "files": [],
   "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.lib.json"
-    }
-  ]
+  "references": []
 }

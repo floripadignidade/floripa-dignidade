@@ -1,29 +1,21 @@
 /**
  * @section CMS Component - Learning Materials
- * @description Átomo visual encargado de renderizar los enlaces técnicos y documentación.
+ * @description Componente visual encargado de renderizar los enlaces técnicos y documentación oficial.
  *
- * Protocolo OEDP-V17.0 - Functional Atomicity & ISO Technical Naming.
- * SANEADO Zenith: Supresión controlada de TS7016 (Ceguera de tipos en lucide-react)
- * para mantener la compatibilidad con el linter y evitar directivas prohibidas.
+ * Protocolo OEDP-V18.1 - High Performance UI & ISO Technical Naming.
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Calidad y Mantenibilidad).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import React from 'react';
-
-/**
- * 🛡️ LEY ZENITH (Fix TS7016):
- * Silenciamos la advertencia del compilador porque la librería existe físicamente,
- * pero la resolución de 'bundler' en PNPM estricto falla al localizar su .d.ts
- * sin violar la prohibición de ESLint sobre referencias de triple barra.
- */
- - TS7016: Falla de resolución de declaración de tipos en entornos Nx/PNPM.
 import { BookOpen, ExternalLink, Terminal } from 'lucide-react';
 
 /**
  * @interface ILearningDictionarySnapshot
  * @description Contrato inmutable para la inyección de textos localizados.
+ * Sigue la norma ISO de Objeto + Propiedad + Representación.
  */
 interface ILearningDictionarySnapshot {
   readonly sectionHeadingLiteral: string;
@@ -40,18 +32,74 @@ interface ILearningDictionarySnapshot {
 }
 
 /**
- * Renderiza el bloque de recursos de aprendizaje técnico.
- *
- * @param dictionary - Snapshot inmutable del diccionario lingüístico activo.
- * @returns {React.ReactElement} Tarjeta visual de documentación.
+ * @interface ILearningMaterialsSectionProperties
+ * @description Contrato inmutable de propiedades para la sección de recursos.
+ * Preserva compatibilidad absoluta con el orquestador principal (page.tsx).
  */
-export const LearningMaterialsSection: React.FC<{ readonly dictionary: ILearningDictionarySnapshot }> = ({
-  dictionary,
+interface ILearningMaterialsSectionProperties {
+  readonly dictionary: ILearningDictionarySnapshot;
+}
+
+/**
+ * @interface ICmsResourceLinkProperties
+ * @description Contrato inmutable para los enlaces de recursos técnicos con accesibilidad.
+ */
+interface ICmsResourceLinkProperties {
+  readonly hrefLiteral: string;
+  readonly labelLiteral: string;
+  readonly descriptionLiteral: string;
+  readonly iconNode: React.ReactNode;
+}
+
+/**
+ * Componente interno: CmsResourceLink
+ * Renderiza un enlace individual con feedback visual de interacción y accesibilidad externa.
+ */
+const CmsResourceLink: React.FC<ICmsResourceLinkProperties> = ({
+  hrefLiteral,
+  labelLiteral,
+  descriptionLiteral,
+  iconNode,
 }) => (
+  <a
+    href={hrefLiteral}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="group flex items-start gap-4 p-5 rounded-2xl hover:bg-slate-50 transition-all duration-300 border border-transparent hover:border-slate-100"
+    aria-label={`${labelLiteral} - ${descriptionLiteral}`}
+  >
+    <div className="mt-1 text-slate-400 group-hover:text-amber-600 transition-colors" aria-hidden="true">
+      {iconNode}
+    </div>
+    <div className="flex-grow">
+      <span className="block font-bold text-slate-900 group-hover:text-amber-700 transition-colors">
+        {labelLiteral}
+      </span>
+      <span className="block text-xs text-slate-500 font-medium mt-0.5">
+        {descriptionLiteral}
+      </span>
+    </div>
+    <ExternalLink
+      size={14}
+      className="text-slate-300 mt-1 opacity-0 group-hover:opacity-100 transition-opacity"
+      aria-hidden="true"
+    />
+  </a>
+);
+
+/**
+ * Renderiza el bloque de recursos de aprendizaje técnico y documentación.
+ *
+ * @param propertiesSnapshot - Snapshot inmutable conteniendo los literales localizados.
+ * @returns {React.ReactElement} Bloque visual de documentación para el CMS.
+ */
+export const LearningMaterialsSection: React.FC<ILearningMaterialsSectionProperties> = ({
+  dictionary,
+}): React.ReactElement => (
   <div id="learning-materials" className="rounded-[2rem] bg-white p-8 shadow-sm border border-slate-100">
     <h2 className="text-xl font-black text-slate-900 mb-8 flex items-center gap-3">
       <BookOpen className="text-amber-500" size={22} aria-hidden="true" />
-      {dictionary.sectionHeadingLiteral}
+      <span>{dictionary.sectionHeadingLiteral}</span>
     </h2>
 
     <div className="flex flex-col gap-2">
@@ -69,42 +117,4 @@ export const LearningMaterialsSection: React.FC<{ readonly dictionary: ILearning
       />
     </div>
   </div>
-);
-
-/**
- * @private Sub-Aparato: CmsResourceLink
- * @description Átomo de enlace con efecto hover y accesibilidad integrada.
- */
-interface ICmsResourceLinkProperties {
-  readonly hrefLiteral: string;
-  readonly labelLiteral: string;
-  readonly descriptionLiteral: string;
-  readonly iconNode: React.ReactNode;
-}
-
-const CmsResourceLink: React.FC<ICmsResourceLinkProperties> = ({
-  hrefLiteral,
-  labelLiteral,
-  descriptionLiteral,
-  iconNode,
-}) => (
-  <a
-    href={hrefLiteral}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="group flex items-start gap-4 p-5 rounded-2xl hover:bg-slate-50 transition-all duration-300 border border-transparent hover:border-slate-100"
-  >
-    <div className="mt-1 text-slate-400 group-hover:text-amber-600 transition-colors">
-      {iconNode}
-    </div>
-    <div className="flex-grow">
-      <span className="block font-bold text-slate-900 group-hover:text-amber-700 transition-colors">
-        {labelLiteral}
-      </span>
-      <span className="block text-xs text-slate-500 font-medium mt-0.5">
-        {descriptionLiteral}
-      </span>
-    </div>
-    <ExternalLink size={14} className="text-slate-300 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
-  </a>
 );

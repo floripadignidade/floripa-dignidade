@@ -1,27 +1,61 @@
+// libs/shared/ui-foundry/tsconfig.lib.json
+
+/**
+ * @section Shared UI Foundry - Compiler Infrastructure
+ * @description Manifiesto de verificación de tipos para la fundición visual de componentes (React 19).
+ * Rige bajo la doctrina Source-First (OEDP-V18.1), consumiendo directamente el código fuente
+ * de las librerías del monorepo a través del mapa de rutas unificado de tsconfig.base.json
+ * sin sobreingeniería de proyectos compuestos ni bloqueos de emisión.
+ *
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
+ */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "outDir": "../../../dist/out-tsc/libs/shared/ui-foundry",
+
+    /* --- ESTRATEGIA SOURCE-FIRST: Auditoría de Fuentes Pura --- */
+    "composite": false,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+
+    /* --- INTEGRIDAD DE RESOLUCIÓN (Standard Next-Gen) --- */
     "target": "ES2022",
     "module": "esnext",
     "moduleResolution": "bundler",
-    "strict": true,
-    "noEmit": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+
+    /* --- RIGOR DE IDENTIDAD (SRE Compliance) --- */
+    "ignoreDeprecations": "5.0",
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* --- CONTEXTO REACT 19 & DOM --- */
     "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "@floripa-dignidade/shared-ui-contracts": ["../ui-contracts/src/index.ts"]
-    }
+    "types": ["node", "react", "react-dom"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["**/*.spec.ts", "**/*.test.ts", "jest.config.ts", "dist", "node_modules"],
-  "references": [
-    {
-      "path": "../utility/tsconfig.lib.json"
-    },
-    {
-      "path": "../state-store/tsconfig.lib.json"
-    }
-  ]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "jest.config.ts",
+    "dist",
+    "out-tsc",
+    "node_modules",
+    "../../../dist",
+    "../../../node_modules"
+  ],
+  "references": []
 }

@@ -1,50 +1,29 @@
 /**
- * @section Core Telemetry - Compiler Infrastructure
- * @description Manifiesto de validación para el motor de tipos del sistema nervioso.
- * Implementa la doctrina OEDP-V18.1: eliminación de baseUrl y uso de rutas
- * relativas explícitas para garantizar resoluciones deterministas.
+ * @section Core Telemetry - Configuration Gatekeeper
+ * @description Punto de entrada maestro para el servidor de tipos de la librería de telemetría.
+ * Actúa como pasaporte de visibilidad delegando la auditoría de fuentes al Emitter
+ * especializado (tsconfig.lib.json) y extendiendo la constitución base raíz.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * SANEADO Zenith: Remoción de 'rootDir' para erradicar las 40 colisiones TS6059
- * en entornos CI/CD de Vercel y Linux.
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad).
+ * SANEADO Zenith: Corrección de ruta relativa hacia la raíz (../../../tsconfig.base.json)
+ * y reconexión de referencia formal hacia tsconfig.lib.json.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
-    /* --- ESTRATEGIA ZENITH: Cero Sobreingeniería --- */
     "composite": false,
     "noEmit": true,
-    "declaration": false,
-    "declarationMap": false,
-
-    /* --- INTEGRIDAD DE RESOLUCIÓN (Modern Standard) --- */
-    "module": "Preserve",
-    "moduleResolution": "bundler",
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-
-    /* --- RIGOR DE IDENTIDAD (SRE Compliance) --- */
-    "ignoreDeprecations": "5.0",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "strict": true,
-
-    /* --- ADN DEL ENTORNO (Isomorphic Context) --- */
-    "types": ["node"],
-    "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"]
+    "ignoreDeprecations": "5.0"
   },
-
-  "include": ["src/**/*.ts"],
-
-  "exclude": [
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts",
-    "node_modules",
-    "dist",
-    "out-tsc",
-    "../../../dist"
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    }
   ]
 }

@@ -1,59 +1,57 @@
 /**
- * @section tsconfig: Emitter (Territorial Engine)
- * @description Generador de ADN (.d.ts) con redirección física de Grafo.
- * Orquesta la emisión de tipos para el búnker de inteligencia territorial,
- * asegurando que la soberanía geográfica sea consumida de forma Type-Safe.
+ * @section Territorial Engine - Compiler Infrastructure
+ * @description Manifiesto de verificación de tipos para el búnker de inteligencia territorial y sincronización IBGE.
+ * Rige bajo la doctrina Source-First (OEDP-V18.1), consumiendo directamente el código fuente
+ * de las librerías del monorepo a través del mapa de rutas unificado de tsconfig.base.json
+ * sin sobreingeniería de proyectos compuestos, emisión intermedia, baseUrl ni referencias a dist.
  *
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
+ * SANEADO Zenith: Erradicación definitiva de baseUrl (ADR 0018), purga de punteros hacia
+ * dist/out-tsc (Fix TS2307) y alineación estricta al estándar noEmit: true (Fix TS6305/TS6310).
+ *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    /* --- ESTRATEGIA DE SALIDA ZENITH (Flattened Output) --- */
     "outDir": "../../../dist/out-tsc/libs/modules/territorial-engine",
-    "tsBuildInfoFile": "../../../dist/out-tsc/libs/modules/territorial-engine/tsconfig.lib.tsbuildinfo",
 
-    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "rootDir": "src",
-    "noEmit": false,
-    "importHelpers": true,
-    "ignoreDeprecations": "5.0",
+    /* --- ESTRATEGIA SOURCE-FIRST: Auditoría de Fuentes Pura --- */
+    "composite": false,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
 
-    /* --- REDIRECCIÓN DE ADN MAESTRO (Fix TS6059 / TS6305) --- */
-    /**
-     * 🛡️ LEY DEL ENJAMBRE: Consumimos el ADN físico de la infraestructura Core
-     * para blindar la frontera física y optimizar la compilación incremental.
-     */
-    "baseUrl": ".",
-    "paths": {
-      "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/environment-validator": [
-        "../../../dist/out-tsc/libs/core/environment-validator/index.d.ts"
-      ]
-    },
-
-    /* --- RESOLUCIÓN NEXT-GEN (Alineación Turbopack) --- */
+    /* --- INTEGRIDAD DE RESOLUCIÓN (Standard Next-Gen) --- */
+    "target": "ES2022",
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
+
+    /* --- RIGOR DE IDENTIDAD (SRE Compliance) --- */
+    "ignoreDeprecations": "5.0",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
 
     /* --- ADN DEL ENTORNO (Isomorphic Geographic Context) --- */
     "types": ["node"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
 
-  "include": ["src/**/*.ts", "src/**/*.json"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.json"
+  ],
 
   "exclude": [
-    /* 🛡️ LIMPIEZA DE JURISDICCIÓN: Evitamos fugas de rastro técnico en la emisión */
     "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "jest.config.ts",
     "dist",
     "out-tsc",
     "node_modules",
@@ -61,13 +59,5 @@
     "../../../node_modules"
   ],
 
-  /**
-   * @section Grafo de Referencias Soberanas
-   * Establece el vínculo físico con los cimientos CORE del ecosistema.
-   */
-  "references": [
-    {
-      "path": "../../core/environment-validator/tsconfig.lib.json"
-    }
-  ]
+  "references": []
 }

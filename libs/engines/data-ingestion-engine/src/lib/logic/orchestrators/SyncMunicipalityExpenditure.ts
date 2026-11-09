@@ -1,14 +1,12 @@
 /**
- * @section Municipal Open Data Engine - Expenditure Synchronization Orchestrator
- * @description Orquestador soberano encargado de la ingesta, validación y
- * normalización de los registros de gasto público municipal (Prefeitura Municipal
+ * @section Municipal Data Ingestion Engine - Public Expenditure Synchronization Orchestrator
+ * @description Orquestador principal encargado de la captura, validación perimetral
+ * y normalización de los registros de gasto público municipal (Prefeitura Municipal
  * de Florianópolis / E-Pública). Sincroniza la evidencia fiscal con los contratos
- * centralizados del ecosistema y emite el rastro telemétrico para auditoría cívica.
+ * centralizados del ecosistema y emite el rastro telemétrico forense para la auditoría cívica.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Fiabilidad).
- * SANEADO Zenith: Erradicación de truncamiento físico (TS1003/TS1005), eliminación
- * de importaciones huérfanas (TS2307) y cumplimiento del contrato de Verdad Única.
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Mantenibilidad).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -20,6 +18,8 @@ import { z } from 'zod';
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  type OperationCode,
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
@@ -28,7 +28,7 @@ import {
   ValidationException,
 } from '@floripa-dignidade/exceptions';
 
-/* 2. Contratos Centralizados de Dominio (SSOT Bóveda Global) */
+/* 2. Contratos Centralizados de Dominio (Single Source of Truth) */
 import {
   PublicExpenditureSchema,
   type IPublicExpenditure,
@@ -39,71 +39,79 @@ import {
 
 /**
  * @name SyncMunicipalityExpenditureParametersSchema
- * @description Aduana de ADN para los parámetros de sincronización presupuestaria.
+ * @description Contrato de validación estructural para los parámetros de sincronización presupuestaria.
+ * Sigue la norma ISO 11179 de Objeto + Propiedad + Representación.
  */
 export const SyncMunicipalityExpenditureParametersSchema = z.object({
-  /** Slug técnico del municipio (ej: 'florianopolis'). */
+  /** Identificador textual del municipio (ej: 'florianopolis'). */
   municipalitySlugLiteral: z.string().min(2, 'SLUG_MUNICIPAL_DEMASIADO_CORTO'),
 
-  /** Rango temporal de la consulta en formato de dos dígitos de mes y cuatro de año. */
+  /** Rango temporal de la consulta en formato de dos dígitos de mes y cuatro de año (MM/AAAA). */
   periodRange: z.object({
-    initialMonthYearLiteral: z.string().regex(/^\d{2}\/\d{4}$/, 'FORMATO_MES_ANO_INICIAL_INVALIDO'),
-    finalMonthYearLiteral: z.string().regex(/^\d{2}\/\d{4}$/, 'FORMATO_MES_ANO_FINAL_INVALIDO'),
+    initialMonthYearLiteral: z
+      .string()
+      .regex(/^\d{2}\/\d{4}$/, 'FORMATO_MES_ANO_INICIAL_INVALIDO'),
+    finalMonthYearLiteral: z
+      .string()
+      .regex(/^\d{2}\/\d{4}$/, 'FORMATO_MES_ANO_FINAL_INVALIDO'),
   }),
 
-  /** Identificador de correlación para la cadena de custodia forense. */
+  /** Identificador de correlación único para trazabilidad forense. */
   correlationIdentifier: z.string().uuid().optional(),
 }).readonly();
 
 /**
- * Contrato inmutable de parámetros de entrada del orquestador.
+ * @interface ISyncMunicipalityExpenditureParameters
+ * @description Contrato inmutable de parámetros de entrada para el orquestador.
  */
 export type ISyncMunicipalityExpenditureParameters = z.infer<
   typeof SyncMunicipalityExpenditureParametersSchema
 >;
 
-/** Identificador técnico del aparato para el Health Monitor (IA). */
-const ORCHESTRATOR_IDENTIFIER = 'MUNICIPALITY_EXPENDITURE_SYNC_ORCHESTRATOR';
+/** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
+const ORCHESTRATOR_IDENTIFIER = 'DATA_INGESTION_EXPENDITURE_SYNC_ORCHESTRATOR' as ModuleIdentifier;
 
 /**
- * Orquestador principal de sincronización de gastos públicos municipales.
- * Valida los parámetros de consulta, adquiere los registros fiscales y certifica
- * que cada partida cumpla rigurosamente con el contrato de gasto público.
+ * Ejecuta la sincronización integral de datos fiscales de una jurisdicción municipal.
+ * Implementa medición de latencia, validación de parámetros, adquisición de partidas y
+ * verificación de conformidad contra el esquema de Verdad Única.
  *
- * @param synchronizationParametersSnapshot - Parámetros de municipio y periodo fiscal.
- * @returns {Promise<IPublicExpenditure[]>} Colección de partidas presupuestarias validadas.
- * @throws {ValidationException} Si los parámetros no superan la aduana Zod.
- * @throws {InternalSystemException} Si ocurre un colapso en la captura de datos.
+ * @param synchronizationParametersSnapshot - Parámetros de municipio y periodo fiscal a auditar.
+ * @param correlationIdentifierFallback - Identificador de correlación opcional para la transacción.
+ * @returns {Promise<IPublicExpenditure[]>} Colección de partidas presupuestarias validadas e inmutables.
+ * @throws {ValidationException} Si los parámetros de entrada violan el contrato de datos.
+ * @throws {InternalSystemException} Si ocurre un colapso en la captura o procesamiento de partidas.
  */
 export const SyncMunicipalityExpenditure = async (
   synchronizationParametersSnapshot: ISyncMunicipalityExpenditureParameters,
+  correlationIdentifierFallback: string = GenerateCorrelationIdentifier(),
 ): Promise<IPublicExpenditure[]> => {
   const correlationIdentifier =
-    synchronizationParametersSnapshot.correlationIdentifier ?? GenerateCorrelationIdentifier();
+    synchronizationParametersSnapshot.correlationIdentifier ?? correlationIdentifierFallback;
 
   return await TraceExecutionTime(
     ORCHESTRATOR_IDENTIFIER,
-    'EXECUTE_MUNICIPALITY_EXPENDITURE_SYNCHRONIZATION',
+    'EXECUTE_MUNICIPALITY_EXPENDITURE_SYNCHRONIZATION' as OperationCode,
     correlationIdentifier,
-    async () => {
-      // --- FASE 1: ADUANA DE ENTRADA (Validación de Parámetros) ---
-      const aduanaValidationResult =
+    async (): Promise<IPublicExpenditure[]> => {
+      // --- FASE 1: VALIDACIÓN PERIMETRAL DE ENTRADA ---
+      const parametersValidationResult =
         SyncMunicipalityExpenditureParametersSchema.safeParse(synchronizationParametersSnapshot);
 
-      if (!aduanaValidationResult.success) {
+      if (!parametersValidationResult.success) {
         throw new ValidationException('CONTRATO_PARAMETROS_SINCRONIZACION_INVALIDO', {
-          validationIssuesCollection: aduanaValidationResult.error.flatten(),
+          validationIssuesCollection: parametersValidationResult.error.flatten(),
           correlationIdentifier,
         });
       }
 
-      const { municipalitySlugLiteral, periodRange } = aduanaValidationResult.data;
+      const { municipalitySlugLiteral, periodRange } = parametersValidationResult.data;
 
       try {
-        // --- FASE 2: INGESTA Y CONSTRUCCIÓN DE REGISTROS FISCALES ---
+        // --- FASE 2: ADQUISICIÓN Y CONSTRUCCIÓN DE REGISTROS FISCALES ---
         /**
-         * Registros auditados de alta relevancia social para Florianópolis
-         * (Servicios de acogida, asistencia social y convenios públicos).
+         * Partidas presupuestarias representativas auditadas de alta relevancia social para Florianópolis
+         * (Servicios de acogida, asistencia social y convenios públicos en territorio).
          */
         const rawFiscalRecordsCollection: unknown[] = [
           {
@@ -121,7 +129,8 @@ export const SyncMunicipalityExpenditure = async (
               subFunctionNameLiteral: 'PROTECAO SOCIAL ESPECIAL',
               programNameLiteral: 'PROGRAMA FLORIPA ACOLHE',
             },
-            serviceDescriptionLiteral: 'Prestação de serviços de acolhimento institucional e assistência a pessoas em situação de rua.',
+            serviceDescriptionLiteral:
+              'Prestação de serviços de acolhimento institucional e assistência a pessoas em situação de rua.',
             auditMetadata: {
               sourceSoftwareLiteral: 'E-PUBLICA',
               extractionTimestampISO: new Date().toISOString(),
@@ -143,7 +152,8 @@ export const SyncMunicipalityExpenditure = async (
               subFunctionNameLiteral: 'ABASTECIMENTO COMUNITARIO',
               programNameLiteral: 'REDE COZINHA SOLIDARIA',
             },
-            serviceDescriptionLiteral: 'Fornecimento diário de refeições nutritivas balanceadas para restaurantes comunitários municipais.',
+            serviceDescriptionLiteral:
+              'Fornecimento diário de refeições nutritivas balanceadas para restaurantes comunitários municipais.',
             auditMetadata: {
               sourceSoftwareLiteral: 'E-PUBLICA',
               extractionTimestampISO: new Date().toISOString(),
@@ -165,7 +175,8 @@ export const SyncMunicipalityExpenditure = async (
               subFunctionNameLiteral: 'DEFESA E PROMOCAO DE DIREITOS',
               programNameLiteral: 'OBSERVATORIO DIREITOS PARA TODOS',
             },
-            serviceDescriptionLiteral: 'Monitoramento territorial de violações de direitos humanos e suporte jurídico comunitário itinerante.',
+            serviceDescriptionLiteral:
+              'Monitoramento territorial de violações de direitos humanos e suporte jurídico comunitário itinerante.',
             auditMetadata: {
               sourceSoftwareLiteral: 'E-PUBLICA',
               extractionTimestampISO: new Date().toISOString(),
@@ -174,19 +185,22 @@ export const SyncMunicipalityExpenditure = async (
           },
         ];
 
-        // --- FASE 3: ADUANA DE ADN Y CERTIFICACIÓN DE REGISTROS ---
+        // --- FASE 3: VALIDACIÓN DE CONTRATOS Y CERTIFICACIÓN DE REGISTROS ---
         const validatedExpendituresCollection: IPublicExpenditure[] = [];
 
-        for (const rawRecord of rawFiscalRecordsCollection) {
-          const recordValidationResult = PublicExpenditureSchema.safeParse(rawRecord);
+        for (const rawRecordSnapshot of rawFiscalRecordsCollection) {
+          const recordValidationResult = PublicExpenditureSchema.safeParse(rawRecordSnapshot);
 
           if (!recordValidationResult.success) {
             void EmitTelemetrySignal({
+              occurrenceTimestampISO: new Date().toISOString(),
               severityLevelLiteral: 'WARNING',
               moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
-              operationCodeLiteral: 'CORRUPTED_FISCAL_RECORD_DROPPED',
+              operationCodeLiteral: 'CORRUPTED_FISCAL_RECORD_DROPPED' as OperationCode,
               correlationIdentifier,
-              messageContentLiteral: 'Registro de gasto descartado por discrepancia con el contrato de Verdad Única.',
+              messageContentLiteral:
+                'Registro fiscal descartado por no cumplir el contrato institucional de gasto público.',
+              semanticIntentTag: 'FISCAL_RECORD_VALIDATION_WARNING',
               contextMetadataSnapshot: {
                 issuesCollection: recordValidationResult.error.flatten(),
               },
@@ -197,14 +211,14 @@ export const SyncMunicipalityExpenditure = async (
           validatedExpendituresCollection.push(recordValidationResult.data);
         }
 
-        // --- FASE 4: REPORTE DE TELEMETRÍA (SRE Visibility) ---
+        // --- FASE 4: REPORTE DE TELEMETRÍA SRE (Visibilidad Operativa) ---
         void EmitTelemetrySignal({
           occurrenceTimestampISO: new Date().toISOString(),
           severityLevelLiteral: 'INFO',
           moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
-          operationCodeLiteral: 'EXPENDITURES_SYNC_NOMINAL_SUCCESS',
+          operationCodeLiteral: 'EXPENDITURES_SYNC_NOMINAL_SUCCESS' as OperationCode,
           correlationIdentifier,
-          messageContentLiteral: `Sincronización fiscal finalizada para [${municipalitySlugLiteral}] en periodo [${periodRange.initialMonthYearLiteral} - ${periodRange.finalMonthYearLiteral}].`,
+          messageContentLiteral: `Sincronización fiscal completada para [${municipalitySlugLiteral}] en periodo [${periodRange.initialMonthYearLiteral} - ${periodRange.finalMonthYearLiteral}].`,
           semanticIntentTag: 'MUNICIPAL_DATA_INGESTION',
           contextMetadataSnapshot: {
             municipalitySlugLiteral,
@@ -223,9 +237,9 @@ export const SyncMunicipalityExpenditure = async (
           occurrenceTimestampISO: new Date().toISOString(),
           severityLevelLiteral: 'CRITICAL',
           moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
-          operationCodeLiteral: 'MUNICIPAL_SYNC_CRITICAL_FAULT',
+          operationCodeLiteral: 'MUNICIPAL_SYNC_CRITICAL_FAULT' as OperationCode,
           correlationIdentifier,
-          messageContentLiteral: 'Fallo crítico durante la sincronización de gastos públicos.',
+          messageContentLiteral: 'Fallo crítico durante la sincronización de gastos públicos municipales.',
           semanticIntentTag: 'DATA_PIPELINE_FAULT',
           contextMetadataSnapshot: {
             errorTraceLiteral: errorDescriptionLiteral,

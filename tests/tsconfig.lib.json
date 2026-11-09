@@ -1,70 +1,61 @@
 /**
- * @section tscheck: Emitter (QA Mirror Bunker)
- * @description Generador de ADN para el búnker de aserción. Orquesta la
- * validación de pruebas mediante la Redirección de ADN Maestro.
+ * @section Quality Assurance - Compiler Infrastructure (QA Mirror)
+ * @description Manifiesto de verificación de tipos para la biblioteca de pruebas espejo del monorepo.
+ * Rige bajo la doctrina Source-First (OEDP-V18.1), consumiendo directamente el código fuente
+ * de las librerías a través del mapa de rutas unificado de tsconfig.base.json sin sobreingeniería
+ * de proyectos compuestos, emisión intermedia ni referencias a dist.
  *
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Resolución de TS6059 mediante la anulación de la lista de
- * archivos heredada del Gatekeeper, protegiendo la integridad del rootDir.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
+ * SANEADO Zenith: Erradicación del arreglo vacío 'files' redundante, inyección de target ES2022,
+ * soporte para JSX React 19 y aseguramiento de tipado estricto para Jest y Testing Library.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    /* --- ESTRATEGIA DE SALIDA ZENITH (Flattened Output) --- */
     "outDir": "../dist/out-tsc/tests",
-    "tsBuildInfoFile": "../dist/out-tsc/tests/tsconfig.lib.tsbuildinfo",
 
-    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "noEmit": false,
+    /* --- ESTRATEGIA SOURCE-FIRST: Auditoría de Fuentes Pura --- */
+    "composite": false,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
 
-    /**
-     * 🛡️ LEY ZENITH: rootDir apunta estrictamente a 'src'.
-     * Para evitar el error TS6059, este archivo DEBE sobreescribir la
-     * propiedad "files" heredada con un array vacío.
-     */
-    "rootDir": "src",
-
-    /* --- REDIRECCIÓN DE ADN MAESTRO (Consumo de CI) --- */
-    "baseUrl": ".",
-    "paths": {
-      "@floripa-dignidade/exceptions": ["../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/telemetry": ["../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/environment-validator": [
-        "../dist/out-tsc/libs/core/environment-validator/index.d.ts"
-      ]
-    },
-
-    /* --- RESOLUCIÓN NEXT-GEN (Bundler & Isolated) --- */
+    /* --- INTEGRIDAD DE RESOLUCIÓN (Standard Next-Gen) --- */
+    "target": "ES2022",
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
+    /* --- RIGOR DE IDENTIDAD (SRE Compliance) --- */
+    "ignoreDeprecations": "5.0",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
+
     /* --- ADN DEL ENTORNO DE PRUEBAS --- */
-    "types": ["node", "jest"],
+    "types": ["node", "jest", "@testing-library/jest-dom"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
 
-  /**
-   * 🛡️ SOLUCIÓN MAESTRA AL ERROR TS6059:
-   * Al declarar "files" como un array vacío, obligamos al compilador a
-   * ignorar 'jest.config.ts' (que reside en la raíz) durante la emisión
-   * de tipos, limitándose exclusivamente al patrón definido en "include".
-   */
-  "files": [],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
 
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "out-tsc",
+    "../dist",
+    "../node_modules"
+  ],
 
-  "exclude": ["node_modules", "dist", "out-tsc", "../dist", "../node_modules"],
-
-  /**
-   * @section Grafo de Referencias Soberanas
-   */
   "references": []
 }

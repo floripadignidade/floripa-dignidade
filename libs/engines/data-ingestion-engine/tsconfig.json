@@ -1,7 +1,14 @@
 /**
- * @section tsconfig: Gatekeeper
- * @description Proteccion de frontera fisica para el motor de datos abiertos.
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * @section Compiler Infrastructure - Gatekeeper Configuration
+ * @description Punto de entrada perimetral para el servidor de tipos del motor de ingestión de datos.
+ * Actúa como pasaporte de visibilidad e índice para el entorno de desarrollo integrado (IDE),
+ * delegando la resolución de fuentes al manifiesto de biblioteca especializado.
+ *
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad).
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
   "extends": "../../../tsconfig.base.json",

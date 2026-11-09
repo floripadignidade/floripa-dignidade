@@ -3,7 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/engines/financial-ingestion-engine/src",
   "projectType": "library",
-  "tags":[
+  "tags": [
     "scope:engines",
     "type:logic",
     "platform:node"
@@ -22,10 +22,13 @@
     },
     "typecheck": {
       "executor": "nx:run-commands",
-      "outputs":["{workspaceRoot}/dist/out-tsc/libs/engines/financial-ingestion-engine"],
       "options": {
-        "command": "tsc -p libs/engines/financial-ingestion-engine/tsconfig.lib.json"
+        "command": "tsc -p libs/engines/financial-ingestion-engine/tsconfig.lib.json --noEmit"
       },
+      "cache": true
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
       "cache": true
     }
   }

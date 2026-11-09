@@ -1,44 +1,44 @@
 /**
- * @section tsconfig: Emitter (Search Engine)
- * @description Generador de ADN (.d.ts) con redirección física de Grafo.
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Implementación de Mapeo de Soberanía para erradicar TS7016.
+ * @section Search Engine - Compiler Infrastructure
+ * @description Manifiesto de verificación de tipos para el motor de búsqueda difusa.
+ * Implementa la doctrina Source-First (OEDP-V18.1), consumiendo dependencias directamente
+ * desde las fuentes TypeScript y permitiendo la resolución natural de dependencias externas.
+ *
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * SANEADO Zenith: Erradicación definitiva del colapso interno 'Debug Failure' de TypeScript 5.9
+ * purgando el mapeo artificial de 'fuse.js' a '.d.ts' y alineando el compilador a modo 'noEmit'.
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../../dist/out-tsc/libs/engines/search-engine",
-    "tsBuildInfoFile": "../../../dist/out-tsc/libs/engines/search-engine/tsconfig.lib.tsbuildinfo",
 
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "rootDir": "src",
-    "noEmit": false,
-    "importHelpers": true,
-    "ignoreDeprecations": "5.0",
+    /* --- ESTRATEGIA SOURCE-FIRST: Cero Sobreingeniería --- */
+    "composite": false,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
 
-    "baseUrl": ".",
-    "paths": {
-      /* 🛡️ LEY DEL ENJAMBRE: Redirección de ADN Core */
-      "@floripa-dignidade/telemetry": ["../../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/exceptions": ["../../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-
-      /* 🛡️ MAPEO DE SOBERANÍA: Forzamos el uso de nuestro puente para 'fuse.js' */
-      "fuse.js": ["src/index.d.ts"]
-    },
-
+    /* --- INTEGRIDAD DE RESOLUCIÓN (Standard Next-Gen) --- */
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
+    /* --- RIGOR DE IDENTIDAD (SRE Compliance) --- */
+    "ignoreDeprecations": "5.0",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+
+    /* --- ADN DEL ENTORNO --- */
+    "types": ["node"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-
-  "include": ["src/**/*.ts", "src/**/*.json", "src/index.d.ts"],
-
+  "include": ["src/**/*.ts", "src/**/*.json"],
   "exclude": [
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
@@ -49,6 +49,5 @@
     "../../../dist",
     "../../../node_modules"
   ],
-
   "references": []
 }

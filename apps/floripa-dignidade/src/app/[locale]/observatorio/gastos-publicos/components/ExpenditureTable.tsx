@@ -1,49 +1,53 @@
 /**
- * @section UI Molecule - Public Expenditure Forensic Table (Orchestrator)
- * @description Orquestador de visualización tabular. Ensambla y coordina el
- * enjambre de átomos (Header, Row, Footer) para garantizar el cumplimiento del
- * Principio de Responsabilidad Única (SRP) en la renderización de datos fiscales.
+ * @section UI Molecule - Public Expenditure Table (Orchestrator)
+ * @description Orquestador de visualización tabular. Ensambla y coordina los componentes
+ * de encabezado, filas de partidas fiscales y pie de página para garantizar el cumplimiento del
+ * Principio de Responsabilidad Única (SRP) en la presentación de cuentas públicas.
  *
- * Protocolo OEDP-V17.0 - High Performance UI & Atomic Visual DNA.
- * SANEADO Zenith: Inyección de Rutas Limpias (Clean Paths), Prosa ISO
- * y blindaje de propiedades inmutables (ReadOnly).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Mantenibilidad).
+ * SANEADO: Conexión canónica con @floripa-dignidade/contracts, modernización de firma para React 19
+ * y purga de terminología informal.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-/* 1. ADN Estructural de Dominio (Verbatim Module Syntax) */
-import type { IPublicExpenditure } from '@floripa-dignidade/pmf-open-data-engine';
+import React from 'react';
 
-/* 2. Enjambre Atómico Local (Clean Paths) */
+/* 1. Contratos Centralizados de Dominio (Single Source of Truth) */
+import type { IPublicExpenditure } from '@floripa-dignidade/contracts';
+
+/* 2. Componentes Visuales Locales */
 import { ExpenditureTableHeader } from './ExpenditureTableHeader';
 import { ExpenditureTableRow } from './ExpenditureTableRow';
 import { ExpenditureTableFooter } from './ExpenditureTableFooter';
 
 /**
  * @interface IExpenditureTableProperties
- * @description Contrato inmutable de propiedades para la orquestación visual.
- * Sigue la norma ISO de Objeto + Propiedad + Representación.
+ * @description Contrato inmutable de propiedades para la orquestación visual de la tabla presupuestaria.
+ * Sigue la norma ISO 11179 de Objeto + Propiedad + Representación.
  */
-interface IExpenditureTableProperties {
-  /** Colección purificada de gastos emitidos por el motor de la PMF. */
+export interface IExpenditureTableProperties {
+  /** Colección de gastos públicos municipales normalizados y validados. */
   readonly publicExpenditureCollection: readonly IPublicExpenditure[];
-  /** Título localizado para el encabezado de la sección. */
+  /** Título localizado para el encabezado de la sección tabular. */
   readonly tableHeadlineLiteral: string;
 }
 
 /**
- * Molécula encargada de coordinar el enjambre visual de la tabla presupuestaria.
+ * Molécula encargada de coordinar la composición visual de la tabla presupuestaria.
  *
- * @param propertiesSnapshot - Snapshot inmutable de configuración y datos.
- * @returns {React.ReactElement} Interfaz tabular de alta fidelidad.
+ * @param propertiesSnapshot - Snapshot inmutable de configuración y datos fiscales.
+ * @returns {React.JSX.Element} Interfaz tabular estructurada de alta fidelidad.
  */
-export const ExpenditureTable: React.FC<IExpenditureTableProperties> = ({
-  publicExpenditureCollection,
-  tableHeadlineLiteral,
-}) => {
+export const ExpenditureTable = (
+  propertiesSnapshot: IExpenditureTableProperties,
+): React.JSX.Element => {
+  const { publicExpenditureCollection, tableHeadlineLiteral } = propertiesSnapshot;
+
   return (
-    <section 
+    <section
       className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700"
       aria-label="Tabela de execução orçamentária forense"
     >
@@ -55,11 +59,11 @@ export const ExpenditureTable: React.FC<IExpenditureTableProperties> = ({
 
       <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200">
         <table className="w-full text-left border-collapse min-w-[900px]">
-          {/* ÁTOMO A: Encabezado Técnico */}
+          {/* COMPONENTE A: Encabezado Técnico */}
           <ExpenditureTableHeader />
 
           <tbody className="text-sm">
-            {/* ENJAMBRE B: Iteración de Filas Físicas */}
+            {/* COMPONENTE B: Iteración de Filas de Partidas Fiscales */}
             {publicExpenditureCollection.map((expenditureSnapshot) => (
               <ExpenditureTableRow
                 key={expenditureSnapshot.expenditureIdentifier}
@@ -70,7 +74,7 @@ export const ExpenditureTable: React.FC<IExpenditureTableProperties> = ({
         </table>
       </div>
 
-      {/* ÁTOMO C: Pie de Trazabilidad */}
+      {/* COMPONENTE C: Pie de Trazabilidad */}
       <ExpenditureTableFooter />
     </section>
   );

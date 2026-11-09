@@ -1,22 +1,22 @@
 /**
- * @section CMS Infrastructure - Typography Foundation (Atom)
- * @description Centraliza la configuración de fuentes institucionales para el CMS.
- * Implementa optimización de carga vía 'display: swap' y variables CSS nativas,
+ * @section CMS Infrastructure - Typography Foundation Atom
+ * @description Centraliza la configuración de fuentes institucionales para el panel administrativo.
+ * Implementa optimización de carga mediante 'display: swap' y variables CSS nativas,
  * previniendo el parpadeo de texto (FOUT) y mejorando el LCP (Core Web Vitals).
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Asset Management.
- * SANEADO Zenith: Resolución de Asfixia de Identidad (TS7016) mediante el
- * patrón "Aduana de Salida" y aislamiento de advertencias del linter.
+ * Protocolo OEDP-V18.1 - High Performance SRE & Asset Management.
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Calidad y Eficiencia).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
+import { Inter, Lexend } from 'next/font/google';
+
 /**
  * @interface IInstitutionalFont
- * @description Contrato inmutable que sella la identidad de la fuente.
- * Protege al ecosistema de la propagación del tipo 'any' generado por el
- * fallo de resolución profunda de Next.js.
+ * @description Contrato inmutable que sella la identidad estructural de una fuente web.
+ * Protege al ecosistema de la propagación del tipo 'any' y asegura compatibilidad con Next.js 16.
  */
 export interface IInstitutionalFont {
   readonly className: string;
@@ -29,19 +29,9 @@ export interface IInstitutionalFont {
 }
 
 /**
- * 🛡️ LEY DE SOBERANÍA FÍSICA:
- * Silenciamos la advertencia del compilador porque la librería existe físicamente
- * en el 'node_modules', pero su declaración profunda (.d.ts) es invisible para PNPM.
- */
- - TS7016: Falla de resolución profunda de Next.js en entornos Nx/PNPM estricto.
-import { Inter, Lexend } from 'next/font/google';
-
-/**
  * @name institutionalSansFontInstance
- * @description Fuente principal para lectura, cuerpos de texto y matrices de datos.
- * Configurada exclusivamente con el subconjunto latino para reducir el peso del payload.
- *
- * 🛡️ CASTING SOBERANO: Forzamos el cumplimiento de la interfaz IInstitutionalFont.
+ * @description Fuente principal para lectura, cuerpos de texto y matrices de datos administrativos.
+ * Configurada exclusivamente con el subconjunto latino para minimizar el tamaño del payload transferido.
  */
 export const institutionalSansFontInstance: IInstitutionalFont = Inter({
   subsets: ['latin'],
@@ -52,7 +42,7 @@ export const institutionalSansFontInstance: IInstitutionalFont = Inter({
 /**
  * @name institutionalDisplayFontInstance
  * @description Fuente secundaria de alta jerarquía visual, reservada para titulares,
- * métricas críticas (SRE Dashboards) e identidad de marca.
+ * métricas críticas (Dashboards SRE) e identidad de marca.
  */
 export const institutionalDisplayFontInstance: IInstitutionalFont = Lexend({
   subsets: ['latin'],

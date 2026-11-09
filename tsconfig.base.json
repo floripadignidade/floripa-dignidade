@@ -1,3 +1,17 @@
+/**
+ * @section Technical Constitution - Monorepo Base TypeScript Configuration
+ * @description Manifiesto raíz de compilación y resolución de rutas para el monorepo Floripa Dignidade.
+ * Rige bajo la doctrina Source-First (OEDP-V18.1), eliminando 'baseUrl' para garantizar resoluciones
+ * deterministas y mapeando todas las bibliotecas '@floripa-dignidade/*' directamente a sus puntos de entrada 'src/index.ts'.
+ *
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
+ * SANEADO: Incorporación canónica de data-ingestion-engine, inyección de alias de transición para pmf-open-data-engine
+ * y blindaje del filtro de exclusión de artefactos de compilación.
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
+ */
 {
   "compilerOptions": {
     "target": "ES2022",
@@ -13,10 +27,12 @@
     "forceConsistentCasingInFileNames": true,
     "rootDir": ".",
 
-    /* 🛡️ ESTRATEGIA SOURCE-FIRST: Rutas relativas explícitas sin baseUrl */
+    /* --- ESTRATEGIA SOURCE-FIRST: Rutas relativas explícitas sin baseUrl --- */
     "paths": {
       "@floripa-dignidade/adversarial-simulation-engine": ["./libs/engines/adversarial-simulation-engine/src/index.ts"],
       "@floripa-dignidade/analytics": ["./libs/core/analytics/src/index.ts"],
+      "@floripa-dignidade/contracts": ["./libs/contracts/src/index.ts"],
+      "@floripa-dignidade/data-ingestion-engine": ["./libs/engines/data-ingestion-engine/src/index.ts"],
       "@floripa-dignidade/environment-validator": ["./libs/core/environment-validator/src/index.ts"],
       "@floripa-dignidade/exceptions": ["./libs/core/exceptions/src/index.ts"],
       "@floripa-dignidade/financial-ingestion-engine": ["./libs/engines/financial-ingestion-engine/src/index.ts"],
@@ -27,22 +43,29 @@
       "@floripa-dignidade/interaction-engine": ["./libs/modules/interaction-engine/src/index.ts"],
       "@floripa-dignidade/messaging-engine": ["./libs/modules/messaging-engine/src/index.ts"],
       "@floripa-dignidade/newsletter": ["./libs/modules/newsletter/src/index.ts"],
+      "@floripa-dignidade/pmf-open-data-engine": ["./libs/engines/data-ingestion-engine/src/index.ts"],
       "@floripa-dignidade/reputation-engine": ["./libs/modules/reputation-engine/src/index.ts"],
       "@floripa-dignidade/resend-provider": ["./libs/core/communication-providers/resend/src/index.ts"],
       "@floripa-dignidade/routing": ["./libs/core/routing/src/index.ts"],
       "@floripa-dignidade/search-engine": ["./libs/engines/search-engine/src/index.ts"],
+      "@floripa-dignidade/shared-design-system": ["./libs/shared/design-system/src/index.ts"],
       "@floripa-dignidade/shared-state-store": ["./libs/shared/state-store/src/index.ts"],
+      "@floripa-dignidade/shared-ui-contracts": ["./libs/shared/ui-contracts/src/index.ts"],
       "@floripa-dignidade/shared-ui-foundry": ["./libs/shared/ui-foundry/src/index.ts"],
       "@floripa-dignidade/shared-utility": ["./libs/shared/utility/src/index.ts"],
       "@floripa-dignidade/social-media": ["./libs/modules/social-media/src/index.ts"],
       "@floripa-dignidade/telemetry": ["./libs/core/telemetry/src/index.ts"],
       "@floripa-dignidade/territorial-engine": ["./libs/modules/territorial-engine/src/index.ts"],
       "@floripa-dignidade/tools": ["./libs/tools/src/index.ts"],
-      "@floripa-dignidade/whatsapp-communication-service": ["./libs/modules/whatsapp/communication-service/src/index.ts"],
-      "@floripa-dignidade/shared-design-system": ["./libs/shared/design-system/src/index.ts"],
-      "@floripa-dignidade/shared-ui-contracts": ["./libs/shared/ui-contracts/src/index.ts"],
-      "@floripa-dignidade/contracts": ["./libs/contracts/src/index.ts"]
+      "@floripa-dignidade/whatsapp-communication-service": ["./libs/modules/whatsapp/communication-service/src/index.ts"]
     }
   },
-  "exclude": ["node_modules", "tmp", "dist"]
+  "exclude": [
+    "node_modules",
+    "tmp",
+    "dist",
+    "out-tsc",
+    ".next",
+    ".cache"
+  ]
 }

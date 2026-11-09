@@ -1,13 +1,14 @@
 /**
- * @section tsconfig: Emitter (Tools & Automation)
- * @description Generador de ADN (.d.ts) con redirección física de Grafo hacia
- * la caché de dist/out-tsc. Orquesta la emisión de tipos para las herramientas
- * de mantenimiento e ingesta, garantizando que los disparadores CLI (Scripts)
- * operen bajo un contrato de tipos inexpugnable.
+ * @section Tools & Automation - Compiler Infrastructure
+ * @description Manifiesto de verificación de tipos para el búnker de herramientas y automatización.
+ * Rige bajo la doctrina Source-First (OEDP-V18.1), consumiendo directamente el código fuente
+ * de las librerías del monorepo a través del mapa de rutas unificado de tsconfig.base.json
+ * sin sobreingeniería de proyectos compuestos ni bloqueos de emisión.
  *
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Rectificación de profundidad (Fix Path Overflow), habilitación
- * de mapeo profundo (Wildcards) y aplanamiento de estructura de salida.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
+ * SANEADO Zenith: Erradicación definitiva de los bloqueos TS6306 y TS6310 purgando
+ * las referencias compuestas legadas hacia data-ingestion-engine y environment-validator.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -15,72 +16,36 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    /* --- ESTRATEGIA DE SALIDA ZENITH (Tools Cache) --- */
-    /**
-     * 🛡️ LEY DE PROFUNDIDAD: Desde 'libs/tools' a la raíz son 2 niveles (../../).
-     * El outDir debe residir estrictamente dentro del ecosistema del monorepo.
-     */
     "outDir": "../../dist/out-tsc/libs/tools",
-    "tsBuildInfoFile": "../../dist/out-tsc/libs/tools/tsconfig.lib.tsbuildinfo",
 
-    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "noEmit": false,
+    /* --- ESTRATEGIA SOURCE-FIRST: Auditoría de Fuentes Pura --- */
+    "composite": false,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
 
-    /**
-     * 🛡️ LEY ZENITH: Forzamos rootDir a 'src'.
-     * Esto garantiza que el ADN en dist NO posea el segmento /src/ redundante.
-     */
-    "rootDir": "src",
-    "importHelpers": true,
-    "ignoreDeprecations": "5.0",
-
-    /* --- REDIRECCIÓN DE ADN MAESTRO (High Performance SRE) --- */
-    /**
-     * 🛡️ LEY DEL ENJAMBRE: Consumimos firmas físicas (.d.ts) desde dist.
-     * SANEADO: Se inyectan wildcards (/*) para autorizar importaciones profundas
-     * necesarias en procesos de ingesta financiera y auditoría de excepciones.
-     */
-    "baseUrl": ".",
-    "paths": {
-      /* Capa CORE: Cimientos Inmutables */
-      "@floripa-dignidade/telemetry": ["../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/telemetry/*": ["../../dist/out-tsc/libs/core/telemetry/*"],
-
-      "@floripa-dignidade/exceptions": ["../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/exceptions/*": ["../../dist/out-tsc/libs/core/exceptions/*"],
-
-      "@floripa-dignidade/environment-validator": [
-        "../../dist/out-tsc/libs/core/environment-validator/index.d.ts"
-      ],
-      "@floripa-dignidade/environment-validator/*": [
-        "../../dist/out-tsc/libs/core/environment-validator/*"
-      ],
-
-      /* Capa ENGINES: Motores de Negocio */
-      "@floripa-dignidade/financial-ingestion-engine": [
-        "../../dist/out-tsc/libs/engines/financial-ingestion-engine/index.d.ts"
-      ],
-      "@floripa-dignidade/financial-ingestion-engine/*": [
-        "../../dist/out-tsc/libs/engines/financial-ingestion-engine/*"
-      ]
-    },
-
-    /* --- RESOLUCIÓN NEXT-GEN (Node.js & ESM Ready) --- */
+    /* --- INTEGRIDAD DE RESOLUCIÓN (Standard Next-Gen) --- */
+    "target": "ES2022",
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
 
-    /* --- ADN DEL ENTORNO (Node.js Scripting) --- */
+    /* --- RIGOR DE IDENTIDAD (SRE Compliance) --- */
+    "ignoreDeprecations": "5.0",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* --- ADN DEL ENTORNO (Node.js Scripting Context) --- */
     "types": ["node"],
     "lib": ["ES2022"]
   },
 
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts"
+  ],
 
   "exclude": [
     "src/**/*.spec.ts",
@@ -91,15 +56,5 @@
     "../../node_modules"
   ],
 
-  /**
-   * @section Grafo de Referencias Soberanas
-   */
-  "references": [
-    {
-      "path": "../engines/financial-ingestion-engine/tsconfig.lib.json"
-    },
-    {
-      "path": "../core/environment-validator/tsconfig.lib.json"
-    }
-  ]
+  "references": []
 }

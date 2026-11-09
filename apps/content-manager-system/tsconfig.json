@@ -1,28 +1,22 @@
-/**
- * @section tsconfig: Gatekeeper (CMS Shell)
- * @description Orquestador de la configuración de la aplicación administrativa.
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- *
- * SANEADO Zenith: Inclusión de archivos de configuración raíz para resolver
- * el colapso de visibilidad del Project Service de ESLint.
- */
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "composite": false,
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
     "noEmit": true,
     "ignoreDeprecations": "5.0"
   },
-  /**
-   * 🛡️ ESTRATEGIA DE VISIBILIDAD:
-   * Registramos los archivos de configuración de hardware/software para que el
-   * motor de auditoría (ESLint/LSP) reconozca su jurisdicción.
-   */
-  "files": ["next.config.js"],
-  "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    }
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "next.config.js",
+    "payload.config.ts",
+    "next-env.d.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".next"
   ]
 }

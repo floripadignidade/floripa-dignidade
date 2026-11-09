@@ -1,99 +1,141 @@
 /**
- * @section CMS DNA - Application Emitter Configuration
- * @description Generador de ADN para la Matriz de Gobernanza (Payload 3.0).
- * Orquesta la visibilidad del motor Next.js 16+ y sincroniza el mapa de rutas
- * mediante la Maniobra de Redirección de ADN hacia la caché del monorepo.
+ * @section CMS Infrastructure - TypeScript Compiler Configuration
+ * @description Manifiesto de verificación de tipos para el panel administrativo de gestión de contenidos (Payload 3.84).
+ * Rige bajo la doctrina Source-First (OEDP-V18.1), consumiendo directamente el código fuente
+ * de las librerías del monorepo a través del mapa de rutas institucional sin sobreingeniería
+ * de proyectos compuestos ni bloqueos de emisión.
  *
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
- * SANEADO Zenith: Inclusión de archivos de configuración raíz para resolver TS2307,
- * blindaje de tipos de Node.js y normalización de la jurisdicción de escaneo.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
+ * SANEADO: Erradicación del alias huérfano pmf-open-data-engine, purga del archivo fantasma index.d.ts
+ * y ordenamiento alfabético determinista de rutas.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    /* --- INTEGRIDAD SOBERANA (ADN Emitter) --- */
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "rootDir": ".",
-    "outDir": "../../dist/out-tsc/apps/content-manager-system",
-    "tsBuildInfoFile": "../../dist/out-tsc/apps/content-manager-system/tsconfig.app.tsbuildinfo",
-
-    /* --- RESOLUCIÓN NEXT-GEN (Bundler & Edge Ready) --- */
-    "module": "Preserve",
+    "target": "ES2022",
+    "module": "esnext",
     "moduleResolution": "bundler",
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
     "jsx": "react-jsx",
     "allowJs": true,
     "strict": true,
-    "noEmit": false,
-
-    /* --- RESILIENCIA SRE (Dependency & Deprecation Guard) --- */
-    /**
-     * 🛡️ LEY ZENITH: Silenciamos la advertencia de 'baseUrl' para mantener la
-     * compatibilidad con el mapeo de Nx mientras transicionamos a TS 7.0.
-     */
-    "ignoreDeprecations": "5.0",
+    "noEmit": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
-
-    /* --- MAPA DE RUTAS MAESTRO (Redirección de ADN) --- */
-    /**
-     * 🛡️ LEY ZENITH: Consumimos firmas físicas (.d.ts) para evitar TS6059.
-     */
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@floripa-dignidade/telemetry": ["../../dist/out-tsc/libs/core/telemetry/index.d.ts"],
-      "@floripa-dignidade/exceptions": ["../../dist/out-tsc/libs/core/exceptions/index.d.ts"],
-      "@floripa-dignidade/environment-validator": [
-        "../../dist/out-tsc/libs/core/environment-validator/index.d.ts"
-      ],
-      "@floripa-dignidade/identity": ["../../dist/out-tsc/libs/modules/identity/index.d.ts"]
-    },
-
-    /* --- ADN DEL ENTORNO (Isomorphic Context) --- */
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "incremental": true,
     "types": ["node", "react", "react-dom"],
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-
-    /* --- PLUGINS DE MOTOR (Next.js Intelligence) --- */
     "plugins": [
       {
         "name": "next"
       }
-    ]
+    ],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@floripa-dignidade/adversarial-simulation-engine": [
+        "../../libs/engines/adversarial-simulation-engine/src/index.ts"
+      ],
+      "@floripa-dignidade/analytics": [
+        "../../libs/core/analytics/src/index.ts"
+      ],
+      "@floripa-dignidade/contracts": [
+        "../../libs/contracts/src/index.ts"
+      ],
+      "@floripa-dignidade/data-ingestion-engine": [
+        "../../libs/engines/data-ingestion-engine/src/index.ts"
+      ],
+      "@floripa-dignidade/environment-validator": [
+        "../../libs/core/environment-validator/src/index.ts"
+      ],
+      "@floripa-dignidade/exceptions": [
+        "../../libs/core/exceptions/src/index.ts"
+      ],
+      "@floripa-dignidade/financial-ingestion-engine": [
+        "../../libs/engines/financial-ingestion-engine/src/index.ts"
+      ],
+      "@floripa-dignidade/health-analysis-engine": [
+        "../../libs/engines/health-analysis/src/index.ts"
+      ],
+      "@floripa-dignidade/health-monitor": [
+        "../../libs/engines/health-monitor/src/index.ts"
+      ],
+      "@floripa-dignidade/identity": [
+        "../../libs/modules/identity/src/index.ts"
+      ],
+      "@floripa-dignidade/impact-analytics-engine": [
+        "../../libs/engines/impact-analytics-engine/src/index.ts"
+      ],
+      "@floripa-dignidade/interaction-engine": [
+        "../../libs/modules/interaction-engine/src/index.ts"
+      ],
+      "@floripa-dignidade/messaging-engine": [
+        "../../libs/modules/messaging-engine/src/index.ts"
+      ],
+      "@floripa-dignidade/newsletter": [
+        "../../libs/modules/newsletter/src/index.ts"
+      ],
+      "@floripa-dignidade/reputation-engine": [
+        "../../libs/modules/reputation-engine/src/index.ts"
+      ],
+      "@floripa-dignidade/resend-provider": [
+        "../../libs/core/communication-providers/resend/src/index.ts"
+      ],
+      "@floripa-dignidade/routing": [
+        "../../libs/core/routing/src/index.ts"
+      ],
+      "@floripa-dignidade/search-engine": [
+        "../../libs/engines/search-engine/src/index.ts"
+      ],
+      "@floripa-dignidade/shared-design-system": [
+        "../../libs/shared/design-system/src/index.ts"
+      ],
+      "@floripa-dignidade/shared-state-store": [
+        "../../libs/shared/state-store/src/index.ts"
+      ],
+      "@floripa-dignidade/shared-ui-contracts": [
+        "../../libs/shared/ui-contracts/src/index.ts"
+      ],
+      "@floripa-dignidade/shared-ui-foundry": [
+        "../../libs/shared/ui-foundry/src/index.ts"
+      ],
+      "@floripa-dignidade/shared-utility": [
+        "../../libs/shared/utility/src/index.ts"
+      ],
+      "@floripa-dignidade/social-media": [
+        "../../libs/modules/social-media/src/index.ts"
+      ],
+      "@floripa-dignidade/telemetry": [
+        "../../libs/core/telemetry/src/index.ts"
+      ],
+      "@floripa-dignidade/territorial-engine": [
+        "../../libs/modules/territorial-engine/src/index.ts"
+      ],
+      "@floripa-dignidade/tools": [
+        "../../libs/tools/src/index.ts"
+      ],
+      "@floripa-dignidade/whatsapp-communication-service": [
+        "../../libs/modules/whatsapp/communication-service/src/index.ts"
+      ]
+    }
   },
-
-  /* --- JURISDICCIÓN DE ESCANEO (Sovereign Inclusion) --- */
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    /* 🛡️ SANEADO Zenith: Inclusión formal de archivos de hardware/configuración */
+    "next-env.d.ts",
     "next.config.js",
     "payload.config.ts",
-    "index.d.ts",
-    "next-env.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     ".next/types/**/*.ts"
   ],
-
-  "exclude": ["node_modules", "dist", ".next", "../../dist", "**/*.spec.ts", "**/*.test.ts"],
-
-  /* --- GRAFO DE REFERENCIAS SOBERANAS --- */
-  "references": [
-    {
-      "path": "../../libs/core/exceptions"
-    },
-    {
-      "path": "../../libs/modules/identity"
-    },
-    {
-      "path": "../../libs/core/telemetry"
-    },
-    {
-      "path": "../../libs/core/environment-validator/tsconfig.lib.json"
-    }
-  ]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "out-tsc",
+    ".next"
+  ],
+  "references": []
 }

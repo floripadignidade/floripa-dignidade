@@ -1,19 +1,32 @@
 /**
- * @section tsconfig: Gatekeeper (QA Mirror Bunker)
- * Protocolo OEDP-V17.0 - Zenith Architecture Standard.
+ * @section Quality Assurance - Configuration Gatekeeper (QA Mirror)
+ * @description Orquestador de la frontera física para el búnker de pruebas espejo y aserciones.
+ * Actúa como pasaporte de visibilidad e índice para el servidor de tipos (Project Service),
+ * delegando la resolución y verificación de especificaciones a sus manifiestos especializados.
+ *
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad).
+ * SANEADO Zenith: Erradicación definitiva de baseUrl (ADR 0018) y alineación
+ * de herencia directa sobre tsconfig.base.json.
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "composite": false,
     "noEmit": true,
-    "ignoreDeprecations": "5.0",
-    "baseUrl": "."
+    "ignoreDeprecations": "5.0"
   },
   "files": ["jest.config.ts"],
   "include": [],
   "references": [
-    { "path": "./tsconfig.lib.json" },
-    { "path": "./tsconfig.spec.json" }
+    {
+      "path": "./tsconfig.lib.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
   ]
 }
