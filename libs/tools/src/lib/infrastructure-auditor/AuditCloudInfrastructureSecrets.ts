@@ -2,12 +2,14 @@
  * @section Tools & Infrastructure - Cloud Infrastructure Audit Orchestrator
  * @description Orquestador maestro encargado de ejecutar concurrentemente el enjambre
  * de sondas físicas de infraestructura (Postgres, Supabase PostgREST, Supabase S3 Storage,
- * Resend Transactional Email, Hugging Face SLM y WhatsApp Meta Gateway).
+ * Resend Transactional Email, Google Gemini AI, Hugging Face Router y WhatsApp Meta Gateway).
  * Consolida los diagnósticos individuales, certifica el cumplimiento del contrato Zod
  * y persiste el reporte forense inmutable en 'reports/infrastructure/'.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Mantenibilidad).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Confiabilidad) e ISO/IEC 27001 (Seguridad).
+ * SANEADO Zenith: Integración de sonda para Google Gemini, despacho elástico multi-proveedor de IA
+ * y erradicación de accesos directos a 'process.env' mediante GatherEnvironmentMetadata.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -16,7 +18,8 @@
 import * as fileSystemPromises from 'node:fs/promises';
 import * as pathModule from 'node:path';
 
-/* 1. Infraestructura Core de Telemetría */
+/* 1. Infraestructura Core de Entorno y Telemetría */
+import { GatherEnvironmentMetadata } from '@floripa-dignidade/environment-validator';
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
@@ -34,11 +37,12 @@ import {
   type TCloudInfrastructureAuditReportIdentifier,
 } from './schemas/CloudInfrastructureAuditReport.schema.js';
 
-/* 3. Enjambre Atómico de Sondas de Red */
+/* 3. Enjambre Atómico de Sondas de Red (Resolución ESM Estricta) */
 import { AuditPostgresDatabaseProbe } from './probes/AuditPostgresDatabaseProbe.js';
 import { AuditSupabaseRestProbe } from './probes/AuditSupabaseRestProbe.js';
 import { AuditSupabaseStorageS3Probe } from './probes/AuditSupabaseStorageS3Probe.js';
 import { AuditResendEmailProbe } from './probes/AuditResendEmailProbe.js';
+import { AuditGoogleGeminiCognitiveProbe } from './probes/AuditGoogleGeminiCognitiveProbe.js';
 import { AuditHuggingFaceCognitiveProbe } from './probes/AuditHuggingFaceCognitiveProbe.js';
 import { AuditWhatsAppMetaGatewayProbe } from './probes/AuditWhatsAppMetaGatewayProbe.js';
 
@@ -96,7 +100,7 @@ const PersistAuditReportToDiskAction = async (
 
 /**
  * Ejecuta la auditoría integral de todos los secretos e infraestructura externa del monorepo.
- * Lanza las 6 sondas físicas en paralelo, computa las estadísticas de disponibilidad,
+ * Lanza las sondas físicas en paralelo, computa las estadísticas de disponibilidad,
  * sella el snapshot y lo almacena en el subdirectorio de reportes.
  *
  * @param customOutputDirectoryPathLiteral - Ruta de almacenamiento opcional para sobreescritura en CI/CD.
@@ -116,14 +120,51 @@ export const AuditCloudInfrastructureSecrets = async (
     'EXECUTE_FULL_CLOUD_INFRASTRUCTURE_AUDIT' as OperationCode,
     correlationIdentifier,
     async (): Promise<ICloudInfrastructureAuditReport> => {
-      // 1. DISPACHO CONCURRENTE DEL ENJAMBRE DE SONDAS (Parallel I/O)
+      // 1. INSPECCIÓN PASIVA DE PROVEEDORES DE INTELIGENCIA ARTIFICIAL HABILITADOS
+      const environmentMetadataSnapshot = GatherEnvironmentMetadata();
+
+      const isGoogleGeminiConfiguredBoolean =
+        !!environmentMetadataSnapshot['GOOGLE_GEMINI_API_KEY'] &&
+        environmentMetadataSnapshot['GOOGLE_GEMINI_API_KEY'].trim() !== '';
+
+      const isHuggingFaceConfiguredBoolean =
+        !!environmentMetadataSnapshot['HUGGING_FACE_API_TOKEN'] &&
+        environmentMetadataSnapshot['HUGGING_FACE_API_TOKEN'].trim() !== '';
+
+      /**
+       * Despacho Elástico de Sondas de IA:
+       * Si Google Gemini está configurado, se evalúa su conectividad prioritaria.
+       * Si Hugging Face está presente, también se evalúa. Si ninguno está configurado,
+       * se dispara la sonda de Gemini para reportar la credencial ausente.
+       */
+      const cognitiveProbesQueueCollection = [];
+
+      if (isGoogleGeminiConfiguredBoolean) {
+        cognitiveProbesQueueCollection.push(
+          AuditGoogleGeminiCognitiveProbe(correlationIdentifier),
+        );
+      }
+
+      if (isHuggingFaceConfiguredBoolean) {
+        cognitiveProbesQueueCollection.push(
+          AuditHuggingFaceCognitiveProbe(correlationIdentifier),
+        );
+      }
+
+      if (cognitiveProbesQueueCollection.length === 0) {
+        cognitiveProbesQueueCollection.push(
+          AuditGoogleGeminiCognitiveProbe(correlationIdentifier),
+        );
+      }
+
+      // 2. DISPACHO CONCURRENTE DEL ENJAMBRE DE SONDAS (Parallel I/O)
       const probesResultsCollection: IIndividualProviderAuditSnapshot[] =
         await Promise.all([
           AuditPostgresDatabaseProbe(correlationIdentifier),
           AuditSupabaseRestProbe(correlationIdentifier),
           AuditSupabaseStorageS3Probe(correlationIdentifier),
           AuditResendEmailProbe(correlationIdentifier),
-          AuditHuggingFaceCognitiveProbe(correlationIdentifier),
+          ...cognitiveProbesQueueCollection,
           AuditWhatsAppMetaGatewayProbe(correlationIdentifier),
         ]);
 
@@ -131,7 +172,7 @@ export const AuditCloudInfrastructureSecrets = async (
         performance.now() - executionStartTimestampNumeric,
       );
 
-      // 2. CONSOLIDACIÓN DE MÉTRICAS SRE
+      // 3. CONSOLIDACIÓN DE MÉTRICAS SRE
       const totalTestedProvidersQuantity = probesResultsCollection.length;
 
       const healthyProvidersCountQuantity = probesResultsCollection.filter(
@@ -153,8 +194,10 @@ export const AuditCloudInfrastructureSecrets = async (
             individualProbeSnapshot.probeStatusLiteral === 'DEGRADED_LATENCY',
         );
 
-      // 3. DETERMINACIÓN DEL MODO DE EJECUCIÓN
-      const rawEnvironmentLiteral = process.env['NODE_ENV'] ?? 'development';
+      // 4. DETERMINACIÓN SEGURA DEL ENTORNO (Sin process.env Directo)
+      const rawEnvironmentLiteral =
+        environmentMetadataSnapshot['NODE_ENV'] ?? 'development';
+
       const executionEnvironmentLiteral: 'development' | 'production' | 'test' =
         rawEnvironmentLiteral === 'production'
           ? 'production'
@@ -162,7 +205,7 @@ export const AuditCloudInfrastructureSecrets = async (
             ? 'test'
             : 'development';
 
-      // 4. CONSTRUCCIÓN Y VALIDACIÓN DEL REPORTE MAESTRO
+      // 5. CONSTRUCCIÓN Y VALIDACIÓN DEL REPORTE MAESTRO
       const rawReportSnapshot = Object.freeze({
         reportIdentifier:
           CloudInfrastructureAuditReportIdentifierSchema.parse(
@@ -182,7 +225,7 @@ export const AuditCloudInfrastructureSecrets = async (
       const validatedAuditReportSnapshot =
         CloudInfrastructureAuditReportSchema.parse(rawReportSnapshot);
 
-      // 5. PERSISTENCIA FÍSICA EN DISCO
+      // 6. PERSISTENCIA FÍSICA EN DISCO
       const targetDirectoryPathLiteral =
         customOutputDirectoryPathLiteral ??
         DEFAULT_REPORT_OUTPUT_DIRECTORY_PATH_LITERAL;
@@ -194,7 +237,7 @@ export const AuditCloudInfrastructureSecrets = async (
           validatedAuditReportSnapshot,
         );
 
-      // 6. EMISIÓN DE TELEMETRÍA GLOBAL
+      // 7. EMISIÓN DE TELEMETRÍA GLOBAL
       void EmitTelemetrySignal({
         occurrenceTimestampISO: new Date().toISOString(),
         severityLevelLiteral: isInfrastructureFullyOperationalBoolean
@@ -216,6 +259,9 @@ export const AuditCloudInfrastructureSecrets = async (
           totalTestedProvidersQuantity,
           isInfrastructureFullyOperationalBoolean,
           persistedReportFilePathLiteral,
+          testedAiProviderLiteral: isGoogleGeminiConfiguredBoolean
+            ? 'GOOGLE_GEMINI'
+            : 'HUGGING_FACE',
         },
       });
 

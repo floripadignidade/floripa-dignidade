@@ -1,136 +1,251 @@
 /**
- * @section AI Providers - Hugging Face Edge Driver
- * @description Adaptador físico para la comunicación con modelos de inteligencia
- * artificial (SLM) alojados en Hugging Face Inference API. Implementa el protocolo
- * de transporte seguro y gestión de rastro telemétrico de red.
+ * @section AI Providers - Hugging Face Router Engine Driver (Atom)
+ * @description Adaptador de red y transporte encargado de la comunicación física con
+ * los modelos de inteligencia artificial alojados en el enrutador de Hugging Face
+ * (Inference Providers Router: 'https://router.huggingface.co/hf-inference/models/...').
+ * Implementa protocolo de transporte seguro, medición de latencia y gestión de estados
+ * de inicialización en frío (Cold Start) bajo estándares SRE.
  *
- * Protocolo OEDP-V16.0 - High Performance & Cloud Sovereign (ADR 0015).
- * SANEADO Zenith: Transición de Mock a I/O real con soporte Edge Runtime.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Rendimiento).
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
+/* 1. Infraestructura Core de Entorno y Telemetría */
+import { GatherEnvironmentMetadata } from '@floripa-dignidade/environment-validator';
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  type OperationCode,
 } from '@floripa-dignidade/telemetry';
 
+/* 2. Contratos Centralizados de Inferencia */
+import type { IInferenceResponse } from '../schemas/Inference.schema.js';
+
+/** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
+const DRIVER_MODULE_IDENTIFIER =
+  'HUGGING_FACE_ROUTER_INFERENCE_DRIVER' as ModuleIdentifier;
+
 /**
- * @interface IGlobalEnvironmentReference
- * @description Puente de tipos para el acceso a secretos de IA sin dependencias circulares.
+ * @constant CANONICAL_ROUTER_MODEL_URL_LITERAL
+ * Endpoint oficial actualizado para inferencia serverless en Hugging Face Router (Phi-3 Mini).
  */
-interface IGlobalEnvironmentReference {
-  readonly process?: {
-    readonly env: Record<string, string | undefined>;
-  };
-}
-
-/** Identificador técnico del driver para el Neural Sentinel. */
-const HUGGING_FACE_DRIVER_IDENTIFIER = 'HUGGING_FACE_INFERENCE_DRIVER';
+const CANONICAL_ROUTER_MODEL_URL_LITERAL =
+  'https://router.huggingface.co/hf-inference/models/microsoft/Phi-3-mini-4k-instruct';
 
 /**
- * Ejecuta una petición de inferencia física hacia el proveedor externo.
+ * @constant INFERENCE_TIMEOUT_IN_MILLISECONDS_QUANTITY
+ * Límite estricto de espera de red para evitar bloqueos en el hilo principal o en Vercel Serverless.
+ */
+const INFERENCE_TIMEOUT_IN_MILLISECONDS_QUANTITY = 12000;
+
+/**
+ * Ejecuta una consulta física de inferencia cognitiva contra el enrutador de Hugging Face.
  *
- * @param unvalidatedIntelligencePayloadSnapshot - Datos a procesar por el modelo de IA.
- * @returns {Promise<unknown>} Respuesta cruda del proveedor para ser procesada por la aduana.
+ * @param unvalidatedIntelligencePayloadSnapshot - Carga útil o prompt a procesar por el modelo de IA.
+ * @returns {Promise<unknown>} Respuesta cruda del proveedor para ser certificada por la aduana de ADN.
  */
-export const executeHuggingFaceInference = async (
-  unvalidatedIntelligencePayloadSnapshot: unknown
+export const ExecuteHuggingFaceInference = async (
+  unvalidatedIntelligencePayloadSnapshot: unknown,
 ): Promise<unknown> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
-  const globalContext = globalThis as unknown as IGlobalEnvironmentReference;
+  const environmentMetadataSnapshot = GatherEnvironmentMetadata();
 
-  /**
-   * @section Captura de Infraestructura
-   * SANEADO: Se extraen los secretos de IA validados por el enjambre.
-   */
-  const huggingFaceApiTokenSecret = globalContext.process?.env['HUGGING_FACE_API_TOKEN'];
-  const huggingFaceModelUrlLiteral = globalContext.process?.env['HUGGING_FACE_MODEL_URL'];
+  const rawHuggingFaceApiTokenSecret =
+    environmentMetadataSnapshot['HUGGING_FACE_API_TOKEN'];
+  const rawHuggingFaceModelUrlLiteral =
+    environmentMetadataSnapshot['HUGGING_FACE_MODEL_URL'] ??
+    CANONICAL_ROUTER_MODEL_URL_LITERAL;
 
-  /** Fallback preventivo si la infraestructura no está cableada */
-  if (!huggingFaceApiTokenSecret || !huggingFaceModelUrlLiteral) {
-    return {
+  // 1. VERIFICACIÓN DE SECRETOS DE ENTORNO
+  const isTokenConfiguredBoolean =
+    !!rawHuggingFaceApiTokenSecret && rawHuggingFaceApiTokenSecret.trim() !== '';
+
+  if (!isTokenConfiguredBoolean) {
+    void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
+      severityLevelLiteral: 'WARNING',
+      moduleIdentifierLiteral: DRIVER_MODULE_IDENTIFIER,
+      operationCodeLiteral:
+        'HF_ROUTER_CREDENTIALS_MISSING' as OperationCode,
+      correlationIdentifier,
+      messageContentLiteral:
+        'Conexión con Hugging Face abortada: HUGGING_FACE_API_TOKEN no configurado.',
+      semanticIntentTag: 'AI_INFERENCE_ABORTED',
+    });
+
+    return Object.freeze({
       analysisId: correlationIdentifier,
       confidenceScore: 0,
-      observation: 'HEALTH_ANALYSIS.ERRORS.INFRASTRUCTURE_UNAVAILABLE',
+      observation:
+        'El token de acceso HUGGING_FACE_API_TOKEN no está configurado en las variables de entorno.',
       suggestedAction: 'NONE',
-      detectedAnomalies: ['MISSING_HF_CONFIGURATION'],
-      metadata: { statusLiteral: 'FALLBACK_TRIGGERED' }
-    };
+      detectedAnomalies: ['MISSING_HF_ACCESS_TOKEN'],
+      metadata: { statusLiteral: 'UNCONFIGURED_CREDENTIALS' },
+    });
   }
+
+  // 2. NORMALIZACIÓN DE LA URL DEL ENRUTADOR (Corrección automática de dominios obsoletos)
+  const targetModelUrlLiteral = rawHuggingFaceModelUrlLiteral.includes(
+    'api-inference.huggingface.co',
+  )
+    ? rawHuggingFaceModelUrlLiteral.replace(
+        'api-inference.huggingface.co',
+        'router.huggingface.co/hf-inference',
+      )
+    : rawHuggingFaceModelUrlLiteral;
+
+  const executionStartTimestampNumeric = performance.now();
 
   try {
-    const payloadStringifiedLiteral = JSON.stringify(unvalidatedIntelligencePayloadSnapshot);
+    const serializedPayloadLiteral = JSON.stringify(
+      typeof unvalidatedIntelligencePayloadSnapshot === 'string'
+        ? { inputs: unvalidatedIntelligencePayloadSnapshot }
+        : unvalidatedIntelligencePayloadSnapshot,
+    );
 
-    // REPORTE DE SALIDA (Network Outbound)
-    EmitTelemetrySignal({
-      severityLevel: 'DEBUG',
-      moduleIdentifier: HUGGING_FACE_DRIVER_IDENTIFIER,
-      operationCode: 'INFERENCE_REQUEST_DISPATCHED',
-      correlationIdentifier,
-      message: 'HEALTH_ANALYSIS.LOGS.NETWORK_REQUEST_STARTED',
-      contextMetadata: {
-        payloadSizeBytesQuantity: payloadStringifiedLiteral.length,
-        targetModelUrlLiteral: huggingFaceModelUrlLiteral
-      }
-    });
-
-    /**
-     * @section Ejecución Física (Fetch Standard)
-     * Implementa timeout agresivo para evitar bloqueos en el Edge.
-     */
-    const inferenceResponse = await fetch(huggingFaceModelUrlLiteral, {
+    // 3. DESPACHO DE LA CONSULTA AL ENRUTADOR DE HUGGING FACE
+    const incomingNetworkResponse = await fetch(targetModelUrlLiteral.trim(), {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${huggingFaceApiTokenSecret}`,
+        Authorization: `Bearer ${rawHuggingFaceApiTokenSecret.trim()}`,
         'Content-Type': 'application/json',
-        'X-Floripa-Correlation-ID': correlationIdentifier
+        Accept: 'application/json',
+        'X-Correlation-Identifier': correlationIdentifier,
       },
-      body: payloadStringifiedLiteral,
-      signal: AbortSignal.timeout(10000) // 10 segundos de límite soberano
+      body: serializedPayloadLiteral,
+      signal: AbortSignal.timeout(INFERENCE_TIMEOUT_IN_MILLISECONDS_QUANTITY),
     });
 
-    if (!inferenceResponse.ok) {
-      throw new Error(`HF_PROVIDER_ERROR_${inferenceResponse.status}`);
+    const executionLatencyInMillisecondsQuantity = Math.round(
+      performance.now() - executionStartTimestampNumeric,
+    );
+
+    // 4. TRIAJE DE RESPUESTA EXITOSA
+    if (incomingNetworkResponse.ok) {
+      const parsedResponseBody: unknown = await incomingNetworkResponse.json();
+
+      void EmitTelemetrySignal({
+        occurrenceTimestampISO: new Date().toISOString(),
+        severityLevelLiteral: 'INFO',
+        moduleIdentifierLiteral: DRIVER_MODULE_IDENTIFIER,
+        operationCodeLiteral:
+          'HF_ROUTER_INFERENCE_SUCCESS' as OperationCode,
+        correlationIdentifier,
+        messageContentLiteral:
+          'Inferencia cognitiva ejecutada exitosamente a través de Hugging Face Router.',
+        executionLatencyInMillisecondsQuantity,
+        semanticIntentTag: 'AI_INFERENCE_SUCCESS',
+        contextMetadataSnapshot: {
+          targetModelUrlLiteral,
+          executionLatencyInMillisecondsQuantity,
+        },
+      });
+
+      return {
+        analysisId: correlationIdentifier,
+        confidenceScore: 0.95,
+        observation: 'Inferencia procesada nominalmente por el enrutador SLM.',
+        suggestedAction: 'NONE',
+        detectedAnomalies: [],
+        metadata: {
+          targetModelUrlLiteral,
+          executionLatencyInMillisecondsQuantity,
+          rawResponseSnapshot: parsedResponseBody,
+        },
+      };
     }
 
-    const rawResultPayload = await inferenceResponse.json();
+    // 5. TRIAJE DE ESTADOS CRÍTICOS (Cold Start 503 o Rechazo 401/403)
+    const isModelLoadingColdStartBoolean =
+      incomingNetworkResponse.status === 503;
+    const isAuthenticationRejectedBoolean =
+      incomingNetworkResponse.status === 401 ||
+      incomingNetworkResponse.status === 403;
 
-    return {
-      ...rawResultPayload,
-      analysisId: correlationIdentifier, // Inyectamos trazabilidad local
-      metadata: {
-        ...(rawResultPayload.metadata ?? {}),
-        providerStatusNumeric: inferenceResponse.status
-      }
-    };
+    const errorStatusDescriptionLiteral = isModelLoadingColdStartBoolean
+      ? 'El modelo cognitivo está cargando en la memoria del enrutador (Cold Start). Reintento sugerido.'
+      : isAuthenticationRejectedBoolean
+        ? `Autenticación rechazada por Hugging Face Router (HTTP ${incomingNetworkResponse.status}): HUGGING_FACE_API_TOKEN inválido.`
+        : `El enrutador de Hugging Face respondió con error HTTP ${incomingNetworkResponse.status}.`;
 
-  } catch (caughtError: unknown) {
-    const errorDescriptionLiteral = caughtError instanceof Error
-      ? caughtError.message
-      : String(caughtError);
-
-    // REPORTE DE FALLO DE TRANSPORTE
-    EmitTelemetrySignal({
-      severityLevel: 'ERROR',
-      moduleIdentifier: HUGGING_FACE_DRIVER_IDENTIFIER,
-      operationCode: 'INFERENCE_NETWORK_FAULT',
+    void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
+      severityLevelLiteral: isModelLoadingColdStartBoolean
+        ? 'WARNING'
+        : 'CRITICAL',
+      moduleIdentifierLiteral: DRIVER_MODULE_IDENTIFIER,
+      operationCodeLiteral: isModelLoadingColdStartBoolean
+        ? ('HF_ROUTER_COLD_START' as OperationCode)
+        : ('HF_ROUTER_HTTP_ERROR' as OperationCode),
       correlationIdentifier,
-      message: 'HEALTH_ANALYSIS.ERRORS.PROVIDER_COMMUNICATION_FAILED',
-      contextMetadata: { errorTraceLiteral: errorDescriptionLiteral }
+      messageContentLiteral: errorStatusDescriptionLiteral,
+      executionLatencyInMillisecondsQuantity,
+      semanticIntentTag: 'AI_INFERENCE_FAILURE',
+      contextMetadataSnapshot: {
+        httpStatusCodeNumeric: incomingNetworkResponse.status,
+      },
     });
 
-    /**
-     * Retornamos un objeto de fallo compatible con el esquema de salida
-     * para que el orquestador pueda tomar decisiones de contingencia.
-     */
-    return {
+    return Object.freeze({
       analysisId: correlationIdentifier,
       confidenceScore: 0,
-      observation: 'HEALTH_ANALYSIS.ERRORS.INFERENCE_TIMEOUT_OR_FAULT',
+      observation: errorStatusDescriptionLiteral,
+      suggestedAction: isModelLoadingColdStartBoolean
+        ? 'NONE'
+        : 'RESTART_MODULE',
+      detectedAnomalies: [`HTTP_STATUS_${incomingNetworkResponse.status}`],
+      metadata: {
+        isFaultyBoolean: true,
+        httpStatusCodeNumeric: incomingNetworkResponse.status,
+      },
+    });
+  } catch (caughtExecutionError: unknown) {
+    // 6. GESTIÓN FORENSE DE COLAPSO DE RED / TIMEOUT
+    const executionLatencyInMillisecondsQuantity = Math.round(
+      performance.now() - executionStartTimestampNumeric,
+    );
+
+    const errorDescriptionLiteral =
+      caughtExecutionError instanceof Error
+        ? caughtExecutionError.message
+        : String(caughtExecutionError);
+
+    void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
+      severityLevelLiteral: 'CRITICAL',
+      moduleIdentifierLiteral: DRIVER_MODULE_IDENTIFIER,
+      operationCodeLiteral:
+        'HF_ROUTER_NETWORK_COLLAPSE' as OperationCode,
+      correlationIdentifier,
+      messageContentLiteral: `Fallo de red al conectar con Hugging Face Router: ${errorDescriptionLiteral}`,
+      executionLatencyInMillisecondsQuantity,
+      semanticIntentTag: 'AI_INFERENCE_NETWORK_COLLAPSE',
+      contextMetadataSnapshot: {
+        errorDescriptionLiteral,
+        targetModelUrlLiteral,
+      },
+    });
+
+    return Object.freeze({
+      analysisId: correlationIdentifier,
+      confidenceScore: 0,
+      observation: `Fallo de comunicación de red con el modelo de IA: ${errorDescriptionLiteral}`,
       suggestedAction: 'RESTART_MODULE',
       detectedAnomalies: [errorDescriptionLiteral],
-      metadata: { isFaultyBoolean: true }
-    };
+      metadata: {
+        isFaultyBoolean: true,
+        errorDescriptionLiteral,
+      },
+    });
   }
 };
+
+/**
+ * @name executeHuggingFaceInference
+ * @description Alias institucional en camelCase para compatibilidad con la factoría de drivers.
+ */
+export const executeHuggingFaceInference = ExecuteHuggingFaceInference;

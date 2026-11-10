@@ -13,19 +13,22 @@
     "dev:portal": "nx serve floripa-dignidade",
     "dev:cms": "nx serve content-manager-system",
     "dev:all": "nx run-many -t dev --parallel=1",
-    "// --- 🛡️ QUALITY AUDIT: ZENITH SENTRY ---": "",
+    "// --- 🛡️ QUALITY AUDIT: SRE GATEKEEPER ---": "",
     "typecheck": "nx run-many -t typecheck --parallel=1",
     "lint": "nx run-many -t lint --parallel=1",
     "lint:fix": "nx run-many -t lint --fix --parallel=1",
     "format:check": "nx format:check",
     "format:write": "nx format:write",
+    "audit:infrastructure": "tsx --tsconfig ./tsconfig.base.json scripts/src/audit-cloud-infrastructure-secrets.ts",
+    "audit:exceptions": "tsx --tsconfig ./tsconfig.base.json scripts/src/audit-exceptions.ts",
+    "// --- 📊 FINANCIAL & MUNICIPAL DATA INGESTION ---": "",
+    "ingest:budget": "tsx --tsconfig ./tsconfig.base.json scripts/src/ingest-financial-budget.ts",
     "// --- 🧪 QA: FORENSIC TESTING ---": "",
     "test:unit": "nx run-many -t test",
     "test:e2e": "nx e2e floripa-dignidade-e2e",
-    "// --- 🧹 WORKSPACE UTILITIES (Forensic Purge) ---": "",
+    "// --- 🧹 WORKSPACE HYGIENE & MAINTENANCE ---": "",
     "purge:emissions": "tsx --tsconfig ./tsconfig.base.json scripts/src/purge-rogue-emissions.ts",
-    "audit:exceptions": "tsx --tsconfig ./tsconfig.base.json scripts/src/audit-exceptions.ts",
-    "workspace:clean": "nx reset && node -e \"['dist','.nx','tmp','reports'].forEach(directoryPathLiteral => fs.rmSync(directoryPathLiteral, { recursive: true, force: true }))\"",
+    "workspace:clean": "nx reset && node -e \"['dist','.nx','tmp'].forEach(directoryPathLiteral => fs.rmSync(directoryPathLiteral, { recursive: true, force: true }))\"",
     "workspace:graph": "nx graph"
   },
   "private": true,
@@ -109,11 +112,12 @@
     "tailwindcss-animate": "^1.0.7",
     "ts-jest": "^29.4.0",
     "ts-node": "10.9.1",
+    "tsx": "^4.19.0",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.40.0"
   },
   "packageManager": "pnpm@10.26.1+sha512.664074abc367d2c9324fdc18037097ce0a8f126034160f709928e9e9f95d98714347044e5c3164d65bd5da6c59c6be362b107546292a8eecb7999196e5ce58fa",
   "engines": {
-    "node": "20.x || 24.x"
+    "node": ">=20.9.0"
   }
 }
