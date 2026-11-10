@@ -2,12 +2,18 @@
   "name": "@floripa-dignidade/floripa-dignidade",
   "version": "1.1.0",
   "private": true,
-  "description": "ISO-Standard: Portal Ciudadano Soberano de Floripa Dignidade. Orquestador del embudo de conversion social y auditoria de Derechos Humanos.",
+  "description": "Portal Institucional y de Respuesta Social de Floripa Dignidade. Orquestador del embudo de conversión cívica y auditoría de Derechos Humanos.",
   "type": "module",
-  "author": "Raz Podesta - MetaShark Tech",
+  "author": "Coletivo Floripa Dignidade <iamfloripadignidade@gmail.com>",
   "license": "UNLICENSED",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
   "engines": {
-    "node": "24.x"
+    "node": ">=20.9.0"
   },
   "nx": {
     "tags": [
