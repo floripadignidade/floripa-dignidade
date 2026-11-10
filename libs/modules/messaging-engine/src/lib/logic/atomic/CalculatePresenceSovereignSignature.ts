@@ -1,64 +1,102 @@
 /**
- * @section Messaging Logic - Presence Sovereign Signature Atom
- * @description Átomo de lógica pura encargado de generar una huella digital
- * determinística del estado de presencia. Permite al sistema detectar
- * mutaciones reales y evitar ráfagas de red redundantes hacia el Ledger Cloud.
+ * @section Messaging Logic - Presence State Signature Generator (Atom)
+ * @description Átomo de lógica pura encargado de generar una huella digital determinista
+ * y sellada nominalmente a partir del estado de presencia ciudadana. Proporciona una barrera
+ * de idempotencia para interceptar mutaciones redundantes y optimizar el consumo de red
+ * hacia el Ledger Cloud de persistencia.
  *
- * Protocolo OEDP-V17.0 - Functional Atomicity & Pure Logic.
- * SANEADO Zenith: Resolución de TS2307 (Shared Fragmentation) y Prosa ISO.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Eficiencia y Mantenibilidad).
+ * SANEADO: Purga definitiva de metáforas informales ("Sovereign"), inyección de Branded Types
+ * y cumplimiento de exactOptionalPropertyTypes.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-/* 1. ADN Estructural (Sovereign State Store Boundary) */
+import { z } from 'zod';
+
+/* 1. Contratos de Estado y Tipos Centralizados (Boundary Safe) */
 import type { TAvailabilityStatus } from '@floripa-dignidade/shared-state-store';
 
 /**
- * @interface IPresenceIdentitySnapshot
- * @description Contrato inmutable para la generación de la firma de estado.
- * Define los componentes críticos que componen la identidad de disponibilidad.
+ * @name PresenceStateSignatureSchema
+ * @description Contrato Zod con sellado de marca nominal para firmas de presencia.
  */
-interface IPresenceIdentitySnapshot {
-  /** Estado ontológico (ONLINE | AWAY | DO_NOT_DISTURB | OFFLINE). */
+export const PresenceStateSignatureSchema = z
+  .string()
+  .min(1, { message: 'LA_FIRMA_DE_PRESENCIA_NO_PUEDE_ESTAR_VACIA' })
+  .brand<'PresenceStateSignature'>();
+
+/** Tipo nominal inmutable para la huella digital de disponibilidad ciudadana. */
+export type TPresenceStateSignature = z.infer<typeof PresenceStateSignatureSchema>;
+
+/**
+ * @name PresenceIdentitySnapshotSchema
+ * @description Contrato estructural de los datos requeridos para la generación de la firma.
+ */
+export const PresenceIdentitySnapshotSchema = z
+  .object({
+    /** Estado ontológico de disponibilidad (ONLINE, AWAY, DO_NOT_DISTURB, OFFLINE). */
+    availabilityStatusLiteral: z.enum([
+      'ONLINE',
+      'AWAY',
+      'DO_NOT_DISTURB',
+      'OFFLINE',
+    ]),
+
+    /** Mensaje de contexto o estado personalizado definido por el usuario. */
+    customStatusMessageLiteral: z.string(),
+
+    /** Token secreto de hardware para notificaciones Web Push PWA (opcional). */
+    pushSubscriptionTokenSecret: z.string().optional(),
+  })
+  .readonly();
+
+/**
+ * @interface IPresenceIdentitySnapshot
+ * @description Contrato inmutable que refleja los componentes de disponibilidad.
+ * Sigue la regla 'exactOptionalPropertyTypes: true' mediante la unión explícita con undefined.
+ */
+export interface IPresenceIdentitySnapshot {
   readonly availabilityStatusLiteral: TAvailabilityStatus;
-
-  /** Mensaje de contexto lingüístico definido por el ciudadano. */
   readonly customStatusMessageLiteral: string;
-
-  /** Token secreto de hardware para el túnel de notificaciones. */
-  readonly pushSubscriptionTokenSecret?: string;
+  readonly pushSubscriptionTokenSecret?: string | undefined;
 }
 
 /**
- * Transforma el snapshot de presencia en una firma de integridad textual inalterable.
- * Implementa una serialización determinística para la validación de idempotencia.
+ * Genera una huella digital inalterable y determinista del estado de presencia.
+ * Implementa una función matemática pura sin efectos secundarios ni accesos a hardware.
  *
- * @param presenceSnapshot - Datos actuales de disponibilidad y hardware.
- * @returns {string} Cadena JSON normalizada para la auditoría de cambios.
+ * @param presenceSnapshot - Snapshot inmutable con el estado ontológico, mensaje y token de hardware.
+ * @returns {TPresenceStateSignature} Firma serializada determinista con tipado nominal sellado.
  */
-export const CalculatePresenceSovereignSignature = (
-  presenceSnapshot: IPresenceIdentitySnapshot
-): string => {
-  /**
-   * @section Algoritmo de Identidad (Fingerprinting)
-   * Normalizamos el contenido eliminando ruidos espaciales y utilizando
-   * llaves comprimidas para optimizar el rastro en la memoria volátil.
-   *
-   * Mapeo de Firma:
-   * s: availabilityStatusLiteral
-   * m: customStatusMessageLiteral
-   * t: pushSubscriptionTokenSecret
-   */
-  const signaturePayloadSnapshot = {
-    s: presenceSnapshot.availabilityStatusLiteral,
-    m: presenceSnapshot.customStatusMessageLiteral.trim(),
-    t: presenceSnapshot.pushSubscriptionTokenSecret ?? 'NONE'
-  };
+export const CalculatePresenceStateSignature = (
+  presenceSnapshot: IPresenceIdentitySnapshot,
+): TPresenceStateSignature => {
+  const sanitizedStatusLiteral = presenceSnapshot.availabilityStatusLiteral;
+  const sanitizedMessageLiteral = presenceSnapshot.customStatusMessageLiteral.trim();
+  const sanitizedTokenLiteral = presenceSnapshot.pushSubscriptionTokenSecret ?? 'NONE';
 
   /**
-   * Retornamos la representación serializada. Al ser una función pura,
-   * garantizamos que ante los mismos datos, la firma sea idéntica.
+   * @section Serialización Determinista Normalizada
+   * Se utiliza una estructura fija de claves para asegurar que campos idénticos
+   * produzcan exactamente la misma firma en memoria volátil.
    */
-  return JSON.stringify(signaturePayloadSnapshot);
+  const deterministicPayloadSnapshot = {
+    status: sanitizedStatusLiteral,
+    message: sanitizedMessageLiteral,
+    token: sanitizedTokenLiteral,
+  };
+
+  const serializedSignatureLiteral = JSON.stringify(deterministicPayloadSnapshot);
+
+  return serializedSignatureLiteral as TPresenceStateSignature;
 };
+
+/**
+ * @name CalculatePresenceSovereignSignature
+ * @description Alias institucional de compatibilidad histórica para prevenir roturas en el enjambre.
+ * @deprecated Utilizar canónicamente 'CalculatePresenceStateSignature' bajo el estándar OEDP-V18.1.
+ */
+export const CalculatePresenceSovereignSignature = CalculatePresenceStateSignature;

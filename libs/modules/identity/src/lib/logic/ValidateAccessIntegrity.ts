@@ -1,51 +1,54 @@
+// libs/modules/identity/src/lib/logic/ValidateAccessIntegrity.ts
+
 /**
  * @section User Management & Identity - Identity Logic Orchestrators
  * @description Orquestador supremo encargado de certificar la legitimidad de la
- * identidad y validar la jurisdicción institucional (Multi-tenancy). Actúa como
- * el Guardian de Acceso, impidiendo transacciones fuera de la jerarquía permitida.
+ * identidad ciudadana y validar la jurisdicción institucional (Multi-tenancy). Actúa como
+ * el guardián de control de acceso perimetral, impidiendo transacciones fuera de la
+ * jerarquía de autoridad permitida y protegiendo el aislamiento de datos entre organizaciones.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Calidad: ISO/IEC 25010 (Seguridad y Modularidad).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Seguridad y Modularidad).
+ * SANEADO Zenith: Erradicación definitiva de la comparación inválida TS2367 alineando
+ * el rol de auditoría a INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR y purga de metáforas informales.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import { ValidationException } from '@floripa-dignidade/exceptions';
+
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
   TraceExecutionTime,
+  type ModuleIdentifier,
+  type OperationCode,
 } from '@floripa-dignidade/telemetry';
 
-/* 1. ADN ESTRUCTURAL (Consumo desde SSOT Contracts) */
+/* 1. Contratos Centralizados de Dominio (Single Source of Truth) */
 import {
+  AccessIntegrityRequestSchema,
+  IDENTITY_ACCESS_ROLES_COLLECTION,
   UserIdentitySchema,
-  AccessIntegrityRequestSchema
+  type IAccessIntegrityRequest,
+  type IUserIdentity,
 } from '@floripa-dignidade/contracts';
 
-import type {
-  IUserIdentity,
-  IAccessIntegrityRequest
-} from '@floripa-dignidade/contracts';
-
-/* 2. ENJAMBRE ATÓMICO LOCAL (Internal Swarm) */
+/* 2. Enjambre Atómico Local (Internal Swarm) */
 import { EvaluateIdentityAuthorityHierarchy } from './atomic/EvaluateIdentityAuthorityHierarchy';
 
-/** Identificador técnico del aparato para el Health Monitor (IA). */
-const ORCHESTRATOR_IDENTIFIER = 'ACCESS_INTEGRITY_ORCHESTRATOR';
+/** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
+const ORCHESTRATOR_IDENTIFIER = 'ACCESS_INTEGRITY_ORCHESTRATOR' as ModuleIdentifier;
 
 /**
  * Valida integralmente el acceso de una identidad a un recurso de una organización específica.
- * Implementa el patrón "Multi-tenant Access Guard" con rastro forense inalterable.
+ * Implementa el patrón "Multi-tenant Access Guard" con rastro de auditoría forense inalterable.
  *
- * @param unvalidatedIdentitySnapshot - Rastro de identidad (Sesión/Token/API).
- * @param accessRequestSnapshot - Requisitos de acceso y jurisdicción de destino.
- * @returns {Promise<IUserIdentity>} Identidad purificada tras superar todas las aduanas.
- * @throws {ValidationException} Si se detecta violación de contrato o de jurisdicción.
- *
- * @prompt_ia: "Verifica que el 'organizationIdentifier' de la identidad coincida
- * con el 'targetOrganizationIdentifier' del request, excepto para el rol SRE_AUDITOR."
+ * @param unvalidatedIdentitySnapshot - Rastro de identidad no purificado (Sesión, Token o API Payload).
+ * @param accessRequestSnapshot - Requisitos mínimos de acceso y jurisdicción institucional de destino.
+ * @returns {Promise<IUserIdentity>} Identidad purificada y validada tras superar todas las aduanas perimetrales.
+ * @throws {ValidationException} Si se detecta violación de contrato de datos, autoridad insuficiente o acceso cruzado entre tenants no autorizado.
  */
 export const ValidateAccessIntegrity = async (
   unvalidatedIdentitySnapshot: unknown,
@@ -55,77 +58,94 @@ export const ValidateAccessIntegrity = async (
 
   return await TraceExecutionTime(
     ORCHESTRATOR_IDENTIFIER,
-    'EXECUTE_MULTI_TENANT_ACCESS_AUDIT',
+    'EXECUTE_MULTI_TENANT_ACCESS_AUDIT' as OperationCode,
     correlationIdentifier,
-    async () => {
-
-      // --- FASE 1: INTEGRIDAD ESTRUCTURAL (ADN Audit) ---
+    async (): Promise<IUserIdentity> => {
+      // --- FASE 1: INTEGRIDAD ESTRUCTURAL (Aduana de ADN) ---
       const identityValidationResult = UserIdentitySchema.safeParse(unvalidatedIdentitySnapshot);
       const requestValidationResult = AccessIntegrityRequestSchema.safeParse(accessRequestSnapshot);
 
       if (!identityValidationResult.success || !requestValidationResult.success) {
         throw new ValidationException('ACCESS_REQUEST_DNA_CORRUPTED', {
-          identityIssues: identityValidationResult.error?.flatten(),
-          requestIssues: requestValidationResult.error?.flatten(),
-          correlationIdentifier
+          identityValidationIssuesCollection: identityValidationResult.error?.flatten(),
+          requestValidationIssuesCollection: requestValidationResult.error?.flatten(),
+          correlationIdentifier,
         });
       }
 
       const authenticatedIdentitySnapshot = identityValidationResult.data;
-      const validatedRequest = requestValidationResult.data;
+      const validatedAccessRequest = requestValidationResult.data;
 
-      // --- FASE 2: EVALUACIÓN DE JURISDICCIÓN (Multi-tenancy Enforcement) ---
+      // --- FASE 2: EVALUACIÓN DE JURISDICCIÓN INSTITUCIONAL (Multi-tenancy Enforcement) ---
       /**
-       * 🛡️ LEY ZENITH: Un usuario solo puede actuar sobre su propia organización.
-       * Los auditores de infraestructura poseen bypass de jurisdicción global.
+       * 🛡️ LEY DE SEGURIDAD SRE:
+       * Un usuario solo puede actuar sobre los recursos de su propia organización.
+       * El rol de auditor administrativo de infraestructura posee bypass de jurisdicción global
+       * para fines de fiscalización técnica y recuperación del sistema.
        */
-      const isSovereignAuditorBoolean =
-        authenticatedIdentitySnapshot.assignedAuthorityRoleLiteral === 'INFRASTRUCTURE_SOVEREIGN_AUDITOR';
+      const isAdministrativeAuditorBoolean =
+        authenticatedIdentitySnapshot.assignedAuthorityRoleLiteral ===
+        IDENTITY_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR;
 
       const isCorrectJurisdictionBoolean =
-        authenticatedIdentitySnapshot.organizationIdentifier === validatedRequest.targetOrganizationIdentifier;
+        authenticatedIdentitySnapshot.organizationIdentifier ===
+        validatedAccessRequest.targetOrganizationIdentifier;
 
-      if (!isSovereignAuditorBoolean && !isCorrectJurisdictionBoolean) {
+      if (!isAdministrativeAuditorBoolean && !isCorrectJurisdictionBoolean) {
         void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
           severityLevelLiteral: 'CRITICAL',
           moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
-          operationCodeLiteral: 'CROSS_TENANT_ACCESS_VIOLATION',
+          operationCodeLiteral: 'CROSS_TENANT_ACCESS_VIOLATION' as OperationCode,
           correlationIdentifier,
-          messageContentLiteral: 'Bloqueo de seguridad: Se detectó un intento de acceso fuera de la jurisdicción permitida.',
+          messageContentLiteral:
+            'Bloqueo de seguridad perimetral: Intento de acceso detectado fuera de la jurisdicción institucional permitida.',
           semanticIntentTag: 'SECURITY_BREACH_PREVENTION',
           contextMetadataSnapshot: {
-            identityOrg: authenticatedIdentitySnapshot.organizationIdentifier,
-            targetOrg: validatedRequest.targetOrganizationIdentifier
-          }
+            identityOrganizationIdentifier: authenticatedIdentitySnapshot.organizationIdentifier,
+            targetOrganizationIdentifier: validatedAccessRequest.targetOrganizationIdentifier,
+          },
         });
 
-        throw new ValidationException('INVALID_INSTITUTIONAL_JURISDICTION', { correlationIdentifier });
+        throw new ValidationException('INVALID_INSTITUTIONAL_JURISDICTION', {
+          correlationIdentifier,
+          identityOrganizationIdentifier: authenticatedIdentitySnapshot.organizationIdentifier,
+          targetOrganizationIdentifier: validatedAccessRequest.targetOrganizationIdentifier,
+        });
       }
 
-      // --- FASE 3: EVALUACIÓN DE JERARQUÍA (RBAC Enforcement) ---
+      // --- FASE 3: EVALUACIÓN DE JERARQUÍA INSTITUCIONAL (RBAC Enforcement) ---
       const isAuthorizedBoolean = await EvaluateIdentityAuthorityHierarchy({
         activeRoleLiteral: authenticatedIdentitySnapshot.assignedAuthorityRoleLiteral,
-        requiredRoleLiteral: validatedRequest.requiredAccessRoleLiteral
+        requiredRoleLiteral: validatedAccessRequest.requiredAccessRoleLiteral,
       });
 
       if (!isAuthorizedBoolean) {
-        throw new ValidationException('INSUFFICIENT_AUTHORITY_FOR_Jurisdiction', {
+        throw new ValidationException('INSUFFICIENT_AUTHORITY_FOR_JURISDICTION', {
           correlationIdentifier,
-          activeRole: authenticatedIdentitySnapshot.assignedAuthorityRoleLiteral
+          activeRoleLiteral: authenticatedIdentitySnapshot.assignedAuthorityRoleLiteral,
+          requiredRoleLiteral: validatedAccessRequest.requiredAccessRoleLiteral,
         });
       }
 
-      // --- FASE 4: REPORTE DE ÉXITO ---
+      // --- FASE 4: REPORTE DE ÉXITO Y VISIBILIDAD FORENSE ---
       void EmitTelemetrySignal({
+        occurrenceTimestampISO: new Date().toISOString(),
         severityLevelLiteral: 'INFO',
         moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
-        operationCodeLiteral: 'ACCESS_GRANTED_NOMINAL',
+        operationCodeLiteral: 'ACCESS_GRANTED_NOMINAL' as OperationCode,
         correlationIdentifier,
-        messageContentLiteral: 'Autorización multi-tenant concedida con éxito.',
-        semanticIntentTag: 'ACCESS_CONTROL_NOMINAL'
+        messageContentLiteral:
+          'Autorización institucional y de jurisdicción multi-tenant concedida nominalmente.',
+        semanticIntentTag: 'ACCESS_CONTROL_NOMINAL',
+        contextMetadataSnapshot: {
+          identityIdentifier: authenticatedIdentitySnapshot.identityIdentifier,
+          organizationIdentifier: authenticatedIdentitySnapshot.organizationIdentifier,
+          assignedAuthorityRoleLiteral: authenticatedIdentitySnapshot.assignedAuthorityRoleLiteral,
+        },
       });
 
       return authenticatedIdentitySnapshot;
-    }
+    },
   );
 };

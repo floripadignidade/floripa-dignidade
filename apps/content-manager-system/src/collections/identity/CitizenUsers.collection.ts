@@ -1,53 +1,67 @@
+// apps/content-manager-system/src/collections/identity/CitizenUsers.collection.ts
+
 /**
- * @section CMS Architecture - Identity Sovereignty Axis
- * @description Define la colección de Ciudadanos e Interventores. Implementa
- * el control de acceso basado en roles (RBAC) consumiendo el contrato global
- * de la librería de Identidad.
+ * @section CMS Architecture - Identity & Civil Governance Axis
+ * @description Define la colección de Ciudadanos, Gestores e Interventores institucionales
+ * en el panel administrativo de Payload CMS. Implementa el control de acceso basado en roles (RBAC)
+ * consumiendo el contrato global de autoridad institucional.
  *
- * Protocolo OEDP-V16.0 - ISO Standard Naming & SSOT Governance.
- * SANEADO Zenith: Erradicación de 'Magic Strings' y acoplamiento estricto de roles.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Seguridad y Mantenibilidad).
+ * SANEADO Zenith: Erradicación del rol metafórico INFRASTRUCTURE_SOVEREIGN_AUDITOR
+ * y alineación canónica con INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR (Fix TS2353).
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import type { CollectionConfig } from 'payload';
 
-/* 1. Infraestructura Core & Identity (Atmos PascalCase) */
+/* 1. Infraestructura Core de Telemetría */
 import {
   EmitTelemetrySignal,
-  GenerateCorrelationIdentifier
+  GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  type OperationCode,
 } from '@floripa-dignidade/telemetry';
 
-import type { UserAccessRole } from '@floripa-dignidade/identity';
+/* 2. Contratos Centralizados de Dominio (Single Source of Truth) */
+import {
+  IDENTITY_ACCESS_ROLES_COLLECTION,
+  type UserAccessRole,
+} from '@floripa-dignidade/contracts';
+
+/** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
+const COLLECTION_MODULE_IDENTIFIER = 'CITIZEN_USERS_COLLECTION' as ModuleIdentifier;
 
 /**
- * @section Diccionario Soberano de Roles
- * @description Mapeo estricto. TypeScript lanzará un error de compilación
- * si el búnker de 'identity' modifica, añade o elimina un rol.
+ * @name INSTITUTIONAL_ROLE_LABELS_MAPPING
+ * @description Diccionario estricto que mapea cada rol técnico con su etiqueta legible en la interfaz administrativa.
+ * TypeScript forzará un error en tiempo de compilación si el contrato central de roles es alterado sin reflejarse aquí.
  */
 const INSTITUTIONAL_ROLE_LABELS_MAPPING: Record<UserAccessRole, string> = {
-  INFRASTRUCTURE_SOVEREIGN_AUDITOR: 'Auditor de Infraestrutura (SRE)',
+  INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR: 'Auditor de Infraestrutura (SRE)',
   PLATFORM_GLOBAL_MANAGER: 'Gestor Global da Plataforma',
   ORGANIZATION_ADMINISTRATOR: 'Administrador de Organização',
-  ORGANIZATION_OPERATOR: 'Operador de Impacto',
-  CITIZEN_REGISTERED: 'Cidadão Verificado',
-  CITIZEN_ANONYMOUS: 'Cidadão Anônimo (Sistema/Temporário)',
+  ORGANIZATION_OPERATOR: 'Operador de Impacto Social',
+  IDENTITY_REGISTERED: 'Cidadão Verificado',
+  IDENTITY_ANONYMOUS: 'Cidadão Anônimo (Sistema/Temporário)',
 };
 
 /**
  * @section Reglas Atómicas de Acceso
- * Encapsulan la lógica de seguridad para mantener la pureza del objeto de configuración.
+ * Encapsulan la lógica de seguridad administrativa para proteger el principio de privilegio mínimo.
  */
-const hasSovereignOrManagerAuthorityBoolean = (userRole?: string): boolean => {
+const hasAdministrativeOrManagerAuthorityBoolean = (userRole?: string): boolean => {
   return (
-    userRole === 'INFRASTRUCTURE_SOVEREIGN_AUDITOR' ||
-    userRole === 'PLATFORM_GLOBAL_MANAGER'
+    userRole === IDENTITY_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR ||
+    userRole === IDENTITY_ACCESS_ROLES_COLLECTION.PLATFORM_GLOBAL_MANAGER
   );
 };
 
 /**
  * @name CitizenUsersCollection
- * @description Bóveda de identidades soberanas con autoridad sobre el ecosistema.
+ * @description Bóveda de identidades ciudadanas y operadores con autoridad sobre el ecosistema.
  */
 export const CitizenUsersCollection: CollectionConfig = {
   slug: 'citizen-users',
@@ -60,30 +74,37 @@ export const CitizenUsersCollection: CollectionConfig = {
   admin: {
     useAsTitle: 'fullLegalNameLiteral',
     group: 'Identidade & Acesso',
-    defaultColumns:['fullLegalNameLiteral', 'email', 'assignedAuthorityRoleLiteral'],
-    listSearchableFields:['fullLegalNameLiteral', 'email'],
+    defaultColumns: ['fullLegalNameLiteral', 'email', 'assignedAuthorityRoleLiteral'],
+    listSearchableFields: ['fullLegalNameLiteral', 'email'],
   },
 
   /**
-   * @section Gobernanza de Acceso (Sovereign RBAC)
-   * 🛡️ SANEADO: Las políticas de acceso ahora consumen las reglas atómicas.
+   * @section Gobernanza de Acceso (RBAC Institucional)
    */
   access: {
     read: ({ req: { user } }) => {
       const activeUserRoleLiteral = user?.['assignedAuthorityRoleLiteral'] as string | undefined;
 
-      if (activeUserRoleLiteral === 'INFRASTRUCTURE_SOVEREIGN_AUDITOR') return true;
+      if (
+        activeUserRoleLiteral ===
+        IDENTITY_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR
+      ) {
+        return true;
+      }
 
-      // Un usuario solo puede leer su propio perfil si no es auditor
+      // Un ciudadano estándar solo puede visualizar su propio registro de identidad
       return { id: { equals: user?.id } };
     },
 
     delete: ({ req: { user } }) => {
       const activeUserRoleLiteral = user?.['assignedAuthorityRoleLiteral'] as string | undefined;
-      return activeUserRoleLiteral === 'INFRASTRUCTURE_SOVEREIGN_AUDITOR';
+      return (
+        activeUserRoleLiteral ===
+        IDENTITY_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR
+      );
     },
 
-    create: () => true, // El registro inicial ciudadano es público
+    create: () => true, // El registro inicial ciudadano es público a través del portal
   },
 
   auth: {
@@ -93,7 +114,7 @@ export const CitizenUsersCollection: CollectionConfig = {
     lockTime: 600000,
   },
 
-  fields:[
+  fields: [
     {
       name: 'fullLegalNameLiteral',
       type: 'text',
@@ -105,23 +126,21 @@ export const CitizenUsersCollection: CollectionConfig = {
       name: 'assignedAuthorityRoleLiteral',
       type: 'select',
       required: true,
-      defaultValue: 'CITIZEN_REGISTERED',
+      defaultValue: 'IDENTITY_REGISTERED',
       label: 'Nível de Autoridade Institucional',
-      /**
-       * 🛡️ SANEADO Zenith: Generación dinámica y tipada de las opciones
-       * directamente desde el diccionario soberano.
-       */
       options: Object.entries(INSTITUTIONAL_ROLE_LABELS_MAPPING).map(
         ([roleValueLiteral, roleLabelLiteral]) => ({
           label: roleLabelLiteral,
           value: roleValueLiteral,
-        })
+        }),
       ),
       access: {
-        // Bloqueo de escalada de privilegios: Solo roles supremos pueden cambiar roles
+        // Bloqueo de escalada de privilegios: Solo roles administrativos pueden alterar rangos
         update: ({ req: { user } }) => {
-          const activeUserRoleLiteral = user?.['assignedAuthorityRoleLiteral'] as string | undefined;
-          return hasSovereignOrManagerAuthorityBoolean(activeUserRoleLiteral);
+          const activeUserRoleLiteral = user?.['assignedAuthorityRoleLiteral'] as
+            | string
+            | undefined;
+          return hasAdministrativeOrManagerAuthorityBoolean(activeUserRoleLiteral);
         },
       },
     },
@@ -133,17 +152,17 @@ export const CitizenUsersCollection: CollectionConfig = {
       hasMany: false,
       admin: {
         description: 'Vínculo institucional para governança multi-tenancy.',
-        condition: (data) => data['assignedAuthorityRoleLiteral'] !== 'CITIZEN_REGISTERED',
+        condition: (data) => data['assignedAuthorityRoleLiteral'] !== 'IDENTITY_REGISTERED',
       },
     },
     {
       type: 'group',
       name: 'forensicIdentificationGroup',
       label: 'Identificação e Privacidade',
-      fields:[
+      fields: [
         {
           type: 'row',
-          fields:[
+          fields: [
             {
               name: 'isIdentityLegallyVerifiedBoolean',
               type: 'checkbox',
@@ -166,22 +185,24 @@ export const CitizenUsersCollection: CollectionConfig = {
   ],
 
   /**
-   * @section Trazabilidad Forense (Hooks)
+   * @section Trazabilidad Forense (Integrity Hooks)
    */
   hooks: {
-    afterChange:[
+    afterChange: [
       ({ doc, operation, req }) => {
         if (operation === 'create' || operation === 'update') {
-          EmitTelemetrySignal({
-            severityLevel: 'INFO',
-            moduleIdentifier: 'CITIZEN_USERS_COLLECTION',
-            operationCode: `IDENTITY_${operation.toUpperCase()}`,
+          void EmitTelemetrySignal({
+            occurrenceTimestampISO: new Date().toISOString(),
+            severityLevelLiteral: 'INFO',
+            moduleIdentifierLiteral: COLLECTION_MODULE_IDENTIFIER,
+            operationCodeLiteral: `IDENTITY_${operation.toUpperCase()}` as OperationCode,
             correlationIdentifier: GenerateCorrelationIdentifier(),
-            message: `Evento de identidade processado: ${doc['email']}`,
-            contextMetadata: {
+            messageContentLiteral: `Evento de identidade processado no CMS: ${doc['email']}`,
+            semanticIntentTag: 'CMS_IDENTITY_MUTATION',
+            contextMetadataSnapshot: {
               assignedRoleLiteral: doc['assignedAuthorityRoleLiteral'],
-              perpetratorIdentityLiteral: req.user?.email ?? 'SYSTEM_BOOTSTRAP'
-            }
+              perpetratorIdentityLiteral: req.user?.email ?? 'SYSTEM_BOOTSTRAP',
+            },
           });
         }
       },

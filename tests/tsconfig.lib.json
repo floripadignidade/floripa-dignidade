@@ -1,18 +1,4 @@
-/**
- * @section Quality Assurance - Compiler Infrastructure (QA Mirror)
- * @description Manifiesto de verificación de tipos para la biblioteca de pruebas espejo del monorepo.
- * Rige bajo la doctrina Source-First (OEDP-V18.1), consumiendo directamente el código fuente
- * de las librerías a través del mapa de rutas unificado de tsconfig.base.json sin sobreingeniería
- * de proyectos compuestos, emisión intermedia ni referencias a dist.
- *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
- * SANEADO Zenith: Erradicación del arreglo vacío 'files' redundante, inyección de target ES2022,
- * soporte para JSX React 19 y aseguramiento de tipado estricto para Jest y Testing Library.
- *
- * @author Raz Podestá - MetaShark Tech
- * @license UNLICENSED
- */
+// tests/tsconfig.lib.json
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
@@ -40,7 +26,7 @@
     "jsx": "react-jsx",
 
     /* --- ADN DEL ENTORNO DE PRUEBAS --- */
-    "types": ["node", "jest", "@testing-library/jest-dom"],
+    "types": ["node", "jest"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
 

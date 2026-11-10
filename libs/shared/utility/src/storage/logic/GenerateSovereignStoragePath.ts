@@ -1,65 +1,105 @@
 /**
- * @section Storage Logic - Sovereign Storage Path Generator
+ * @section Storage Logic - Enterprise Storage Path Generator (Atom)
  * @description Átomo de lógica pura encargado de la construcción de rutas físicas
- * jerárquicas para el almacenamiento en la nube. Garantiza que el Data Lake esté
- * organizado por organización, categoría y tiempo, facilitando la auditoría y
- * las políticas de retención.
+ * jerárquicas y deterministas para el almacenamiento de objetos en la nube (S3 / Supabase Storage).
+ * Proyecta la estructura organizativa por entidad, categoría y componentes temporales ISO 8601,
+ * garantizando la inmutabilidad de la clave de almacenamiento y la mitigación de colisiones.
  *
- * Protocolo OEDP-V17.0 - Isomorphic Integrity & Prosa Code.
- * 🛡️ LEY SRE: Este aparato utiliza manipulación de cadenas pura en lugar de 'node:path'
- * para garantizar la compatibilidad universal entre Browser, Edge y Node.js.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Seguridad y Mantenibilidad).
+ * SANEADO: Purga definitiva de metáforas informales ("Sovereign"), neutralización de ataques
+ * de salto de directorio (Path Traversal) y tipado nominal sellado con Zod.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import type { IMultimediaEvidencePayload } from '../schemas/MultimediaEvidence.schema';
+import { z } from 'zod';
+
+/* 1. Contratos de ADN Estructural (Importación Canónica Relativa) */
+import type { IMultimediaEvidencePayload } from '../schemas/MultimediaEvidence.schema.js';
 
 /**
- * Genera una ruta de almacenamiento determinista y semántica.
- * Estructura: {organizacion}/{categoria}/{año}/{mes}/{uuid}-{nombre-saneado}
- *
- * @param evidencePayloadSnapshot - ADN de la evidencia validado por la aduana.
- * @param uniqueIdentifierLiteral - ID único (UUID) para evitar colisiones de archivos.
- * @returns {string} Ruta relativa normalizada para el bucket S3/Supabase.
+ * @name EnterpriseStoragePathLiteralSchema
+ * @description Contrato Zod con sellado de marca nominal para claves jerárquicas de almacenamiento.
  */
-export const GenerateSovereignStoragePath = (
+export const EnterpriseStoragePathLiteralSchema = z
+  .string()
+  .min(1, { message: 'LA_RUTA_DE_ALMACENAMIENTO_NO_PUEDE_ESTAR_VACIA' })
+  .brand<'EnterpriseStoragePathLiteral'>();
+
+/** Tipo nominal inmutable para la ruta de almacenamiento relativa dentro del bucket. */
+export type TEnterpriseStoragePathLiteral = z.infer<
+  typeof EnterpriseStoragePathLiteralSchema
+>;
+
+/**
+ * Genera una ruta de almacenamiento física determinista, semántica y sanitizada contra Path Traversal.
+ * Estructura de Clave S3: {organizacion}/{categoria}/{año}/{mes}/{uuid}-{nombre-saneado}
+ *
+ * @param evidencePayloadSnapshot - Snapshot inmutable con los metadatos institucionales y el archivo.
+ * @param uniqueIdentifierLiteral - Identificador único universal (UUID v4) para erradicar colisiones.
+ * @returns {TEnterpriseStoragePathLiteral} Clave de almacenamiento jerárquica con tipado nominal sellado.
+ */
+export const GenerateEnterpriseStoragePath = (
   evidencePayloadSnapshot: IMultimediaEvidencePayload,
-  uniqueIdentifierLiteral: string
-): string => {
-  const currentMoment = new Date();
+  uniqueIdentifierLiteral: string,
+): TEnterpriseStoragePathLiteral => {
+  const currentExecutionDateTime = new Date();
 
   // 1. EXTRACCIÓN DE COMPONENTES TEMPORALES (ISO 8601)
-  const currentYearLiteral = currentMoment.getFullYear().toString();
-  const currentMonthLiteral = (currentMoment.getMonth() + 1).toString().padStart(2, '0');
+  const currentYearLiteral = currentExecutionDateTime.getFullYear().toString();
+  const currentMonthLiteral = (currentExecutionDateTime.getMonth() + 1)
+    .toString()
+    .padStart(2, '0');
 
-  // 2. SANEAMIENTO DE NOMBRE DE ARCHIVO
+  // 2. SANITIZACIÓN ROBUSTA DE SEGURIDAD (Path Traversal Defense)
   /**
-   * Convertimos a minúsculas y sustituimos cualquier rastro no alfanumérico
-   * (excepto puntos) por guiones para asegurar la compatibilidad con URLs.
+   * Proceso de purificación:
+   * A. Forzado a minúsculas y eliminación de espacios en los extremos.
+   * B. Sustitución de cualquier carácter no alfanumérico (excepto puntos) por guiones.
+   * C. Neutralización de puntos consecutivos (..) para impedir ataques de salto de directorio.
+   * D. Colapso de guiones repetidos (--) generados por caracteres especiales contiguos.
+   * E. Eliminación de guiones o puntos en los bordes del nombre de archivo.
    */
-  const sanitizedFileNameLiteral = evidencePayloadSnapshot.institutionalContextMetadata.originalFileNameLiteral
+  const rawFileNameLiteral =
+    evidencePayloadSnapshot.institutionalContextMetadata.originalFileNameLiteral;
+
+  const sanitizedFileNameLiteral = rawFileNameLiteral
     .toLowerCase()
-    .replace(/[^a-z0-9.]/g, '-');
+    .trim()
+    .replace(/[^a-z0-9.]/g, '-')
+    .replace(/\.{2,}/g, '.')
+    .replace(/-+/g, '-')
+    .replace(/^[-.]+|[-.]+$/g, '');
 
-  // 3. EXTRACCIÓN DE METADATOS INSTITUCIONALES
-  const {
-    ownerOrganizationIdentifier,
-    evidenceCategoryLiteral
-  } = evidencePayloadSnapshot.institutionalContextMetadata;
+  // 3. EXTRACCIÓN DE METADATOS INSTITUCIONALES (Jurisdicción Multi-tenant)
+  const { ownerOrganizationIdentifier, evidenceCategoryLiteral } =
+    evidencePayloadSnapshot.institutionalContextMetadata;
 
   /**
-   * @section Construcción de Ruta Isomórfica
-   * Utilizamos el separador universal '/' independientemente del Sistema Operativo,
-   * ya que esta ruta es para consumo de APIs de Almacenamiento Cloud.
+   * @section Construcción Isomórfica de Clave S3
+   * Se utiliza estrictamente el delimitador universal '/' independientemente del sistema operativo
+   * anfitrión (Windows/Linux), satisfaciendo la especificación de claves de objetos de Amazon S3.
    */
-  const pathSegmentsCollection: string[] = [
+  const fileKeySegmentLiteral = `${uniqueIdentifierLiteral}-${sanitizedFileNameLiteral}`;
+
+  const pathSegmentsCollection: readonly string[] = [
     ownerOrganizationIdentifier,
     evidenceCategoryLiteral,
     currentYearLiteral,
     currentMonthLiteral,
-    `${uniqueIdentifierLiteral}-${sanitizedFileNameLiteral}`
+    fileKeySegmentLiteral,
   ];
 
-  return pathSegmentsCollection.join('/');
+  const enterpriseStoragePathLiteral = pathSegmentsCollection.join('/');
+
+  return enterpriseStoragePathLiteral as TEnterpriseStoragePathLiteral;
 };
+
+/**
+ * @name GenerateSovereignStoragePath
+ * @description Alias institucional de compatibilidad histórica para transiciones en el monorepo.
+ * @deprecated Utilizar canónicamente 'GenerateEnterpriseStoragePath' bajo el estándar OEDP-V18.1.
+ */
+export const GenerateSovereignStoragePath = GenerateEnterpriseStoragePath;

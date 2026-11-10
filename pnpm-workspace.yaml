@@ -1,11 +1,14 @@
 packages:
   - 'apps/*'
+  - 'libs/*'
   - 'libs/core/*'
   - 'libs/core/communication-providers/*'
-  - 'libs/modules/*'
   - 'libs/engines/*'
-  - 'libs/shared/*'
+  - 'libs/modules/*'
   - 'libs/modules/whatsapp/*'
+  - 'libs/shared/*'
+  - 'scripts'
+  - 'tests'
 
 autoInstallPeers: true
 onlyBuiltDependencies:

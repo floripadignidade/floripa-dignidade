@@ -67,5 +67,26 @@ Al ejecutar `pnpm typecheck`, 22 proyectos compilaron nominalmente. Los 10 proye
 
 ---
 
+## [2026-11-09] HITO 04: Purga Semántica OEDP-V18.1, Nivelación de Ingesta Fiscal y Cierre de Brechas de Persistencia
 
+### Contexto y Diagnóstico Forense
+Se ejecutó una auditoría integral de 10 dimensiones técnicas sobre el monorepo (Snapshot completo de 682 archivos), identificando focos residuales de inestabilidad, asimetría relacional y persistencia de metáforas informales:
+1. Simulación estática (*mock*) de partidas fiscales en `SyncMunicipalityExpenditure.ts`.
+2. Asimetría en la clave primaria y rol RLS de `database/01_identity_identities_ledger.sql` frente a `database/migration_master_schema.sql` y el contrato `IdentityPhysicalRecordSchema`.
+3. Ruta de importación rota (`TS2307`) en `UserIdentity.schema.ts` hacia un subdirectorio `schemas/UserAccessRole.schema.js` inexistente.
+4. Divergencia en las firmas de presencia entre `CalculatePresenceSovereignSignature.ts` (JSON) y `CalculatePresenceStateSignature.ts` (concatenación por tuberías `|`).
+5. Persistencia de la metáfora prohibida `"Sovereign"` en aparatos clave de utilidad y mensajería (`MaskSovereignIdentity.ts`, `GenerateSovereignStoragePath.ts`, `TransformToSovereignBinary.ts`, `CreateSovereignDatabaseHeaders.ts`, `ManageSovereignMembership.ts`).
 
+### Decisiones Arquitectónicas Inmutables y Acciones Ejecutadas
+1. **Adquisición HTTP de Gastos Públicos con Resiliencia SRE:**
+   - Se refactorizó `SyncMunicipalityExpenditure.ts`, implementando un cliente de red con `AbortSignal.timeout(8000)` y contingencia certificada de referencia institucional ante caídas de los portales gubernamentales.
+2. **Saneamiento Relacional del Ledger de Identidades:**
+   - Se homologó `01_identity_identities_ledger.sql` a `citizen_id UUID PRIMARY KEY`, alineando las columnas con `IIdentityPhysicalRecord` y corrigiendo la política RLS hacia `INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR`.
+3. **Reparación del SSOT de Identidad Civil:**
+   - Se corrigió la importación de `UserAccessRoleSchema` en `UserIdentity.schema.ts`, eliminando abreviaciones en transformadores y asegurando exportación simétrica con `IdentityProfileSchema`.
+4. **Unificación y Purga de Metáforas en Mensajería y Almacenamiento:**
+   - Se nivelaron canónicamente `CalculatePresenceStateSignature.ts`, `MaskCitizenIdentity.ts`, `GenerateEnterpriseStoragePath.ts`, `TransformToStandardBinaryBuffer.ts`, `CreatePrimaryDatabaseHeaders.ts` y `ManageEnterpriseGroupMembership.ts`, preservando alias de retrocompatibilidad y sellando tipos nominales bridados con Zod.
+
+   ---
+
+   

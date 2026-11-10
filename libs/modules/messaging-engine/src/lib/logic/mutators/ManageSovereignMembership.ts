@@ -1,124 +1,212 @@
 /**
- * @section Messaging Logic - Sovereign Membership Orchestrator
- * @description Orquestador encargado de las transiciones de estado de membresía
- * institucional. Implementa el protocolo de moderación y preservación forense
- * de registros en el Ledger de grupos, asegurando la integridad de los Action Hubs.
+ * @section Messaging Logic - Enterprise Group Membership Mutator (Orchestrator)
+ * @description Orquestador de lógica pura encargado de las transiciones de estado
+ * de membresía ciudadana en Círculos de Comunicación (Action Hubs). Implementa
+ * el protocolo de moderación y preservación forense de registros en el Ledger
+ * relacional, asegurando la trazabilidad y la integridad de la gobernanza institucional.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Swarm Intelligence.
- * SANEADO Zenith: Resolución de Paradoja Asíncrona (await) en Aduana de Entorno.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Seguridad y Mantenibilidad).
+ * SANEADO: Purga definitiva de metáforas informales ("Sovereign"), incorporación de validación
+ * de parámetros con Zod, resolución asíncrona de entorno y alias retroactivos para cero roturas.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
+import { z } from 'zod';
+
+/* 1. Infraestructura Core de Entorno, Excepciones y Telemetría */
 import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
-import { InternalSystemException } from '@floripa-dignidade/exceptions';
+import {
+  InternalSystemException,
+  ValidationException,
+} from '@floripa-dignidade/exceptions';
+
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  type OperationCode,
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-/* 1. ADN Estructural (Verbatim Module Syntax) */
-import type { TMembershipStatus } from '../../schemas/CommunicationGroupMembership.schema';
+/* 2. Contratos de ADN Estructural (Importación Canónica Relativa) */
+import {
+  MembershipStatusSchema,
+  type TMembershipStatus,
+} from '../../schemas/CommunicationGroupMembership.schema.js';
 
-/* 2. Enjambre Atómico de Soporte (Internal Swarm) */
-import { CreateSovereignDatabaseHeaders } from '../dispatchers/CreateSovereignDatabaseHeaders';
-import { PersistMembershipTransition } from '../dispatchers/PersistMembershipTransition';
+/* 3. Enjambre Atómico de Despacho y Seguridad */
+import { CreatePrimaryDatabaseHeaders } from '../dispatchers/CreateSovereignDatabaseHeaders.js';
+import { PersistMembershipTransition } from '../dispatchers/PersistMembershipTransition.js';
 
-/** Identificador técnico del aparato para el Neural Sentinel. */
-const MEMBERSHIP_ORCHESTRATOR_IDENTIFIER = 'SOVEREIGN_MEMBERSHIP_ORCHESTRATOR';
+/** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
+const MEMBERSHIP_ORCHESTRATOR_IDENTIFIER =
+  'ENTERPRISE_GROUP_MEMBERSHIP_ORCHESTRATOR' as ModuleIdentifier;
 
 /**
- * Ejecuta una transición de estado sobre la membresía de un ciudadano en un Hub.
- * Orquesta la captura de secretos, la generación de cabeceras y la persistencia física
- * en el Ledger soberano utilizando el protocolo PostgREST.
- *
- * @param groupIdentifierLiteral - UUID del Hub de comunicación objetivo.
- * @param citizenIdentifierLiteral - UUID del ciudadano bajo transición de estado.
- * @param targetStatusLiteral - Nuevo estatus ontológico (ACTIVE, PAUSED, BANNED, etc).
- * @returns {Promise<boolean>} Verdadero si la soberanía de la membresía fue sincronizada.
- * @throws {InternalSystemException} Si la infraestructura cloud colapsa o los secretos son ilegibles.
+ * @name ManageGroupMembershipParametersSchema
+ * @description Contrato Zod para la validación perimetral de los parámetros de mutación de membresía.
  */
-export const ManageSovereignMembership = async (
+export const ManageGroupMembershipParametersSchema = z
+  .object({
+    /** Identificador único del Círculo de Comunicación (Action Hub). */
+    groupIdentifierLiteral: z
+      .string()
+      .uuid({ message: 'EL_IDENTIFICADOR_DE_GRUPO_DEBE_SER_UUID_VALIDO' }),
+
+    /** Identificador único del ciudadano sujeto a la transición de estado. */
+    citizenIdentifierLiteral: z
+      .string()
+      .uuid({ message: 'EL_IDENTIFICADOR_DE_CIUDADANO_DEBE_SER_UUID_VALIDO' }),
+
+    /** Estado ontológico de la membresía (ACTIVE, PAUSED, LEFT_INACTIVE, BANNED_BY_MODERATION, REPRESENTED). */
+    targetStatusLiteral: MembershipStatusSchema,
+  })
+  .readonly();
+
+/** Tipo inferido inmutable para los parámetros de mutación de membresía. */
+export type IManageGroupMembershipParameters = z.infer<
+  typeof ManageGroupMembershipParametersSchema
+>;
+
+/**
+ * Ejecuta una transición de estado sobre la membresía de un ciudadano en un Círculo de Comunicación.
+ * Valida perimetralmente los identificadores, resuelve las credenciales del Ledger Cloud y
+ * ejecuta la mutación física mediante protocolo PostgREST seguro.
+ *
+ * @param groupIdentifierLiteral - Identificador UUID del grupo de comunicación objetivo.
+ * @param citizenIdentifierLiteral - Identificador UUID del ciudadano bajo transición de estado.
+ * @param targetStatusLiteral - Nuevo estatus ontológico de la membresía.
+ * @param correlationIdentifierFallback - Identificador de correlación opcional para trazabilidad forense.
+ * @returns {Promise<boolean>} Promesa que resuelve en verdadero si la mutación fue aceptada por la base de datos.
+ * @throws {ValidationException} Si los parámetros de entrada violan el contrato estructural.
+ * @throws {InternalSystemException} Si ocurre un colapso en la infraestructura de datos cloud.
+ */
+export const ManageEnterpriseGroupMembership = async (
   groupIdentifierLiteral: string,
   citizenIdentifierLiteral: string,
-  targetStatusLiteral: TMembershipStatus
+  targetStatusLiteral: TMembershipStatus,
+  correlationIdentifierFallback: string = GenerateCorrelationIdentifier(),
 ): Promise<boolean> => {
-  const correlationIdentifier = GenerateCorrelationIdentifier();
+  const correlationIdentifier = correlationIdentifierFallback;
 
   return await TraceExecutionTime(
     MEMBERSHIP_ORCHESTRATOR_IDENTIFIER,
-    `EXECUTE_MEMBERSHIP_TRANSITION_TO_${targetStatusLiteral}`,
+    `EXECUTE_MEMBERSHIP_TRANSITION_TO_${targetStatusLiteral}` as OperationCode,
     correlationIdentifier,
-    async () => {
+    async (): Promise<boolean> => {
+      // 1. VALIDACIÓN PERIMETRAL DE ENTRADA (Contract Guard)
+      const parametersValidationResultSnapshot =
+        ManageGroupMembershipParametersSchema.safeParse({
+          groupIdentifierLiteral,
+          citizenIdentifierLiteral,
+          targetStatusLiteral,
+        });
+
+      if (!parametersValidationResultSnapshot.success) {
+        throw new ValidationException('PARAMETROS_MUTACION_MEMBRESIA_INVALIDOS', {
+          validationIssuesCollection:
+            parametersValidationResultSnapshot.error.flatten(),
+          correlationIdentifier,
+        });
+      }
+
       try {
-        /**
-         * 1. CAPTURA DE INFRAESTRUCTURA (Hardware Isolation)
-         * 🛡️ SANEADO Zenith (Fix TS2339): Inyección de await mandatorio.
-         * La resolución de secretos se audita ahora dentro del rastro de latencia.
-         */
+        // 2. CAPTURA SEGURA DE INFRAESTRUCTURA (Aduana de Entorno)
         const {
-          SUPABASE_URL: cloudUrlLiteral,
-          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret
+          SUPABASE_URL: cloudProviderUrlLiteral,
+          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret,
         } = await ValidateEnvironmentAduana();
 
-        /**
-         * 2. SEGURIDAD Y PERSISTENCIA (Delegación Atómica)
-         * Reutilizamos el átomo de cabeceras para asegurar cumplimiento DRY.
-         * Se utiliza preferencia 'minimal' para optimizar el performance de red.
-         */
-        const securityHeadersSnapshot = CreateSovereignDatabaseHeaders(cloudSecurityKeySecret, 'minimal');
-
-        await PersistMembershipTransition(
-          cloudUrlLiteral,
-          securityHeadersSnapshot,
-          {
-            group_id: groupIdentifierLiteral,
-            citizen_id: citizenIdentifierLiteral,
-            membership_status: targetStatusLiteral,
-            last_action_correlation_id: correlationIdentifier,
-            updated_at: new Date().toISOString(),
-          }
+        // 3. SEGURIDAD Y PREPARACIÓN DE CABECERAS (Protocol Translation)
+        const securityHeadersSnapshot = CreatePrimaryDatabaseHeaders(
+          cloudSecurityKeySecret,
+          'minimal',
         );
 
-        // 3. REPORTE DE ÉXITO (SRE Analytics)
+        // 4. PERSISTENCIA FÍSICA EN EL LEDGER CLOUD (Stateless I/O)
+        const membershipMutationPayloadSnapshot = Object.freeze({
+          group_id: groupIdentifierLiteral,
+          citizen_id: citizenIdentifierLiteral,
+          membership_status: targetStatusLiteral,
+          last_action_correlation_id: correlationIdentifier,
+          updated_at: new Date().toISOString(),
+        });
+
+        await PersistMembershipTransition(
+          cloudProviderUrlLiteral,
+          securityHeadersSnapshot,
+          membershipMutationPayloadSnapshot,
+        );
+
+        // 5. REPORTE DE TELEMETRÍA FORENSE (Visibilidad Operativa)
+        const isStatusCriticalWarningBoolean =
+          targetStatusLiteral === 'BANNED_BY_MODERATION';
+
         void EmitTelemetrySignal({
-          severityLevelLiteral: targetStatusLiteral === 'BANNED_BY_MODERATION' ? 'WARNING' : 'INFO',
+          occurrenceTimestampISO: new Date().toISOString(),
+          severityLevelLiteral: isStatusCriticalWarningBoolean
+            ? 'WARNING'
+            : 'INFO',
           moduleIdentifierLiteral: MEMBERSHIP_ORCHESTRATOR_IDENTIFIER,
-          operationCodeLiteral: 'MEMBERSHIP_STATE_SYNCHRONIZED',
+          operationCodeLiteral:
+            'MEMBERSHIP_STATE_SYNCHRONIZED' as OperationCode,
           correlationIdentifier,
-          messageContentLiteral: `Soberanía de membresía actualizada exitosamente: [${targetStatusLiteral}].`,
+          messageContentLiteral: `Estado de membresía institucional actualizado exitosamente: [${targetStatusLiteral}].`,
+          semanticIntentTag: 'COMMUNITY_GOVERNANCE_MUTATION',
           contextMetadataSnapshot: {
             groupIdentifierLiteral,
             citizenIdentifierLiteral,
-            targetStatusLiteral
-          }
+            targetStatusLiteral,
+          },
         });
 
         return true;
+      } catch (caughtExecutionError: unknown) {
+        // 6. GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
+        if (caughtExecutionError instanceof ValidationException) {
+          throw caughtExecutionError;
+        }
 
-      } catch (caughtError: unknown) {
-        // 4. GESTIÓN FORENSE DE FALLO (Resilience Layer)
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtExecutionError instanceof Error
+            ? caughtExecutionError.message
+            : String(caughtExecutionError);
 
         void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
           severityLevelLiteral: 'CRITICAL',
           moduleIdentifierLiteral: MEMBERSHIP_ORCHESTRATOR_IDENTIFIER,
-          operationCodeLiteral: 'MEMBERSHIP_TRANSITION_COLLAPSE',
+          operationCodeLiteral:
+            'MEMBERSHIP_TRANSITION_COLLAPSE' as OperationCode,
           correlationIdentifier,
-          messageContentLiteral: 'Error catastrófico al intentar transicionar el estado de membresía.',
-          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
+          messageContentLiteral:
+            'Error crítico al intentar transicionar el estado de membresía.',
+          semanticIntentTag: 'GOVERNANCE_INFRASTRUCTURE_FAULT',
+          contextMetadataSnapshot: {
+            errorTraceLiteral: errorDescriptionLiteral,
+            targetStatusLiteral,
+          },
         });
 
-        throw new InternalSystemException('FALLO_EN_TRANSICION_DE_MEMBRESIA_SRE', {
-          originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier,
-          targetStatusLiteral
-        });
+        throw new InternalSystemException(
+          'FALLO_EN_TRANSICION_DE_MEMBRESIA_SRE',
+          {
+            originalErrorLiteral: errorDescriptionLiteral,
+            correlationIdentifier,
+            targetStatusLiteral,
+          },
+        );
       }
-    }
+    },
   );
 };
+
+/**
+ * @name ManageSovereignMembership
+ * @description Alias institucional de compatibilidad histórica para transiciones en el monorepo.
+ * @deprecated Utilizar canónicamente 'ManageEnterpriseGroupMembership' bajo el estándar OEDP-V18.1.
+ */
+export const ManageSovereignMembership = ManageEnterpriseGroupMembership;

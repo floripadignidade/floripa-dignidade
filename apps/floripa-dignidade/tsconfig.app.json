@@ -1,18 +1,4 @@
-/**
- * @section Application Shell - TypeScript Compiler Configuration
- * @description Manifiesto de verificación de tipos para el Portal Ciudadano Floripa Dignidade.
- * Rige bajo la doctrina Source-First (OEDP-V18.1), consumiendo directamente el código fuente
- * de las librerías del monorepo a través del mapa de rutas institucional sin sobreingeniería
- * de proyectos compuestos ni bloqueos de emisión.
- *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
- * SANEADO: Erradicación del alias huérfano pmf-open-data-engine, inyección del plugin oficial
- * de Next.js 16 para App Router y ordenamiento alfabético determinista de rutas.
- *
- * @author Raz Podestá - MetaShark Tech
- * @license UNLICENSED
- */
+// apps/floripa-dignidade/tsconfig.app.json
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
@@ -64,6 +50,9 @@
       ],
       "@floripa-dignidade/messaging-engine": ["../../libs/modules/messaging-engine/src/index.ts"],
       "@floripa-dignidade/newsletter": ["../../libs/modules/newsletter/src/index.ts"],
+      "@floripa-dignidade/pmf-open-data-engine": [
+        "../../libs/engines/data-ingestion-engine/src/index.ts"
+      ],
       "@floripa-dignidade/reputation-engine": ["../../libs/modules/reputation-engine/src/index.ts"],
       "@floripa-dignidade/resend-provider": [
         "../../libs/core/communication-providers/resend/src/index.ts"
@@ -88,42 +77,5 @@
   },
   "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules", "dist", "out-tsc", ".next"],
-  "references": [
-    {
-      "path": "../../libs/engines/data-ingestion-engine"
-    },
-    {
-      "path": "../../libs/contracts"
-    },
-    {
-      "path": "../../libs/shared/ui-contracts"
-    },
-    {
-      "path": "../../libs/modules/whatsapp/communication-service"
-    },
-    {
-      "path": "../../libs/core/telemetry"
-    },
-    {
-      "path": "../../libs/shared/utility"
-    },
-    {
-      "path": "../../libs/shared/ui-foundry"
-    },
-    {
-      "path": "../../libs/shared/state-store"
-    },
-    {
-      "path": "../../libs/core/routing"
-    },
-    {
-      "path": "../../libs/modules/newsletter"
-    },
-    {
-      "path": "../../libs/core/exceptions"
-    },
-    {
-      "path": "../../libs/core/environment-validator"
-    }
-  ]
+  "references": []
 }

@@ -1,18 +1,4 @@
 // libs/modules/identity/tsconfig.lib.json
-
-/**
- * @section User Management & Identity - Compiler Infrastructure
- * @description Manifiesto de verificación de tipos para el módulo de identidad y acceso institucional.
- * Rige bajo la doctrina Source-First (OEDP-V18.1), consumiendo directamente el código fuente
- * de las librerías del monorepo a través del mapa de rutas unificado de tsconfig.base.json
- * sin sobreingeniería de proyectos compuestos ni bloqueos de emisión.
- *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Seguridad).
- *
- * @author Raz Podestá - MetaShark Tech
- * @license UNLICENSED
- */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
@@ -25,6 +11,7 @@
     "declarationMap": false,
 
     /* --- INTEGRIDAD DE RESOLUCIÓN (Standard Next-Gen) --- */
+    "target": "ES2022",
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
@@ -51,9 +38,5 @@
     "out-tsc",
     "../../../dist"
   ],
-  "references": [
-    {
-      "path": "../../contracts"
-    }
-  ]
+  "references": []
 }

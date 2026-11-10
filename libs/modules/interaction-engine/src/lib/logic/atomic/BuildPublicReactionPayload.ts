@@ -1,38 +1,67 @@
+// libs/modules/interaction-engine/src/lib/logic/atomic/BuildPublicReactionPayload.ts
+
 /**
- * @section Interaction Logic - Payload Builder Atom
- * @description Átomo de lógica pura encargado de ensamblar el ADN de una reacción
- * ciudadana antes de su procesamiento. Aísla la construcción de datos del entorno React.
+ * @section Interaction Logic - Public Reaction Payload Builder (Atom)
+ * @description Átomo de lógica pura encargado de ensamblar el payload de datos crudos
+ * para una reacción cívica o pulso de apoyo popular antes de su validación por la
+ * aduana Zod (PublicReactionSchema). Aísla la construcción de datos de los ciclos
+ * de vida del framework visual y normaliza los identificadores ciudadanos.
  *
- * Protocolo OEDP-V17.0 - Functional Atomicity & Pure Logic.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Modularidad y Confiabilidad).
+ * SANEADO Zenith: Erradicación del error TS2339 eliminando el acceso a la propiedad
+ * inexistente avatarImageUniformResourceLocator y consumiendo canónicamente desde @floripa-dignidade/contracts.
+ *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
-import type { IUserIdentity } from '@floripa-dignidade/identity';
+/* 1. Contratos Centralizados de Dominio (Single Source of Truth) */
+import type { IUserIdentity } from '@floripa-dignidade/contracts';
 
 /**
- * Ensambla el diccionario de datos crudo para una interacción social.
+ * @interface IRawPublicReactionPayload
+ * @description Contrato inmutable que estructura la carga útil antes de pasar por la aduana Zod.
+ * Sigue la norma ISO 11179 de Objeto + Propiedad + Representación.
+ */
+export interface IRawPublicReactionPayload {
+  readonly interactionIdentifier: string;
+  readonly targetEntityIdentifier: string;
+  readonly evaluatorIdentityIdentifier: string | null;
+  readonly interactionPolarityNumeric: number;
+  readonly semanticEmoticonIntention: string | undefined;
+  readonly evaluatorPublicAliasLiteral: string;
+  readonly evaluatorAvatarSourceUrl: string | null;
+  readonly territorialContextLiteral: string;
+  readonly occurrenceTimestampISO: string;
+}
+
+/**
+ * Ensambla el diccionario de datos inmutable para una interacción social de termómetro popular.
+ * Implementa una función pura determinista libre de efectos secundarios.
  *
- * @param targetEntityIdentifier - UUID de la entidad destino.
- * @param polarityNumeric - 1 (Like), -1 (Unlike), 0 (Neutral).
- * @param activeCitizenIdentitySnapshot - Contexto de identidad ciudadana.
- * @param emoticonIntentionLiteral - Semántica visual (Opcional).
- * @returns {Record<string, unknown>} Payload listo para la Aduana Zod.
+ * @param targetEntityIdentifier - Identificador único universal (UUID) de la entidad auditada que recibe la reacción.
+ * @param polarityNumeric - Valor numérico de polaridad: 1 (Apoyo/Like), -1 (Rechazo/Unlike), 0 (Neutral).
+ * @param activeCitizenIdentitySnapshot - Contexto de identidad ciudadana activa obtenido de la sesión o token (Opcional).
+ * @param emoticonIntentionLiteral - Intención semántica visual de la reacción (ej: "SOLIDARITY", "RESPECT") (Opcional).
+ * @returns {IRawPublicReactionPayload} Payload estructurado e inmutable listo para safeParse en la aduana de interacción.
  */
 export const BuildPublicReactionPayload = (
   targetEntityIdentifier: string,
   polarityNumeric: number,
   activeCitizenIdentitySnapshot?: IUserIdentity,
-  emoticonIntentionLiteral?: string
-): Record<string, unknown> => {
-  return {
+  emoticonIntentionLiteral?: string,
+): IRawPublicReactionPayload => {
+  return Object.freeze({
     interactionIdentifier: crypto.randomUUID(),
     targetEntityIdentifier,
     evaluatorIdentityIdentifier: activeCitizenIdentitySnapshot?.identityIdentifier ?? null,
     interactionPolarityNumeric: polarityNumeric,
     semanticEmoticonIntention: emoticonIntentionLiteral,
-    evaluatorPublicAliasLiteral: activeCitizenIdentitySnapshot?.anonymizedPublicNameLiteral ?? 'Cidadão Anônimo',
-    evaluatorAvatarSourceUrl: activeCitizenIdentitySnapshot?.avatarImageUniformResourceLocator ?? null,
+    evaluatorPublicAliasLiteral:
+      activeCitizenIdentitySnapshot?.anonymizedPublicNameLiteral ?? 'Cidadão Anônimo',
+    evaluatorAvatarSourceUrl: null,
     territorialContextLiteral: 'FLORIANÓPOLIS_GLOBAL',
-    occurrenceTimestampISO: new Date().toISOString()
-  };
+    occurrenceTimestampISO: new Date().toISOString(),
+  });
 };

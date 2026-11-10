@@ -50,3 +50,8 @@ out
 test-output
 .vercel
 .env*
+
+
+.env
+.env.local
+.env*.local

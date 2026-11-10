@@ -1,16 +1,4 @@
-/**
- * @section Compiler Infrastructure - Library Configuration
- * @description Manifiesto de verificación de tipos para el motor de ingestión de datos abiertos.
- * Implementa la doctrina Source-First (OEDP-V18.1): erradica baseUrl, desactiva la emisión
- * física de código y resuelve los tipos institucionales directamente desde las fuentes TypeScript
- * a través de la herencia canónica de tsconfig.base.json.
- *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad).
- *
- * @author Raz Podestá - MetaShark Tech
- * @license UNLICENSED
- */
+// libs/engines/data-ingestion-engine/tsconfig.lib.json
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
@@ -48,9 +36,5 @@
     "../../../dist",
     "../../../node_modules"
   ],
-  "references": [
-    {
-      "path": "../../contracts"
-    }
-  ]
+  "references": []
 }
