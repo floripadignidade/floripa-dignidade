@@ -1,0 +1,6 @@
+{
+  "//": ".lintstagedrc.json",
+  "$schema": "https://json.schemastore.org/lintstagedrc.json",
+  "**/*.{ts,tsx}": ["eslint --fix --no-warn-ignored", "prettier --write --ignore-unknown"],
+  "**/*.{json,md,css,html,yml,yaml}": ["prettier --write --ignore-unknown"]
+}
