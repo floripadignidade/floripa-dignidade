@@ -7,10 +7,9 @@
  * 1. Nomenclatura ISO 11179 Estricta (IdentityAccessRoleSchema, IdentityProfileSchema).
  * 2. Alias de Compatibilidad Institucional (UserAccessRoleSchema, UserIdentitySchema).
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Seguridad y Mantenibilidad).
- * SANEADO Zenith: Erradicación definitiva de los errores TS2305 y TS2724 exponiendo
- * todos los esquemas, colecciones y tipos requeridos por los módulos de negocio.
+ * SANEADO: Purgado de importación no utilizada (IdentityAccessRoleSchema) para pase limpio de ESLint.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -18,20 +17,15 @@
 
 import { z } from 'zod';
 
-/* 1. Importaciones Locales para Construcción de Esquemas Compuestos */
+/* 1. Importaciones Locales para Construcción de Esquemas Compuestos (Clean Paths) */
 import {
   IdentityIdentifierSchema,
   OrganizationIdentifierSchema,
-} from './lib/identity/schemas/IdentityIdentifiers.schema.js';
+} from './lib/identity/schemas/IdentityIdentifiers.schema';
 
-import {
-  IdentityAuthorityResultSchema,
-} from './lib/identity/schemas/IdentityAuthorityAudit.schema.js';
+import { IdentityAuthorityResultSchema } from './lib/identity/schemas/IdentityAuthorityAudit.schema';
 
-import {
-  IdentityAccessRoleSchema,
-  UserAccessRoleSchema,
-} from './lib/identity/UserAccessRole.schema.js';
+import { UserAccessRoleSchema } from './lib/identity/UserAccessRole.schema';
 
 /**
  * ============================================================================
@@ -45,24 +39,21 @@ export {
   UserAccessRoleSchema,
   IDENTITY_ACCESS_ROLES_COLLECTION,
   USER_ACCESS_ROLES_COLLECTION,
-} from './lib/identity/UserAccessRole.schema.js';
+} from './lib/identity/UserAccessRole.schema';
 
-export type {
-  TIdentityAccessRole,
-  UserAccessRole,
-} from './lib/identity/UserAccessRole.schema.js';
+export type { TIdentityAccessRole, UserAccessRole } from './lib/identity/UserAccessRole.schema';
 
 export {
   IdentityProfileSchema,
   IdentityProfileSchema as UserIdentitySchema,
   IdentityTrustLevelEnum,
-} from './lib/identity/schemas/IdentityProfile.schema.js';
+} from './lib/identity/schemas/IdentityProfile.schema';
 
 export type {
   IIdentityProfile,
   IIdentityProfile as IUserIdentity,
   TIdentityTrustLevel,
-} from './lib/identity/schemas/IdentityProfile.schema.js';
+} from './lib/identity/schemas/IdentityProfile.schema';
 
 /* 1.2. Proveedores de Identidad Federada */
 export const SocialIdentityProviderSchema = z
@@ -77,37 +68,29 @@ export {
   OrganizationIdentifierSchema,
   TerritorialTechnicalIdentifierSchema,
   DeviceFingerprintIdentifierSchema,
-} from './lib/identity/schemas/IdentityIdentifiers.schema.js';
+} from './lib/identity/schemas/IdentityIdentifiers.schema';
 
 export type {
   TIdentityIdentifier,
   TOrganizationIdentifier,
   TTerritorialTechnicalIdentifier,
   TDeviceFingerprintIdentifier,
-} from './lib/identity/schemas/IdentityIdentifiers.schema.js';
+} from './lib/identity/schemas/IdentityIdentifiers.schema';
 
 /* 1.4. Validación de Documentación Civil y Privacidad */
 export {
   CitizenCpfSchema,
   EnterpriseCnpjSchema,
-} from './lib/identity/schemas/IdentityDocument.schema.js';
+} from './lib/identity/schemas/IdentityDocument.schema';
 
-export {
-  AnonymizeIdentityNameSchema,
-} from './lib/identity/schemas/AnonymizeIdentityName.schema.js';
+export { AnonymizeIdentityNameSchema } from './lib/identity/schemas/AnonymizeIdentityName.schema';
 
-export type {
-  IAnonymizeIdentityNameParameters,
-} from './lib/identity/schemas/AnonymizeIdentityName.schema.js';
+export type { IAnonymizeIdentityNameParameters } from './lib/identity/schemas/AnonymizeIdentityName.schema';
 
 /* 1.5. Gobernanza, Permisos y Solicitudes de Acceso */
-export {
-  AccessIntegrityRequestSchema,
-} from './lib/identity/schemas/AccessIntegrityRequest.schema.js';
+export { AccessIntegrityRequestSchema } from './lib/identity/schemas/AccessIntegrityRequest.schema';
 
-export type {
-  IAccessIntegrityRequest,
-} from './lib/identity/schemas/AccessIntegrityRequest.schema.js';
+export type { IAccessIntegrityRequest } from './lib/identity/schemas/AccessIntegrityRequest.schema';
 
 export const EvaluateIdentityAuthoritySchema = z
   .object({
@@ -117,53 +100,35 @@ export const EvaluateIdentityAuthoritySchema = z
   .readonly()
   .describe('Contrato para la evaluación de jerarquía de autoridad institucional.');
 
-export type IEvaluateIdentityAuthorityParameters = z.infer<
-  typeof EvaluateIdentityAuthoritySchema
->;
+export type IEvaluateIdentityAuthorityParameters = z.infer<typeof EvaluateIdentityAuthoritySchema>;
 
 /* 1.6. Auditoría de Confianza, Mérito y Antigüedad */
 export {
   IdentityAuthorityAuditSchema,
   IdentityAuthorityResultSchema,
-} from './lib/identity/schemas/IdentityAuthorityAudit.schema.js';
+} from './lib/identity/schemas/IdentityAuthorityAudit.schema';
 
 export type {
   IIdentityAuthorityAuditParameters,
   IIdentityAuthorityResult,
-} from './lib/identity/schemas/IdentityAuthorityAudit.schema.js';
+} from './lib/identity/schemas/IdentityAuthorityAudit.schema';
 
-export {
-  IdentitySecurityStandardsSchema,
-} from './lib/identity/schemas/IdentitySecurityStandards.schema.js';
+export { IdentitySecurityStandardsSchema } from './lib/identity/schemas/IdentitySecurityStandards.schema';
 
-export type {
-  IIdentitySecurityStandards,
-} from './lib/identity/schemas/IdentitySecurityStandards.schema.js';
+export type { IIdentitySecurityStandards } from './lib/identity/schemas/IdentitySecurityStandards.schema';
 
-export {
-  IdentitySeniorityResultSchema,
-} from './lib/identity/schemas/IdentitySeniority.schema.js';
+export { IdentitySeniorityResultSchema } from './lib/identity/schemas/IdentitySeniority.schema';
 
-export type {
-  IIdentitySeniorityResult,
-} from './lib/identity/schemas/IdentitySeniority.schema.js';
+export type { IIdentitySeniorityResult } from './lib/identity/schemas/IdentitySeniority.schema';
 
-export {
-  ValidateAdministrativeAuthoritySchema,
-} from './lib/identity/schemas/ValidateAdministrativeAuthority.schema.js';
+export { ValidateAdministrativeAuthoritySchema } from './lib/identity/schemas/ValidateAdministrativeAuthority.schema';
 
-export type {
-  IValidateAdministrativeAuthorityParameters,
-} from './lib/identity/schemas/ValidateAdministrativeAuthority.schema.js';
+export type { IValidateAdministrativeAuthorityParameters } from './lib/identity/schemas/ValidateAdministrativeAuthority.schema';
 
 /* 1.7. Persistencia Física y Sincronización en el Ledger */
-export {
-  IdentityPhysicalRecordSchema,
-} from './lib/identity/schemas/IdentityPhysicalRecord.schema.js';
+export { IdentityPhysicalRecordSchema } from './lib/identity/schemas/IdentityPhysicalRecord.schema';
 
-export type {
-  IIdentityPhysicalRecord,
-} from './lib/identity/schemas/IdentityPhysicalRecord.schema.js';
+export type { IIdentityPhysicalRecord } from './lib/identity/schemas/IdentityPhysicalRecord.schema';
 
 export const SynchronizeIdentityAuthoritySchema = z
   .object({
@@ -184,4 +149,4 @@ export type ISynchronizeIdentityAuthorityParameters = z.infer<
  * @domain 2. FINANCIAL & MUNICIPAL DATA (Fiscal Auditing SSOT)
  * ============================================================================
  */
-export * from './lib/financial/PublicExpenditure.schema.js';
+export * from './lib/financial/PublicExpenditure.schema';

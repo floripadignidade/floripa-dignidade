@@ -1,0 +1,23 @@
+{
+  "metadata": {
+    "pageTitleLiteral": "Observatorio de Gastos Públicos",
+    "pageDescriptionLiteral": "Auditoría algorítmica y transparencia activa de la ejecución presupuestaria municipal de Florianópolis."
+  },
+  "dashboard": {
+    "totalInvestedLabel": "Total Auditado",
+    "anomalyCountLabel": "Anomalías Sospechosas",
+    "territorialReachLabel": "Distritos Cubiertos",
+    "aiAuditStatusLabel": "Integridad de la IA"
+  },
+  "table": {
+    "columnEntity": "Gastos Públicos y Contratos",
+    "columnAmount": "Valor Ejecutado",
+    "columnIntegrityHash": "Identificador Forense",
+    "columnAiScore": "Salud Cognitiva"
+  },
+  "actions": {
+    "exportCsvLabel": "Exportar Reporte",
+    "printReportLabel": "Imprimir Certificado",
+    "restrictAccessToggle": "Filtrar por Severidad"
+  }
+}

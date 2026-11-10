@@ -1,14 +1,14 @@
 // @ts-check
 
 /**
- * @section Next.js Configuration - Zenith Infrastructure Shell
- * @description Manifiesto de configuración soberano para el portal ciudadano.
- * Orquesta la seguridad de cabeceras, la transpilación de búnkeres del monorepo
- * y la integración con el motor de Nx.
+ * @section Next.js Configuration - Enterprise Portal Infrastructure Shell
+ * @description Manifiesto de configuración institucional para el portal ciudadano.
+ * Orquesta la seguridad de cabeceras HTTP, la transpilación unificada del monorepo
+ * y el ruteo tipado de grado Enterprise en Next.js 16 con Turbopack.
  *
- * Protocolo OEDP-V17.0 - ESM-First Architecture & ISO Standard Naming.
- * SANEADO Zenith: Resolución de Asfixia de Identidad (Fix TS7016) mediante
- * inyección de tipo explícito y erradicación de rastro relativo.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Rendimiento y Mantenibilidad).
+ * SANEADO Turbopack: Promoción de 'typedRoutes' a nivel raíz y blindaje de transpilePackages.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -19,9 +19,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 /**
- * 🛡️ LEY DE IDENTIDAD (Fix TS7016):
- * Forzamos la carga de tipos de Next.js para que el orquestador reconozca
- * el contrato 'NextConfig' sin ambigüedades en entornos de PNPM estricto.
+ * 🛡️ LEY DE IDENTIDAD:
+ * Garantiza la tipificación estricta de NextConfig en entornos de compilación pnpm.
  * @typedef {import('next').NextConfig} NextConfig
  */
 
@@ -34,14 +33,11 @@ const currentFileConfigurationPathLiteral = fileURLToPath(import.meta.url);
 const currentConfigurationDirectoryLiteral = dirname(currentFileConfigurationPathLiteral);
 
 /**
- * @interface ISecurityHeader
- * @description Definición local para evitar la importación de archivos .ts
- * fuera del rootDir de la aplicación durante la fase de validación de config.
+ * @typedef {{ key: string, value: string }} ISecurityHeader
  */
-/** @typedef {{ key: string, value: string }} ISecurityHeader */
 
 /**
- * @section Ingesta de Artefactos de Seguridad (Silo JSON)
+ * @section Ingesta de Cabeceras de Seguridad ISO (Silo JSON)
  */
 const securityHeadersSiloPathLiteral = join(
   currentConfigurationDirectoryLiteral,
@@ -55,41 +51,46 @@ const globalSecurityHeadersCollection = JSON.parse(
 
 /**
  * @name portalNextConfigurationFoundation
- * @description ADN base del portal con soporte para ruteo tipado y seguridad ISO.
+ * @description ADN base del portal con soporte para ruteo tipado nativo y seguridad perimetral.
  * @type {NextConfig}
  */
 const portalNextConfigurationFoundation = {
   /**
-   * Colección de búnkeres autorizados para transpilación.
-   * 🛡️ SANEADO Zenith: Alineación con la nueva topología de búnkeres Shared.
+   * @section Búnkeres del Monorepo Autorizados para Transpilación
+   * Turbopack requiere la declaración explícita de librerías del workspace.
    */
   transpilePackages: [
-    '@floripa-dignidade/shared-utility',
-    '@floripa-dignidade/shared-state-store',
-    '@floripa-dignidade/shared-ui-foundry',
-    '@floripa-dignidade/telemetry',
-    '@floripa-dignidade/routing',
+    '@floripa-dignidade/contracts',
+    '@floripa-dignidade/data-ingestion-engine',
+    '@floripa-dignidade/environment-validator',
     '@floripa-dignidade/exceptions',
+    '@floripa-dignidade/health-monitor',
     '@floripa-dignidade/identity',
     '@floripa-dignidade/newsletter',
-    '@floripa-dignidade/analytics',
-    '@floripa-dignidade/health-monitor',
+    '@floripa-dignidade/resend-provider',
+    '@floripa-dignidade/routing',
     '@floripa-dignidade/search-engine',
-    '@floripa-dignidade/resend-provider'
+    '@floripa-dignidade/shared-design-system',
+    '@floripa-dignidade/shared-state-store',
+    '@floripa-dignidade/shared-ui-contracts',
+    '@floripa-dignidade/shared-ui-foundry',
+    '@floripa-dignidade/shared-utility',
+    '@floripa-dignidade/telemetry',
+    '@floripa-dignidade/territorial-engine',
+    '@floripa-dignidade/whatsapp-communication-service',
   ],
 
   reactStrictMode: true,
   poweredByHeader: false,
 
   /**
-   * Optimización de ruteo tipado de grado Enterprise.
+   * @section Ruteo Tipado Nativo Next.js 16 (Estándar Turbopack)
+   * Promovido fuera del bloque 'experimental' conforme a las especificaciones v16+.
    */
-  experimental: {
-    typedRoutes: true,
-  },
+  typedRoutes: true,
 
   /**
-   * @section Inyección de Seguridad ISO (Headers)
+   * @section Inyección de Seguridad ISO (Headers Perimetrales)
    */
   async headers() {
     return [
@@ -101,7 +102,7 @@ const portalNextConfigurationFoundation = {
   },
 
   /**
-   * Configuración específica de Nx.
+   * Configuración de integración específica de Nx.
    */
   nx: {
     svgr: false,
@@ -110,12 +111,12 @@ const portalNextConfigurationFoundation = {
 
 /**
  * @name applicationPluginsCollection
- * @description Swarm de plugins para la composición final del entorno.
+ * @description Swarm de plugins para la composición final del entorno de compilación.
  */
 const applicationPluginsCollection = [withNx];
 
 /**
- * Exportación del ensamble procesado para el despliegue.
+ * Exportación del ensamble procesado para el despliegue en Vercel.
  * @type {NextConfig}
  */
 const exportedConfigurationSnapshot = composePlugins(...applicationPluginsCollection)(

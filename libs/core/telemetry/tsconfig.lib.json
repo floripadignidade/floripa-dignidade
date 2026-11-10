@@ -1,29 +1,59 @@
 /**
- * @section Core Telemetry - Configuration Gatekeeper
- * @description Punto de entrada maestro para el servidor de tipos de la librería de telemetría.
- * Actúa como pasaporte de visibilidad delegando la auditoría de fuentes al Emitter
- * especializado (tsconfig.lib.json) y extendiendo la constitución base raíz.
+ * @section Core Telemetry - Library Compiler Infrastructure
+ * @description Manifiesto de verificación de tipos para el búnker de telemetría, observabilidad y rastro forense.
+ * Rige bajo la doctrina Source-First (OEDP-V18.1), consumiendo directamente el código fuente
+ * de las librerías del monorepo a través del mapa de rutas unificado de tsconfig.base.json
+ * sin sobreingeniería de proyectos compuestos, emisión intermedia ni referencias circulares.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad).
- * SANEADO Zenith: Corrección de ruta relativa hacia la raíz (../../../tsconfig.base.json)
- * y reconexión de referencia formal hacia tsconfig.lib.json.
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
+ * SANEADO: Erradicación de auto-referencia cíclica, inclusión de fuentes para Web Workers y DOM, y alineación a noEmit: true.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 {
-  "extends": "../../../tsconfig.base.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
+    "outDir": "../../../dist/out-tsc/libs/core/telemetry",
+
+    /* --- ESTRATEGIA SOURCE-FIRST: Auditoría de Fuentes Pura --- */
     "composite": false,
     "noEmit": true,
-    "ignoreDeprecations": "5.0"
+    "declaration": false,
+    "declarationMap": false,
+
+    /* --- INTEGRIDAD DE RESOLUCIÓN (Standard Next-Gen) --- */
+    "target": "ES2022",
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+
+    /* --- RIGOR DE IDENTIDAD (SRE Compliance) --- */
+    "ignoreDeprecations": "5.0",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* --- CONTEXTO DE EJECUCIÓN ISOMÓRFICO (WebWorker & DOM) --- */
+    "types": ["node"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"]
   },
-  "files": [],
-  "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.lib.json"
-    }
-  ]
+
+  "include": ["src/**/*.ts", "src/**/*.json"],
+
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "jest.config.ts",
+    "dist",
+    "out-tsc",
+    "node_modules",
+    "../../../dist",
+    "../../../node_modules"
+  ],
+
+  "references": []
 }

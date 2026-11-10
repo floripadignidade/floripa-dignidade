@@ -4,19 +4,19 @@
  * y validación estricta de variables de entorno. Centraliza contratos criptográficos con tipado
  * nominal (Branded Types), sensores de hardware, almas lingüísticas y orquestadores de prevuelo.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Seguridad).
+ * SANEADO Turbopack: Erradicación definitiva de extensiones '.js' a favor de Rutas Limpias (Extensionless).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 /**
- * @version 1.3.0
- * Estatus: Nivelación Multi-Cloud AI completada. Soporte para Google Gemini AI Studio,
- * Hugging Face Router, mitigación de fallos regionales S3 y tipos bridados de hardware.
+ * @version 1.3.1
+ * Estatus: Nivelación Turbopack completada. Rutas limpias deterministas para Next.js 16.
  */
-export const CORE_ENVIRONMENT_VALIDATOR_VERSION = '1.3.0';
+export const CORE_ENVIRONMENT_VALIDATOR_VERSION = '1.3.1';
 
 /**
  * @section 1. Contratos Estructurales y Tipado Nominal (Schemas & Branded Types)
@@ -56,7 +56,7 @@ export {
   // Topología y Red
   SiteUniformResourceLocatorSchema,
   NxCloudAccessSecurityTokenSchema,
-} from './lib/schemas/Environment.schema.js';
+} from './lib/schemas/Environment.schema';
 
 export type {
   IEnvironmentVariables,
@@ -76,19 +76,15 @@ export type {
   THuggingFaceModelUrl,
   TSiteUniformResourceLocator,
   TNxCloudAccessSecurityToken,
-} from './lib/schemas/Environment.schema.js';
+} from './lib/schemas/Environment.schema';
 
 /**
  * @section 2. Contratos Lingüísticos (Internationalization)
  * Definiciones formales para la validación de diccionarios de auditoría de infraestructura.
  */
-export {
-  EnvironmentLinguisticDictionarySchema,
-} from './lib/i18n/EnvironmentLinguisticDictionary.schema.js';
+export { EnvironmentLinguisticDictionarySchema } from './lib/i18n/EnvironmentLinguisticDictionary.schema';
 
-export type {
-  IEnvironmentLinguisticDictionary,
-} from './lib/i18n/EnvironmentLinguisticDictionary.schema.js';
+export type { IEnvironmentLinguisticDictionary } from './lib/i18n/EnvironmentLinguisticDictionary.schema';
 
 /**
  * @section 3. Lógica Atómica y Orquestadores de Prevuelo
@@ -99,19 +95,13 @@ export type {
 export {
   ValidateEnvironmentAduana,
   ValidateEnvironmentAduana as ValidateEnvironmentContract,
-} from './lib/logic/ValidateEnvironmentAduana.js';
+} from './lib/logic/ValidateEnvironmentAduana';
 
 // Sensor de Hardware para Extracción Isomórfica de Metadatos
-export {
-  GatherEnvironmentMetadata,
-} from './lib/logic/GatherEnvironmentMetadata.js';
+export { GatherEnvironmentMetadata } from './lib/logic/GatherEnvironmentMetadata';
 
 // Átomo de Triaje y Bloqueo Forense ante Corrupción de Entorno
-export {
-  ReportEnvironmentIntegrityViolation,
-} from './lib/logic/atomic/ReportEnvironmentIntegrityViolation.js';
+export { ReportEnvironmentIntegrityViolation } from './lib/logic/atomic/ReportEnvironmentIntegrityViolation';
 
 // Tipos de Rastro Técnico
-export type {
-  IEnvironmentMetadataSnapshot,
-} from './lib/logic/GatherEnvironmentMetadata.js';
+export type { IEnvironmentMetadataSnapshot } from './lib/logic/GatherEnvironmentMetadata';

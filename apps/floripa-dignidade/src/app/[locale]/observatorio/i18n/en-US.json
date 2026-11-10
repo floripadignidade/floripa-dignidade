@@ -1,0 +1,23 @@
+{
+  "metadata": {
+    "pageTitleLiteral": "Public Expenditure Observatory",
+    "pageDescriptionLiteral": "Algorithmic audit and proactive transparency of municipal budget execution in Florianópolis."
+  },
+  "dashboard": {
+    "totalInvestedLabel": "Total Audited",
+    "anomalyCountLabel": "Suspicious Anomalies",
+    "territorialReachLabel": "Covered Districts",
+    "aiAuditStatusLabel": "AI Integrity"
+  },
+  "table": {
+    "columnEntity": "Public Expenditures & Contracts",
+    "columnAmount": "Executed Amount",
+    "columnIntegrityHash": "Forensic Identifier",
+    "columnAiScore": "Cognitive Health"
+  },
+  "actions": {
+    "exportCsvLabel": "Export Report",
+    "printReportLabel": "Print Certificate",
+    "restrictAccessToggle": "Filter by Severity"
+  }
+}

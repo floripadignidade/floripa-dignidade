@@ -5,9 +5,9 @@
  * @description Ensamble de descubrimiento y conversión para el encabezado.
  * Orquesta la búsqueda universal y el llamado a la acción primario.
  *
- * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Erradicación de supresiones obsoletas (Fix TS2578),
- * sincronización de contratos de internacionalización y Prosa ISO 11179.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
+ * SANEADO Turbopack: Erradicación definitiva de extensiones '.js' a favor de Rutas Limpias (Extensionless).
  *
  * @author Neural Sentinel (IA) en colaboración con Raz Podestá
  * @license UNLICENSED
@@ -16,11 +16,11 @@
 import React from 'react';
 import { Heart } from 'lucide-react';
 
-/* 1. Átomos y Moléculas Locales (Swiss-Watch Swarm - Clean Paths) */
-import { GlobalActionButton } from '../../../atoms/GlobalActionButton.js';
-import { GlobalSearchWidget } from '../../../molecules/GlobalSearchWidget.js';
+/* 1. Átomos y Moléculas Locales (Clean Paths) */
+import { GlobalActionButton } from '../../../atoms/GlobalActionButton';
+import { GlobalSearchWidget } from '../../../molecules/GlobalSearchWidget';
 
-/* 2. Planos y Contratos (Blueprints Layer - Redirección de ADN Maestro) */
+/* 2. Planos y Contratos (Blueprints Layer) */
 import type { IMainNavigationHeaderI18n } from '@floripa-dignidade/shared-ui-contracts';
 
 /**
@@ -64,7 +64,6 @@ export const NavigationActionsSwarm: React.FC<INavigationActionsProperties> = (
         visualIntentConfigurationLiteral="CONVERSION"
         actionIdentifierLiteral="HEADER_DONATE_CTA"
         className="px-10"
-        /** 🛡️ SANEADO Zenith: Cumplimiento del contrato inmutable de UI Primitives. */
         isPolymorphicBoolean={false}
         forensicTestIdentifier="CTA_HEADER_DONATE"
         accessibilityConfiguration={{

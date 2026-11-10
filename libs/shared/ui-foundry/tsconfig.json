@@ -1,13 +1,12 @@
 /**
  * @section Shared UI Foundry - Configuration Gatekeeper
- * @description Orquestador de la frontera física del búnker de construcción visual.
- * Actúa como el pasaporte de visibilidad e índice para el motor de tipos y el IDE,
- * rigiéndose bajo el estándar de verificación sobre fuentes directas (Source-First).
+ * @description Orquestador de la frontera física del búnker de construcción visual (React 19).
+ * Actúa como pasaporte de visibilidad e índice para el TypeScript Project Service y el IDE,
+ * indexando directamente las fuentes bajo la doctrina Source-First (OEDP-V18.1).
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * SANEADO Zenith: Erradicación definitiva del error TS6053 mediante la purga del archivo
- * fantasma 'src/index.d.ts' y erradicación de TS6306/TS6310 eliminando referencias
- * compuestas inválidas en un entorno 'noEmit: true'.
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad).
+ * SANEADO: Inclusión directa de fuentes (src/**\/*.ts, src/**\/*.tsx) para resolución de Project Service en ESLint.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -19,7 +18,11 @@
     "noEmit": true,
     "ignoreDeprecations": "5.0"
   },
-  "files": [],
-  "include": [],
-  "references": []
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "dist", "out-tsc"],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    }
+  ]
 }

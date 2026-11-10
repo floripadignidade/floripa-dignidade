@@ -1,20 +1,29 @@
 /**
- * @section Technical Constitution - Root Gatekeeper
- * @description Punto de entrada maestro para el servidor de tipos del monorepo.
- * Implementa la doctrina de Resolución de Fuente Única (Source-First),
- * heredando íntegramente el mapa de rutas canónico de 'tsconfig.base.json'.
+ * @section Core Telemetry - Configuration Gatekeeper
+ * @description Punto de entrada maestro para el servidor de tipos de la librería de telemetría.
+ * Implementa la doctrina Source-First (OEDP-V18.1), extendiendo la base del monorepo
+ * e indexando las fuentes para el TypeScript Project Service y el IDE.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * SANEADO Zenith: Erradicación del sombreado de rutas (Paths Shadowing Bug)
- * que anulaba la resolución de librerías anidadas en core, engines, modules y shared.
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad).
+ * SANEADO: Corrección de herencia relativa (../../../tsconfig.base.json), inclusión de fuentes
+ * para Project Service y reconexión de referencia formal hacia tsconfig.lib.json.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 {
-  "extends": "./tsconfig.base.json",
-  "compilerOptions": {},
-  "files": [],
-  "include": [],
-  "references": []
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "ignoreDeprecations": "5.0"
+  },
+  "include": ["src/**/*.ts", "src/**/*.json"],
+  "exclude": ["node_modules", "dist", "out-tsc"],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    }
+  ]
 }

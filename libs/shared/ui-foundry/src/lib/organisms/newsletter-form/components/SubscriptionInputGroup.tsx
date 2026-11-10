@@ -6,9 +6,9 @@
  * comunicación ciudadana. Fusiona el campo de entrada táctil con el disparador
  * de conversión en una unidad atómica resiliente.
  *
- * Protocolo OEDP-V17.0 - High Performance UI & SRE Resilience.
- * SANEADO Zenith: Resolución de TS2741 (Polymorphism), rastro de telemetría de
- * interacción física y cumplimiento estricto de Prosa ISO (Zero Abbreviations).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Rendimiento y Mantenibilidad).
+ * SANEADO Turbopack: Erradicación definitiva de extensiones '.js' a favor de Rutas Limpias (Extensionless).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -18,17 +18,13 @@ import React, { useCallback, useMemo } from 'react';
 import { Mail } from 'lucide-react';
 import type { UseFormRegisterReturn } from 'react-hook-form';
 
-/* 1. Infraestructura Core y Utilidades (Sovereign Swarm) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+/* 1. Infraestructura Core y Utilidades (Clean Paths) */
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 import { GlobalStyleClassMerger } from '@floripa-dignidade/shared-utility';
 
-/* 2. Átomos de Interacción (Internal Library Boundary) */
-/** 🛡️ SANEADO Zenith: Inyección de extensión '.js' para resolución Node16/Next16. */
-import { GlobalActionButton } from '../../../atoms/GlobalActionButton.js';
+/* 2. Átomos de Interacción (Clean Paths) */
+import { GlobalActionButton } from '../../../atoms/GlobalActionButton';
 
 /**
  * @interface ISubscriptionInputGroupProperties
@@ -50,11 +46,11 @@ interface ISubscriptionInputGroupProperties {
   readonly isMinimalVariantBoolean: boolean;
 }
 
-/** Identificador técnico del aparato para el Neural Sentinel. */
+/** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
 const ATOM_IDENTIFIER = 'SUBSCRIPTION_INPUT_GROUP_ATOM';
 
 /**
- * Aparato encargado de la interacción primaria en el embudo de captación.
+ * Aparato encargado de la interacción primaria en el embudo de captación cívica.
  */
 export const SubscriptionInputGroup: React.FC<ISubscriptionInputGroupProperties> = ({
   register,
@@ -64,50 +60,50 @@ export const SubscriptionInputGroup: React.FC<ISubscriptionInputGroupProperties>
   buttonLabelLiteral,
   isMinimalVariantBoolean,
 }) => {
-
   /**
    * @section Gestión de Telemetría Sensorial
    * Registra el inicio de interacción con el campo para análisis de fricción.
    */
   const handleInputFocusAction = useCallback(() => {
     void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'INFO',
       moduleIdentifierLiteral: ATOM_IDENTIFIER,
       operationCodeLiteral: 'INPUT_FIELD_FOCUSED',
       correlationIdentifier: GenerateCorrelationIdentifier(),
       messageContentLiteral: 'Ciudadano inició interacción con el campo de email.',
-      semanticIntentTag: 'UI_INTERACTION_START'
+      semanticIntentTag: 'UI_INTERACTION_START',
     });
   }, []);
 
   /**
    * @section Arquitectura de Estilos (Atomic Performance)
-   * 🛡️ LEY SRE: Memoizamos la composición de clases para proteger el Main Thread
-   * durante las ráfagas de validación síncrona de React Hook Form.
+   * Memoizamos la composición de clases para proteger los 120 FPS en el hilo principal.
    */
-  const containerStylesLiteral = useMemo(() =>
-    GlobalStyleClassMerger(
-      'relative flex flex-col sm:flex-row gap-4 w-full transition-all duration-500',
-      isMinimalVariantBoolean ? 'max-w-md' : 'max-w-2xl',
-    ),
-    [isMinimalVariantBoolean]
+  const containerStylesLiteral = useMemo(
+    () =>
+      GlobalStyleClassMerger(
+        'relative flex flex-col sm:flex-row gap-4 w-full transition-all duration-500',
+        isMinimalVariantBoolean ? 'max-w-md' : 'max-w-2xl',
+      ),
+    [isMinimalVariantBoolean],
   );
 
-  const inputStylesLiteral = useMemo(() =>
-    GlobalStyleClassMerger(
-      'w-full bg-slate-50 border-2 rounded-2xl font-bold transition-all duration-300 outline-none',
-      isMinimalVariantBoolean ? 'py-3.5 pl-12 pr-4 text-sm' : 'py-5 pl-14 pr-6 text-base',
-      hasErrorBoolean
-        ? 'border-red-100 bg-red-50/30 text-red-900 placeholder:text-red-300 focus:border-red-300'
-        : 'border-slate-100 text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:bg-white focus:shadow-2xl focus:shadow-amber-500/5',
-    ),
-    [isMinimalVariantBoolean, hasErrorBoolean]
+  const inputStylesLiteral = useMemo(
+    () =>
+      GlobalStyleClassMerger(
+        'w-full bg-slate-50 border-2 rounded-2xl font-bold transition-all duration-300 outline-none',
+        isMinimalVariantBoolean ? 'py-3.5 pl-12 pr-4 text-sm' : 'py-5 pl-14 pr-6 text-base',
+        hasErrorBoolean
+          ? 'border-red-100 bg-red-50/30 text-red-900 placeholder:text-red-300 focus:border-red-300'
+          : 'border-slate-100 text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:bg-white focus:shadow-2xl focus:shadow-amber-500/5',
+      ),
+    [isMinimalVariantBoolean, hasErrorBoolean],
   );
 
   return (
     <div className={containerStylesLiteral}>
-
-      {/* 1. COMPONENTE SENSORIAL (Input Field Swarm) */}
+      {/* 1. COMPONENTE SENSORIAL (Input Field) */}
       <div className="relative flex-grow group">
         <div
           className={GlobalStyleClassMerger(
@@ -136,7 +132,6 @@ export const SubscriptionInputGroup: React.FC<ISubscriptionInputGroupProperties>
         type="submit"
         visualIntentConfigurationLiteral="CONVERSION"
         isExecutionLoadingBoolean={isExecutingBoolean}
-        /** 🛡️ SANEADO Zenith (Fix TS2741): Inyección de propiedad mandatoria. */
         isPolymorphicBoolean={false}
         actionIdentifierLiteral="NEWSLETTER_CONVERSION_SUBMIT"
         className={GlobalStyleClassMerger(
@@ -146,7 +141,6 @@ export const SubscriptionInputGroup: React.FC<ISubscriptionInputGroupProperties>
       >
         <span>{buttonLabelLiteral}</span>
       </GlobalActionButton>
-
     </div>
   );
 };
