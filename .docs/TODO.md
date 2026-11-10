@@ -30,4 +30,26 @@
 
   ---
 
+  - [x] **Fase 1: Higiene y Compilación Lingüística (Pre-build Gate)**
+  - [x] Ejecutar `pnpm purge:emissions` para eliminar cualquier `.d.ts` o `.js` huérfano en `libs/`.
+  - [x] Ejecutar `pnpm weaver:build` para compilar los diccionarios unificados en `apps/floripa-dignidade/src/app/i18n/dictionaries/`.
+  - [x] Confirmar que no existan advertencias de esquemas en `reports/internationalization-audit-report.json`.
+
+- [x] **Fase 2: Verificación de Integridad de Tipos y Grafo (TypeScript 5.9)**
+  - [x] Saneamiento de manifiestos y nombres de paquetes (`@floripa-dignidade/floripa-dignidade`).
+  - [x] Migración y sincronización con nuevo repositorio remoto `floripadignidade/floripa-dignidade`.
+
+- [/] **Fase 3: Auditoría Física de Secretos e Infraestructura Cloud (Database & APIs)**
+  - [x] Construcción del contrato SSOT `CloudInfrastructureAuditReport.schema.ts`.
+  - [x] Sonda PostgreSQL (`DATABASE_URL`).
+  - [x] Sonda Supabase PostgREST (`SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY`).
+  - [x] Sonda Supabase S3 Gateway (`S3_ENDPOINT`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_BUCKET`).
+  - [x] Sonda Resend Email (`RESEND_API_KEY` y `RESEND_FROM_EMAIL`).
+  - [x] Sonda Hugging Face SLM (`HUGGING_FACE_API_TOKEN` y `HUGGING_FACE_MODEL_URL`).
+  - [x] Sonda WhatsApp Webhook (`WHATSAPP_VERIFY_TOKEN` y `WHATSAPP_APP_SECRET`).
+  - [x] Orquestador central concurrente (`AuditCloudInfrastructureSecrets.ts`).
+  - [ ] Disparador CLI en `scripts/src/audit-cloud-infrastructure-secrets.ts`.
+
+  ---
+
   

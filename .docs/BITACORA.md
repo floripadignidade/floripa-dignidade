@@ -89,4 +89,26 @@ Se ejecutó una auditoría integral de 10 dimensiones técnicas sobre el monorep
 
    ---
 
+   ## [2026-11-10] HITO 05: Migración de Identidad Institucional GitHub, Saneamiento de Manifiestos y Construcción del Enjambre de Auditoría Cloud
+
+### Contexto y Diagnóstico Forense
+1. Migración del repositorio remoto desde la cuenta personal previa hacia la organización oficial `floripadignidade/floripa-dignidade.git`, resolviendo la corrupción local de referencias Git (`refs/remotes/origin/main: reference broken`).
+2. Despliegue en Vercel estabilizado mediante la elevación de `tsx: "^4.19.0"` a `devDependencies` en el `package.json` raíz y flexibilización de `engines: { "node": ">=20.9.0" }`.
+3. Saneamiento de colisión crítica en `apps/floripa-dignidade/package.json` (sobrescrito accidentalmente con el manifiesto raíz) y purga de la carpeta recursiva parásita en `libs/tools/.../probes/libs`.
+
+### Decisiones Arquitectónicas Inmutables y Acciones Ejecutadas
+1. **Arquitectura de Sondas de Red Activas (Infrastructure Auditor):**
+   - Se construyó el contrato formal inmutable `CloudInfrastructureAuditReportSchema`.
+   - Se crearon las 6 sondas de red individuales con tipado nominal y telemetría SRE:
+     - `AuditPostgresDatabaseProbe.ts`: Handshake SSL nativo (paquete `SSLRequest` FE/BE de Postgres) con timeout de 5s.
+     - `AuditSupabaseRestProbe.ts`: Consulta REST ping a `/rest/v1/` con clave de servicio.
+     - `AuditSupabaseStorageS3Probe.ts`: Firma criptográfica pura AWS Signature Version 4 (SigV4) mediante `node:crypto`.
+     - `AuditResendEmailProbe.ts`: Validación de API Key y certificación de estado de dominio remitente.
+     - `AuditHuggingFaceCognitiveProbe.ts`: Pulso de inferencia SLM con detección de Cold Start (`HTTP 503`).
+     - `AuditWhatsAppMetaGatewayProbe.ts`: Auditoría de entropía y apretón de manos HMAC-SHA256 en tiempo constante.
+2. **Orquestación Central de Auditoría:**
+   - Se construyó `AuditCloudInfrastructureSecrets.ts` para ejecución concurrente y volcado estructurado a `reports/infrastructure/`.
+
+   ---
+
    
