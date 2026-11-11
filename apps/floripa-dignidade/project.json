@@ -3,23 +3,20 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/floripa-dignidade/src",
   "projectType": "application",
-  "tags": [
-    "scope:app",
-    "type:app",
-    "platform:web"
-  ],
+  "tags": ["scope:app", "type:app", "platform:web"],
   "targets": {
     "build": {
       "executor": "@nx/next:build",
-      "outputs": ["{options.outputPath}"],
+      "outputs": ["{projectRoot}/.next"],
       "defaultConfiguration": "production",
       "options": {
         "root": "apps/floripa-dignidade",
-        "outputPath": "dist/apps/floripa-dignidade"
+        "outputPath": "apps/floripa-dignidade/.next"
       }
     },
     "serve": {
       "executor": "@nx/next:server",
+      "defaultConfiguration": "development",
       "options": {
         "buildTarget": "@floripa-dignidade/floripa-dignidade:build",
         "dev": true

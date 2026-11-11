@@ -1,11 +1,13 @@
 /**
- * @section Application Edge Middleware - Edge Routing Interceptor
- * @description Puerta de enlace primaria para el ecosistema Floripa Dignidade.
- * Intercepta el tráfico en el Edge Runtime de Vercel para coordinar la localización,
- * la seguridad perimetral y la trazabilidad forense inalterable (Correlation ID).
+ * @section Application Edge Proxy - Network Perimeter Routing Interceptor
+ * @description Puerta de enlace primaria y proxy perimetral para el ecosistema Floripa Dignidade.
+ * Intercepta el tráfico de red antes del renderizado de páginas para coordinar la soberanía
+ * lingüística (i18n), la seguridad contra interferencias automatizadas y la emisión del
+ * identificador inalterable de correlación forense (Correlation ID).
  *
- * Protocolo OEDP-V18.1 - High Performance SRE & Edge Routing Integrity.
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Calidad y Eficiencia).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Next.js 16 Proxy Specification).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Calidad, Confiabilidad y Eficiencia).
+ * SANEADO Next.js 16: Migración de la convención obsoleta 'middleware' a 'proxy' (RFC Next.js 16).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -18,15 +20,13 @@ import type { NextRequest } from 'next/server';
 import { GlobalRequestOrchestrator } from '@floripa-dignidade/routing';
 
 /**
- * Manejador principal de intercepción de borda (Next.js Edge Middleware).
- * Actúa como sensor primario en la frontera de red antes del renderizado de páginas.
+ * Manejador perimetral de red (Next.js 16 Edge Proxy).
+ * Actúa como sensor primario en la frontera de red antes de que la petición alcance el App Router.
  *
- * @param incomingRequestSnapshot - Solicitud física entrante capturada por el Edge Runtime.
- * @returns {Promise<NextResponse>} Respuesta procesada, redirigida o autorizada para el App Router.
+ * @param incomingRequestSnapshot - Solicitud física entrante capturada por el Edge Runtime de Vercel.
+ * @returns {Promise<NextResponse>} Respuesta procesada, redirigida o autorizada con cabeceras forenses.
  */
-export async function middleware(
-  incomingRequestSnapshot: NextRequest,
-): Promise<NextResponse> {
+export async function proxy(incomingRequestSnapshot: NextRequest): Promise<NextResponse> {
   /**
    * @section Delegación al Orquestador Perimetral
    * El orquestador aplica las políticas de soberanía lingüística, auditoría
@@ -34,6 +34,11 @@ export async function middleware(
    */
   return await GlobalRequestOrchestrator(incomingRequestSnapshot);
 }
+
+/**
+ * Exportación por defecto para compatibilidad total con empaquetadores y Turbopack.
+ */
+export default proxy;
 
 /**
  * @section Gobernanza de Radio de Acción (Routing Matcher Configuration)
