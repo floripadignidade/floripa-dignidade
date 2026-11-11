@@ -7,11 +7,11 @@
   "targets": {
     "build": {
       "executor": "@nx/next:build",
-      "outputs": ["{projectRoot}/.next"],
+      "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
         "root": "apps/floripa-dignidade",
-        "outputPath": "apps/floripa-dignidade/.next"
+        "outputPath": "dist/apps/floripa-dignidade"
       }
     },
     "serve": {
