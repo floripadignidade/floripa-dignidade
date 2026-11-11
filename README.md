@@ -1,6 +1,6 @@
 ⚖️ Floripa Dignidade — Ecossistema Digital de Resposta Social e Auditoria Cívica Ecosistema soberano
 de alta performance para defesa dos Direitos Humanos, auditoria fiscal de recursos públicos e
-garantia da dignidade humana em Florianópolis/SC.
+garantia da dignidade humana em Florianópolis/SC..
 
 ![Imagen](https://img.shields.io/badge/Orchestrator-Nx%20Monorepo%20v22-blue?logo=nx)
 ![Imagen](https://img.shields.io/badge/Frontend-Next.js%2016%20%7C%20App%20Router-black?logo=next.js)
