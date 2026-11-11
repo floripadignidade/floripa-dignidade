@@ -1,0 +1,203 @@
+{
+  "reportIdentifier": "d06ea226-8148-4d54-b140-012b330b5bc9",
+  "generationTimestampISO": "2026-11-10T19:38:56.911Z",
+  "correlationIdentifier": "a475e77a-1662-4da5-b9be-b4e9fbd05807",
+  "totalWorkspacesAuditedQuantity": 32,
+  "compliantWorkspacesCountQuantity": 32,
+  "nonCompliantWorkspacesCountQuantity": 0,
+  "isMonorepoFullyAlignedBoolean": true,
+  "workspacesAuditCollection": [
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/content-manager-system",
+      "workspaceRelativePathLiteral": "apps/content-manager-system",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/floripa-dignidade",
+      "workspaceRelativePathLiteral": "apps/floripa-dignidade",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/contracts",
+      "workspaceRelativePathLiteral": "libs/contracts",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/analytics",
+      "workspaceRelativePathLiteral": "libs/core/analytics",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/resend-provider",
+      "workspaceRelativePathLiteral": "libs/core/communication-providers/resend",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/environment-validator",
+      "workspaceRelativePathLiteral": "libs/core/environment-validator",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/exceptions",
+      "workspaceRelativePathLiteral": "libs/core/exceptions",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/routing",
+      "workspaceRelativePathLiteral": "libs/core/routing",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/telemetry",
+      "workspaceRelativePathLiteral": "libs/core/telemetry",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/adversarial-simulation-engine",
+      "workspaceRelativePathLiteral": "libs/engines/adversarial-simulation-engine",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/data-ingestion-engine",
+      "workspaceRelativePathLiteral": "libs/engines/data-ingestion-engine",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/financial-ingestion-engine",
+      "workspaceRelativePathLiteral": "libs/engines/financial-ingestion-engine",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/health-analysis-engine",
+      "workspaceRelativePathLiteral": "libs/engines/health-analysis",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/health-monitor",
+      "workspaceRelativePathLiteral": "libs/engines/health-monitor",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/impact-analytics-engine",
+      "workspaceRelativePathLiteral": "libs/engines/impact-analytics-engine",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/search-engine",
+      "workspaceRelativePathLiteral": "libs/engines/search-engine",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/identity",
+      "workspaceRelativePathLiteral": "libs/modules/identity",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/interaction-engine",
+      "workspaceRelativePathLiteral": "libs/modules/interaction-engine",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/messaging-engine",
+      "workspaceRelativePathLiteral": "libs/modules/messaging-engine",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/newsletter",
+      "workspaceRelativePathLiteral": "libs/modules/newsletter",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/reputation-engine",
+      "workspaceRelativePathLiteral": "libs/modules/reputation-engine",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/social-media",
+      "workspaceRelativePathLiteral": "libs/modules/social-media",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/territorial-engine",
+      "workspaceRelativePathLiteral": "libs/modules/territorial-engine",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/whatsapp-communication-service",
+      "workspaceRelativePathLiteral": "libs/modules/whatsapp/communication-service",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/shared-design-system",
+      "workspaceRelativePathLiteral": "libs/shared/design-system",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/shared-state-store",
+      "workspaceRelativePathLiteral": "libs/shared/state-store",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/shared-ui-contracts",
+      "workspaceRelativePathLiteral": "libs/shared/ui-contracts",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/shared-ui-foundry",
+      "workspaceRelativePathLiteral": "libs/shared/ui-foundry",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/shared-utility",
+      "workspaceRelativePathLiteral": "libs/shared/utility",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/tools",
+      "workspaceRelativePathLiteral": "libs/tools",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/scripts",
+      "workspaceRelativePathLiteral": "scripts",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    },
+    {
+      "workspaceNameLiteral": "@floripa-dignidade/qa-mirror",
+      "workspaceRelativePathLiteral": "tests",
+      "isWorkspaceFullyCompliantBoolean": true,
+      "violationsCollection": []
+    }
+  ]
+}

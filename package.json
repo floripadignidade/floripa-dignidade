@@ -34,6 +34,7 @@
     "purge:emissions": "tsx --tsconfig ./tsconfig.base.json scripts/src/purge-rogue-emissions.ts",
     "workspace:clean": "nx reset && node -e \"['dist','.nx','tmp'].forEach(directoryPathLiteral => fs.rmSync(directoryPathLiteral, { recursive: true, force: true }))\"",
     "workspace:graph": "nx graph",
+    "audit:workspace": "tsx --tsconfig ./tsconfig.base.json scripts/src/audit-workspace-conformance.ts",
     "// --- 🪝 GIT HOOKS: QUALITY SHIELD ---": "",
     "prepare": "husky"
   },
