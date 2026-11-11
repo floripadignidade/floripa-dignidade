@@ -1,31 +1,30 @@
 /**
- * @section Telemetry Logic - Performance Metrics Apparatus
+ * @section Telemetry Logic - Performance Metrics Apparatus (Atom)
  * @description Átomo encargado de medir con precisión física de microsegundos la ejecución
  * de acciones asíncronas en el ecosistema. Captura las marcas de tiempo de inicio y fin,
  * calcula la latencia neta y despacha los resultados al flujo telemétrico con etiquetado SRE.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Rendimiento).
- * SANEADO Zenith: Inyección mandatoria de 'occurrenceTimestampISO' en todas las emisiones
- * para erradicar el rechazo de esquema en el despachador atómico.
+ * SANEADO Turbopack: Erradicación definitiva de extensiones '.js' a favor de Rutas Limpias (Extensionless).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import { EmitTelemetrySignal } from './EmitTelemetrySignal.js';
+/* 1. Infraestructura Interna de Telemetría (Rutas Limpias - Extensionless) */
+import { EmitTelemetrySignal } from './EmitTelemetrySignal';
 import type {
   CorrelationIdentifier,
   ModuleIdentifier,
   OperationCode,
-} from '../../schemas/TelemetrySignal.schema.js';
+} from '../../schemas/TelemetrySignal.schema';
 
 /**
  * Identificador técnico para reportes de métricas internas de rendimiento.
  * Cumple con la norma ISO 11179 de Objeto + Propiedad + Representación.
  */
-const PERFORMANCE_MONITOR_IDENTIFIER =
-  'TELEMETRY_PERFORMANCE_MONITOR' as ModuleIdentifier;
+const PERFORMANCE_MONITOR_IDENTIFIER = 'TELEMETRY_PERFORMANCE_MONITOR' as ModuleIdentifier;
 
 /**
  * Ejecuta una acción atómica asíncrona midiendo su tiempo de procesamiento físico
@@ -67,12 +66,10 @@ export const TraceExecutionTime = async <TExecutionResult>(
       occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'INFO',
       moduleIdentifierLiteral: PERFORMANCE_MONITOR_IDENTIFIER,
-      operationCodeLiteral:
-        `${operationCodeLiteral}_PERFORMANCE_SUCCESS` as OperationCode,
+      operationCodeLiteral: `${operationCodeLiteral}_PERFORMANCE_SUCCESS` as OperationCode,
       correlationIdentifier: correlationIdentifier as CorrelationIdentifier,
       messageContentLiteral: 'TELEMETRY.SIGNALS.LATENCY_REPORT',
-      executionLatencyInMillisecondsQuantity:
-        calculatedLatencyInMillisecondsQuantity,
+      executionLatencyInMillisecondsQuantity: calculatedLatencyInMillisecondsQuantity,
       semanticIntentTag: 'SRE_PERFORMANCE_METRIC',
       contextMetadataSnapshot: {
         targetModuleLiteral: moduleIdentifierLiteral,
@@ -90,21 +87,17 @@ export const TraceExecutionTime = async <TExecutionResult>(
       executionEndTimestampNumeric - executionStartTimestampNumeric;
 
     const errorDescriptionLiteral =
-      caughtError instanceof Error
-        ? caughtError.message
-        : String(caughtError);
+      caughtError instanceof Error ? caughtError.message : String(caughtError);
 
     // 5. EMISIÓN DE SEÑAL DE RENDIMIENTO DEGRADADO POR ERROR
     void EmitTelemetrySignal({
       occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'ERROR',
       moduleIdentifierLiteral: PERFORMANCE_MONITOR_IDENTIFIER,
-      operationCodeLiteral:
-        `${operationCodeLiteral}_PERFORMANCE_FAILURE` as OperationCode,
+      operationCodeLiteral: `${operationCodeLiteral}_PERFORMANCE_FAILURE` as OperationCode,
       correlationIdentifier: correlationIdentifier as CorrelationIdentifier,
       messageContentLiteral: 'TELEMETRY.SIGNALS.LATENCY_REPORT',
-      executionLatencyInMillisecondsQuantity:
-        calculatedLatencyInMillisecondsQuantity,
+      executionLatencyInMillisecondsQuantity: calculatedLatencyInMillisecondsQuantity,
       semanticIntentTag: 'SRE_FAULT_LATENCY_METRIC',
       contextMetadataSnapshot: {
         errorTraceLiteral: errorDescriptionLiteral,

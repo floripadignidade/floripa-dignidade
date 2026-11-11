@@ -5,8 +5,9 @@
  * de la aplicación en Next.js 16 (App Router) o Payload CMS.
  * Implementa medición de latencia física y despacho de telemetría forense estandarizada.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Operabilidad).
+ * SANEADO Turbopack: Erradicación definitiva de extensiones '.js' a favor de Rutas Limpias.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -16,22 +17,21 @@
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
-  TraceExecutionTime,
   type ModuleIdentifier,
   type OperationCode,
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-/* 2. Contratos Estructurales (Resolución ESM Estricta) */
-import { EnvironmentSchema } from '../schemas/Environment.schema.js';
-import type { IEnvironmentVariables } from '../schemas/Environment.schema.js';
+/* 2. Contratos Estructurales (Rutas Limpias - Extensionless) */
+import { EnvironmentSchema } from '../schemas/Environment.schema';
+import type { IEnvironmentVariables } from '../schemas/Environment.schema';
 
 /* 3. Enjambre Atómico de Soporte (Módulos Internos) */
-import { GatherEnvironmentMetadata } from './GatherEnvironmentMetadata.js';
-import { ReportEnvironmentIntegrityViolation } from './atomic/ReportEnvironmentIntegrityViolation.js';
+import { GatherEnvironmentMetadata } from './GatherEnvironmentMetadata';
+import { ReportEnvironmentIntegrityViolation } from './atomic/ReportEnvironmentIntegrityViolation';
 
 /** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
-const ENVIRONMENT_VALIDATOR_IDENTIFIER =
-  'ENVIRONMENT_INFRASTRUCTURE_VALIDATOR' as ModuleIdentifier;
+const ENVIRONMENT_VALIDATOR_IDENTIFIER = 'ENVIRONMENT_INFRASTRUCTURE_VALIDATOR' as ModuleIdentifier;
 
 /**
  * Realiza una auditoría exhaustiva del contrato de secretos de infraestructura del sistema.
@@ -89,20 +89,16 @@ export const ValidateEnvironmentContract = async (): Promise<IEnvironmentVariabl
         occurrenceTimestampISO: new Date().toISOString(),
         severityLevelLiteral: 'INFO',
         moduleIdentifierLiteral: ENVIRONMENT_VALIDATOR_IDENTIFIER,
-        operationCodeLiteral:
-          'ENVIRONMENT_VERIFIED_SUCCESSFULLY' as OperationCode,
+        operationCodeLiteral: 'ENVIRONMENT_VERIFIED_SUCCESSFULLY' as OperationCode,
         correlationIdentifier,
         messageContentLiteral: 'ENVIRONMENT.LOGS.VERIFICATION_SUCCESS',
         semanticIntentTag: 'INFRASTRUCTURE_VERIFICATION_NOMINAL',
         contextMetadataSnapshot: {
           isGoogleGeminiConfiguredBoolean,
           isHuggingFaceConfiguredBoolean,
-          executionEnvironmentLiteral:
-            validatedEnvironmentDataSnapshot.NODE_ENV,
-          storageBucketLiteral:
-            validatedEnvironmentDataSnapshot.S3_BUCKET,
-          storageRegionLiteral:
-            validatedEnvironmentDataSnapshot.S3_REGION,
+          executionEnvironmentLiteral: validatedEnvironmentDataSnapshot.NODE_ENV,
+          storageBucketLiteral: validatedEnvironmentDataSnapshot.S3_BUCKET,
+          storageRegionLiteral: validatedEnvironmentDataSnapshot.S3_REGION,
         },
       });
 

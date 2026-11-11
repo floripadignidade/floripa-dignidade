@@ -6,10 +6,9 @@
  * el enmascaramiento físico en átomos de estrategia especializados bajo rastro de
  * telemetría forense inalterable y tipado nominal sellado.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Seguridad y Mantenibilidad).
- * SANEADO: Purga definitiva de metáforas informales ("Sovereign"), erradicación de abreviaturas
- * en funciones de transformación e inyección de tipos nominales bridados con Zod.
+ * SANEADO Turbopack: Erradicación definitiva de extensiones '.js' a favor de Rutas Limpias (Extensionless).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -26,17 +25,17 @@ import {
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-/* 2. Contratos de ADN Estructural (Importación Canónica Relativa) */
+/* 2. Contratos de ADN Estructural (Rutas Limpias - Extensionless) */
 import {
-  MaskIdentityParametersSchema,
   type IMaskIdentityParameters,
+  MaskIdentityParametersSchema,
   type TIdentityMaskingStrategy,
-} from './schemas/MaskSovereignIdentity.schema.js';
+} from './schemas/MaskSovereignIdentity.schema';
 
-/* 3. Enjambre Atómico de Estrategias de Anonimización */
-import { ApplyBrazilianDocumentMask } from './masking/ApplyBrazilianDocumentMask.js';
-import { ApplyCitizenNameMask } from './masking/ApplyCitizenNameMask.js';
-import { ApplyElectronicMailMask } from './masking/ApplyElectronicMailMask.js';
+/* 3. Enjambre Atómico de Estrategias de Anonimización (Rutas Limpias) */
+import { ApplyBrazilianDocumentMask } from './masking/ApplyBrazilianDocumentMask';
+import { ApplyCitizenNameMask } from './masking/ApplyCitizenNameMask';
+import { ApplyElectronicMailMask } from './masking/ApplyElectronicMailMask';
 
 /** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
 const MASKING_ORCHESTRATOR_IDENTIFIER =
@@ -73,9 +72,8 @@ export const MaskCitizenIdentity = async (
     correlationIdentifier,
     async (): Promise<TMaskedIdentityLiteral> => {
       // 1. VALIDACIÓN PERIMETRAL DE ENTRADA (Contract Guard)
-      const validationResultSnapshot = MaskIdentityParametersSchema.safeParse(
-        maskingParametersSnapshot,
-      );
+      const validationResultSnapshot =
+        MaskIdentityParametersSchema.safeParse(maskingParametersSnapshot);
 
       if (!validationResultSnapshot.success) {
         void EmitTelemetrySignal({
@@ -88,16 +86,14 @@ export const MaskCitizenIdentity = async (
             'Violación de contrato en parámetros de anonimización de identidad.',
           semanticIntentTag: 'PII_VALIDATION_WARNING',
           contextMetadataSnapshot: {
-            validationIssuesCollection:
-              validationResultSnapshot.error.flatten(),
+            validationIssuesCollection: validationResultSnapshot.error.flatten(),
           },
         });
 
         return 'IDENTITY_PROTECTION_FAULT' as TMaskedIdentityLiteral;
       }
 
-      const { rawIdentityLiteral, maskingStrategyLiteral } =
-        validationResultSnapshot.data;
+      const { rawIdentityLiteral, maskingStrategyLiteral } = validationResultSnapshot.data;
 
       // 2. FILTRO DE ATOMICIDAD: Validación de contenido mínimo
       if (!rawIdentityLiteral || rawIdentityLiteral.trim() === '') {
@@ -118,12 +114,9 @@ export const MaskCitizenIdentity = async (
           ApplyElectronicMailMask(electronicMailInputLiteral.toLowerCase()),
       };
 
-      const executeMaskingAction =
-        maskingStrategiesMapping[maskingStrategyLiteral];
+      const executeMaskingAction = maskingStrategiesMapping[maskingStrategyLiteral];
 
-      const anonymizedIdentityResultLiteral = executeMaskingAction(
-        normalizedInputLiteral,
-      );
+      const anonymizedIdentityResultLiteral = executeMaskingAction(normalizedInputLiteral);
 
       // 5. REPORTE DE TELEMETRÍA FORENSE (Visibilidad Operativa)
       void EmitTelemetrySignal({
