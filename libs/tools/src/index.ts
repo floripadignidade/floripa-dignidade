@@ -5,15 +5,15 @@
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad).
- * SANEADO Zenith: Exposición canónica del orquestador de conformidad de workspaces
- * y erradicación definitiva de extensiones '.js' virtuales.
+ * SANEADO Zenith: Desacoplamiento de sondas de infraestructura de red para aislar
+ * el compilador lingüístico Weaver y erradicar colapsos de importación en Vercel.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 /** Versión del búnker de herramientas sincronizada. */
-export const TOOLS_BUNKER_VERSION = '1.3.1';
+export const TOOLS_BUNKER_VERSION = '1.3.2';
 
 /**
  * @section 1. Orquestadores Lingüísticos
@@ -44,9 +44,3 @@ export type { IWorkspaceConformanceReport } from './lib/workspace-conformance/sc
  * Ingesta interactiva de presupuestos institucionales.
  */
 export { ExecuteFinancialIngestionOrchestrator } from './lib/financial-tools/ExecuteFinancialIngestionOrchestrator';
-
-/**
- * @section 5. Auditoría de Infraestructura y Secretos Cloud
- */
-export { AuditCloudInfrastructureSecrets } from './lib/infrastructure-auditor/AuditCloudInfrastructureSecrets';
-export type { ICloudInfrastructureAuditReport } from './lib/infrastructure-auditor/schemas/CloudInfrastructureAuditReport.schema';
