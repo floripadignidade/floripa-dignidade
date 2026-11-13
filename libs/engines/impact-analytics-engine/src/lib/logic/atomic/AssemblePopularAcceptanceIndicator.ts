@@ -50,15 +50,14 @@ interface IAssemblerParameters {
  * @returns {IPopularAcceptanceIndicator} Indicador sellado y validado para el Ledger.
  */
 export const AssemblePopularAcceptanceIndicator = (
-  parametersSnapshot: IAssemblerParameters
+  parametersSnapshot: IAssemblerParameters,
 ): IPopularAcceptanceIndicator => {
-
   const {
     targetEntityIdentifier,
     weightedTrustScoreNumeric,
     totalTrustWeightAccumulator,
     participantQuantity,
-    distributionMetadata
+    distributionMetadata,
   } = parametersSnapshot;
 
   /**
@@ -68,7 +67,7 @@ export const AssemblePopularAcceptanceIndicator = (
    */
   const statisticalConfidenceLevelNumeric = CalculateStatisticalConfidence(
     totalTrustWeightAccumulator,
-    BAYESIAN_ALGORITHM_CONFIGURATION.CONFIDENCE_THRESHOLD_WEIGHT_QUANTITY
+    BAYESIAN_ALGORITHM_CONFIGURATION.CONFIDENCE_THRESHOLD_WEIGHT_QUANTITY,
   );
 
   const communityConsensusIndexNumeric = CalculateCommunityConsensus(weightedTrustScoreNumeric);
@@ -86,7 +85,7 @@ export const AssemblePopularAcceptanceIndicator = (
     totalParticipantQuantity: participantQuantity,
     authorityLevelDistributionMetadata: {
       ...distributionMetadata,
-      technicalAuditorsQuantity: 0 // Reservado para auditorías de supervisión humana.
+      technicalAuditorsQuantity: 0, // Reservado para auditorías de supervisión humana.
     },
     /**
      * @todo En la Fase 14, inyectar el átomo 'DetectAcceptanceTrend.ts'

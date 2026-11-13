@@ -18,15 +18,19 @@ import { UiPrimitivesBaseSchema } from './UiPrimitives.schema';
  * @name NewsletterSubscriptionFormSchema
  * @description Aduana de ADN para los datos de entrada del ciudadano.
  */
-export const NewsletterSubscriptionFormSchema = z.object({
-  electronicMailAddressLiteral: z.string()
-    .min(1, { message: 'ERROR_EMAIL_REQUIRED' })
-    .email({ message: 'ERROR_EMAIL_INVALID' })
-    .transform((value) => value.toLowerCase().trim()),
+export const NewsletterSubscriptionFormSchema = z
+  .object({
+    electronicMailAddressLiteral: z
+      .string()
+      .min(1, { message: 'ERROR_EMAIL_REQUIRED' })
+      .email({ message: 'ERROR_EMAIL_INVALID' })
+      .transform((value) => value.toLowerCase().trim()),
 
-  hasGivenPrivacyConsentBoolean: z.boolean()
-    .refine((value) => value === true, { message: 'ERROR_CONSENT_REQUIRED' }),
-}).readonly();
+    hasGivenPrivacyConsentBoolean: z
+      .boolean()
+      .refine((value) => value === true, { message: 'ERROR_CONSENT_REQUIRED' }),
+  })
+  .readonly();
 
 /**
  * @name NewsletterSubscriptionFormPropertiesSchema
@@ -34,12 +38,13 @@ export const NewsletterSubscriptionFormSchema = z.object({
  * 🛡️ SANEADO Zenith: Inyección explícita de propiedades de control para
  * asegurar que el búnker 'ui-foundry' herede correctamente el ADN.
  */
-export const NewsletterSubscriptionFormPropertiesSchema = z.object({
-  targetApiEndpointPathLiteral: z.string().default('/api/newsletter/subscribe'),
-  visualVariantLiteral: z.enum(['STANDARD', 'MINIMAL']).default('STANDARD'),
-})
-.merge(UiPrimitivesBaseSchema)
-.readonly();
+export const NewsletterSubscriptionFormPropertiesSchema = z
+  .object({
+    targetApiEndpointPathLiteral: z.string().default('/api/newsletter/subscribe'),
+    visualVariantLiteral: z.enum(['STANDARD', 'MINIMAL']).default('STANDARD'),
+  })
+  .merge(UiPrimitivesBaseSchema)
+  .readonly();
 
 export type INewsletterSubscriptionForm = z.infer<typeof NewsletterSubscriptionFormSchema>;
 
@@ -48,4 +53,6 @@ export type INewsletterSubscriptionForm = z.infer<typeof NewsletterSubscriptionF
  * Exportación nominal del contrato para blindar el componente contra
  * tipos faltantes durante la orquestación.
  */
-export type INewsletterSubscriptionFormProperties = z.infer<typeof NewsletterSubscriptionFormPropertiesSchema>;
+export type INewsletterSubscriptionFormProperties = z.infer<
+  typeof NewsletterSubscriptionFormPropertiesSchema
+>;

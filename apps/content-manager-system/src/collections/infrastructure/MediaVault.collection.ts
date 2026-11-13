@@ -1,161 +1,44 @@
 /**
- * @section CMS Architecture - Infrastructure & Forensic Evidence Axis
- * @description Define la bóveda multimedia del ecosistema. Orquesta la persistencia
- * de activos visuales en infraestructura Cloud (S3/Supabase), garantizando la
- * integridad de la evidencia, optimización de entrega (AVIF/WebP) y accesibilidad ISO.
+ * @section CMS Architecture - Infrastructure & Forensic Evidence Orchestrator
+ * @description Orquestador declarativo de la colección multimedia en Payload CMS 3.84.
+ * Ensambla los átomos de política RBAC, configuración de carga S3/WebP/AVIF, campos de
+ * accesibilidad WCAG y hooks de auditoría forense manteniendo el contrato público intacto.
  *
- * Protocolo OEDP-V16.0 - ISO Standard Naming & Cloud Sovereign (ADR 0015).
- * Vision: Immutable Evidence Preservation for Human Rights.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Seguridad).
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import type { CollectionConfig } from 'payload';
 
-/* 1. Infraestructura Core & Identity (Atmos PascalCase) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier
-} from '@floripa-dignidade/telemetry';
+import { MEDIA_VAULT_ACCESS_POLICY } from './media-vault/MediaVaultAccessPolicy';
+import { MEDIA_VAULT_FIELDS_COLLECTION } from './media-vault/MediaVaultFields';
+import { MEDIA_VAULT_FORENSIC_HOOKS } from './media-vault/MediaVaultForensicHooks';
+import { MEDIA_VAULT_UPLOAD_CONFIGURATION } from './media-vault/MediaVaultUploadConfig';
 
 /**
  * @name MediaVaultCollection
- * @description Bóveda de activos digitales optimizada para el impacto social.
- * SANEADO Zenith: Preparado para deshabilitar persistencia local en favor de Cloud Storage.
+ * @description Colección institucional para la custodia de evidencias y activos de marca en la nube.
  */
 export const MediaVaultCollection: CollectionConfig = {
   slug: 'media-vault',
 
   labels: {
     singular: 'Mídia/Evidência',
-    plural: 'Bóveda Multimedia',
+    plural: 'Acervo Multimídia',
   },
 
   admin: {
     group: 'Infraestrutura',
     description: 'Gerenciamento de evidências visuais e ativos de marca institucional.',
     useAsTitle: 'alternativeTextLiteral',
-    defaultColumns: [
-      'filename',
-      'alternativeTextLiteral',
-      'mimeType',
-      'filesize'
-    ],
+    defaultColumns: ['filename', 'alternativeTextLiteral', 'mimeType', 'filesize'],
   },
 
-  /**
-   * @section Gobernanza de Acceso (Sovereign RBAC)
-   * SANEADO Zenith: Acceso mediante signatura de índice para cumplimiento de TS4111.
-   * La lectura es pública para transparencia, la escritura requiere autoridad.
-   */
-  access: {
-    read: () => true,
-    create: ({ req: { user } }) => {
-      const userAuthorityRole = user?.['assignedAuthorityRoleLiteral'];
-      return !!userAuthorityRole;
-    },
-    update: ({ req: { user } }) => {
-      const userAuthorityRole = user?.['assignedAuthorityRoleLiteral'];
-      return ['INFRASTRUCTURE_SOVEREIGN_AUDITOR', 'PLATFORM_GLOBAL_MANAGER', 'ORGANIZATION_ADMINISTRATOR'].includes(
-        userAuthorityRole || ''
-      );
-    },
-    delete: ({ req: { user } }) => {
-      const userAuthorityRole = user?.['assignedAuthorityRoleLiteral'];
-      return ['INFRASTRUCTURE_SOVEREIGN_AUDITOR', 'PLATFORM_GLOBAL_MANAGER'].includes(
-        userAuthorityRole || ''
-      );
-    },
-  },
-
-  /**
-   * @section Configuración de Carga (Cloud Optimized)
-   * Implementa la generación de variantes para optimización de Core Web Vitals.
-   * SANEADO: Se elimina 'staticDir' para delegar la ruta física al Plugin de S3 en payload.config.
-   */
-  upload: {
-    // staticDir: 'media', // DESHABILITADO: El adaptador Cloud gestionará el destino.
-    mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'application/pdf'],
-    imageSizes: [
-      {
-        name: 'thumbnail',
-        width: 400,
-        height: 300,
-        position: 'centre',
-        formatOptions: { format: 'webp', options: { quality: 80 } },
-      },
-      {
-        name: 'standard_card',
-        width: 800,
-        // Proporción áurea aplicada para visualización de noticias.
-        height: 500,
-        position: 'centre',
-        formatOptions: { format: 'webp', options: { quality: 85 } },
-      },
-      {
-        name: 'forensic_high_definition',
-        width: 1920,
-        position: 'centre',
-        // AVIF proporciona máxima fidelidad con mínimo peso para evidencias.
-        formatOptions: { format: 'avif', options: { quality: 90 } },
-      },
-    ],
-    adminThumbnail: 'thumbnail',
-  },
-
-  fields: [
-    {
-      name: 'alternativeTextLiteral',
-      type: 'text',
-      required: true,
-      label: 'Texto Alternativo (Acessibilidade ISO)',
-      admin: {
-        description: 'Descrição textual para tecnologias assistivas (SEO/WCAG).',
-        placeholder: 'Ex: Evidência de violação de direitos humanos no bairro Tapera',
-      },
-    },
-    {
-      name: 'captionLiteral',
-      type: 'textarea',
-      label: 'Legenda Técnica / Contextual',
-      admin: {
-        description: 'Informação adicional sobre a origem ou contexto da mídia.',
-      },
-    },
-    {
-      name: 'organizationOwnerIdentifier',
-      type: 'relationship',
-      relationTo: 'organizations',
-      label: 'Organização Proprietária',
-      required: false,
-      admin: {
-        position: 'sidebar',
-        description: 'Vínculo institucional para governança multi-tenancy.',
-      },
-    },
-  ],
-
-  /**
-   * @section Trazabilidad Forense (Integrity Hooks)
-   */
-  hooks: {
-    afterChange: [
-      ({ doc, operation }) => {
-        if (operation === 'create') {
-          EmitTelemetrySignal({
-            severityLevel: 'INFO',
-            moduleIdentifier: 'MEDIA_VAULT_INFRASTRUCTURE',
-            operationCode: 'CLOUD_ASSET_INDEXED',
-            correlationIdentifier: GenerateCorrelationIdentifier(),
-            message: `Ativo multimedia indexado com sucesso: ${doc['filename']}`,
-            contextMetadata: {
-              mimeType: doc['mimeType'],
-              fileSizeInBytes: doc['filesize'],
-              hasOrganizationVincule: !!doc['organizationOwnerIdentifier'],
-            }
-          });
-        }
-      },
-    ],
-  },
+  access: MEDIA_VAULT_ACCESS_POLICY,
+  upload: MEDIA_VAULT_UPLOAD_CONFIGURATION,
+  fields: MEDIA_VAULT_FIELDS_COLLECTION,
+  hooks: MEDIA_VAULT_FORENSIC_HOOKS,
 };

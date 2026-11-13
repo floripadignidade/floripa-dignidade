@@ -18,10 +18,7 @@ import React, { useEffect, useMemo } from 'react';
 import { z } from 'zod';
 
 /* 1. Infraestructura Core y Utilidades (Sovereign Swarm - Clean Paths) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 import { GlobalStyleClassMerger } from '@floripa-dignidade/shared-utility';
 
@@ -29,18 +26,20 @@ import { GlobalStyleClassMerger } from '@floripa-dignidade/shared-utility';
  * @section Aduana de ADN (Prop Validation)
  * Define el contrato de integridad para esta molécula visual.
  */
-export const SupportResourceCardPropertiesSchema = z.object({
-  /** Nodo de iconografía vectorial (Lucide). */
-  graphicIconNode: z.custom<React.ReactNode>(),
-  /** Título de la sección de soporte. */
-  headlineTitleLiteral: z.string().min(1),
-  /** Descripción breve del valor del recurso. */
-  contentDescriptionLiteral: z.string().min(1),
-  /** Variante cromática institucional. */
-  visualVariantLiteral: z.enum(['AMBER', 'BLUE']).default('BLUE'),
-  /** Identificador técnico para analítica de clics/interés. */
-  resourceIdentifierLiteral: z.string().optional(),
-}).readonly();
+export const SupportResourceCardPropertiesSchema = z
+  .object({
+    /** Nodo de iconografía vectorial (Lucide). */
+    graphicIconNode: z.custom<React.ReactNode>(),
+    /** Título de la sección de soporte. */
+    headlineTitleLiteral: z.string().min(1),
+    /** Descripción breve del valor del recurso. */
+    contentDescriptionLiteral: z.string().min(1),
+    /** Variante cromática institucional. */
+    visualVariantLiteral: z.enum(['AMBER', 'BLUE']).default('BLUE'),
+    /** Identificador técnico para analítica de clics/interés. */
+    resourceIdentifierLiteral: z.string().optional(),
+  })
+  .readonly();
 
 export type ISupportResourceCardProperties = z.infer<typeof SupportResourceCardPropertiesSchema>;
 

@@ -19,7 +19,7 @@ import { SOVEREIGN_STORAGE_CONFIGURATION } from './internal/SovereignStorageConf
  * @returns {void}
  */
 export const PersistTelemetrySignalsToLocalStorage = (
-  telemetrySignalsCollection: ITelemetrySignal[]
+  telemetrySignalsCollection: ITelemetrySignal[],
 ): void => {
   const localStorageReference = GetLocalStorageSafeReference();
 
@@ -29,7 +29,7 @@ export const PersistTelemetrySignalsToLocalStorage = (
 
   try {
     const existingVaultDataLiteral = localStorageReference.getItem(
-      SOVEREIGN_STORAGE_CONFIGURATION.VAULT_KEY_LITERAL
+      SOVEREIGN_STORAGE_CONFIGURATION.VAULT_KEY_LITERAL,
     );
 
     let updatedSignalsCollection: ITelemetrySignal[] = [];
@@ -49,23 +49,24 @@ export const PersistTelemetrySignalsToLocalStorage = (
      * @section Gestión de Cuota (Emergency Pruning)
      * Si el rastro excede el límite físico, truncamos preservando la evidencia reciente.
      */
-    if (serializedDataLiteral.length > SOVEREIGN_STORAGE_CONFIGURATION.MAXIMUM_BYTE_CAPACITY_QUANTITY) {
+    if (
+      serializedDataLiteral.length > SOVEREIGN_STORAGE_CONFIGURATION.MAXIMUM_BYTE_CAPACITY_QUANTITY
+    ) {
       const prunedCollection = updatedSignalsCollection.slice(
-        -SOVEREIGN_STORAGE_CONFIGURATION.PRUNING_RETENTION_QUANTITY
+        -SOVEREIGN_STORAGE_CONFIGURATION.PRUNING_RETENTION_QUANTITY,
       );
 
       localStorageReference.setItem(
         SOVEREIGN_STORAGE_CONFIGURATION.VAULT_KEY_LITERAL,
-        JSON.stringify(prunedCollection)
+        JSON.stringify(prunedCollection),
       );
       return;
     }
 
     localStorageReference.setItem(
       SOVEREIGN_STORAGE_CONFIGURATION.VAULT_KEY_LITERAL,
-      serializedDataLiteral
+      serializedDataLiteral,
     );
-
   } catch (_caughtHardwareError: unknown) {
     /** 🛡️ Silencio Operativo: La telemetría nunca debe bloquear el hilo principal. */
   }

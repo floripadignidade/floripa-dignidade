@@ -66,28 +66,31 @@ export const GET = async (incomingRequest: NextRequest): Promise<NextResponse> =
         const targetUrl = CalculateConfirmationRedirect(
           activationResult,
           detectedLocaleIdentifier,
-          incomingRequest.url
+          incomingRequest.url,
         );
 
         // 5. REPORTE SRE (Visibility)
         void EmitTelemetrySignal({
           severityLevel: activationResult.isActivationSuccessfulBoolean ? 'INFO' : 'WARNING',
           moduleIdentifier: GATEWAY_IDENTIFIER,
-          operationCode: activationResult.isActivationSuccessfulBoolean ? 'ACTIVATION_SUCCESS' : 'ACTIVATION_FAILED',
+          operationCode: activationResult.isActivationSuccessfulBoolean
+            ? 'ACTIVATION_SUCCESS'
+            : 'ACTIVATION_FAILED',
           correlationIdentifier,
           message: `Resultado de activación procesado para [${detectedLocaleIdentifier}].`,
         });
 
         return NextResponse.redirect(targetUrl);
-
       } catch (caughtError: unknown) {
         // 6. GESTIÓN FORENSE DE FALLO (Resilience Layer)
 
-        const normalizedException = caughtError instanceof ValidationException
-          ? caughtError
-          : MapHttpErrorToException(500, 'UNEXPECTED_CONFIRMATION_FAULT', {
-              originalErrorLiteral: caughtError instanceof Error ? caughtError.message : String(caughtError),
-            });
+        const normalizedException =
+          caughtError instanceof ValidationException
+            ? caughtError
+            : MapHttpErrorToException(500, 'UNEXPECTED_CONFIRMATION_FAULT', {
+                originalErrorLiteral:
+                  caughtError instanceof Error ? caughtError.message : String(caughtError),
+              });
 
         // Alerta automática al Neural Sentinel
         ReportForensicException(normalizedException, correlationIdentifier);
@@ -95,11 +98,11 @@ export const GET = async (incomingRequest: NextRequest): Promise<NextResponse> =
         // Redirección de seguridad a página de fallo localizada
         const targetErrorUrl = new URL(
           `/${detectedLocaleIdentifier}/error?code=CONFIRMATION_FAULT&trace=${correlationIdentifier}`,
-          incomingRequest.url
+          incomingRequest.url,
         );
 
         return NextResponse.redirect(targetErrorUrl);
       }
-    }
+    },
   );
 };

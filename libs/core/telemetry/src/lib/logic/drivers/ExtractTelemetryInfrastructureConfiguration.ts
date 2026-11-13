@@ -36,22 +36,23 @@ interface IGlobalExecutionContext {
  *
  * @returns {ITelemetryInfrastructureMetadataSnapshot} Configuración purificada.
  */
-export const ExtractTelemetryInfrastructureConfiguration = (): ITelemetryInfrastructureMetadataSnapshot => {
-  /**
-   * @section Acceso Isomórfico
-   * SANEADO Zenith: El uso de 'globalThis' garantiza que el driver no colapse
-   * en el Edge Runtime de Vercel donde 'process' puede ser volátil.
-   */
-  const globalExecutionContextReference = globalThis as unknown as IGlobalExecutionContext;
+export const ExtractTelemetryInfrastructureConfiguration =
+  (): ITelemetryInfrastructureMetadataSnapshot => {
+    /**
+     * @section Acceso Isomórfico
+     * SANEADO Zenith: El uso de 'globalThis' garantiza que el driver no colapse
+     * en el Edge Runtime de Vercel donde 'process' puede ser volátil.
+     */
+    const globalExecutionContextReference = globalThis as unknown as IGlobalExecutionContext;
 
-  return {
-    nodeExecutionEnvironmentLiteral:
-      globalExecutionContextReference.process?.env['NODE_ENV'] ?? 'development',
+    return {
+      nodeExecutionEnvironmentLiteral:
+        globalExecutionContextReference.process?.env['NODE_ENV'] ?? 'development',
 
-    cloudStorageUniformResourceLocatorLiteral:
-      globalExecutionContextReference.process?.env['SUPABASE_URL'],
+      cloudStorageUniformResourceLocatorLiteral:
+        globalExecutionContextReference.process?.env['SUPABASE_URL'],
 
-    cloudStorageAccessSecurityKeySecret:
-      globalExecutionContextReference.process?.env['SUPABASE_SERVICE_ROLE_KEY'],
+      cloudStorageAccessSecurityKeySecret:
+        globalExecutionContextReference.process?.env['SUPABASE_SERVICE_ROLE_KEY'],
+    };
   };
-};

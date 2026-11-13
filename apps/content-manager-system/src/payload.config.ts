@@ -65,11 +65,7 @@ export default buildConfig({
   /**
    * @section Bóveda de Colecciones (Ejes de Valor Social)
    */
-  collections:[
-    CitizenUsersCollection,
-    OrganizationsCollection,
-    MediaVaultCollection,
-  ],
+  collections: [CitizenUsersCollection, OrganizationsCollection, MediaVaultCollection],
 
   /**
    * @section Capas de Persistencia y Edición (Delegación Atómica)
@@ -81,7 +77,7 @@ export default buildConfig({
    * @section Capa de Plugins (Sovereign Infrastructure Extensions)
    * Implementa el túnel de almacenamiento S3-Compatible hacia Supabase Storage.
    */
-  plugins:[
+  plugins: [
     CreateCloudStoragePlugin({
       endpointLiteral: validatedEnvironmentInfrastructureMetadata.S3_ENDPOINT,
       accessKeyIdSecret: validatedEnvironmentInfrastructureMetadata.S3_ACCESS_KEY_ID,
@@ -111,7 +107,7 @@ export default buildConfig({
   typescript: {
     outputFile: ResolveAbsoluteSovereignPath(
       process.cwd(),
-      'apps/content-manager-system/src/payload-types.ts'
+      'apps/content-manager-system/src/payload-types.ts',
     ),
   },
 });

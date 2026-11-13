@@ -57,10 +57,7 @@ export const generateMetadata = ({
  * @param propertiesSnapshot - Propiedades asíncronas de la solicitud.
  * @returns {Promise<React.ReactElement>} La vista administrativa renderizada y sincronizada.
  */
-const AdminPage = ({
-  params,
-  searchParams,
-}: IAdminPageProperties): Promise<React.ReactElement> => {
+const AdminPage = ({ params, searchParams }: IAdminPageProperties): Promise<React.ReactElement> => {
   return RootPage({
     config: payloadConfigurationReference,
     importMap,

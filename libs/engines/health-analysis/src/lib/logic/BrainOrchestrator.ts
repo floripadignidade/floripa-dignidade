@@ -45,7 +45,7 @@ const BRAIN_ORCHESTRATOR_IDENTIFIER = 'NEURAL_SENTINEL_BRAIN_ORCHESTRATOR';
  */
 export const BrainOrchestrator = async (
   unvalidatedRequestSnapshot: unknown,
-  targetAiProviderLiteral: TAIProvider = 'HUGGING_FACE'
+  targetAiProviderLiteral: TAIProvider = 'HUGGING_FACE',
 ): Promise<IInferenceResponse> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -60,12 +60,14 @@ export const BrainOrchestrator = async (
          * 🛡️ LEY ZENITH: No procesamos datos que no cumplan el contrato.
          * Esto ahorra latencia y costes en proveedores de IA externos.
          */
-        const requestValidationResult = InferenceRequestSchema.safeParse(unvalidatedRequestSnapshot);
+        const requestValidationResult = InferenceRequestSchema.safeParse(
+          unvalidatedRequestSnapshot,
+        );
 
         if (!requestValidationResult.success) {
           throw new ValidationException('ADN_DE_SOLICITUD_COGNITIVA_CORRUPTO', {
             structuralIssuesCollection: requestValidationResult.error.flatten(),
-            correlationIdentifier
+            correlationIdentifier,
           });
         }
 
@@ -78,9 +80,7 @@ export const BrainOrchestrator = async (
         /**
          * Despachamos el snapshot validado hacia el driver específico.
          */
-        const unvalidatedIntelligenceResponse = await executeInferenceAction(
-          validatedRequest
-        );
+        const unvalidatedIntelligenceResponse = await executeInferenceAction(validatedRequest);
 
         // 4. ADUANA DE SALIDA (Post-inference DNA Check)
         /**
@@ -89,11 +89,11 @@ export const BrainOrchestrator = async (
          */
         const validatedInferenceResult = ValidateCognitiveAdn(
           unvalidatedIntelligenceResponse,
-          correlationIdentifier
+          correlationIdentifier,
         );
 
         // 5. ANÁLISIS DE UMBRAL DE CERTEZA (SRE Decision)
-        const isConfidenceCriticalBoolean = validatedInferenceResult.confidenceScore < 0.70;
+        const isConfidenceCriticalBoolean = validatedInferenceResult.confidenceScore < 0.7;
 
         // 6. REPORTE DE SINFONÍA COGNITIVA (Visibility)
         void EmitTelemetrySignal({
@@ -108,12 +108,11 @@ export const BrainOrchestrator = async (
             suggestedActionLiteral: validatedInferenceResult.suggestedAction,
             confidenceScoreNumeric: validatedInferenceResult.confidenceScore,
             providerLiteral: targetAiProviderLiteral,
-            priorityLiteral: validatedRequest.inferencePriorityLevel
+            priorityLiteral: validatedRequest.inferencePriorityLevel,
           },
         });
 
         return validatedInferenceResult;
-
       } catch (caughtError: unknown) {
         // 7. GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
 
@@ -123,9 +122,8 @@ export const BrainOrchestrator = async (
         // Propagación de fallos de ADN (500) ya gestionados por átomos
         if (caughtError instanceof InternalSystemException) throw caughtError;
 
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : 'UNKNOWN_BRAIN_FAULT';
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : 'UNKNOWN_BRAIN_FAULT';
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -136,7 +134,7 @@ export const BrainOrchestrator = async (
           semanticIntentTag: 'COGNITIVE_ENGINE_COLLAPSE',
           contextMetadataSnapshot: {
             errorTraceLiteral: errorDescriptionLiteral,
-            providerLiteral: targetAiProviderLiteral
+            providerLiteral: targetAiProviderLiteral,
           },
         });
 
@@ -145,6 +143,6 @@ export const BrainOrchestrator = async (
           correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

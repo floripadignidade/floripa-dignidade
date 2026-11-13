@@ -12,7 +12,7 @@
 /* 1. ADN ESTRUCTURAL (Consumo desde SSOT Contracts) */
 import type {
   IIdentityAuthorityResult,
-  IIdentityPhysicalRecord
+  IIdentityPhysicalRecord,
 } from '@floripa-dignidade/contracts';
 
 /**
@@ -27,9 +27,8 @@ import type {
  */
 export const MapIdentityAuthorityToPhysicalRecord = (
   authorityResultSnapshot: IIdentityAuthorityResult,
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): IIdentityPhysicalRecord => {
-
   return {
     trust_weight_score: authorityResultSnapshot.authorityCoefficientNumeric,
     is_verified_human: authorityResultSnapshot.isVerifiedHumanBoolean,

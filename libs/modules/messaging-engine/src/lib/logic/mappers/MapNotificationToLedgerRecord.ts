@@ -36,7 +36,7 @@ export interface INotificationLedgerRecord {
  */
 export const MapNotificationToLedgerRecord = (
   notificationSnapshot: ISystemNotification,
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): INotificationLedgerRecord => {
   return Object.freeze({
     notification_id: notificationSnapshot.notificationIdentifier,

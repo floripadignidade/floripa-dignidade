@@ -15,9 +15,7 @@
  * @param phoneIdentifierLiteral - Número telefónico en formato E.164.
  * @returns {string} Identificador enmascarado (opaco).
  */
-export const MaskSensitivePhoneIdentifier = (
-  phoneIdentifierLiteral: string
-): string => {
+export const MaskSensitivePhoneIdentifier = (phoneIdentifierLiteral: string): string => {
   if (!phoneIdentifierLiteral || phoneIdentifierLiteral.length < 5) {
     return 'PROTECTED_IDENTITY';
   }

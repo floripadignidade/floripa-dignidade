@@ -14,24 +14,24 @@ import { MapHttpErrorToException } from '@floripa-dignidade/exceptions';
 export const ExecuteTerritorialUpsertAction = async (
   cloudUrlLiteral: string,
   cloudKeySecret: string,
-  payloadCollection: Record<string, unknown>[]
+  payloadCollection: Record<string, unknown>[],
 ): Promise<void> => {
   const networkResponse = await fetch(`${cloudUrlLiteral}/rest/v1/territorial_master_data`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'apikey': cloudKeySecret,
-      'Authorization': `Bearer ${cloudKeySecret}`,
-      'Prefer': 'resolution=merge-duplicates'
+      apikey: cloudKeySecret,
+      Authorization: `Bearer ${cloudKeySecret}`,
+      Prefer: 'resolution=merge-duplicates',
     },
     body: JSON.stringify(payloadCollection),
     /** SRE: Límite de 10 segundos para persistencia territorial */
-    signal: AbortSignal.timeout(10000)
+    signal: AbortSignal.timeout(10000),
   });
 
   if (!networkResponse.ok) {
     throw MapHttpErrorToException(networkResponse.status, 'TERRITORIAL_UPSERT_FAULT', {
-      statusTextLiteral: networkResponse.statusText
+      statusTextLiteral: networkResponse.statusText,
     });
   }
 };

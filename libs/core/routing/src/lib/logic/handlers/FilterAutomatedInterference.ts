@@ -15,7 +15,7 @@ import type { IMiddlewareHandler } from './MiddlewareHandler.schema';
  */
 export const FilterAutomatedInterference: IMiddlewareHandler = async (
   incomingRequest,
-  routingContext
+  routingContext,
 ) => {
   const userAgentLiteral = incomingRequest.headers.get('user-agent') ?? 'NONE';
 
@@ -28,11 +28,11 @@ export const FilterAutomatedInterference: IMiddlewareHandler = async (
     'Puppeteer',
     'Selenium',
     'Playwright',
-    'Cypress'
+    'Cypress',
   ];
 
-  const isAutomationDetectedBoolean = automatedAgentSignaturesCollection.some(
-    (signature) => userAgentLiteral.includes(signature)
+  const isAutomationDetectedBoolean = automatedAgentSignaturesCollection.some((signature) =>
+    userAgentLiteral.includes(signature),
   );
 
   if (isAutomationDetectedBoolean) {
@@ -42,7 +42,7 @@ export const FilterAutomatedInterference: IMiddlewareHandler = async (
       operationCode: 'AUTOMATED_INTERFERENCE_BLOCKED',
       correlationIdentifier: routingContext.correlationIdentifier,
       message: 'Intento de manipulación automatizada bloqueado en frontera.',
-      contextMetadata: { userAgentLiteral }
+      contextMetadata: { userAgentLiteral },
     });
 
     /**

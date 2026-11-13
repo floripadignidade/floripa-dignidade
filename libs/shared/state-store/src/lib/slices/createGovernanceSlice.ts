@@ -58,8 +58,9 @@ export type TGovernanceSlice = IGlobalStateADN['governance'] & IGovernanceAction
 /**
  * Generador de la rebanada de Gobernanza Democrática.
  */
-export const createGovernanceSlice: StateCreator<TGovernanceSlice, [], [], TGovernanceSlice> = (set) => ({
-
+export const createGovernanceSlice: StateCreator<TGovernanceSlice, [], [], TGovernanceSlice> = (
+  set,
+) => ({
   // --- 1. ESTADO INICIAL (ADN Gobernanza) ---
   activeMandataryIdentifier: null,
   isIdentityBiometricallyVerifiedBoolean: false,
@@ -68,36 +69,41 @@ export const createGovernanceSlice: StateCreator<TGovernanceSlice, [], [], TGove
 
   // --- 2. ACCIONES SOBERANAS (Motores de Mutación) ---
 
-  DelegateSovereigntyAction: (mandataryIdentifier) => set({
-    /**
-     * 🛡️ CASTING SOBERANO (Fix TS2345):
-     * Elevamos el string al tipo inmutable 'CitizenIdentifier'. Como 'TCitizenIdentifier'
-     * ahora está libre de 'undefined', el compilador acepta la mutación.
-     */
-    activeMandataryIdentifier: mandataryIdentifier as TCitizenIdentifier
-  }),
+  DelegateSovereigntyAction: (mandataryIdentifier) =>
+    set({
+      /**
+       * 🛡️ CASTING SOBERANO (Fix TS2345):
+       * Elevamos el string al tipo inmutable 'CitizenIdentifier'. Como 'TCitizenIdentifier'
+       * ahora está libre de 'undefined', el compilador acepta la mutación.
+       */
+      activeMandataryIdentifier: mandataryIdentifier as TCitizenIdentifier,
+    }),
 
-  ReclaimSovereigntyAction: () => set({
-    activeMandataryIdentifier: null
-  }),
+  ReclaimSovereigntyAction: () =>
+    set({
+      activeMandataryIdentifier: null,
+    }),
 
-  ToggleFavoriteGroupAction: (groupIdentifier) => set((state) => {
-    /**
-     * 🛡️ CASTING SOBERANO:
-     * Elevamos el parámetro 'string' a 'GroupIdentifier' para la comparación.
-     */
-    const sealedGroupIdentifier = groupIdentifier as TGroupIdentifier;
+  ToggleFavoriteGroupAction: (groupIdentifier) =>
+    set((state) => {
+      /**
+       * 🛡️ CASTING SOBERANO:
+       * Elevamos el parámetro 'string' a 'GroupIdentifier' para la comparación.
+       */
+      const sealedGroupIdentifier = groupIdentifier as TGroupIdentifier;
 
-    const isGroupAlreadyFavoritedBoolean = state.favoriteGroupsCollection.includes(sealedGroupIdentifier);
+      const isGroupAlreadyFavoritedBoolean =
+        state.favoriteGroupsCollection.includes(sealedGroupIdentifier);
 
-    return {
-      favoriteGroupsCollection: isGroupAlreadyFavoritedBoolean
-        ? state.favoriteGroupsCollection.filter((id) => id !== sealedGroupIdentifier)
-        : [...state.favoriteGroupsCollection, sealedGroupIdentifier]
-    };
-  }),
+      return {
+        favoriteGroupsCollection: isGroupAlreadyFavoritedBoolean
+          ? state.favoriteGroupsCollection.filter((id) => id !== sealedGroupIdentifier)
+          : [...state.favoriteGroupsCollection, sealedGroupIdentifier],
+      };
+    }),
 
-  UpdateCommunitySeniorityAction: (seniorityLevel) => set({
-    communitySeniorityLevelQuantity: seniorityLevel
-  })
+  UpdateCommunitySeniorityAction: (seniorityLevel) =>
+    set({
+      communitySeniorityLevelQuantity: seniorityLevel,
+    }),
 });

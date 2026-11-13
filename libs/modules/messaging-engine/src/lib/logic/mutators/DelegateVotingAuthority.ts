@@ -43,7 +43,7 @@ export const DelegateVotingAuthority = async (
   citizenIdentifierLiteral: string,
   groupIdentifierLiteral: string,
   mandataryIdentifierLiteral: string,
-  securityChallengeSecret: string
+  securityChallengeSecret: string,
 ): Promise<boolean> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -52,7 +52,6 @@ export const DelegateVotingAuthority = async (
     'EXECUTE_SOVEREIGN_VOTE_DELEGATION_PIPELINE',
     correlationIdentifier,
     async () => {
-
       /**
        * 1. CAPTURA DE INFRAESTRUCTURA (Sovereign Secret Capture)
        * 🛡️ SANEADO Zenith (Fix TS2339): Inyección de await mandatorio.
@@ -60,7 +59,7 @@ export const DelegateVotingAuthority = async (
        */
       const {
         SUPABASE_URL: cloudStorageUrlLiteral,
-        SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret
+        SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret,
       } = await ValidateEnvironmentAduana();
 
       // 2. VALIDACIÓN DE DESAFÍO (Security Perimeter)
@@ -72,13 +71,16 @@ export const DelegateVotingAuthority = async (
       if (securityChallengeSecret.length < minimumChallengeLengthQuantity) {
         throw new ValidationException('DESAFIO_DE_SEGURIDAD_INSUFICIENTE_PARA_DELEGACION', {
           currentLengthQuantity: securityChallengeSecret.length,
-          requiredLengthQuantity: minimumChallengeLengthQuantity
+          requiredLengthQuantity: minimumChallengeLengthQuantity,
         });
       }
 
       try {
         // 3. PREPARACIÓN DE CABECERAS (Delegación Atómica)
-        const securityHeadersSnapshot = CreateSovereignDatabaseHeaders(cloudSecurityKeySecret, 'minimal');
+        const securityHeadersSnapshot = CreateSovereignDatabaseHeaders(
+          cloudSecurityKeySecret,
+          'minimal',
+        );
 
         /**
          * 4. PERSISTENCIA EN LEDGER (Cloud Transaction)
@@ -94,11 +96,11 @@ export const DelegateVotingAuthority = async (
               membership_status: 'REPRESENTED',
               delegated_mandatary_id: mandataryIdentifierLiteral,
               updated_at: new Date().toISOString(),
-              delegation_correlation_id: correlationIdentifier
+              delegation_correlation_id: correlationIdentifier,
             }),
             /** SRE: Límite de 10 segundos para transacciones de gobernanza */
-            signal: AbortSignal.timeout(10000)
-          }
+            signal: AbortSignal.timeout(10000),
+          },
         );
 
         if (!cloudPersistenceResponse.ok) {
@@ -111,21 +113,20 @@ export const DelegateVotingAuthority = async (
           moduleIdentifierLiteral: DELEGATION_ORCHESTRATOR_IDENTIFIER,
           operationCodeLiteral: 'VOTING_AUTHORITY_DELEGATED',
           correlationIdentifier,
-          messageContentLiteral: 'Soberanía de voto delegada exitosamente a un mandatario institucional.',
+          messageContentLiteral:
+            'Soberanía de voto delegada exitosamente a un mandatario institucional.',
           contextMetadataSnapshot: {
             citizenId: citizenIdentifierLiteral,
             mandataryId: mandataryIdentifierLiteral,
-            groupId: groupIdentifierLiteral
-          }
+            groupId: groupIdentifierLiteral,
+          },
         });
 
         return true;
-
       } catch (caughtError: unknown) {
         // 6. GESTIÓN FORENSE DE FALLO (Resilience Layer)
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -133,14 +134,14 @@ export const DelegateVotingAuthority = async (
           operationCodeLiteral: 'VOTING_DELEGATION_COLLAPSE',
           correlationIdentifier,
           messageContentLiteral: 'Fallo catastrófico en el proceso de delegación de soberanía.',
-          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
         });
 
         throw new InternalSystemException('FALLO_EN_PROCESO_DE_DELEGACION_SRE', {
           originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier
+          correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

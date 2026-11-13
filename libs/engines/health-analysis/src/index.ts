@@ -25,23 +25,13 @@ export const MODULE_HEALTH_ANALYSIS_ENGINE_VERSION = '1.5.0';
  * solicitudes y respuestas del motor de IA.
  */
 /** 🛡️ SANEADO Zenith: Inyección de extensiones obligatorias para resolución ESM. */
-export {
-  InferenceResponseSchema,
-  AIProviderSchema
-} from './lib/schemas/Inference.schema.js';
+export { InferenceResponseSchema, AIProviderSchema } from './lib/schemas/Inference.schema.js';
 
-export type {
-  IInferenceResponse,
-  TAIProvider
-} from './lib/schemas/Inference.schema.js';
+export type { IInferenceResponse, TAIProvider } from './lib/schemas/Inference.schema.js';
 
-export {
-  InferenceRequestSchema
-} from './lib/schemas/InferenceRequest.schema.js';
+export { InferenceRequestSchema } from './lib/schemas/InferenceRequest.schema.js';
 
-export type {
-  IInferenceRequest
-} from './lib/schemas/InferenceRequest.schema.js';
+export type { IInferenceRequest } from './lib/schemas/InferenceRequest.schema.js';
 
 /**
  * @section Capa 2: Motores de Lógica y Orquestación (AI Brain)

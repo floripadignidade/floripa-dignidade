@@ -8,8 +8,11 @@
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Seguridad y Mantenibilidad).
- * SANEADO Zenith: Erradicación del rol metafórico INFRASTRUCTURE_SOVEREIGN_AUDITOR
- * y alineación canónica con INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR (Fix TS2353).
+ *
+ * SANEADO Zenith:
+ * 1. Compactación estructural para cumplimiento estricto de max-lines (118/150).
+ * 2. Evaluación funcional de privilegios de acceso (read/delete/update).
+ * 3. Trazabilidad forense completa en hooks mediante 'EmitTelemetrySignal'.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -36,8 +39,7 @@ const COLLECTION_MODULE_IDENTIFIER = 'CITIZEN_USERS_COLLECTION' as ModuleIdentif
 
 /**
  * @name INSTITUTIONAL_ROLE_LABELS_MAPPING
- * @description Diccionario estricto que mapea cada rol técnico con su etiqueta legible en la interfaz administrativa.
- * TypeScript forzará un error en tiempo de compilación si el contrato central de roles es alterado sin reflejarse aquí.
+ * @description Mapeo tipado y estricto de roles técnicos hacia sus denominaciones en la interfaz de gestión.
  */
 const INSTITUTIONAL_ROLE_LABELS_MAPPING: Record<UserAccessRole, string> = {
   INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR: 'Auditor de Infraestrutura (SRE)',
@@ -49,15 +51,11 @@ const INSTITUTIONAL_ROLE_LABELS_MAPPING: Record<UserAccessRole, string> = {
 };
 
 /**
- * @section Reglas Atómicas de Acceso
- * Encapsulan la lógica de seguridad administrativa para proteger el principio de privilegio mínimo.
+ * Encapsula la lógica de seguridad administrativa para proteger el principio de privilegio mínimo.
  */
-const hasAdministrativeOrManagerAuthorityBoolean = (userRole?: string): boolean => {
-  return (
-    userRole === IDENTITY_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR ||
-    userRole === IDENTITY_ACCESS_ROLES_COLLECTION.PLATFORM_GLOBAL_MANAGER
-  );
-};
+const hasAdministrativeOrManagerAuthorityBoolean = (userRole?: string): boolean =>
+  userRole === IDENTITY_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR ||
+  userRole === IDENTITY_ACCESS_ROLES_COLLECTION.PLATFORM_GLOBAL_MANAGER;
 
 /**
  * @name CitizenUsersCollection
@@ -82,29 +80,17 @@ export const CitizenUsersCollection: CollectionConfig = {
    * @section Gobernanza de Acceso (RBAC Institucional)
    */
   access: {
-    read: ({ req: { user } }) => {
-      const activeUserRoleLiteral = user?.['assignedAuthorityRoleLiteral'] as string | undefined;
+    read: ({ req: { user } }) =>
+      user?.['assignedAuthorityRoleLiteral'] ===
+        IDENTITY_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR || {
+        id: { equals: user?.id },
+      },
 
-      if (
-        activeUserRoleLiteral ===
-        IDENTITY_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR
-      ) {
-        return true;
-      }
+    delete: ({ req: { user } }) =>
+      user?.['assignedAuthorityRoleLiteral'] ===
+      IDENTITY_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR,
 
-      // Un ciudadano estándar solo puede visualizar su propio registro de identidad
-      return { id: { equals: user?.id } };
-    },
-
-    delete: ({ req: { user } }) => {
-      const activeUserRoleLiteral = user?.['assignedAuthorityRoleLiteral'] as string | undefined;
-      return (
-        activeUserRoleLiteral ===
-        IDENTITY_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR
-      );
-    },
-
-    create: () => true, // El registro inicial ciudadano es público a través del portal
+    create: () => true,
   },
 
   auth: {
@@ -128,20 +114,15 @@ export const CitizenUsersCollection: CollectionConfig = {
       required: true,
       defaultValue: 'IDENTITY_REGISTERED',
       label: 'Nível de Autoridade Institucional',
-      options: Object.entries(INSTITUTIONAL_ROLE_LABELS_MAPPING).map(
-        ([roleValueLiteral, roleLabelLiteral]) => ({
-          label: roleLabelLiteral,
-          value: roleValueLiteral,
-        }),
-      ),
+      options: Object.entries(INSTITUTIONAL_ROLE_LABELS_MAPPING).map(([roleKey, roleLabel]) => ({
+        label: roleLabel,
+        value: roleKey,
+      })),
       access: {
-        // Bloqueo de escalada de privilegios: Solo roles administrativos pueden alterar rangos
-        update: ({ req: { user } }) => {
-          const activeUserRoleLiteral = user?.['assignedAuthorityRoleLiteral'] as
-            | string
-            | undefined;
-          return hasAdministrativeOrManagerAuthorityBoolean(activeUserRoleLiteral);
-        },
+        update: ({ req: { user } }) =>
+          hasAdministrativeOrManagerAuthorityBoolean(
+            user?.['assignedAuthorityRoleLiteral'] as string | undefined,
+          ),
       },
     },
     {

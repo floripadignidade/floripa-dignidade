@@ -7,10 +7,13 @@
  * el guardián de control de acceso perimetral, impidiendo transacciones fuera de la
  * jerarquía de autoridad permitida y protegiendo el aislamiento de datos entre organizaciones.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Seguridad y Modularidad).
- * SANEADO Zenith: Erradicación definitiva de la comparación inválida TS2367 alineando
- * el rol de auditoría a INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR y purga de metáforas informales.
+ *
+ * SANEADO Zenith:
+ * 1. Purgado de la función no utilizada 'GenerateCorrelationIdentifier'.
+ * 2. Mantenimiento del bypass administrativo para 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'.
+ * 3. Trazabilidad forense inalterable y tipado nominal en telemetría SRE.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -20,22 +23,21 @@ import { ValidationException } from '@floripa-dignidade/exceptions';
 
 import {
   EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-  TraceExecutionTime,
   type ModuleIdentifier,
   type OperationCode,
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
 /* 1. Contratos Centralizados de Dominio (Single Source of Truth) */
 import {
   AccessIntegrityRequestSchema,
-  IDENTITY_ACCESS_ROLES_COLLECTION,
-  UserIdentitySchema,
   type IAccessIntegrityRequest,
+  IDENTITY_ACCESS_ROLES_COLLECTION,
   type IUserIdentity,
+  UserIdentitySchema,
 } from '@floripa-dignidade/contracts';
 
-/* 2. Enjambre Atómico Local (Internal Swarm) */
+/* 2. Enjambre Atómico Local (Internal Swarm - Clean Paths) */
 import { EvaluateIdentityAuthorityHierarchy } from './atomic/EvaluateIdentityAuthorityHierarchy';
 
 /** Identificador técnico del aparato para el monitor de salud y telemetría forense. */

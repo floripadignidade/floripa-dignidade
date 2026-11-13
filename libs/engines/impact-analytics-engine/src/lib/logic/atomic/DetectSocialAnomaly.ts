@@ -9,10 +9,7 @@
  * @license UNLICENSED
  */
 
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 import { SocialAnomalyVerdictSchema } from '../../schemas/SocialAnomalyVerdict.schema';
 import type { ISocialAnomalyVerdict } from '../../schemas/SocialAnomalyVerdict.schema';
@@ -33,10 +30,10 @@ export interface IAnomalyDetectionParameters {
  * @section Umbrales Institucionales (Ground Truth)
  */
 const THRESHOLDS = {
-  MASIVE_SPENDING_NUMERIC: 150000,    // Gastos > 150k se consideran de alta saliencia.
-  CRITICAL_TRUST_LIMIT: 0.35,         // Menos del 35% de confianza es alarma.
-  CRITICAL_CONCENSUS_LIMIT: 0.20,      // Menos del 20% de consenso es fractura social.
-  MINIMUM_RELIABLE_CONFIDENCE: 0.40,  // Menos del 40% de certidumbre es "datos insuficientes".
+  MASIVE_SPENDING_NUMERIC: 150000, // Gastos > 150k se consideran de alta saliencia.
+  CRITICAL_TRUST_LIMIT: 0.35, // Menos del 35% de confianza es alarma.
+  CRITICAL_CONCENSUS_LIMIT: 0.2, // Menos del 20% de consenso es fractura social.
+  MINIMUM_RELIABLE_CONFIDENCE: 0.4, // Menos del 40% de certidumbre es "datos insuficientes".
 };
 
 /** Identificador técnico del aparato para el Neural Sentinel. */
@@ -50,13 +47,15 @@ const ATOM_IDENTIFIER = 'SOCIAL_ANOMALY_DETECTOR_ATOM';
  * @returns {Promise<ISocialAnomalyVerdict>} Veredicto validado y sellado.
  */
 export const DetectSocialAnomaly = async (
-  parameters: IAnomalyDetectionParameters
+  parameters: IAnomalyDetectionParameters,
 ): Promise<ISocialAnomalyVerdict> => {
   const correlationIdentifier = parameters.correlationIdentifier ?? GenerateCorrelationIdentifier();
 
   // 1. INFERENCIA DE DIMENSIÓN A: DISCREPANCIA CRÍTICA
-  const isMasiveSpendingBoolean = parameters.totalExecutedAmountNumeric > THRESHOLDS.MASIVE_SPENDING_NUMERIC;
-  const isTrustCriticalBoolean = parameters.weightedTrustScoreNumeric < THRESHOLDS.CRITICAL_TRUST_LIMIT;
+  const isMasiveSpendingBoolean =
+    parameters.totalExecutedAmountNumeric > THRESHOLDS.MASIVE_SPENDING_NUMERIC;
+  const isTrustCriticalBoolean =
+    parameters.weightedTrustScoreNumeric < THRESHOLDS.CRITICAL_TRUST_LIMIT;
   const hasCriticalDiscrepancyBoolean = isMasiveSpendingBoolean && isTrustCriticalBoolean;
 
   // 2. INFERENCIA DE DIMENSIÓN B: POLARIZACIÓN FRACTURADA
@@ -76,7 +75,7 @@ export const DetectSocialAnomaly = async (
     isAnomalyDetectedBoolean: false,
     anomalySeverityLiteral: 'NOMINAL_HEALTH',
     anomalyProbabilityNumeric: 0,
-    inferenceReasoningLiteral: 'IMPACT_ANALYTICS.ANOMALIES.NOMINAL_HEALTH_REASON'
+    inferenceReasoningLiteral: 'IMPACT_ANALYTICS.ANOMALIES.NOMINAL_HEALTH_REASON',
   };
 
   if (hasCriticalDiscrepancyBoolean) {
@@ -84,28 +83,28 @@ export const DetectSocialAnomaly = async (
       isAnomalyDetectedBoolean: true,
       anomalySeverityLiteral: 'CRITICAL_DISCREPANCY',
       anomalyProbabilityNumeric: 0.95,
-      inferenceReasoningLiteral: 'IMPACT_ANALYTICS.ANOMALIES.CRITICAL_DISCREPANCY_REASON'
+      inferenceReasoningLiteral: 'IMPACT_ANALYTICS.ANOMALIES.CRITICAL_DISCREPANCY_REASON',
     };
   } else if (hasHighPolarizationBoolean) {
     verdict = {
       isAnomalyDetectedBoolean: true,
       anomalySeverityLiteral: 'HIGH_POLARIZATION',
-      anomalyProbabilityNumeric: 0.80,
-      inferenceReasoningLiteral: 'IMPACT_ANALYTICS.ANOMALIES.HIGH_POLARIZATION_REASON'
+      anomalyProbabilityNumeric: 0.8,
+      inferenceReasoningLiteral: 'IMPACT_ANALYTICS.ANOMALIES.HIGH_POLARIZATION_REASON',
     };
   } else if (isParticipationInsufficientBoolean) {
     verdict = {
       isAnomalyDetectedBoolean: true,
       anomalySeverityLiteral: 'LOW_PARTICIPATION',
-      anomalyProbabilityNumeric: 0.70,
-      inferenceReasoningLiteral: 'IMPACT_ANALYTICS.ANOMALIES.LOW_PARTICIPATION_REASON'
+      anomalyProbabilityNumeric: 0.7,
+      inferenceReasoningLiteral: 'IMPACT_ANALYTICS.ANOMALIES.LOW_PARTICIPATION_REASON',
     };
   }
 
   // 4. ADUANA DE ADN FINAL (Integrity Check)
   const finalVerdictSnapshot = SocialAnomalyVerdictSchema.parse({
     ...verdict,
-    algorithmVersionLiteral: 'HOLISTIC_SRE_V1.0'
+    algorithmVersionLiteral: 'HOLISTIC_SRE_V1.0',
   });
 
   // 5. REPORTE SRE (Visibility)
@@ -118,8 +117,8 @@ export const DetectSocialAnomaly = async (
     semanticIntentTag: 'SOCIAL_ANOMALY_INFERENCE',
     contextMetadataSnapshot: {
       amountNumeric: parameters.totalExecutedAmountNumeric,
-      probabilityNumeric: finalVerdictSnapshot.anomalyProbabilityNumeric
-    }
+      probabilityNumeric: finalVerdictSnapshot.anomalyProbabilityNumeric,
+    },
   });
 
   return finalVerdictSnapshot;

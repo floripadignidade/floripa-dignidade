@@ -18,10 +18,10 @@
  * Definición local para evitar dependencias circulares con el 'state-store'.
  */
 export type TPresenceStatusLiteral =
-  | 'ONLINE'          // Ciudadano presente e interactuando.
-  | 'AWAY'            // Aplicación en segundo plano o pestaña oculta.
-  | 'DO_NOT_DISTURB'  // Estado forzado (Reservado para evolución futura).
-  | 'OFFLINE';        // Interrupción física de la conexión de red.
+  | 'ONLINE' // Ciudadano presente e interactuando.
+  | 'AWAY' // Aplicación en segundo plano o pestaña oculta.
+  | 'DO_NOT_DISTURB' // Estado forzado (Reservado para evolución futura).
+  | 'OFFLINE'; // Interrupción física de la conexión de red.
 
 /**
  * @interface IPresenceHardwareSignals
@@ -46,9 +46,8 @@ interface IPresenceHardwareSignals {
  * @returns {TPresenceStatusLiteral} El estado resultante para la sincronización de memoria.
  */
 export const DetermineTargetPresenceStatus = (
-  signalsSnapshot: IPresenceHardwareSignals
+  signalsSnapshot: IPresenceHardwareSignals,
 ): TPresenceStatusLiteral => {
-
   /**
    * @section Matriz de Decisión Soberana
    *

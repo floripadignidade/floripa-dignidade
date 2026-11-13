@@ -1,5 +1,32 @@
-# Add files here to ignore them from prettier formatting
-/dist
-/coverage
-/.nx/cache
-/.nx/workspace-data
+# Dependencias y Lockfiles gestionados por pnpm
+node_modules
+**/node_modules
+pnpm-lock.yaml
+
+# Artefactos de compilación, caché y despliegue
+dist
+**/dist
+out-tsc
+**/out-tsc
+.next
+**/.next
+coverage
+**/coverage
+.nx
+**/.nx
+.swc
+**/.swc
+.cache
+**/.cache
+tmp
+**/tmp
+test-output
+**/test-output
+.vercel
+
+# Artefactos autogenerados por frameworks y herramientas del monorepo
+**/payload-types.ts
+**/next-env.d.ts
+**/*.tsbuildinfo
+reports/
+apps/floripa-dignidade/src/app/i18n/dictionaries/

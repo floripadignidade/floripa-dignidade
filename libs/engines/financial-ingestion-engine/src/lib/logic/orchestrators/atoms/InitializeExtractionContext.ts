@@ -17,7 +17,7 @@ import type { IExtractionContext } from '../../../schemas/ExtractionContext.sche
  */
 export const InitializeExtractionContext = (
   monthHeadersMapping: Record<number, string>,
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): IExtractionContext => {
   return {
     activeCategorySpecificationLiteral: '',

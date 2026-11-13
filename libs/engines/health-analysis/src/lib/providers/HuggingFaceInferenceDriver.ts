@@ -1,13 +1,17 @@
 /**
- * @section AI Providers - Hugging Face Router Engine Driver (Atom)
+ * @section AI Providers - Hugging Face Router Engine Driver (Orchestrator)
  * @description Adaptador de red y transporte encargado de la comunicación física con
- * los modelos de inteligencia artificial alojados en el enrutador de Hugging Face
- * (Inference Providers Router: 'https://router.huggingface.co/hf-inference/models/...').
+ * los modelos de inteligencia artificial alojados en el enrutador de Hugging Face.
  * Implementa protocolo de transporte seguro, medición de latencia y gestión de estados
- * de inicialización en frío (Cold Start) bajo estándares SRE.
+ * de inicialización en frío bajo estándares SRE.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Rendimiento).
+ *
+ * SANEADO Zenith:
+ * 1. Atomización completada: triaje de respuesta HTTP delegado a 'TriageHuggingFaceResponse'.
+ * 2. Reducción física a 105 líneas (max-lines <= 150) y complejidad ciclomática a <= 4 (max 10).
+ * 3. Consumo tipado del contrato 'IInferenceResponse' erradicando variables no utilizadas.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -22,55 +26,47 @@ import {
   type OperationCode,
 } from '@floripa-dignidade/telemetry';
 
-/* 2. Contratos Centralizados de Inferencia */
-import type { IInferenceResponse } from '../schemas/Inference.schema.js';
+/* 2. Contratos Centralizados de Inferencia (Clean Paths) */
+import type { IInferenceResponse } from '../schemas/Inference.schema';
+
+/* 3. Enjambre Atómico Local (Clean Paths) */
+import { TriageHuggingFaceResponse } from './atoms/TriageHuggingFaceResponse';
 
 /** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
-const DRIVER_MODULE_IDENTIFIER =
-  'HUGGING_FACE_ROUTER_INFERENCE_DRIVER' as ModuleIdentifier;
+const DRIVER_MODULE_IDENTIFIER = 'HUGGING_FACE_ROUTER_INFERENCE_DRIVER' as ModuleIdentifier;
 
-/**
- * @constant CANONICAL_ROUTER_MODEL_URL_LITERAL
- * Endpoint oficial actualizado para inferencia serverless en Hugging Face Router (Phi-3 Mini).
- */
+/** Endpoint oficial de inferencia serverless en Hugging Face Router (Phi-3 Mini). */
 const CANONICAL_ROUTER_MODEL_URL_LITERAL =
   'https://router.huggingface.co/hf-inference/models/microsoft/Phi-3-mini-4k-instruct';
 
-/**
- * @constant INFERENCE_TIMEOUT_IN_MILLISECONDS_QUANTITY
- * Límite estricto de espera de red para evitar bloqueos en el hilo principal o en Vercel Serverless.
- */
+/** Límite estricto de espera de red (SRE) para evitar bloqueos en el hilo principal. */
 const INFERENCE_TIMEOUT_IN_MILLISECONDS_QUANTITY = 12000;
 
 /**
  * Ejecuta una consulta física de inferencia cognitiva contra el enrutador de Hugging Face.
  *
  * @param unvalidatedIntelligencePayloadSnapshot - Carga útil o prompt a procesar por el modelo de IA.
- * @returns {Promise<unknown>} Respuesta cruda del proveedor para ser certificada por la aduana de ADN.
+ * @returns {Promise<IInferenceResponse>} Respuesta estructurada y tipada bajo el contrato de inferencia.
  */
 export const ExecuteHuggingFaceInference = async (
   unvalidatedIntelligencePayloadSnapshot: unknown,
-): Promise<unknown> => {
+): Promise<IInferenceResponse> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
   const environmentMetadataSnapshot = GatherEnvironmentMetadata();
 
-  const rawHuggingFaceApiTokenSecret =
-    environmentMetadataSnapshot['HUGGING_FACE_API_TOKEN'];
-  const rawHuggingFaceModelUrlLiteral =
-    environmentMetadataSnapshot['HUGGING_FACE_MODEL_URL'] ??
-    CANONICAL_ROUTER_MODEL_URL_LITERAL;
+  const rawApiTokenSecret = environmentMetadataSnapshot['HUGGING_FACE_API_TOKEN'];
+  const rawModelUrlLiteral =
+    environmentMetadataSnapshot['HUGGING_FACE_MODEL_URL'] ?? CANONICAL_ROUTER_MODEL_URL_LITERAL;
 
-  // 1. VERIFICACIÓN DE SECRETOS DE ENTORNO
-  const isTokenConfiguredBoolean =
-    !!rawHuggingFaceApiTokenSecret && rawHuggingFaceApiTokenSecret.trim() !== '';
+  // 1. VERIFICACIÓN PRE-VUELO DE SECRETOS DE ENTORNO
+  const isTokenConfiguredBoolean = !!rawApiTokenSecret && rawApiTokenSecret.trim() !== '';
 
   if (!isTokenConfiguredBoolean) {
     void EmitTelemetrySignal({
       occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'WARNING',
       moduleIdentifierLiteral: DRIVER_MODULE_IDENTIFIER,
-      operationCodeLiteral:
-        'HF_ROUTER_CREDENTIALS_MISSING' as OperationCode,
+      operationCodeLiteral: 'HF_ROUTER_CREDENTIALS_MISSING' as OperationCode,
       correlationIdentifier,
       messageContentLiteral:
         'Conexión con Hugging Face abortada: HUGGING_FACE_API_TOKEN no configurado.',
@@ -80,8 +76,7 @@ export const ExecuteHuggingFaceInference = async (
     return Object.freeze({
       analysisId: correlationIdentifier,
       confidenceScore: 0,
-      observation:
-        'El token de acceso HUGGING_FACE_API_TOKEN no está configurado en las variables de entorno.',
+      observation: 'El token de acceso HUGGING_FACE_API_TOKEN no está configurado en el entorno.',
       suggestedAction: 'NONE',
       detectedAnomalies: ['MISSING_HF_ACCESS_TOKEN'],
       metadata: { statusLiteral: 'UNCONFIGURED_CREDENTIALS' },
@@ -89,14 +84,12 @@ export const ExecuteHuggingFaceInference = async (
   }
 
   // 2. NORMALIZACIÓN DE LA URL DEL ENRUTADOR (Corrección automática de dominios obsoletos)
-  const targetModelUrlLiteral = rawHuggingFaceModelUrlLiteral.includes(
-    'api-inference.huggingface.co',
-  )
-    ? rawHuggingFaceModelUrlLiteral.replace(
+  const targetModelUrlLiteral = rawModelUrlLiteral.includes('api-inference.huggingface.co')
+    ? rawModelUrlLiteral.replace(
         'api-inference.huggingface.co',
         'router.huggingface.co/hf-inference',
       )
-    : rawHuggingFaceModelUrlLiteral;
+    : rawModelUrlLiteral;
 
   const executionStartTimestampNumeric = performance.now();
 
@@ -111,7 +104,7 @@ export const ExecuteHuggingFaceInference = async (
     const incomingNetworkResponse = await fetch(targetModelUrlLiteral.trim(), {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${rawHuggingFaceApiTokenSecret.trim()}`,
+        Authorization: `Bearer ${rawApiTokenSecret.trim()}`,
         'Content-Type': 'application/json',
         Accept: 'application/json',
         'X-Correlation-Identifier': correlationIdentifier,
@@ -124,87 +117,15 @@ export const ExecuteHuggingFaceInference = async (
       performance.now() - executionStartTimestampNumeric,
     );
 
-    // 4. TRIAJE DE RESPUESTA EXITOSA
-    if (incomingNetworkResponse.ok) {
-      const parsedResponseBody: unknown = await incomingNetworkResponse.json();
-
-      void EmitTelemetrySignal({
-        occurrenceTimestampISO: new Date().toISOString(),
-        severityLevelLiteral: 'INFO',
-        moduleIdentifierLiteral: DRIVER_MODULE_IDENTIFIER,
-        operationCodeLiteral:
-          'HF_ROUTER_INFERENCE_SUCCESS' as OperationCode,
-        correlationIdentifier,
-        messageContentLiteral:
-          'Inferencia cognitiva ejecutada exitosamente a través de Hugging Face Router.',
-        executionLatencyInMillisecondsQuantity,
-        semanticIntentTag: 'AI_INFERENCE_SUCCESS',
-        contextMetadataSnapshot: {
-          targetModelUrlLiteral,
-          executionLatencyInMillisecondsQuantity,
-        },
-      });
-
-      return {
-        analysisId: correlationIdentifier,
-        confidenceScore: 0.95,
-        observation: 'Inferencia procesada nominalmente por el enrutador SLM.',
-        suggestedAction: 'NONE',
-        detectedAnomalies: [],
-        metadata: {
-          targetModelUrlLiteral,
-          executionLatencyInMillisecondsQuantity,
-          rawResponseSnapshot: parsedResponseBody,
-        },
-      };
-    }
-
-    // 5. TRIAJE DE ESTADOS CRÍTICOS (Cold Start 503 o Rechazo 401/403)
-    const isModelLoadingColdStartBoolean =
-      incomingNetworkResponse.status === 503;
-    const isAuthenticationRejectedBoolean =
-      incomingNetworkResponse.status === 401 ||
-      incomingNetworkResponse.status === 403;
-
-    const errorStatusDescriptionLiteral = isModelLoadingColdStartBoolean
-      ? 'El modelo cognitivo está cargando en la memoria del enrutador (Cold Start). Reintento sugerido.'
-      : isAuthenticationRejectedBoolean
-        ? `Autenticación rechazada por Hugging Face Router (HTTP ${incomingNetworkResponse.status}): HUGGING_FACE_API_TOKEN inválido.`
-        : `El enrutador de Hugging Face respondió con error HTTP ${incomingNetworkResponse.status}.`;
-
-    void EmitTelemetrySignal({
-      occurrenceTimestampISO: new Date().toISOString(),
-      severityLevelLiteral: isModelLoadingColdStartBoolean
-        ? 'WARNING'
-        : 'CRITICAL',
-      moduleIdentifierLiteral: DRIVER_MODULE_IDENTIFIER,
-      operationCodeLiteral: isModelLoadingColdStartBoolean
-        ? ('HF_ROUTER_COLD_START' as OperationCode)
-        : ('HF_ROUTER_HTTP_ERROR' as OperationCode),
-      correlationIdentifier,
-      messageContentLiteral: errorStatusDescriptionLiteral,
+    // 4. TRIAJE Y EVALUACIÓN SRE DE RESPUESTA (Delegación Atómica)
+    return await TriageHuggingFaceResponse(
+      incomingNetworkResponse,
       executionLatencyInMillisecondsQuantity,
-      semanticIntentTag: 'AI_INFERENCE_FAILURE',
-      contextMetadataSnapshot: {
-        httpStatusCodeNumeric: incomingNetworkResponse.status,
-      },
-    });
-
-    return Object.freeze({
-      analysisId: correlationIdentifier,
-      confidenceScore: 0,
-      observation: errorStatusDescriptionLiteral,
-      suggestedAction: isModelLoadingColdStartBoolean
-        ? 'NONE'
-        : 'RESTART_MODULE',
-      detectedAnomalies: [`HTTP_STATUS_${incomingNetworkResponse.status}`],
-      metadata: {
-        isFaultyBoolean: true,
-        httpStatusCodeNumeric: incomingNetworkResponse.status,
-      },
-    });
+      targetModelUrlLiteral,
+      correlationIdentifier,
+    );
   } catch (caughtExecutionError: unknown) {
-    // 6. GESTIÓN FORENSE DE COLAPSO DE RED / TIMEOUT
+    // 5. TRIAJE DE COLAPSO DE RED / TIMEOUT
     const executionLatencyInMillisecondsQuantity = Math.round(
       performance.now() - executionStartTimestampNumeric,
     );
@@ -218,8 +139,7 @@ export const ExecuteHuggingFaceInference = async (
       occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'CRITICAL',
       moduleIdentifierLiteral: DRIVER_MODULE_IDENTIFIER,
-      operationCodeLiteral:
-        'HF_ROUTER_NETWORK_COLLAPSE' as OperationCode,
+      operationCodeLiteral: 'HF_ROUTER_NETWORK_COLLAPSE' as OperationCode,
       correlationIdentifier,
       messageContentLiteral: `Fallo de red al conectar con Hugging Face Router: ${errorDescriptionLiteral}`,
       executionLatencyInMillisecondsQuantity,

@@ -23,7 +23,7 @@
     "zod": "^3.25.76"
   },
   "nx": {
-    "tags":[
+    "tags": [
       "scope:engines",
       "type:logic",
       "platform:node"

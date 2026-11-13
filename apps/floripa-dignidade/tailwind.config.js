@@ -40,13 +40,22 @@ const tailwindConfigurationMaster = {
     join(currentConfigurationDirectoryLiteral, 'src/**/!(*.spec|*.test).{ts,tsx,html}'),
 
     // 2. Búnker de Fundición Visual (Shared)
-    join(currentConfigurationDirectoryLiteral, '../../libs/shared/src/**/!(*.spec|*.test).{ts,tsx,html}'),
+    join(
+      currentConfigurationDirectoryLiteral,
+      '../../libs/shared/src/**/!(*.spec|*.test).{ts,tsx,html}',
+    ),
 
     // 3. Dominios de Negocio (Modules)
-    join(currentConfigurationDirectoryLiteral, '../../libs/modules/**/src/**/!(*.spec|*.test).{ts,tsx,html}'),
+    join(
+      currentConfigurationDirectoryLiteral,
+      '../../libs/modules/**/src/**/!(*.spec|*.test).{ts,tsx,html}',
+    ),
 
     // 4. Motores Cognitivos (Engines - Visual Atoms)
-    join(currentConfigurationDirectoryLiteral, '../../libs/engines/**/src/**/!(*.spec|*.test).{ts,tsx,html}'),
+    join(
+      currentConfigurationDirectoryLiteral,
+      '../../libs/engines/**/src/**/!(*.spec|*.test).{ts,tsx,html}',
+    ),
   ],
 
   theme: {
@@ -94,8 +103,8 @@ const tailwindConfigurationMaster = {
        * @section Sistema de Espaciado y Micro-Interacciones
        */
       spacing: {
-        '18': '4.5rem',
-        '22': '5.5rem',
+        18: '4.5rem',
+        22: '5.5rem',
       },
 
       animation: {
@@ -121,10 +130,7 @@ const tailwindConfigurationMaster = {
     },
   },
 
-  plugins: [
-    tailwindTypographyPlugin,
-    tailwindAnimatePlugin,
-  ],
+  plugins: [tailwindTypographyPlugin, tailwindAnimatePlugin],
 };
 
 export default tailwindConfigurationMaster;

@@ -17,10 +17,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 /* 1. Infraestructura Core (Atmos PascalCase) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 /**
  * @interface IUseHeaderSentryResult
@@ -47,10 +44,7 @@ const SCROLL_ACTIVATION_THRESHOLD_PIXELS_QUANTITY = 40;
  * @param moduleIdentifierLiteral - Identificador nominal del componente emisor.
  * @returns {IUseHeaderSentryResult} Sensores de estado y controladores de visibilidad.
  */
-export const useHeaderSentry = (
-  moduleIdentifierLiteral: string
-): IUseHeaderSentryResult => {
-
+export const useHeaderSentry = (moduleIdentifierLiteral: string): IUseHeaderSentryResult => {
   // --- 1. ESTADOS DE INTERFAZ (Prosa Booleana) ---
   const [isMobileMenuOpenBoolean, setIsMobileMenuOpenBoolean] = useState(false);
   const [isScrollThresholdExceededBoolean, setIsScrollThresholdExceededBoolean] = useState(false);
@@ -85,7 +79,7 @@ export const useHeaderSentry = (
       operationCodeLiteral: 'HEADER_HARDWARE_SENSORS_ACTIVATED',
       correlationIdentifier,
       messageContentLiteral: 'Vigilancia de scroll e interfaz móvil inicializada con éxito.',
-      semanticIntentTag: 'UI_SENSOR_VINCULATION'
+      semanticIntentTag: 'UI_SENSOR_VINCULATION',
     });
 
     return () => window.removeEventListener('scroll', handleWindowScrollAction);
@@ -101,6 +95,6 @@ export const useHeaderSentry = (
   return {
     isMobileMenuOpenBoolean,
     isScrollThresholdExceededBoolean,
-    toggleMobileMenuAction
+    toggleMobileMenuAction,
   };
 };

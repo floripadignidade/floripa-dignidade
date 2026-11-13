@@ -24,7 +24,7 @@ import type { IActivationResult } from '@floripa-dignidade/newsletter';
 export const CalculateConfirmationRedirect = (
   activationResultSnapshot: IActivationResult,
   targetLocaleIdentifier: string,
-  requestBaseUrlLiteral: string
+  requestBaseUrlLiteral: string,
 ): URL => {
   /**
    * @section Triaje de Navegación

@@ -44,7 +44,7 @@ const ORCHESTRATOR_IDENTIFIER = 'MESSAGING_GROUP_CREATOR_ORCHESTRATOR';
  */
 export const CreateCommunicationGroup = async (
   unvalidatedPayload: unknown,
-  actorIdentity: IUserIdentity
+  actorIdentity: IUserIdentity,
 ): Promise<ICommunicationGroup> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -59,10 +59,8 @@ export const CreateCommunicationGroup = async (
          * 🛡️ SANEADO Zenith (Fix TS2339): Inyección de await mandatorio.
          * La resolución de secretos se audita ahora dentro del rastro de latencia.
          */
-        const {
-          SUPABASE_URL: cloudUrlLiteral,
-          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret,
-        } = await ValidateEnvironmentAduana();
+        const { SUPABASE_URL: cloudUrlLiteral, SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret } =
+          await ValidateEnvironmentAduana();
 
         // 2. VALIDACIÓN DE AUTORIDAD (Security Border)
         /**
@@ -78,14 +76,14 @@ export const CreateCommunicationGroup = async (
         const persistencePayload = MapCommunicationGroupToPersistence(
           validatedGroupData,
           actorIdentity.identityIdentifier,
-          correlationIdentifier
+          correlationIdentifier,
         );
 
         // 5. DESPACHO A PERSISTENCIA CLOUD (I/O Delegation)
         await PersistCommunicationGroup(
           cloudUrlLiteral,
           cloudSecurityKeySecret,
-          persistencePayload
+          persistencePayload,
         );
 
         // 6. REPORTE DE ÉXITO (SRE Visibility)
@@ -94,16 +92,16 @@ export const CreateCommunicationGroup = async (
           moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
           operationCodeLiteral: 'ACTION_HUB_CREATED_SUCCESSFULLY',
           correlationIdentifier,
-          messageContentLiteral: 'Nuevo Círculo de Comunicación registrado exitosamente en el Ledger.',
+          messageContentLiteral:
+            'Nuevo Círculo de Comunicación registrado exitosamente en el Ledger.',
           contextMetadataSnapshot: {
             groupIdentifier: validatedGroupData.groupIdentifier,
             creatorIdentityIdentifier: actorIdentity.identityIdentifier,
-            technicalSlugLiteral: validatedGroupData.technicalSlugLiteral
+            technicalSlugLiteral: validatedGroupData.technicalSlugLiteral,
           },
         });
 
         return validatedGroupData;
-
       } catch (caughtError: unknown) {
         // 7. GESTIÓN FORENSE DE FALLO (Resilience Layer)
 
@@ -112,9 +110,8 @@ export const CreateCommunicationGroup = async (
           throw caughtError;
         }
 
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         /** Alerta Crítica para el Neural Sentinel en caso de colapso de infraestructura */
         void EmitTelemetrySignal({
@@ -129,9 +126,9 @@ export const CreateCommunicationGroup = async (
         throw new InternalSystemException('FALLO_EN_ORQUESTACION_DE_ACTION_HUB_SRE', {
           originalErrorLiteral: errorDescriptionLiteral,
           correlationIdentifier,
-          actorIdentifierLiteral: actorIdentity.identityIdentifier
+          actorIdentifierLiteral: actorIdentity.identityIdentifier,
         });
       }
-    }
+    },
   );
 };

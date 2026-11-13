@@ -21,12 +21,12 @@ export const MODULE_WHATSAPP_SERVICE_VERSION = '1.2.2';
  */
 export type {
   IWhatsAppMessage,
-  IWhatsAppWebhookPayload
+  IWhatsAppWebhookPayload,
 } from './lib/schemas/WhatsAppWebhook.schema';
 
 export {
   WhatsAppMessageSchema,
-  WhatsAppWebhookPayloadSchema
+  WhatsAppWebhookPayloadSchema,
 } from './lib/schemas/WhatsAppWebhook.schema';
 
 /**

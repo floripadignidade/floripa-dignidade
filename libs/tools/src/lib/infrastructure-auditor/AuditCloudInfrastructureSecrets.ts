@@ -1,14 +1,17 @@
 /**
  * @section Tools & Infrastructure - Cloud Infrastructure Audit Orchestrator
  * @description Orquestador supremo encargado de ejecutar concurrentemente el enjambre
- * de sondas físicas de infraestructura (Postgres, Supabase PostgREST, Supabase S3 Storage,
+ * de sondas físicas de infraestructura (PostgreSQL, Supabase PostgREST, Supabase S3 Storage,
  * Resend Email, Google Gemini AI, Hugging Face Router y WhatsApp Meta Gateway).
  * Delega cálculos y persistencia en átomos especializados, certifica el contrato con Zod
  * y emite el reporte forense inmutable en 'reports/infrastructure/'.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Confiabilidad) e ISO/IEC 27001.
- * SANEADO: Erradicación de variable huérfana no utilizada y alineación con auditTimestampISO.
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Confiabilidad) e ISO/IEC 27001 (Seguridad).
+ * SANEADO Zenith:
+ * 1. Erradicación de TS2552 mapeando explícitamente 'executionLatencyInMillisecondsQuantity: executionDurationInMillisecondsQuantity'.
+ * 2. Preservación estricta de Rutas Limpias (Extensionless) para compatibilidad total con Turbopack.
+ * 3. Inmutabilidad forzada y telemetría forense sincronizada con el contrato TelemetrySignalSchema.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -26,7 +29,7 @@ import {
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-/* 2. Contratos Centralizados de Auditoría */
+/* 2. Contratos Centralizados de Auditoría (Clean Paths - Extensionless) */
 import {
   CloudInfrastructureAuditReportIdentifierSchema,
   CloudInfrastructureAuditReportSchema,
@@ -35,7 +38,7 @@ import {
   type TCloudInfrastructureAuditReportIdentifier,
 } from './schemas/CloudInfrastructureAuditReport.schema';
 
-/* 3. Enjambre Atómico de Sondas de Red (Clean Paths) */
+/* 3. Enjambre Atómico de Sondas de Red (Clean Paths - Extensionless) */
 import { AuditPostgresDatabaseProbe } from './probes/AuditPostgresDatabaseProbe';
 import { AuditSupabaseRestProbe } from './probes/AuditSupabaseRestProbe';
 import { AuditSupabaseStorageS3Probe } from './probes/AuditSupabaseStorageS3Probe';
@@ -136,7 +139,7 @@ export const AuditCloudInfrastructureSecrets = async (
         validatedAuditReportSnapshot,
       );
 
-      // 6. EMISIÓN DE TELEMETRÍA GLOBAL SRE
+      // 6. EMISIÓN DE TELEMETRÍA GLOBAL SRE (Fix TS2552)
       void EmitTelemetrySignal({
         occurrenceTimestampISO: new Date().toISOString(),
         severityLevelLiteral: calculatedMetricsSnapshot.isInfrastructureFullyOperationalBoolean
@@ -150,7 +153,7 @@ export const AuditCloudInfrastructureSecrets = async (
             ? '100% NOMINAL'
             : 'COMPROMETIDA'
         }]. Reporte en: ${persistedReportFilePathLiteral}`,
-        executionLatencyInMillisecondsQuantity,
+        executionLatencyInMillisecondsQuantity: executionDurationInMillisecondsQuantity,
         semanticIntentTag: 'INFRASTRUCTURE_AUDIT_CONSOLIDATION',
         contextMetadataSnapshot: {
           ...calculatedMetricsSnapshot,

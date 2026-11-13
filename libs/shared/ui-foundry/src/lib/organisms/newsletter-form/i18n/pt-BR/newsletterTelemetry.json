@@ -1,0 +1,7 @@
+{
+  "telemetry": {
+    "SUBSCRIPTION_TRANSACTION_STARTED": "Iniciando envio de solicitação de inscrição.",
+    "SUBSCRIPTION_CONVERSION_SUCCESS": "Solicitação de inscrição registrada com sucesso no fluxo de verificação.",
+    "SUBSCRIPTION_DISPATCH_FAULT": "Falha ao sincronizar solicitação de inscrição com o gateway."
+  }
+}

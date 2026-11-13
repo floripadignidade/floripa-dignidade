@@ -1,0 +1,8 @@
+{
+  "telemetry": {
+    "HYDRATION_STORAGE_READ_FAILURE": "Failed to retrieve or parse persisted state from local storage.",
+    "HYDRATION_SCHEMA_CORRUPTION_DETECTED": "Structural inconsistency detected in rehydrated local storage data.",
+    "HYDRATION_NOMINAL_SUCCESS": "Application state rehydrated and validated successfully from local storage.",
+    "HYDRATION_COLD_START_NOMINAL": "Clean initialization with no prior snapshot in local storage."
+  }
+}

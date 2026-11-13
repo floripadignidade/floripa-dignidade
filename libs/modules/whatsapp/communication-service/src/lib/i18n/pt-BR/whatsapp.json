@@ -1,0 +1,10 @@
+{
+  "logs": {
+    "TRIAGE_SEQUENCE_STARTED": "Sequência de triagem iniciada para o evento de webhook recebido.",
+    "CLASSIFYING_SIGNAL_TYPE": "Identificando e classificando o tipo de mídia ou conteúdo da mensagem.",
+    "UNKNOWN_SIGNAL_TYPE_IGNORED": "Tipo de sinal não suportado recebido; evento ignorado de forma segura."
+  },
+  "errors": {
+    "CORRUPT_WEBHOOK_PAYLOAD": "A carga útil do webhook da Meta não atende aos requisitos do contrato de dados."
+  }
+}

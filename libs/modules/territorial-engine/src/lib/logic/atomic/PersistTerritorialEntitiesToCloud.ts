@@ -14,7 +14,7 @@
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
-  TraceExecutionTime
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
 import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
@@ -42,9 +42,8 @@ const PERSISTENCE_ENGINE_IDENTIFIER = 'TERRITORIAL_PERSISTENCE_ENGINE';
  */
 export const PersistTerritorialEntitiesToCloud = async (
   territorialEntitiesCollection: ITerritorialEntity[],
-  correlationIdentifier: string = GenerateCorrelationIdentifier()
+  correlationIdentifier: string = GenerateCorrelationIdentifier(),
 ): Promise<void> => {
-
   return await TraceExecutionTime(
     PERSISTENCE_ENGINE_IDENTIFIER,
     'UPSERT_TERRITORIAL_DATA_TRANSACTION',
@@ -58,7 +57,7 @@ export const PersistTerritorialEntitiesToCloud = async (
          */
         const {
           SUPABASE_URL: cloudProviderUrlLiteral,
-          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret
+          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret,
         } = await ValidateEnvironmentAduana();
 
         // 2. TRANSFORMACIÓN DE ADN (Delegación Atómica)
@@ -67,7 +66,7 @@ export const PersistTerritorialEntitiesToCloud = async (
          * definido en 'migration_master_schema.sql'.
          */
         const cloudPersistencePayloadCollection = territorialEntitiesCollection.map(
-          (entitySnapshot) => MapTerritoryToCloudLedger(entitySnapshot)
+          (entitySnapshot) => MapTerritoryToCloudLedger(entitySnapshot),
         );
 
         // 3. DESPACHO FÍSICO A LA NUBE (Delegación Atómica I/O)
@@ -78,7 +77,7 @@ export const PersistTerritorialEntitiesToCloud = async (
         await ExecuteTerritorialUpsertAction(
           cloudProviderUrlLiteral,
           cloudSecurityKeySecret,
-          cloudPersistencePayloadCollection
+          cloudPersistencePayloadCollection,
         );
 
         // 4. REPORTE DE ÉXITO OPERACIONAL (SRE Visibility)
@@ -89,10 +88,9 @@ export const PersistTerritorialEntitiesToCloud = async (
           correlationIdentifier,
           messageContentLiteral: 'Sincronización territorial consolidada en el Ledger Cloud.',
           contextMetadataSnapshot: {
-            synchronizedRecordsQuantity: territorialEntitiesCollection.length
-          }
+            synchronizedRecordsQuantity: territorialEntitiesCollection.length,
+          },
         });
-
       } catch (caughtError: unknown) {
         /**
          * @section Gestión de Resiliencia
@@ -102,9 +100,8 @@ export const PersistTerritorialEntitiesToCloud = async (
           throw caughtError;
         }
 
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -112,15 +109,15 @@ export const PersistTerritorialEntitiesToCloud = async (
           operationCodeLiteral: 'TERRITORIAL_CLOUD_PERSISTENCE_FAULT',
           correlationIdentifier,
           messageContentLiteral: 'Fallo catastrófico al intentar grabar entidades territoriales.',
-          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
         });
 
         throw new InternalSystemException('FALLO_EN_PERSISTENCIA_TERRITORIAL_SRE', {
           originalErrorLiteral: errorDescriptionLiteral,
           correlationIdentifier,
-          affectedRecordsQuantity: territorialEntitiesCollection.length
+          affectedRecordsQuantity: territorialEntitiesCollection.length,
         });
       }
-    }
+    },
   );
 };

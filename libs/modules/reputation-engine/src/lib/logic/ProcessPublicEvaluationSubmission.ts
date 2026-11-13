@@ -42,13 +42,13 @@ export const ProcessPublicEvaluationSubmission = async (
         // --- FASE 1: VALIDACIÓN ESTRUCTURAL ---
         const validatedPulseSnapshot = ValidatePublicEvaluationAduana(
           rawEvaluationPayloadSnapshot,
-          correlationIdentifier
+          correlationIdentifier,
         );
 
         // --- FASE 2: INFERENCIA COGNITIVA ---
         const veracityAuditMetadata = await ExecuteVeracityAuditStep(
           validatedPulseSnapshot,
-          correlationIdentifier
+          correlationIdentifier,
         );
 
         // --- FASE 3: SELLADO DEL ARTEFACTO ---
@@ -62,20 +62,20 @@ export const ProcessPublicEvaluationSubmission = async (
         ReportReputationSubmissionOutcome({
           validatedPulseSnapshot,
           veracityAuditMetadata,
-          correlationIdentifier
+          correlationIdentifier,
         });
 
         return finalSubmissionResultSnapshot;
-
       } catch (caughtError: unknown) {
         // --- FASE 5: GESTIÓN DE RESILIENCIA ---
         if (caughtError instanceof ValidationException) throw caughtError;
 
         throw new InternalSystemException('FALLO_EN_PROCESAMIENTO_DE_REPUTACION_SRE', {
-          originalErrorLiteral: caughtError instanceof Error ? caughtError.message : 'UNKNOWN_FAULT',
+          originalErrorLiteral:
+            caughtError instanceof Error ? caughtError.message : 'UNKNOWN_FAULT',
           correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

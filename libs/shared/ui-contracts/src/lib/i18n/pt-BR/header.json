@@ -1,0 +1,14 @@
+{
+  "navigationPaths": {
+    "identity": "Identidade",
+    "transparency": "Transparência",
+    "press": "Imprensa & Voz",
+    "complaint": "Denúncia Cívica"
+  },
+  "actions": {
+    "donateCallToAction": "Apoiar Causa",
+    "searchPlaceholder": "Buscar no observatório...",
+    "mobileMenuToggle": "Alternar menu",
+    "reportEmergencyLabel": "Denúncia Urgente"
+  }
+}

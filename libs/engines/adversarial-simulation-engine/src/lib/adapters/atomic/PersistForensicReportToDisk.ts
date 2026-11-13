@@ -13,7 +13,7 @@ import { InternalSystemException } from '@floripa-dignidade/exceptions';
 
 /**
  * Escribe el reporte físico en el almacenamiento del entorno de ejecución.
- * 
+ *
  * @param targetDirectoryLiteral - Ruta absoluta del directorio.
  * @param fileNameLiteral - Nombre del archivo con extensión .json.
  * @param payload - Datos serializables a persistir.
@@ -22,7 +22,7 @@ import { InternalSystemException } from '@floripa-dignidade/exceptions';
 export const PersistForensicReportToDisk = async (
   targetDirectoryLiteral: string,
   fileNameLiteral: string,
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
 ): Promise<string> => {
   const finalFilePathLiteral = fileSystemPath.join(targetDirectoryLiteral, fileNameLiteral);
 
@@ -34,15 +34,15 @@ export const PersistForensicReportToDisk = async (
     await filesystemPromises.writeFile(
       finalFilePathLiteral,
       JSON.stringify(payload, null, 2),
-      'utf-8'
+      'utf-8',
     );
 
     return finalFilePathLiteral;
-
   } catch (caughtError: unknown) {
     throw new InternalSystemException('HARDWARE_I/O_PERSISTENCE_FAULT', {
-      originalErrorLiteral: caughtError instanceof Error ? caughtError.message : String(caughtError),
-      targetPathLiteral: finalFilePathLiteral
+      originalErrorLiteral:
+        caughtError instanceof Error ? caughtError.message : String(caughtError),
+      targetPathLiteral: finalFilePathLiteral,
     });
   }
 };

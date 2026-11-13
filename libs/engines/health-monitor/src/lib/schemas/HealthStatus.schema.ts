@@ -10,7 +10,8 @@ import { z } from 'zod';
  * - DEGRADED: El servicio responde pero con latencia superior al límite establecido.
  * - DOWN: El servicio no responde o ha retornado un fallo crítico.
  */
-export const HealthStatusSchema = z.enum(['UP', 'DEGRADED', 'DOWN'])
+export const HealthStatusSchema = z
+  .enum(['UP', 'DEGRADED', 'DOWN'])
   .describe('Estados ontológicos de salud de un servicio');
 
 /**
@@ -22,19 +23,20 @@ export type HealthStatus = z.infer<typeof HealthStatusSchema>;
  * Esquema Soberano para el resultado de un chequeo de infraestructura.
  * Define la estructura inmutable que el Health Monitor despacha hacia Telemetry.
  */
-export const InfrastructureCheckSchema = z.object({
-  serviceName: z.string()
-    .describe('Nombre técnico del servicio evaluado (ej: REDIS_CACHE)'),
+export const InfrastructureCheckSchema = z
+  .object({
+    serviceName: z.string().describe('Nombre técnico del servicio evaluado (ej: REDIS_CACHE)'),
 
-  status: HealthStatusSchema
-    .describe('Resultado categórico de la evaluación'),
+    status: HealthStatusSchema.describe('Resultado categórico de la evaluación'),
 
-  latencyInMilliseconds: z.number()
-    .describe('Tiempo exacto de respuesta medido en milisegundos'),
+    latencyInMilliseconds: z.number().describe('Tiempo exacto de respuesta medido en milisegundos'),
 
-  lastCheckTimestamp: z.string().datetime()
-    .describe('Marca temporal ISO 8601 del momento exacto del chequeo')
-}).readonly();
+    lastCheckTimestamp: z
+      .string()
+      .datetime()
+      .describe('Marca temporal ISO 8601 del momento exacto del chequeo'),
+  })
+  .readonly();
 
 /**
  * Interfaz inmutable del reporte de salud de infraestructura.

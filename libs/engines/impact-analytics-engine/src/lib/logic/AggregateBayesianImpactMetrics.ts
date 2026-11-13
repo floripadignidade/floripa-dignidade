@@ -24,7 +24,7 @@ import { InternalSystemException } from '@floripa-dignidade/exceptions';
 import { PopularAcceptanceIndicatorSchema } from '../schemas/PopularAcceptanceIndicator.schema';
 import type {
   EvaluatedEntityIdentifier,
-  IPopularAcceptanceIndicator
+  IPopularAcceptanceIndicator,
 } from '../schemas/PopularAcceptanceIndicator.schema';
 import type { IEvaluationInput } from '../schemas/EvaluationInput.schema';
 import { BAYESIAN_ALGORITHM_CONFIGURATION } from '../constants/BayesianAlgorithm.config';
@@ -73,7 +73,8 @@ export const AggregateBayesianImpactMetrics = async (
           currentEntityWeightedSum: weightedTrustScoreSumAccumulator,
           currentEntityTotalWeight: totalTrustWeightAccumulator,
           globalSystemMeanScore: BAYESIAN_ALGORITHM_CONFIGURATION.SYSTEM_GLOBAL_MEAN_SCORE_NUMERIC,
-          confidenceThresholdConstant: BAYESIAN_ALGORITHM_CONFIGURATION.CONFIDENCE_THRESHOLD_WEIGHT_QUANTITY,
+          confidenceThresholdConstant:
+            BAYESIAN_ALGORITHM_CONFIGURATION.CONFIDENCE_THRESHOLD_WEIGHT_QUANTITY,
         });
 
         // FASE 3: ENSAMBLAJE SOBERANO (Delegación Atómica)
@@ -86,7 +87,7 @@ export const AggregateBayesianImpactMetrics = async (
           weightedTrustScoreNumeric: calculatedWeightedTrustScoreNumeric,
           totalTrustWeightAccumulator,
           participantQuantity: evaluationPulsesCollection.length,
-          distributionMetadata
+          distributionMetadata,
         });
 
         // FASE 4: ADUANA DE ADN (Integrity Guard)
@@ -112,12 +113,12 @@ export const AggregateBayesianImpactMetrics = async (
           contextMetadataSnapshot: {
             targetEntity: evaluatedEntityIdentifierLiteral,
             finalScoreNumeric: calculatedWeightedTrustScoreNumeric,
-            confidenceLevelNumeric: popularAcceptanceIndicatorSnapshot.statisticalConfidenceLevelNumeric
+            confidenceLevelNumeric:
+              popularAcceptanceIndicatorSnapshot.statisticalConfidenceLevelNumeric,
           },
         });
 
         return validationResult.data;
-
       } catch (caughtError: unknown) {
         // FASE 6: GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
         if (caughtError instanceof InternalSystemException) throw caughtError;

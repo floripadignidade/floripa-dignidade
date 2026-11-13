@@ -40,7 +40,7 @@ interface IMapIdentityAuthorityBonusesParameters {
  * exceda el límite técnico de 1.0 (100% de autoridad)."
  */
 export const MapIdentityAuthorityBonuses = (
-  parametersSnapshot: IMapIdentityAuthorityBonusesParameters
+  parametersSnapshot: IMapIdentityAuthorityBonusesParameters,
 ): number => {
   let accumulatedBonusesNumeric = 0;
 

@@ -82,7 +82,10 @@ export async function ExpenditureTableRow(
         <span className="font-bold text-slate-900 block leading-none mb-1">
           {expenditureSnapshot.providerMetadata.legalNameLiteral}
         </span>
-        <span className="text-[10px] font-medium text-slate-400" aria-label="Documento fiscal anonimizado">
+        <span
+          className="text-[10px] font-medium text-slate-400"
+          aria-label="Documento fiscal anonimizado"
+        >
           CNPJ: {maskedTaxIdentifierLiteral}
         </span>
       </td>

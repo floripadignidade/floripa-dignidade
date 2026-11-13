@@ -14,5 +14,5 @@ import type { IRoutingContext } from '../../schemas/RoutingContext.schema';
  */
 export type IMiddlewareHandler = (
   incomingRequest: NextRequest,
-  routingContext: IRoutingContext
+  routingContext: IRoutingContext,
 ) => Promise<NextResponse | void>;

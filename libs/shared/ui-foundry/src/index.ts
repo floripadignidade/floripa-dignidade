@@ -31,7 +31,6 @@ export { GlobalActionButton } from './lib/atoms/GlobalActionButton';
 /** Identidad visual institucional optimizada para Core Web Vitals (LCP). */
 export { GlobalBrandLogo } from './lib/atoms/GlobalBrandLogo';
 
-
 /**
  * @section Capa 2: Unidades de Composición Intermedia (Molecules)
  * @description Ensambles de átomos que resuelven patrones de UX específicos.
@@ -39,7 +38,6 @@ export { GlobalBrandLogo } from './lib/atoms/GlobalBrandLogo';
 
 /** Motor de descubrimiento universal con soporte de atajos de hardware. */
 export { GlobalSearchWidget } from './lib/molecules/GlobalSearchWidget';
-
 
 /**
  * @section Capa 3: Orquestadores de Negocio (Organisms)
@@ -51,7 +49,6 @@ export { GlobalMainNavigationHeader } from './lib/organisms/MainNavigationHeader
 
 /** Formulario de captación ciudadana con validación LGPD y persistencia cloud. */
 export { NewsletterSubscriptionForm } from './lib/organisms/NewsletterSubscriptionForm';
-
 
 /**
  * 🛡️ NOTA DE ARQUITECTURA SRE:

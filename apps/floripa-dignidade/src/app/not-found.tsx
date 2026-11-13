@@ -23,10 +23,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 /* 1. Infraestructura Core & Routing (Sovereign Swarm - Clean Paths) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 import { DetermineDeviceLocale } from '@floripa-dignidade/routing';
 

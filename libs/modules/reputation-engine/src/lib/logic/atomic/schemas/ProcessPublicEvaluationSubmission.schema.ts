@@ -15,17 +15,20 @@ import { VeracityAnalysisSchema } from '../../../schemas/VeracityAnalysis.schema
  * @name PublicEvaluationSubmissionResultSchema
  * @description ADN resultante tras la validación estructural y auditoría ética.
  */
-export const PublicEvaluationSubmissionResultSchema = z.object({
-  /** El pulso purificado por la aduana Zod. */
-  validatedPulseSnapshot: PublicEvaluationPulseSchema,
+export const PublicEvaluationSubmissionResultSchema = z
+  .object({
+    /** El pulso purificado por la aduana Zod. */
+    validatedPulseSnapshot: PublicEvaluationPulseSchema,
 
-  /** Hallazgos de la IA sobre la veracidad del comentario (Si aplica). */
-  veracityAuditMetadata: VeracityAnalysisSchema.optional(),
+    /** Hallazgos de la IA sobre la veracidad del comentario (Si aplica). */
+    veracityAuditMetadata: VeracityAnalysisSchema.optional(),
 
-  /** Identificador de trazabilidad único de la transacción completa. */
-  correlationIdentifier: z.string().uuid(),
-
-}).readonly();
+    /** Identificador de trazabilidad único de la transacción completa. */
+    correlationIdentifier: z.string().uuid(),
+  })
+  .readonly();
 
 /** 🛡️ ADN Tipado para exportación Verbatim */
-export type IPublicEvaluationSubmissionResult = z.infer<typeof PublicEvaluationSubmissionResultSchema>;
+export type IPublicEvaluationSubmissionResult = z.infer<
+  typeof PublicEvaluationSubmissionResultSchema
+>;

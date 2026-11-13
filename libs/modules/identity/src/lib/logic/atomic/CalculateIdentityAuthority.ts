@@ -22,12 +22,12 @@ import { InternalSystemException, ValidationException } from '@floripa-dignidade
 /* 1. ADN ESTRUCTURAL (Consumo desde SSOT Contracts) */
 import {
   IdentityAuthorityAuditSchema,
-  IdentityAuthorityResultSchema
+  IdentityAuthorityResultSchema,
 } from '@floripa-dignidade/contracts';
 
 import type {
   IIdentityAuthorityAuditParameters,
-  IIdentityAuthorityResult
+  IIdentityAuthorityResult,
 } from '@floripa-dignidade/contracts';
 
 /* 2. INFRAESTRUCTURA Y ENJAMBRE ATÓMICO (Internal Swarm - Clean Paths) */
@@ -65,24 +65,25 @@ export const CalculateIdentityAuthority = async (
         if (!aduanaValidationResult.success) {
           throw new ValidationException('AUTHORITY_AUDIT_DNA_CORRUPTED', {
             validationIssuesCollection: aduanaValidationResult.error.flatten(),
-            correlationIdentifier
+            correlationIdentifier,
           });
         }
 
         const validatedIdentitySnapshot = aduanaValidationResult.data;
 
         // --- FASE 2: CÁLCULO DE BONIFICACIONES (Swarm Delegation) ---
-        let currentAuthorityScoreNumeric = AUTHORITY_WEIGHT_GROUND_TRUTH.BASE_ANONYMOUS_TRUST_WEIGHT_NUMERIC;
+        let currentAuthorityScoreNumeric =
+          AUTHORITY_WEIGHT_GROUND_TRUTH.BASE_ANONYMOUS_TRUST_WEIGHT_NUMERIC;
 
         currentAuthorityScoreNumeric += MapIdentityAuthorityBonuses({
           socialProviderIdentifier: validatedIdentitySnapshot.socialProviderIdentifier,
-          isIdentityLegallyVerifiedBoolean: validatedIdentitySnapshot.isIdentityLegallyVerifiedBoolean,
+          isIdentityLegallyVerifiedBoolean:
+            validatedIdentitySnapshot.isIdentityLegallyVerifiedBoolean,
         });
 
         // --- FASE 3: CÁLCULO DE ANTIGÜEDAD (Hardware Context) ---
-        const { seniorityBonusNumeric, daysSinceActivationQuantity } = CalculateIdentitySeniorityBonus(
-          validatedIdentitySnapshot.occurrenceTimestampISO,
-        );
+        const { seniorityBonusNumeric, daysSinceActivationQuantity } =
+          CalculateIdentitySeniorityBonus(validatedIdentitySnapshot.occurrenceTimestampISO);
 
         currentAuthorityScoreNumeric += seniorityBonusNumeric;
 
@@ -100,7 +101,9 @@ export const CalculateIdentityAuthority = async (
         });
 
         // --- FASE 5: POST-COMPUTATION CONTRACT CHECK ---
-        const purifiedAuthorityResultSnapshot = IdentityAuthorityResultSchema.parse(internalCalculationResultSnapshot);
+        const purifiedAuthorityResultSnapshot = IdentityAuthorityResultSchema.parse(
+          internalCalculationResultSnapshot,
+        );
 
         // --- FASE 6: REPORTE SRE (Visibility) ---
         void EmitTelemetrySignal({
@@ -114,24 +117,22 @@ export const CalculateIdentityAuthority = async (
           contextMetadataSnapshot: {
             identityIdentifier: validatedIdentitySnapshot.identityIdentifier,
             finalScoreNumeric: finalCoefficientNumeric,
-            daysActiveQuantity: daysSinceActivationQuantity
+            daysActiveQuantity: daysSinceActivationQuantity,
           },
         });
 
         return purifiedAuthorityResultSnapshot;
-
       } catch (caughtError: unknown) {
         // --- FASE 7: GESTIÓN FORENSE DE COLAPSO ---
         if (caughtError instanceof ValidationException) throw caughtError;
 
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         throw new InternalSystemException('AUTHORITY_ENGINE_CRITICAL_FAULT', {
           originalErrorLiteral: errorDescriptionLiteral,
           correlationIdentifier,
-          targetIdentityIdentifier: parametersSnapshot.identityIdentifier
+          targetIdentityIdentifier: parametersSnapshot.identityIdentifier,
         });
       }
     },

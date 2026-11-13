@@ -13,7 +13,7 @@
  * @returns {number} Coeficiente de peso (0.1 a 1.0).
  */
 export const MapEvaluationAuthorityWeight = (
-  evaluatorIdentityIdentifier: string | null
+  evaluatorIdentityIdentifier: string | null,
 ): number => {
   /**
    * @section Metodología Bayesiana de Confianza

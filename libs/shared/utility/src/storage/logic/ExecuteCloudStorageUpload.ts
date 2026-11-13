@@ -49,13 +49,13 @@ const STORAGE_DISPATCHER_IDENTIFIER = 'CLOUD_STORAGE_PHYSICAL_DISPATCHER';
  * @throws {GlobalBaseException} Si la nube rechaza la subida o expira el tiempo.
  */
 export const ExecuteCloudStorageUpload = async (
-  parameters: ICloudStorageUploadParameters
+  parameters: ICloudStorageUploadParameters,
 ): Promise<void> => {
   const {
     targetUploadEndpointLiteral,
     cloudAccessSecurityKeySecret,
     contentMimeTypeLiteral,
-    binaryContentBody
+    binaryContentBody,
   } = parameters;
 
   const correlationIdentifier = GenerateCorrelationIdentifier();
@@ -73,11 +73,11 @@ export const ExecuteCloudStorageUpload = async (
         const networkResponse = await fetch(targetUploadEndpointLiteral, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${cloudAccessSecurityKeySecret}`,
-            'apikey': cloudAccessSecurityKeySecret,
+            Authorization: `Bearer ${cloudAccessSecurityKeySecret}`,
+            apikey: cloudAccessSecurityKeySecret,
             'Content-Type': contentMimeTypeLiteral,
             /** 🛡️ ESTRATEGIA: x-upsert permite sobrescribir versiones si el rastro es idéntico. */
-            'x-upsert': 'true'
+            'x-upsert': 'true',
           },
           /**
            * SANEADO Zenith: El casteo a 'any' es necesario para resolver la sobrecarga
@@ -87,7 +87,7 @@ export const ExecuteCloudStorageUpload = async (
           body: binaryContentBody as any,
 
           /** SRE: Límite de 30 segundos para prevenir bloqueos por archivos pesados. */
-          signal: AbortSignal.timeout(30000)
+          signal: AbortSignal.timeout(30000),
         });
 
         if (!networkResponse.ok) {
@@ -96,8 +96,8 @@ export const ExecuteCloudStorageUpload = async (
             'STORAGE_UPLOAD_REJECTED_BY_PROVIDER',
             {
               httpStatusNumeric: networkResponse.status,
-              statusTextLiteral: networkResponse.statusText
-            }
+              statusTextLiteral: networkResponse.statusText,
+            },
           );
         }
 
@@ -110,18 +110,16 @@ export const ExecuteCloudStorageUpload = async (
           messageContentLiteral: 'Transferencia física de activo multimedia completada.',
           contextMetadataSnapshot: {
             contentMimeTypeLiteral,
-            payloadSizeBytesQuantity: binaryContentBody.byteLength
-          }
+            payloadSizeBytesQuantity: binaryContentBody.byteLength,
+          },
         });
-
       } catch (caughtError: unknown) {
         /**
          * @section Gestión Forense de I/O
          * Capturamos el rastro del colapso de red para el análisis predictivo.
          */
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -129,7 +127,7 @@ export const ExecuteCloudStorageUpload = async (
           operationCodeLiteral: 'CLOUD_UPLOAD_PHYSICAL_FAULT',
           correlationIdentifier,
           messageContentLiteral: 'Fallo catastrófico en el enlace físico de subida de archivos.',
-          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
         });
 
         // Re-envolvemos el error en la gramática institucional si no viene ya tipado.
@@ -139,9 +137,9 @@ export const ExecuteCloudStorageUpload = async (
 
         throw MapHttpErrorToException(500, 'FALLO_FISICO_SUBIDA_ALMACENAMIENTO', {
           originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier
+          correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

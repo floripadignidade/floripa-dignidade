@@ -18,18 +18,11 @@
 import { useEffect, useRef } from 'react';
 
 /* 1. Infraestructura Core y Shared (Sovereign Boundaries) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
-import {
-  useGlobalStateStore
-} from '@floripa-dignidade/shared-state-store';
+import { useGlobalStateStore } from '@floripa-dignidade/shared-state-store';
 
-import type {
-  IGlobalSovereignStore
-} from '@floripa-dignidade/shared-state-store';
+import type { IGlobalSovereignStore } from '@floripa-dignidade/shared-state-store';
 
 /* 2. Enjambre Atómico Local (Internal Swarm) */
 import { CalculatePresenceSovereignSignature } from '../atomic/CalculatePresenceSovereignSignature';
@@ -45,20 +38,19 @@ const HOOK_IDENTIFIER = 'PRESENCE_TRANSMISSION_CONNECTOR_HOOK';
  * @param citizenIdentifierLiteral - UUID del ciudadano activo (semilla de soberanía).
  */
 export const usePresenceTransmissionConnector = (
-  citizenIdentifierLiteral: string | undefined
+  citizenIdentifierLiteral: string | undefined,
 ): void => {
-
   // --- 1. SELECCIÓN DE MEMORIA SOBERANA (Atomic Selectors) ---
   const {
     activePushTokenSecret,
     availabilityStatus,
     customStatusMessageLiteral,
-    lastHeartbeatTimestampISO
+    lastHeartbeatTimestampISO,
   } = useGlobalStateStore((state: IGlobalSovereignStore) => ({
     activePushTokenSecret: state.activePushTokenSecret,
     availabilityStatus: state.availabilityStatus,
     customStatusMessageLiteral: state.customStatusMessageLiteral,
-    lastHeartbeatTimestampISO: state.lastHeartbeatTimestampISO
+    lastHeartbeatTimestampISO: state.lastHeartbeatTimestampISO,
   }));
 
   // --- 2. REFERENCIAS DE CONTROL DE HARDWARE ---
@@ -80,7 +72,7 @@ export const usePresenceTransmissionConnector = (
     const currentStatusSignatureLiteral = CalculatePresenceSovereignSignature({
       availabilityStatusLiteral: availabilityStatus,
       customStatusMessageLiteral: customStatusMessageLiteral ?? '',
-      pushSubscriptionTokenSecret: activePushTokenSecret ?? ''
+      pushSubscriptionTokenSecret: activePushTokenSecret ?? '',
     });
 
     /**
@@ -140,7 +132,6 @@ export const usePresenceTransmissionConnector = (
           correlationIdentifier,
           messageContentLiteral: 'Sincronización de presencia finalizada con éxito.',
         });
-
       } catch (_ignoredAuditFault: unknown) {
         /**
          * El fallo ya es gestionado y reportado con rastro forense
@@ -161,6 +152,6 @@ export const usePresenceTransmissionConnector = (
     availabilityStatus,
     citizenIdentifierLiteral,
     customStatusMessageLiteral,
-    lastHeartbeatTimestampISO
+    lastHeartbeatTimestampISO,
   ]);
 };

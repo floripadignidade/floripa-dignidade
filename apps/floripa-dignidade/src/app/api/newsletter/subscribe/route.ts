@@ -55,9 +55,8 @@ export const POST = async (incomingRequest: NextRequest): Promise<NextResponse> 
 
         // 2. INVOCACIÓN DE LÓGICA DE NEGOCIO (Domain Orchestrator)
         // Valida esquemas, persiste en Supabase y dispara notificaciones.
-        const processResultCorrelationId = await ProcessNewsletterSubscriptionRequest(
-          requestPayloadSnapshot
-        );
+        const processResultCorrelationId =
+          await ProcessNewsletterSubscriptionRequest(requestPayloadSnapshot);
 
         // 3. CONSTRUCCIÓN DE SALIDA NOMINAL (Delegación Atómica)
         const successPayload = BuildSubscriptionSuccessResponse(processResultCorrelationId);
@@ -66,17 +65,18 @@ export const POST = async (incomingRequest: NextRequest): Promise<NextResponse> 
           status: 202, // Accepted
           headers: { 'X-Floripa-Correlation-ID': correlationIdentifier },
         });
-
       } catch (caughtExecutionError: unknown) {
         // 4. GESTIÓN FORENSE DE FALLOS (Resilience Layer)
 
-        const normalizedException = caughtExecutionError instanceof GlobalBaseException
-          ? caughtExecutionError
-          : MapHttpErrorToException(500, 'UNEXPECTED_GATEWAY_FAILURE', {
-              originalErrorLiteral: caughtExecutionError instanceof Error
-                ? caughtExecutionError.message
-                : String(caughtExecutionError),
-            });
+        const normalizedException =
+          caughtExecutionError instanceof GlobalBaseException
+            ? caughtExecutionError
+            : MapHttpErrorToException(500, 'UNEXPECTED_GATEWAY_FAILURE', {
+                originalErrorLiteral:
+                  caughtExecutionError instanceof Error
+                    ? caughtExecutionError.message
+                    : String(caughtExecutionError),
+              });
 
         // Reporte automático al Neural Sentinel
         ReportForensicException(normalizedException, correlationIdentifier);
@@ -102,9 +102,9 @@ export const POST = async (incomingRequest: NextRequest): Promise<NextResponse> 
           {
             status: normalizedException.httpStatusCodeNumeric,
             headers: { 'X-Floripa-Correlation-ID': correlationIdentifier },
-          }
+          },
         );
       }
-    }
+    },
   );
 };

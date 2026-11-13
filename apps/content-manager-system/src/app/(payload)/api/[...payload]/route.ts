@@ -15,7 +15,7 @@ import {
   REST_GET,
   REST_OPTIONS,
   REST_PATCH,
-  REST_POST
+  REST_POST,
 } from '@payloadcms/next/routes';
 
 /* 1. Configuración Soberana (Única Fuente de Verdad) */

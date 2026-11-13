@@ -24,7 +24,7 @@ const MAXIMUM_NOMINAL_LATENCY_MILLISECONDS_QUANTITY = 500;
  */
 export const ClassifyInfrastructureHealth = (
   isServiceAvailableBoolean: boolean,
-  latencyInMillisecondsQuantity: number
+  latencyInMillisecondsQuantity: number,
 ): HealthStatus => {
   // 1. Prioridad: Disponibilidad física
   if (!isServiceAvailableBoolean) {
@@ -32,7 +32,8 @@ export const ClassifyInfrastructureHealth = (
   }
 
   // 2. Evaluación de rendimiento (SRE Performance Gate)
-  const isDegradedBoolean = latencyInMillisecondsQuantity > MAXIMUM_NOMINAL_LATENCY_MILLISECONDS_QUANTITY;
+  const isDegradedBoolean =
+    latencyInMillisecondsQuantity > MAXIMUM_NOMINAL_LATENCY_MILLISECONDS_QUANTITY;
 
   return isDegradedBoolean ? 'DEGRADED' : 'UP';
 };

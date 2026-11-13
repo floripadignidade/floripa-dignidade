@@ -16,7 +16,7 @@ import { MapHttpErrorToException } from '@floripa-dignidade/exceptions';
  * @throws {GlobalBaseException} Si el cuerpo está vacío o es ilegible.
  */
 export const ExtractIncomingSubscriptionPayload = async (
-  incomingRequest: Request
+  incomingRequest: Request,
 ): Promise<unknown> => {
   try {
     const payloadSnapshot = await incomingRequest.json();

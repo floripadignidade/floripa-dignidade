@@ -10,10 +10,7 @@
  */
 
 import { ValidationException } from '@floripa-dignidade/exceptions';
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 import { ROUTE_PROTECTION_MANIFESTO } from '../../constants/RouteAuthorityManifesto';
 
 /** Identificador técnico del guardián para trazabilidad forense. */
@@ -30,7 +27,7 @@ const ROUTE_AUTHORITY_SENTINEL_IDENTIFIER = 'ROUTE_AUTHORITY_SENTINEL';
  */
 export const ValidateRouteAuthority = (
   requestedPathnameLiteral: string,
-  activeCitizenAuthorityRoleLiteral = 'CITIZEN_ANONYMOUS' // SANEADO: Eliminada anotación redundante ': string'
+  activeCitizenAuthorityRoleLiteral = 'CITIZEN_ANONYMOUS', // SANEADO: Eliminada anotación redundante ': string'
 ): boolean => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -39,7 +36,7 @@ export const ValidateRouteAuthority = (
    * Buscamos en el manifiesto externo si existe una restricción para el prefijo de la ruta.
    */
   const matchingManifestoPathLiteral = Object.keys(ROUTE_PROTECTION_MANIFESTO).find((pathPrefix) =>
-    requestedPathnameLiteral.startsWith(pathPrefix)
+    requestedPathnameLiteral.startsWith(pathPrefix),
   );
 
   // Si la ruta no está en el manifiesto, se clasifica como 'Acceso Público Nominal'.

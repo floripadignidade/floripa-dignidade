@@ -21,22 +21,16 @@ import type { INotificationLedgerRecord } from '../../mappers/MapNotificationToL
 export const PersistNotificationToCloud = async (
   cloudUrlLiteral: string,
   securityHeaders: ISovereignHeadersResult,
-  ledgerRecord: INotificationLedgerRecord
+  ledgerRecord: INotificationLedgerRecord,
 ): Promise<void> => {
-  const networkResponse = await fetch(
-    `${cloudUrlLiteral}/rest/v1/system_notifications_ledger`,
-    {
-      method: 'POST',
-      headers: { ...securityHeaders },
-      body: JSON.stringify(ledgerRecord),
-      signal: AbortSignal.timeout(10000) // SRE: Timeout preventivo
-    }
-  );
+  const networkResponse = await fetch(`${cloudUrlLiteral}/rest/v1/system_notifications_ledger`, {
+    method: 'POST',
+    headers: { ...securityHeaders },
+    body: JSON.stringify(ledgerRecord),
+    signal: AbortSignal.timeout(10000), // SRE: Timeout preventivo
+  });
 
   if (!networkResponse.ok) {
-    throw MapHttpErrorToException(
-      networkResponse.status,
-      'DATABASE_PERSISTENCE_REJECTED'
-    );
+    throw MapHttpErrorToException(networkResponse.status, 'DATABASE_PERSISTENCE_REJECTED');
   }
 };

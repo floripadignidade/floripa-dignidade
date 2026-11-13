@@ -44,13 +44,13 @@ interface ITransmitIdentityAuthorityParameters {
  * que el parche solo impacte un único registro de identidad por transacción."
  */
 export const TransmitIdentityAuthorityLedgerPatch = async (
-  parametersSnapshot: ITransmitIdentityAuthorityParameters
+  parametersSnapshot: ITransmitIdentityAuthorityParameters,
 ): Promise<void> => {
   const {
     primaryCloudUrlLiteral,
     cloudSecurityKeySecret,
     identityIdentifierLiteral,
-    ledgerRecordSnapshot
+    ledgerRecordSnapshot,
   } = parametersSnapshot;
 
   /**
@@ -66,13 +66,13 @@ export const TransmitIdentityAuthorityLedgerPatch = async (
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'apikey': cloudSecurityKeySecret,
-        'Authorization': `Bearer ${cloudSecurityKeySecret}`,
+        apikey: cloudSecurityKeySecret,
+        Authorization: `Bearer ${cloudSecurityKeySecret}`,
         /**
          * 'Prefer: return=minimal' optimiza el rendimiento al no
          * solicitar el objeto actualizado de vuelta.
          */
-        'Prefer': 'return=minimal',
+        Prefer: 'return=minimal',
       },
       body: JSON.stringify(ledgerRecordSnapshot),
 
@@ -93,22 +93,20 @@ export const TransmitIdentityAuthorityLedgerPatch = async (
     if (!networkResponse.ok) {
       throw new Error(`DATABASE_ENGINE_REJECTION_HTTP_${networkResponse.status}`);
     }
-
   } catch (caughtError: unknown) {
     /**
      * @section Gestión Forense de I/O
      * Transformamos el colapso de red en una excepción institucional para el Sentinel.
      */
-    const errorDescriptionLiteral = caughtError instanceof Error
-      ? caughtError.message
-      : String(caughtError);
+    const errorDescriptionLiteral =
+      caughtError instanceof Error ? caughtError.message : String(caughtError);
 
     throw new InternalSystemException('IDENTITY_PERSISTENCE_TRANSACTION_FAULT', {
       originalErrorLiteral: errorDescriptionLiteral,
       targetIdentityIdentifier: identityIdentifierLiteral,
       httpStatusNumeric: errorDescriptionLiteral.includes('HTTP')
         ? parseInt(errorDescriptionLiteral.split('_').pop() || '500', 10)
-        : 500
+        : 500,
     });
   }
 };

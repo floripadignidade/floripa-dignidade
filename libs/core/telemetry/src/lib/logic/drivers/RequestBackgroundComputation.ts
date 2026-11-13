@@ -42,7 +42,6 @@ export const RequestBackgroundComputation = async <TResult>(
   commandLiteral: string,
   dataPayloadCollection: Record<string, unknown>,
 ): Promise<TResult> => {
-
   /**
    * 1. ADUANA DE DISPONIBILIDAD (Hardware SRE Check)
    * Intentamos inicializar el Worker y recuperar su instancia activa del búnker.
@@ -68,13 +67,12 @@ export const RequestBackgroundComputation = async <TResult>(
    * Creamos un envoltorio de promesa para esperar la señal de retorno del hardware.
    */
   return new Promise<TResult>((resolve, reject) => {
-
     // FASE A: Registro de la transacción y temporizador de seguridad.
     CreateComputationDeferredTransaction<TResult>(
       transactionIdentifierLiteral,
       commandLiteral,
       COMPUTATION_TIMEOUT_MILLISECONDS_QUANTITY,
-      { resolve, reject }
+      { resolve, reject },
     );
 
     /**

@@ -27,9 +27,8 @@ const MAXIMUM_RETENTION_QUANTITY = 150; // Limite físico de sinais em memória 
  * @returns {ITelemetrySignal[]} Coleção purificada e reduzida, ordenada cronologicamente.
  */
 export const PruneTelemetryCacheStrategy = (
-  telemetrySignalsCollection: ITelemetrySignal[]
+  telemetrySignalsCollection: ITelemetrySignal[],
 ): ITelemetrySignal[] => {
-
   // 1. AVALIAÇÃO DE SATURAÇÃO (Fast-path)
   const currentCollectionSizeQuantity = telemetrySignalsCollection.length;
 
@@ -43,14 +42,12 @@ export const PruneTelemetryCacheStrategy = (
    * A. High Priority: Sinais que exigem intervenção (CRITICAL, ERROR, WARNING).
    * B. Low Priority: Sinais informativos ou de depuração (INFO, DEBUG).
    */
-  const highPrioritySignalsCollection = telemetrySignalsCollection.filter(
-    (signalSnapshot) =>
-      ['CRITICAL', 'ERROR', 'WARNING'].includes(signalSnapshot.severityLevelLiteral)
+  const highPrioritySignalsCollection = telemetrySignalsCollection.filter((signalSnapshot) =>
+    ['CRITICAL', 'ERROR', 'WARNING'].includes(signalSnapshot.severityLevelLiteral),
   );
 
-  const lowPrioritySignalsCollection = telemetrySignalsCollection.filter(
-    (signalSnapshot) =>
-      ['INFO', 'DEBUG'].includes(signalSnapshot.severityLevelLiteral)
+  const lowPrioritySignalsCollection = telemetrySignalsCollection.filter((signalSnapshot) =>
+    ['INFO', 'DEBUG'].includes(signalSnapshot.severityLevelLiteral),
   );
 
   /**
@@ -66,9 +63,12 @@ export const PruneTelemetryCacheStrategy = (
    * Cálculo de Cota Remanescente:
    * Determinamos quanto espaço sobra para logs informativos após salvar os erros.
    */
-  const remainingAllowanceQuantity = MAXIMUM_RETENTION_QUANTITY - highPrioritySignalsCollection.length;
+  const remainingAllowanceQuantity =
+    MAXIMUM_RETENTION_QUANTITY - highPrioritySignalsCollection.length;
 
-  const prunedLowPriorityCollection = lowPrioritySignalsCollection.slice(-remainingAllowanceQuantity);
+  const prunedLowPriorityCollection = lowPrioritySignalsCollection.slice(
+    -remainingAllowanceQuantity,
+  );
 
   /**
    * @section Re-ensamblagem e Ordenação
@@ -79,6 +79,6 @@ export const PruneTelemetryCacheStrategy = (
   return optimizedCollection.sort(
     (firstSignalSnapshot, secondSignalSnapshot) =>
       new Date(firstSignalSnapshot.occurrenceTimestampISO).getTime() -
-      new Date(secondSignalSnapshot.occurrenceTimestampISO).getTime()
+      new Date(secondSignalSnapshot.occurrenceTimestampISO).getTime(),
   );
 };

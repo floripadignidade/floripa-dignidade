@@ -32,7 +32,7 @@ interface IDispatchVerificationParameters {
  * Ejecuta el despacho físico de la verificación según el canal solicitado.
  */
 export const DispatchNewsletterVerification = async (
-  parameters: IDispatchVerificationParameters
+  parameters: IDispatchVerificationParameters,
 ): Promise<void> => {
   const { targetChannelLiteral, linguisticDictionary, correlationIdentifier } = parameters;
 
@@ -40,7 +40,7 @@ export const DispatchNewsletterVerification = async (
     const emailHtmlContentLiteral = GenerateDoubleOptInEmailHtml(
       linguisticDictionary,
       parameters.securityTokenLiteral,
-      correlationIdentifier
+      correlationIdentifier,
     );
 
     await SendTransactionalEmail(
@@ -53,7 +53,7 @@ export const DispatchNewsletterVerification = async (
         emailSubjectLiteral: linguisticDictionary.email.confirmationSubjectLiteral,
         emailHtmlContentLiteral: emailHtmlContentLiteral,
         trackingCategoryIdentifier: 'NEWSLETTER_VERIFICATION',
-      }
+      },
     );
 
     EmitTelemetrySignal({

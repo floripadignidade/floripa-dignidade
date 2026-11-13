@@ -9,10 +9,7 @@
  * @author Raz Podestá - MetaShark Tech
  */
 
-import {
-  EmitTelemetrySignal,
-  TraceExecutionTime
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, TraceExecutionTime } from '@floripa-dignidade/telemetry';
 
 import { InternalSystemException } from '@floripa-dignidade/exceptions';
 import { IbgeDistrictCollectionSchema } from '../../schemas/IbgeTerritorialProtocols.schema';
@@ -29,9 +26,8 @@ const IBGE_LOCALITIES_API_ENDPOINT_LITERAL = `https://servicodados.ibge.gov.br/a
  * @returns {Promise<IIbgeDistrictCollection>} Lista de distritos validada por Zod.
  */
 export const FetchIbgeDistricts = async (
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): Promise<IIbgeDistrictCollection> => {
-
   return await TraceExecutionTime(
     'TERRITORIAL_NETWORK_ADAPTER',
     'FETCH_IBGE_DISTRICTS_OPERATION',
@@ -41,11 +37,11 @@ export const FetchIbgeDistricts = async (
         const networkResponse = await fetch(IBGE_LOCALITIES_API_ENDPOINT_LITERAL, {
           method: 'GET',
           headers: {
-            'Accept': 'application/json',
-            'User-Agent': 'Floripa-Dignidade-Sovereign-Bot/1.0'
+            Accept: 'application/json',
+            'User-Agent': 'Floripa-Dignidade-Sovereign-Bot/1.0',
           },
           /** SRE: Tiempo máximo de espera de 15 segundos antes de abortar */
-          signal: AbortSignal.timeout(15000)
+          signal: AbortSignal.timeout(15000),
         });
 
         if (!networkResponse.ok) {
@@ -62,11 +58,9 @@ export const FetchIbgeDistricts = async (
         }
 
         return validationResult.data;
-
       } catch (caughtError: unknown) {
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevel: 'CRITICAL',
@@ -74,14 +68,14 @@ export const FetchIbgeDistricts = async (
           operationCode: 'IBGE_COMMUNICATION_FAULT',
           correlationIdentifier,
           message: 'Fallo crítico al intentar sincronizar con los datos abiertos del IBGE.',
-          contextMetadata: { errorDescriptionLiteral }
+          contextMetadata: { errorDescriptionLiteral },
         });
 
         throw new InternalSystemException('FALLO_EN_CONEXION_TERRITORIAL_EXTERNA', {
           originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier
+          correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

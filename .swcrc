@@ -9,5 +9,5 @@
   },
   "module": { "type": "es6" },
   "sourceMaps": true,
-  "exclude":["jest.config.ts", ".*.spec.tsx?$", ".*.test.tsx?$", ".*.js$"]
+  "exclude": ["jest.config.ts", ".*.spec.tsx?$", ".*.test.tsx?$", ".*.js$"]
 }

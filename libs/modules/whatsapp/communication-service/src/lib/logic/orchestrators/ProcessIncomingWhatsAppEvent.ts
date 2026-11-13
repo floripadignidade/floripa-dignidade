@@ -55,9 +55,9 @@ export const ProcessIncomingWhatsAppEvent = async (
     'EXECUTE_WEBHOOK_SWARM_ORCHESTRATION',
     correlationIdentifier,
     async () => {
-
       // 1. ADUANA DE ADN (Safe Parsing)
-      const payloadValidationResult = WhatsAppWebhookPayloadSchema.safeParse(rawWebhookEventPayload);
+      const payloadValidationResult =
+        WhatsAppWebhookPayloadSchema.safeParse(rawWebhookEventPayload);
 
       if (!payloadValidationResult.success) {
         /** Reporte inmediato de violación de integridad estructural */
@@ -68,8 +68,8 @@ export const ProcessIncomingWhatsAppEvent = async (
           correlationIdentifier,
           message: 'El paquete de Meta no cumple con el esquema soberano.',
           contextMetadata: {
-            issuesCollection: payloadValidationResult.error.flatten()
-          }
+            issuesCollection: payloadValidationResult.error.flatten(),
+          },
         });
 
         throw new ValidationException('ADN_WEBHOOK_WHATSAPP_CORRUPTO', {
@@ -99,7 +99,8 @@ export const ProcessIncomingWhatsAppEvent = async (
            * Se utiliza un casteo hacia la interfaz técnica 'IWhatsAppStatusSignal'
            * para garantizar la integridad del flujo hacia el átomo de rastro.
            */
-          const statusesCollection = (incomingChangeValue.statuses as unknown as IWhatsAppStatusSignal[]) ?? [];
+          const statusesCollection =
+            (incomingChangeValue.statuses as unknown as IWhatsAppStatusSignal[]) ?? [];
 
           for (const statusItem of statusesCollection) {
             await UpdateMessageTraceStatus(statusItem, correlationIdentifier);
@@ -113,7 +114,7 @@ export const ProcessIncomingWhatsAppEvent = async (
         moduleIdentifier: WHATSAPP_ORCHESTRATOR_IDENTIFIER,
         operationCode: 'WEBHOOK_ORCHESTRATION_COMPLETED',
         correlationIdentifier,
-        message: 'Triaje de señales de WhatsApp finalizado con éxito.'
+        message: 'Triaje de señales de WhatsApp finalizado con éxito.',
       });
     },
   );

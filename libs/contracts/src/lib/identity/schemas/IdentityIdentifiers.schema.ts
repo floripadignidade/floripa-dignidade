@@ -18,7 +18,8 @@ import { z } from 'zod';
  * @description Identificador único inalterable de una identidad (Persona Física o Jurídica).
  * Representación: UUID v4 con sello de marca nominal.
  */
-export const IdentityIdentifierSchema = z.string()
+export const IdentityIdentifierSchema = z
+  .string()
   .uuid({ message: 'IDENTITY_IDENTIFIER_MUST_BE_UUID_V4' })
   .brand<'IdentityIdentifier'>();
 
@@ -30,7 +31,8 @@ export type TIdentityIdentifier = z.infer<typeof IdentityIdentifierSchema>;
  * @description Identificador de la jurisdicción institucional (Tenant/Prefeitura).
  * Es el eje central del blindaje Multi-tenant del ecosistema.
  */
-export const OrganizationIdentifierSchema = z.string()
+export const OrganizationIdentifierSchema = z
+  .string()
   .uuid({ message: 'ORGANIZATION_IDENTIFIER_MUST_BE_UUID_V4' })
   .brand<'OrganizationIdentifier'>();
 
@@ -42,7 +44,8 @@ export type TOrganizationIdentifier = z.infer<typeof OrganizationIdentifierSchem
  * @description Identificador técnico de una unidad geográfica (Estado, Municipio, Barrio).
  * Basado estrictamente en el estándar de códigos abiertos del IBGE.
  */
-export const TerritorialTechnicalIdentifierSchema = z.string()
+export const TerritorialTechnicalIdentifierSchema = z
+  .string()
   .min(3, { message: 'TERRITORIAL_IDENTIFIER_INSUFFICIENT_LENGTH' })
   .brand<'TerritorialTechnicalIdentifier'>();
 
@@ -54,7 +57,8 @@ export type TTerritorialTechnicalIdentifier = z.infer<typeof TerritorialTechnica
  * @description Huella digital de hardware utilizada para el rastro de sesiones anónimas.
  * Permite la persistencia de resiliencia sin necesidad de una identidad civil verificada.
  */
-export const DeviceFingerprintIdentifierSchema = z.string()
+export const DeviceFingerprintIdentifierSchema = z
+  .string()
   .min(32, { message: 'DEVICE_FINGERPRINT_INSUFFICIENT_ENTROPY' })
   .brand<'DeviceFingerprintIdentifier'>();
 

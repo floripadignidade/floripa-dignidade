@@ -1,13 +1,43 @@
-# Editor configuration, see http://editorconfig.org
+# @section Workspace Governance - EditorConfig Specifications
+# @description Estandarización institucional de edición de código e higiene de archivos
+# para el ecosistema Floripa Dignidade. Fuerza saltos de línea Unix LF en Windows,
+# indentación uniforme y codificación UTF-8 conforme al protocolo OEDP-V18.1.
+#
+# Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Portabilidad).
+#
+# @author Raz Podestá - MetaShark Tech
+# @license UNLICENSED
+
 root = true
 
+# ==============================================================================
+# CONFIGURACIÓN UNIVERSAL (Todos los archivos del monorepo)
+# ==============================================================================
 [*]
 charset = utf-8
+end_of_line = lf
 indent_style = space
 indent_size = 2
 insert_final_newline = true
 trim_trailing_whitespace = true
 
+# ==============================================================================
+# DOCUMENTACIÓN TÉCNICA Y MANIFIESTOS (Markdown)
+# ==============================================================================
 [*.md]
+indent_size = 2
 max_line_length = off
 trim_trailing_whitespace = false
+
+# ==============================================================================
+# SCRIPTS DE SHELL Y GOBERNANZA GIT HOOKS (Husky / CI)
+# ==============================================================================
+[*.sh]
+end_of_line = lf
+indent_size = 2
+
+# ==============================================================================
+# ARCHIVOS DE DATOS Y ESQUEMAS ESTRUCTURADOS (JSON / YAML)
+# ==============================================================================
+[*.{json,yml,yaml}]
+indent_size = 2

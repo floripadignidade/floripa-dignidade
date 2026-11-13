@@ -3,11 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/utility/src",
   "projectType": "library",
-  "tags": [
-    "scope:shared",
-    "type:logic",
-    "platform:isomorphic"
-  ],
+  "tags": ["scope:shared", "type:logic", "platform:isomorphic"],
   "targets": {
     "build": {
       "executor": "@nx/js:swc",

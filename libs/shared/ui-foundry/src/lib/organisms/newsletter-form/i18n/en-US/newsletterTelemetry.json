@@ -1,0 +1,7 @@
+{
+  "telemetry": {
+    "SUBSCRIPTION_TRANSACTION_STARTED": "Initiating newsletter subscription request dispatch.",
+    "SUBSCRIPTION_CONVERSION_SUCCESS": "Subscription request registered successfully into verification flow.",
+    "SUBSCRIPTION_DISPATCH_FAULT": "Failed to synchronize subscription request with gateway."
+  }
+}

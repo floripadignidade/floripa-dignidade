@@ -1,83 +1,80 @@
 /**
- * @section Application Shell - Root Sovereign Layout Orchestrator
- * @description Carcasa estructural primaria para el portal ciudadano Floripa Dignidade.
- * Orquesta la inyección de fuentes, estilos globales, resolución de diccionarios
- * unificados del Weaver y el montaje de la barra de navegación institucional.
+ * @section Application Shell - Root Structural Layout
+ * @description Carcasa HTML5 raíz del portal ciudadano Floripa Dignidade.
+ * Inyecta estilos globales, variables tipográficas institucionales (`Inter` / `Lexend`),
+ * metadatos PWA/SEO y el guardián de conectividad de cliente (`PersistenceGuardian`),
+ * delegando la navegación localizada en `[locale]/layout.tsx` para evitar cabeceras duplicadas.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Accesibilidad y Eficiencia).
- * SANEADO Turbopack: Corrección de ruta relativa de diccionarios ('./i18n/dictionaries/').
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & ADR 0025 / ADR 0029 / ADR 0030).
+ * Normas: BCP 47 (RFC 5646), ISO/IEC 11179 e ISO/IEC 25010 (Rendimiento y Disponibilidad).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import React from 'react';
-import { notFound } from 'next/navigation';
+import type { Metadata, Viewport } from 'next';
 
-/* 1. Infraestructura de Estilos Globales */
+import {
+  ACTIVE_LOCALES_ENTRIES_COLLECTION,
+  DEFAULT_LOCALE_IDENTIFIER,
+} from '@floripa-dignidade/contracts';
+import { PersistenceGuardian } from '@floripa-dignidade/shared-state-store';
+
 import './global.css';
+import { institutionalDisplayFontInstance, institutionalSansFontInstance } from './fonts';
 
-/* 2. Ruteo y Validación de Frontera */
-import { SupportedLocaleSchema, ValidateLinguisticContract } from '@floripa-dignidade/routing';
+export const metadata: Metadata = {
+  title: {
+    template: '%s | Floripa Dignidade',
+    default: 'Floripa Dignidade | Defesa dos Direitos Humanos e Cidadania',
+  },
+  description:
+    'Plataforma cidadã de transparência orçamentária e direitos humanos em Florianópolis.',
+  icons: {
+    icon: '/brand/favicon.ico',
+    apple: '/brand/pwa/apple-touch-icon.png',
+  },
+  manifest: '/manifest.webmanifest',
+};
 
-/* 3. Contratos de Interfaz */
-import { MainNavigationHeaderI18nSchema } from '@floripa-dignidade/shared-ui-contracts';
-import type { IMainNavigationHeaderI18n } from '@floripa-dignidade/shared-ui-contracts';
+export const viewport: Viewport = {
+  themeColor: '#003366',
+  width: 'device-width',
+  initialScale: 1,
+};
 
-/* 4. Fundición Visual */
-import { GlobalMainNavigationHeader } from '@floripa-dignidade/shared-ui-foundry';
-
-/**
- * @interface IRootLayoutProperties
- * @description Contrato inmutable para las propiedades del layout raíz de Next.js.
- */
 interface IRootLayoutProperties {
   readonly children: React.ReactNode;
-  readonly params: Promise<{ readonly locale?: string }>;
 }
 
+const defaultLocaleMetadataEntry = ACTIVE_LOCALES_ENTRIES_COLLECTION.find(
+  (localeEntrySnapshot) => localeEntrySnapshot.localeCodeLiteral === DEFAULT_LOCALE_IDENTIFIER,
+);
+
+const defaultTextDirectionLiteral = defaultLocaleMetadataEntry?.textDirectionLiteral ?? 'ltr';
+
 /**
- * Orquestador de diseño raíz del portal ciudadano.
+ * Envuelve el árbol completo del portal con la estructura HTML5 base e hidratación resiliente.
+ *
+ * @param propertiesSnapshot - Nodos hijos inyectados por Next.js App Router.
+ * @returns {React.JSX.Element} Documento HTML5 raíz libre de bloqueos y duplicidad de header.
  */
-export default async function RootLayout(
-  propertiesSnapshot: IRootLayoutProperties,
-): Promise<React.ReactElement> {
-  const { children, params } = propertiesSnapshot;
-  const { locale: rawLocaleIdentifierLiteral = 'pt-BR' } = (await params) ?? {};
+export default function RootLayout(propertiesSnapshot: IRootLayoutProperties): React.JSX.Element {
+  const { children } = propertiesSnapshot;
 
-  // 1. ADUANA DE FRONTERA LINGÜÍSTICA
-  const localeValidation = SupportedLocaleSchema.safeParse(rawLocaleIdentifierLiteral);
-  if (!localeValidation.success) notFound();
-
-  const validatedLocale = localeValidation.data;
-
-  try {
-    /**
-     * 2. RESOLUCIÓN DETERMINISTA DE DICCIONARIOS WEAVER
-     * SANEADO: Ruta local exacta al subdirectorio 'i18n/dictionaries/' dentro de 'src/app/'.
-     */
-    const rawData = await import(`./i18n/dictionaries/${validatedLocale}.json`);
-    const headerDictionary = rawData.default['shared/composite-ui'];
-
-    ValidateLinguisticContract(
-      'GLOBAL_HEADER_APPARATUS',
-      MainNavigationHeaderI18nSchema,
-      headerDictionary,
-      validatedLocale as string,
-    );
-
-    return (
-      <html lang={validatedLocale} suppressHydrationWarning>
-        <body className="antialiased min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
-          <GlobalMainNavigationHeader
-            translationDictionary={headerDictionary as IMainNavigationHeaderI18n}
-          />
-          <main className="flex-grow pt-20">{children}</main>
-        </body>
-      </html>
-    );
-  } catch (_caughtError: unknown) {
-    notFound();
-  }
+  return (
+    <html
+      lang={DEFAULT_LOCALE_IDENTIFIER}
+      dir={defaultTextDirectionLiteral}
+      suppressHydrationWarning
+      className={`${institutionalSansFontInstance.variable} ${institutionalDisplayFontInstance.variable}`}
+    >
+      <body className="antialiased min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+        <PersistenceGuardian>
+          <div className="flex-grow flex flex-col">{children}</div>
+        </PersistenceGuardian>
+      </body>
+    </html>
+  );
 }

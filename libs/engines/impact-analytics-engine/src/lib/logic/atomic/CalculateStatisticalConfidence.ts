@@ -13,7 +13,7 @@
  */
 export const CalculateStatisticalConfidence = (
   totalTrustWeightAccumulator: number,
-  confidenceThresholdConstant: number
+  confidenceThresholdConstant: number,
 ): number => {
   return Math.min(totalTrustWeightAccumulator / confidenceThresholdConstant, 1);
 };

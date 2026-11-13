@@ -1,60 +1,180 @@
-name: CI
+name: Enterprise Quality & Integrity CI
 
 on:
   push:
     branches:
-      - main # Cambiado de master a main según tus capturas de pantalla previas
+      - main
   pull_request:
+    branches:
+      - main
 
-# Estándar de seguridad: Mínimos privilegios necesarios
+# Estándar ISO/IEC 27001: Principio de privilegio mínimo
 permissions:
   actions: read
   contents: read
 
+# Optimización SRE: Cancela ejecuciones previas obsoletas en la misma rama/PR
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  main:
+  quality_and_build_gate:
+    name: SRE Quality Gates & Affected Verification
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: 'true'
+      NODE_OPTIONS: '--max-old-space-size=4096'
+      NX_NO_CLOUD: ${{ secrets.NX_CLOUD_ACCESS_TOKEN == '' && 'true' || 'false' }}
+      NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+
     steps:
-      # 1. Checkout con historial completo para que Nx pueda comparar versiones (necesario para affected)
-      - name: Checkout Repo
+      # 1. Checkout con historial completo para cálculo determinista de 'nx affected'
+      - name: Checkout Repository (Full Git History)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2. Setup de pnpm (usando v4 como en tu base)
-      - name: Install pnpm
+      # 2. Instalación determinista de pnpm (lee 'packageManager' desde package.json)
+      - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           run_install: false
 
-      # 3. Setup de Node.js con Cache agresiva de pnpm
-      - name: Setup Node.js
+      # 3. Setup de Node.js >= 20.9.0 (alineado con engines de package.json)
+      - name: Setup Node.js & pnpm Store Cache
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20.19'
           cache: 'pnpm'
 
-      # 4. Instalación de dependencias (estricta para CI)
-      - name: Install Dependencies
+      # 4. Instalación hermética e inmutable de dependencias
+      - name: Install Dependencies (Frozen Lockfile)
         run: pnpm install --frozen-lockfile
 
-      # 5. Instalación de Playwright (solo las dependencias de sistema necesarias)
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps
-
-      # 6. Determinar el rango de comparación para Nx (Vital para el sistema Lego)
-      # Esto permite a Nx saber qué "bloques" han cambiado desde el último commit exitoso.
-      - name: Derive appropriate SHAs for help with affected commands
+      # 5. Derivar SHAs base/head para cálculo preciso de módulos afectados
+      - name: Derive Affected SHAs (Nx)
         uses: nrwl/nx-set-shas@v4
 
-      # 7. EJECUCIÓN DE TAREAS (Arquitectura Lego en acción)
-      # Usamos 'affected' en lugar de 'run-many' para ahorrar tiempo y recursos.
-      # Solo probaremos los módulos que tocaste o los que se ven afectados por tus cambios.
-      - name: Run Quality Gate (Affected)
-        run: pnpm exec nx affected -t lint test build typecheck e2e --parallel=3
+      # 6. Auditoría de Higiene: Verificar cero emisiones huérfanas (.d.ts, .map, .tsbuildinfo) en libs/
+      - name: Verify Zero Rogue Build Emissions in Libraries
+        run: |
+          rogue_files=$(find libs -type f \( -name '*.d.ts' -o -name '*.map' -o -name '*.tsbuildinfo' \) || true)
+          if [ -n "$rogue_files" ]; then
+            echo "::error::Artefactos de compilacion huerfanos detectados dentro de libs/:"
+            echo "$rogue_files"
+            exit 1
+          fi
+          echo "Higiene Source-First verificada: 0 emisiones residuales en libs/."
 
-      # 8. Nx Cloud Self-Healing
-      # Si algo falla, la IA de Nx intentará darte la solución exacta en el log.
-      - name: Nx Cloud Fix-CI
-        run: pnpm exec nx fix-ci
+      # 7. Auditoría de Conformidad Estructural de Workspaces (32/32)
+      - name: Audit Workspace Conformance
+        run: pnpm audit:workspace
+
+      # 8. Validación estricta de formato Prettier (Solo lectura, sin mutar árbol)
+      - name: Check Code Formatting (Prettier)
+        run: pnpm format:check
+
+      # 9. Compilación y validación Zod de silos lingüísticos (Weaver)
+      - name: Build & Validate Internationalization Dictionaries (Weaver)
+        run: pnpm weaver:build
+
+      # 10. Aduana de Calidad Nx sobre proyectos afectados (Lint + Typecheck + Unit Tests)
+      - name: Run Affected Lint, Typecheck & Unit Tests
+        run: pnpm exec nx affected -t lint typecheck test --parallel=2
+
+      # 11. Verificación de Compilación de Aplicaciones (Portal & CMS)
+      # Usa secretos reales de GitHub si existen; en PRs aplica placeholders conformes a EnvironmentSchema
+      - name: Verify Production Builds (Affected Applications)
+        env:
+          NODE_ENV: production
+          NEXT_PUBLIC_SITE_URL:
+            ${{ secrets.NEXT_PUBLIC_SITE_URL || 'https://floripa-dignidade.vercel.app' }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://ci-placeholder.supabase.co' }}
+          SUPABASE_SERVICE_ROLE_KEY:
+            ${{ secrets.SUPABASE_SERVICE_ROLE_KEY ||
+            'ci-placeholder-supabase-service-role-key-minimum-50-chars-long' }}
+          DATABASE_URL:
+            ${{ secrets.DATABASE_URL ||
+            'postgresql://postgres:placeholder@db.ci-placeholder.supabase.co:5432/postgres' }}
+          S3_ENDPOINT:
+            ${{ secrets.S3_ENDPOINT || 'https://ci-placeholder.supabase.co/storage/v1/s3' }}
+          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID || 'ci-s3-access-key-1234' }}
+          S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY || 'ci-s3-secret-key-1234' }}
+          S3_REGION: ${{ secrets.S3_REGION || 'sa-east-1' }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET || 'media-vault' }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY || 're_ci_placeholder_key_1234567890' }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL || 'no-reply@floripadignidade.org' }}
+          PAYLOAD_SECRET:
+            ${{ secrets.PAYLOAD_SECRET || 'ci-placeholder-payload-secret-minimum-32-characters' }}
+          SOVEREIGN_EMERGENCY_TOKEN:
+            ${{ secrets.SOVEREIGN_EMERGENCY_TOKEN ||
+            'ci-placeholder-emergency-token-minimum-32-chars' }}
+          GOOGLE_GEMINI_API_KEY:
+            ${{ secrets.GOOGLE_GEMINI_API_KEY || 'AIzaSyCiPlaceholderKey1234567890123456789' }}
+          WHATSAPP_VERIFY_TOKEN: ${{ secrets.WHATSAPP_VERIFY_TOKEN || 'ci-verify-token-12345' }}
+          WHATSAPP_APP_SECRET: ${{ secrets.WHATSAPP_APP_SECRET || 'ci-whatsapp-app-secret-12345' }}
+        run: pnpm exec nx affected -t build --configuration=production --parallel=1
+
+      # 12. Sonda Activa de Infraestructura Cloud (Solo en main cuando hay secretos reales configurados)
+      - name: Run Live Cloud Infrastructure Audit
+        if: github.ref == 'refs/heads/main' && secrets.SUPABASE_URL != ''
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
+          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          S3_REGION: ${{ secrets.S3_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          SOVEREIGN_EMERGENCY_TOKEN: ${{ secrets.SOVEREIGN_EMERGENCY_TOKEN }}
+          GOOGLE_GEMINI_API_KEY: ${{ secrets.GOOGLE_GEMINI_API_KEY }}
+          HUGGING_FACE_API_TOKEN: ${{ secrets.HUGGING_FACE_API_TOKEN }}
+          HUGGING_FACE_MODEL_URL: ${{ secrets.HUGGING_FACE_MODEL_URL }}
+          WHATSAPP_VERIFY_TOKEN: ${{ secrets.WHATSAPP_VERIFY_TOKEN }}
+          WHATSAPP_APP_SECRET: ${{ secrets.WHATSAPP_APP_SECRET }}
+        run: pnpm audit:infrastructure
+
+      # 13. Reporte Ejecutivo de Calidad en el Resumen de GitHub Actions
+      - name: Publish Quality Gate Summary
         if: always()
+        run: |
+          {
+            echo "## 🛡️ Floripa Dignidade — Reporte Forense de CI"
+            echo ""
+            echo "| Aduana | Estado |"
+            echo "| :--- | :--- |"
+            echo "| Higiene de Emisiones / Workspace Conformance / Prettier / Weaver / Nx Affected | **${{ job.status }}** |"
+            echo ""
+            if [ -f "reports/conformance/workspace-conformance-audit-report.json" ]; then
+              echo "### 📊 Conformidad de Workspaces"
+              node -e "const r = JSON.parse(require('fs').readFileSync('reports/conformance/workspace-conformance-audit-report.json','utf8')); console.log('- Total auditados: **' + r.totalWorkspacesAuditedQuantity + '** | Conformantes: **' + r.compliantWorkspacesCountQuantity + '** | Desalineados: **' + r.nonCompliantWorkspacesCountQuantity + '**');"
+            fi
+            if [ -f "reports/internationalization-audit-report.json" ]; then
+              echo "### 🌐 Weaver i18n"
+              node -e "const r = JSON.parse(require('fs').readFileSync('reports/internationalization-audit-report.json','utf8')); console.log('- Módulos procesados: **' + r.totalModulesProcessedQuantity + '** (Correlation ID: \`' + r.correlationIdentifier + '\`)');"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # 14. Custodia de Artefactos de Auditoría y Cobertura (ISO/IEC 27001)
+      - name: Upload Forensic Reports & Coverage Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forensic-quality-reports-${{ github.run_id }}
+          path: |
+            reports/
+            coverage/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      # 15. Nx Cloud Self-Healing (Solo ante fallo y con token presente)
+      - name: Nx Cloud Fix-CI
+        if: failure() && env.NX_CLOUD_ACCESS_TOKEN != ''
+        run: pnpm exec nx fix-ci

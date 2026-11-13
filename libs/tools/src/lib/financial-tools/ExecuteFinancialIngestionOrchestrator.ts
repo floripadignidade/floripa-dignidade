@@ -26,10 +26,7 @@ import {
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-import {
-  InternalSystemException,
-  ValidationException,
-} from '@floripa-dignidade/exceptions';
+import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
 
 /** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
 const TOOL_IDENTIFIER = 'FINANCIAL_INGESTION_CLI_TOOL';
@@ -90,10 +87,7 @@ export const ExecuteFinancialIngestionOrchestrator = async (): Promise<void> => 
         );
         rawPathInputLiteral = userInputLiteral.trim();
 
-        const absoluteFilePathLiteral = pathReference.resolve(
-          process.cwd(),
-          rawPathInputLiteral,
-        );
+        const absoluteFilePathLiteral = pathReference.resolve(process.cwd(), rawPathInputLiteral);
 
         // 2. AUDITORÍA DE HARDWARE (Sensor I/O de Existencia Física)
         if (!filesystemReference.existsSync(absoluteFilePathLiteral)) {
@@ -114,29 +108,21 @@ export const ExecuteFinancialIngestionOrchestrator = async (): Promise<void> => 
          * El motor de extracción y la librería de Excel solo se importan en memoria
          * si el operador ha confirmado físicamente la existencia de la ruta.
          */
-        const {
-          ExtractWorkbookData,
-          PersistFinancialLedgerToCloud,
-        } = await import('@floripa-dignidade/financial-ingestion-engine');
+        const { ExtractWorkbookData, PersistFinancialLedgerToCloud } = await import(
+          '@floripa-dignidade/financial-ingestion-engine'
+        );
 
         const validatedRecordsCollection = await ExtractWorkbookData({
           absoluteFilePathLiteral,
           correlationIdentifier,
         });
 
-        console.warn(
-          CLI_DICTIONARY.status.aduanaSuccessLiteral(
-            validatedRecordsCollection.length,
-          ),
-        );
+        console.warn(CLI_DICTIONARY.status.aduanaSuccessLiteral(validatedRecordsCollection.length));
 
         // 4. PERSISTENCIA INMUTABLE (Sincronización con el Ledger Cloud)
         console.warn(CLI_DICTIONARY.status.transmittingToCloudLiteral);
 
-        await PersistFinancialLedgerToCloud(
-          validatedRecordsCollection,
-          correlationIdentifier,
-        );
+        await PersistFinancialLedgerToCloud(validatedRecordsCollection, correlationIdentifier);
 
         // 5. REPORTE DE FINALIZACIÓN Y TRAZABILIDAD SRE
         console.warn(CLI_DICTIONARY.status.executionFinishedLiteral);
@@ -147,25 +133,18 @@ export const ExecuteFinancialIngestionOrchestrator = async (): Promise<void> => 
           moduleIdentifierLiteral: TOOL_IDENTIFIER,
           operationCodeLiteral: 'INGESTION_TOOL_NOMINAL_SUCCESS',
           correlationIdentifier,
-          messageContentLiteral:
-            'Proceso de ingesta manual finalizado con precisión industrial.',
+          messageContentLiteral: 'Proceso de ingesta manual finalizado con precisión industrial.',
           semanticIntentTag: 'FINANCIAL_MANUAL_INGESTION_COMPLETE',
         });
       } catch (caughtError: unknown) {
         const isUserFaultBoolean = caughtError instanceof ValidationException;
         const errorDescriptionLiteral =
-          caughtError instanceof Error
-            ? caughtError.message
-            : String(caughtError);
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         if (isUserFaultBoolean) {
-          console.error(
-            CLI_DICTIONARY.errors.fileNotFoundLiteral(rawPathInputLiteral),
-          );
+          console.error(CLI_DICTIONARY.errors.fileNotFoundLiteral(rawPathInputLiteral));
         } else {
-          console.error(
-            CLI_DICTIONARY.errors.fatalCollapseLiteral(errorDescriptionLiteral),
-          );
+          console.error(CLI_DICTIONARY.errors.fatalCollapseLiteral(errorDescriptionLiteral));
         }
 
         void EmitTelemetrySignal({

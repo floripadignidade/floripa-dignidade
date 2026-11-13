@@ -21,6 +21,6 @@ export interface IDocumentHardwareBridge {
   readonly addEventListener: (
     eventLiteral: string,
     callback: () => void,
-    options?: IEventListenerOptionsBridge | boolean
+    options?: IEventListenerOptionsBridge | boolean,
   ) => void;
 }

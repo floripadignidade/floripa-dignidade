@@ -13,9 +13,7 @@
  * @param interactionPolarityNumeric - Valor de la reacción (1, 0, -1).
  * @returns {number} Índice de consenso proyectado (0.0 a 1.0).
  */
-export const CalculateOptimisticConsensus = (
-  interactionPolarityNumeric: number
-): number => {
+export const CalculateOptimisticConsensus = (interactionPolarityNumeric: number): number => {
   /**
    * @section Regla de Negocio: Proyección de Consenso
    * Si la reacción es neutral (0), el consenso tiende a la inercia (0.5).

@@ -1,20 +1,23 @@
 # Manifiesto Arquitectónico: Floripa Dignidade (Sistema Lego)
 
-**Fecha:** Febrero 2024
-**Versión:** 1.0.0
-**Arquitecto:** Equipo de Ingeniería Floripa Dignidade
+**Fecha:** Febrero 2024 **Versión:** 1.0.0 **Arquitecto:** Equipo de Ingeniería Floripa Dignidade
 **Stack Base:** Nx Monorepo, pnpm, Next.js (React), Tailwind CSS, TypeScript, Zod, Jest.
 
 ## 1. Visión General y Filosofía (El Sistema "Lego")
 
-La arquitectura del monorepo de Floripa Dignidade no se basa en una estructura tradicional donde la aplicación contiene toda la lógica. Se basa en un **Sistema Lego (Domain-Driven Design en Nx)**. 
+La arquitectura del monorepo de Floripa Dignidade no se basa en una estructura tradicional donde la
+aplicación contiene toda la lógica. Se basa en un **Sistema Lego (Domain-Driven Design en Nx)**.
 
-La aplicación `apps/blog-noticias` es únicamente una "carcasa de ensamblaje" (shell). Todo el valor de negocio, lógica, UI y esquemas vivirán en `libs/` (Librerías/Aparatos).
+La aplicación `apps/blog-noticias` es únicamente una "carcasa de ensamblaje" (shell). Todo el valor
+de negocio, lógica, UI y esquemas vivirán en `libs/` (Librerías/Aparatos).
 
 **Principios Inquebrantables:**
-1. **Desacoplamiento Absoluto:** Cada módulo debe ser capaz de ser exportado a otro repositorio sin romperse.
+
+1. **Desacoplamiento Absoluto:** Cada módulo debe ser capaz de ser exportado a otro repositorio sin
+   romperse.
 2. **SOLID & DRY:** Responsabilidad única por librería. Ninguna lógica de negocio se repite.
-3. **Auditoría Nativa:** Cada módulo debe tener un 100% de cobertura en sus contratos (Zod) y lógica (Jest).
+3. **Auditoría Nativa:** Cada módulo debe tener un 100% de cobertura en sus contratos (Zod) y lógica
+   (Jest).
 
 ---
 
@@ -75,3 +78,4 @@ pnpm nx lint modules-newsletter-ui
 ---
 
 
+```

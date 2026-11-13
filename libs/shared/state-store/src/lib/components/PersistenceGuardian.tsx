@@ -2,9 +2,9 @@
 
 /**
  * @section Utility Component - Persistence & SRE Guardian
- * @description Orquestador de lado cliente encargado de la hidratación del estado 
+ * @description Orquestador de lado cliente encargado de la hidratación del estado
  * global y el monitoreo de conectividad física. Implementa la ley ADR 0025.
- * 
+ *
  * Protocolo OEDP-V16.0 - High Performance & Forensic Traceability.
  */
 
@@ -36,8 +36,8 @@ export const PersistenceGuardian: React.FC<IPersistenceGuardianProperties> = ({ 
     };
   }, [UpdateNetworkStatusAction]);
 
-  /** 
-   * Retornamos los hijos. Zustand gestiona la persistencia de forma 
+  /**
+   * Retornamos los hijos. Zustand gestiona la persistencia de forma
    * interna mediante su middleware 'persist'.
    */
   return <>{children}</>;

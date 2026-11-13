@@ -16,16 +16,13 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /* 1. Infraestructura Core: Telemetría y Excepciones (Atmos PascalCase) */
-import {
-  InternalSystemException,
-  MapHttpErrorToException
-} from '@floripa-dignidade/exceptions';
+import { InternalSystemException, MapHttpErrorToException } from '@floripa-dignidade/exceptions';
 
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
   ReportForensicException,
-  TraceExecutionTime
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
 /* 2. Enjambre de Soporte y Registro de Sensores (PascalCase Atoms) */
@@ -43,7 +40,7 @@ const ROUTING_ORCHESTRATOR_IDENTIFIER = 'ROUTING_EDGE_ORCHESTRATOR';
  * @returns {Promise<NextResponse>} Respuesta procesada, redirigida o autorizada para continuar.
  */
 export const GlobalRequestOrchestrator = async (
-  requestSnapshot: NextRequest
+  requestSnapshot: NextRequest,
 ): Promise<NextResponse> => {
   /**
    * Generamos la "Traza de Sangre Digital" (Correlation ID) que vinculará
@@ -69,10 +66,7 @@ export const GlobalRequestOrchestrator = async (
          * Si un sensor decide que la solicitud debe morir o desviarse, retorna un NextResponse.
          */
         for (const executeSensorAction of SWARM_SENSORS_PIPELINE) {
-          const sensorResponseSignal = await executeSensorAction(
-            requestSnapshot,
-            routingContext
-          );
+          const sensorResponseSignal = await executeSensorAction(requestSnapshot, routingContext);
 
           if (sensorResponseSignal) {
             /**
@@ -96,20 +90,21 @@ export const GlobalRequestOrchestrator = async (
         responseSignal.headers.set('X-Floripa-Detected-Locale', routingContext.detectedLocale);
 
         return responseSignal;
-
       } catch (caughtExecutionError: unknown) {
         /**
          * @section Gestión de Resiliencia Perimetral (Panic Mode)
          * Si el orquestador falla, capturamos el rastro forense antes de que
          * el Edge Runtime emita un error 500 no controlado.
          */
-        const normalizedException = caughtExecutionError instanceof InternalSystemException
-          ? caughtExecutionError
-          : MapHttpErrorToException(500, 'EDGE_ORCHESTRATION_COLLAPSE', {
-              originalErrorLiteral: caughtExecutionError instanceof Error
-                ? caughtExecutionError.message
-                : String(caughtExecutionError)
-            });
+        const normalizedException =
+          caughtExecutionError instanceof InternalSystemException
+            ? caughtExecutionError
+            : MapHttpErrorToException(500, 'EDGE_ORCHESTRATION_COLLAPSE', {
+                originalErrorLiteral:
+                  caughtExecutionError instanceof Error
+                    ? caughtExecutionError.message
+                    : String(caughtExecutionError),
+              });
 
         // Reporte automático al Neural Sentinel via Telemetry Core.
         ReportForensicException(normalizedException, correlationIdentifier);
@@ -124,7 +119,7 @@ export const GlobalRequestOrchestrator = async (
           operationCode: 'EDGE_PIPELINE_CRITICAL_FAULT',
           correlationIdentifier,
           message: 'Colapso catastrófico en el orquestador de ruteo perimetral.',
-          contextMetadataSnapshot: { ...normalizedException.runtimeContextSnapshot }
+          contextMetadataSnapshot: { ...normalizedException.runtimeContextSnapshot },
         });
 
         /**
@@ -133,9 +128,9 @@ export const GlobalRequestOrchestrator = async (
          */
         return new NextResponse('INTERNAL_SERVICE_RELIABILITY_FAULT', {
           status: 500,
-          headers: { 'X-Floripa-Correlation-ID': correlationIdentifier }
+          headers: { 'X-Floripa-Correlation-ID': correlationIdentifier },
         });
       }
-    }
+    },
   );
 };

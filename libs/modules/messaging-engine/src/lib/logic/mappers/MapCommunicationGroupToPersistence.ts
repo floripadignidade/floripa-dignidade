@@ -31,7 +31,7 @@ export interface ICommunicationGroupPersistence {
 /**
  * Mapea una instancia de grupo validada al formato de persistencia físico.
  * ⚡ OPTIMIZACIÓN: Función pura sin efectos secundarios para máxima velocidad de despacho.
- * 
+ *
  * @param data - ADN purificado del círculo de comunicación.
  * @param creatorId - Identificador de la identidad soberana responsable.
  * @param correlationId - ID de trazabilidad forense.
@@ -39,7 +39,7 @@ export interface ICommunicationGroupPersistence {
 export const MapCommunicationGroupToPersistence = (
   data: ICommunicationGroup,
   creatorId: string,
-  correlationId: string
+  correlationId: string,
 ): ICommunicationGroupPersistence => ({
   group_id: data.groupIdentifier,
   display_name: data.officialDisplayNameLiteral,

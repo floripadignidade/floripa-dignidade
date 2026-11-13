@@ -18,13 +18,15 @@ import { z } from 'zod';
  * @prompt_ia: "Asegura que 'seniorityBonusNumeric' no exceda el límite de 0.2 (20%)
  * y que 'daysSinceActivationQuantity' sea un número entero no negativo."
  */
-export const IdentitySeniorityResultSchema = z.object({
-  /** Cantidad total de días transcurridos desde la activación de la identidad. */
-  daysSinceActivationQuantity: z.number().int().nonnegative(),
+export const IdentitySeniorityResultSchema = z
+  .object({
+    /** Cantidad total de días transcurridos desde la activación de la identidad. */
+    daysSinceActivationQuantity: z.number().int().nonnegative(),
 
-  /** Coeficiente de bonificación acumulado (Rango: 0.0 a 0.2). */
-  seniorityBonusNumeric: z.number().min(0).max(0.2),
-}).readonly();
+    /** Coeficiente de bonificación acumulado (Rango: 0.0 a 0.2). */
+    seniorityBonusNumeric: z.number().min(0).max(0.2),
+  })
+  .readonly();
 
 /** 🛡️ ADN Tipado para exportación Verbatim */
 export type IIdentitySeniorityResult = z.infer<typeof IdentitySeniorityResultSchema>;

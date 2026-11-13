@@ -8,16 +8,17 @@
 
 import { z } from 'zod';
 
-export const EvaluationInputSchema = z.object({
-  /** Valor numérico capturado (0.0 a 1.0). */
-  quantitativeTrustScoreNumeric: z.number().min(0).max(1),
+export const EvaluationInputSchema = z
+  .object({
+    /** Valor numérico capturado (0.0 a 1.0). */
+    quantitativeTrustScoreNumeric: z.number().min(0).max(1),
 
-  /** Identificador de identidad (Null si es anónimo). */
-  evaluatorIdentityIdentifier: z.string().uuid().nullable(),
+    /** Identificador de identidad (Null si es anónimo). */
+    evaluatorIdentityIdentifier: z.string().uuid().nullable(),
 
-  /** Contexto geográfico para el mapa de calor (Ej: "TAPERA"). */
-  territorialContextLiteral: z.string().optional(),
-
-}).readonly();
+    /** Contexto geográfico para el mapa de calor (Ej: "TAPERA"). */
+    territorialContextLiteral: z.string().optional(),
+  })
+  .readonly();
 
 export type IEvaluationInput = z.infer<typeof EvaluationInputSchema>;

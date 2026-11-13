@@ -1,83 +1,110 @@
 'use client';
 
 /**
- * @section UI Logic - Newsletter Subscription Hook (Orchestrator)
- * @description Hook soberano encargado de gestionar el ciclo de vida de la
- * suscripción ciudadana. Orquesta la validación de ADN, el enmascaramiento
- * de privacidad (LGPD), la comunicación asíncrona con el Gateway y el rastro
- * telemétrico de conversión social.
+ * @section Shared UI Foundry - Newsletter Subscription Hook (Orchestrator)
+ * @description Hook reactivo extensible y multi-aplicación que coordina validación Zod
+ * del formulario, detección dinámica de localización BCP 47 (ADR 0030), protección PII
+ * (LGPD) mediante `MaskCitizenIdentity`, transporte HTTP resiliente y telemetría SRE.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Functional Atomicity.
- * SANEADO Zenith: Resolución de TS2307 (Contracts Sync), sincronización de
- * privacidad asíncrona e inyección de protección de timeout (SRE).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: BCP 47 (RFC 5646), ISO/IEC 11179, ISO/IEC 25010 y LGPD (Lei 13.709/2018).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import { useCallback, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useCallback, useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
-/* 1. Infraestructura Core y Utilidades (Sovereign Swarm) */
+import type { TSupportedLocale } from '@floripa-dignidade/contracts';
 import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+  type INewsletterSubscriptionForm,
+  NewsletterSubscriptionFormSchema,
+} from '@floripa-dignidade/shared-ui-contracts';
+import { MaskCitizenIdentity } from '@floripa-dignidade/shared-utility';
+import { GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
-import { MaskSovereignIdentity } from '@floripa-dignidade/shared-utility';
-
-/* 2. ADN Estructural (Blueprints Layer) */
-/** 🛡️ SANEADO Zenith: Redirección hacia el búnker de contratos oficial. */
+import { DispatchNewsletterSubscriptionRequest } from '../logic/atoms/DispatchNewsletterSubscriptionRequest';
+import { EmitNewsletterSubscriptionTelemetry } from '../logic/atoms/EmitNewsletterSubscriptionTelemetry';
+import { ResolveActiveSubscriptionLocale } from '../logic/atoms/ResolveActiveSubscriptionLocale';
 import {
-  NewsletterSubscriptionFormSchema
-} from '@floripa-dignidade/shared-ui-contracts';
-
-import type {
-  INewsletterSubscriptionForm
-} from '@floripa-dignidade/shared-ui-contracts';
+  type ISubscriptionGatewayResponse,
+  NewsletterSubscriptionHookParametersSchema,
+  type TSubscriptionVerificationChannel,
+} from '../schemas/UseNewsletterSubscription.schema';
 
 /**
  * @interface IUseNewsletterSubscriptionParameters
- * @description Contrato inmutable para la parametrización de la lógica de estado.
+ * @description Configuración extensible del hook para distintas aplicaciones consumidoras.
  */
-interface IUseNewsletterSubscriptionParameters {
-  /** Literal localizado para el reporte de fallos genéricos. */
+export interface IUseNewsletterSubscriptionParameters {
   readonly errorGenericLiteral: string;
-  /** Ruta física absoluta o relativa del Gateway de suscripción. */
   readonly targetApiEndpointPathLiteral: string;
+  readonly preferredLinguisticLocaleIdentifier?: TSupportedLocale;
+  readonly verificationChannelPreference?: TSubscriptionVerificationChannel;
+  readonly acquisitionSourceIdentifier?: string;
+  readonly requestTimeoutInMillisecondsQuantity?: number;
+  readonly correlationHeaderNameLiteral?: string;
+  readonly customHeadersMapping?: Readonly<Record<string, string>>;
+  readonly onSubmissionSuccessCallback?: (
+    gatewayPayloadSnapshot: ISubscriptionGatewayResponse | undefined,
+  ) => void;
+  readonly onSubmissionFailureCallback?: (errorDescriptionLiteral: string) => void;
 }
 
 /**
  * @interface IUseNewsletterSubscriptionResult
- * @description Capacidades expuestas para el orquestador visual (Form).
+ * @description Contrato de estado reactivo y acciones expuestas a la interfaz consumidora.
  */
-interface IUseNewsletterSubscriptionResult {
+export interface IUseNewsletterSubscriptionResult {
   readonly formInstance: ReturnType<typeof useForm<INewsletterSubscriptionForm>>;
   readonly isSuccessfullySubmittedBoolean: boolean;
   readonly executionErrorLiteral: string | null;
+  readonly resolvedLocaleIdentifier: TSupportedLocale;
   readonly onFormSubmitAction: (dataSnapshot: INewsletterSubscriptionForm) => Promise<void>;
+  readonly resetSubmissionStateAction: () => void;
 }
 
-/** Identificador técnico del aparato para el Neural Sentinel. */
-const HOOK_IDENTIFIER = 'USE_NEWSLETTER_SUBSCRIPTION_HOOK';
-
 /**
- * Gestiona la lógica reactiva y la persistencia cloud de la suscripción ciudadana.
- * Implementa el patrón "Sovereign Ingestion" con blindaje de privacidad.
+ * Orquesta el ciclo completo de suscripción ciudadana con soporte multi-app y configuración declarativa.
  *
- * @param parametersSnapshot - Configuración de mensajes y destinos de red.
- * @returns {IUseNewsletterSubscriptionResult} Motores de estado y acciones.
+ * @param parametersSnapshot - Configuración requerida y personalizaciones opcionales por aplicación.
+ * @returns {IUseNewsletterSubscriptionResult} Instancia de formulario, estado y disparadores.
  */
 export const useNewsletterSubscription = (
-  parametersSnapshot: IUseNewsletterSubscriptionParameters
+  parametersSnapshot: IUseNewsletterSubscriptionParameters,
 ): IUseNewsletterSubscriptionResult => {
+  const { onSubmissionSuccessCallback, onSubmissionFailureCallback } = parametersSnapshot;
 
-  // --- 1. ESTADOS ATÓMICOS DE CONVERSIÓN (Prosa Booleana) ---
+  const serializedConfigurationKeyLiteral = JSON.stringify({
+    errorGenericLiteral: parametersSnapshot.errorGenericLiteral,
+    targetApiEndpointPathLiteral: parametersSnapshot.targetApiEndpointPathLiteral,
+    preferredLinguisticLocaleIdentifier: parametersSnapshot.preferredLinguisticLocaleIdentifier,
+    verificationChannelPreference: parametersSnapshot.verificationChannelPreference,
+    acquisitionSourceIdentifier: parametersSnapshot.acquisitionSourceIdentifier,
+    requestTimeoutInMillisecondsQuantity: parametersSnapshot.requestTimeoutInMillisecondsQuantity,
+    correlationHeaderNameLiteral: parametersSnapshot.correlationHeaderNameLiteral,
+    customHeadersMapping: parametersSnapshot.customHeadersMapping,
+  });
+
+  const validatedConfiguration = useMemo(
+    () =>
+      NewsletterSubscriptionHookParametersSchema.parse(
+        JSON.parse(serializedConfigurationKeyLiteral) as unknown,
+      ),
+    [serializedConfigurationKeyLiteral],
+  );
+
   const [isSuccessfullySubmittedBoolean, setIsSuccessfullySubmittedBoolean] = useState(false);
   const [executionErrorLiteral, setExecutionErrorLiteral] = useState<string | null>(null);
 
-  // --- 2. INICIALIZACIÓN DE ADUANA (Form Control) ---
+  const resolvedLocaleIdentifier = useMemo(
+    () =>
+      ResolveActiveSubscriptionLocale(validatedConfiguration.preferredLinguisticLocaleIdentifier),
+    [validatedConfiguration.preferredLinguisticLocaleIdentifier],
+  );
+
   const formInstance = useForm<INewsletterSubscriptionForm>({
     resolver: zodResolver(NewsletterSubscriptionFormSchema),
     defaultValues: {
@@ -86,97 +113,92 @@ export const useNewsletterSubscription = (
     },
   });
 
-  /**
-   * @section Acción: onFormSubmitAction
-   * @description Ejecuta el despacho físico de la identidad hacia la nube.
-   */
-  const onFormSubmitAction = useCallback(async (
-    dataSnapshot: INewsletterSubscriptionForm
-  ): Promise<void> => {
-    const correlationIdentifier = GenerateCorrelationIdentifier();
+  const resetSubmissionStateAction = useCallback((): void => {
+    setIsSuccessfullySubmittedBoolean(false);
     setExecutionErrorLiteral(null);
+    formInstance.reset();
+  }, [formInstance]);
 
-    /**
-     * 🛡️ SANEADO Zenith: Sincronización con la utilidad de privacidad asíncrona.
-     * Enmascaramos el email para los logs telemétricos (LGPD Compliance).
-     */
-    const maskedIdentityLiteral = await MaskSovereignIdentity({
-      rawIdentityLiteral: dataSnapshot.electronicMailAddressLiteral,
-      maskingStrategyLiteral: 'ELECTRONIC_MAIL'
-    });
+  const onFormSubmitAction = useCallback(
+    async (dataSnapshot: INewsletterSubscriptionForm): Promise<void> => {
+      const correlationIdentifier = GenerateCorrelationIdentifier();
+      setExecutionErrorLiteral(null);
 
-    void EmitTelemetrySignal({
-      severityLevelLiteral: 'INFO',
-      moduleIdentifierLiteral: HOOK_IDENTIFIER,
-      operationCodeLiteral: 'SUBSCRIPTION_TRANSACTION_STARTED',
-      correlationIdentifier,
-      messageContentLiteral: `Iniciando despacho de suscripción para [${maskedIdentityLiteral}].`,
-      semanticIntentTag: 'NEWSLETTER_CONVERSION_START'
-    });
+      const {
+        errorGenericLiteral: configuredErrorMessageLiteral,
+        ...transportConfigurationSnapshot
+      } = validatedConfiguration;
 
-    try {
-      /**
-       * FASE 1: DESPACHO FÍSICO (Cloud I/O)
-       * Implementamos protocolo Stateless Fetch con protección SRE de timeout.
-       */
-      const networkResponse = await fetch(parametersSnapshot.targetApiEndpointPathLiteral, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Floripa-Correlation-ID': correlationIdentifier,
+      const maskedIdentityLiteral = await MaskCitizenIdentity({
+        rawIdentityLiteral: dataSnapshot.electronicMailAddressLiteral,
+        maskingStrategyLiteral: 'ELECTRONIC_MAIL',
+      });
+
+      EmitNewsletterSubscriptionTelemetry({
+        stageLiteral: 'STARTED',
+        correlationIdentifier,
+        contextMetadataSnapshot: {
+          maskedIdentityLiteral,
+          resolvedLocaleIdentifier,
+          acquisitionSourceIdentifier: transportConfigurationSnapshot.acquisitionSourceIdentifier,
         },
-        body: JSON.stringify({
-          communicationIdentifierLiteral: dataSnapshot.electronicMailAddressLiteral,
-          verificationChannelPreference: 'ELECTRONIC_MAIL',
-          preferredLinguisticLocaleIdentifier: 'pt-BR',
+      });
+
+      try {
+        const dispatchResult = await DispatchNewsletterSubscriptionRequest({
+          ...transportConfigurationSnapshot,
+          electronicMailAddressLiteral: dataSnapshot.electronicMailAddressLiteral,
           hasGivenPrivacyConsentBoolean: dataSnapshot.hasGivenPrivacyConsentBoolean,
-        }),
-        /** 🛡️ SANEADO: Timeout de 10 segundos para prevenir bloqueos de hardware. */
-        signal: AbortSignal.timeout(10000)
-      });
+          preferredLinguisticLocaleIdentifier: resolvedLocaleIdentifier,
+          correlationIdentifier,
+          customHeadersMapping: transportConfigurationSnapshot.customHeadersMapping,
+        });
 
-      if (!networkResponse.ok) {
-        throw new Error(`GATEWAY_FAULT_CODE_${networkResponse.status}`);
+        setIsSuccessfullySubmittedBoolean(true);
+        EmitNewsletterSubscriptionTelemetry({
+          stageLiteral: 'SUCCESS',
+          correlationIdentifier,
+          executionLatencyInMillisecondsQuantity:
+            dispatchResult.executionLatencyInMillisecondsQuantity,
+          contextMetadataSnapshot: {
+            httpStatusCodeNumeric: dispatchResult.httpStatusCodeNumeric,
+            resolvedLocaleIdentifier,
+            acquisitionSourceIdentifier: transportConfigurationSnapshot.acquisitionSourceIdentifier,
+          },
+        });
+
+        onSubmissionSuccessCallback?.(dispatchResult.gatewayPayloadSnapshot);
+      } catch (caughtError: unknown) {
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
+
+        setExecutionErrorLiteral(configuredErrorMessageLiteral);
+        EmitNewsletterSubscriptionTelemetry({
+          stageLiteral: 'FAULT',
+          correlationIdentifier,
+          contextMetadataSnapshot: {
+            errorTraceLiteral: errorDescriptionLiteral,
+            acquisitionSourceIdentifier: transportConfigurationSnapshot.acquisitionSourceIdentifier,
+          },
+        });
+
+        onSubmissionFailureCallback?.(errorDescriptionLiteral);
       }
-
-      // FASE 2: CONSOLIDACIÓN DE ÉXITO
-      setIsSuccessfullySubmittedBoolean(true);
-
-      void EmitTelemetrySignal({
-        severityLevelLiteral: 'INFO',
-        moduleIdentifierLiteral: HOOK_IDENTIFIER,
-        operationCodeLiteral: 'SUBSCRIPTION_CONVERSION_SUCCESS',
-        correlationIdentifier,
-        messageContentLiteral: 'Ciudadano integrado exitosamente en el flujo de verificación.',
-        semanticIntentTag: 'NEWSLETTER_CONVERSION_COMPLETE'
-      });
-
-    } catch (caughtError: unknown) {
-      /**
-       * FASE 3: GESTIÓN FORENSE DE FALLO (Resilience Layer)
-       */
-      const errorDescriptionLiteral = caughtError instanceof Error
-        ? caughtError.message
-        : String(caughtError);
-
-      setExecutionErrorLiteral(parametersSnapshot.errorGenericLiteral);
-
-      void EmitTelemetrySignal({
-        severityLevelLiteral: 'ERROR',
-        moduleIdentifierLiteral: HOOK_IDENTIFIER,
-        operationCodeLiteral: 'SUBSCRIPTION_DISPATCH_FAULT',
-        correlationIdentifier,
-        messageContentLiteral: 'Fallo al intentar sincronizar suscripción con la nube.',
-        semanticIntentTag: 'INFRASTRUCTURE_IO_FAULT',
-        contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
-      });
-    }
-  }, [parametersSnapshot]);
+    },
+    [
+      validatedConfiguration,
+      resolvedLocaleIdentifier,
+      onSubmissionSuccessCallback,
+      onSubmissionFailureCallback,
+    ],
+  );
 
   return {
     formInstance,
     isSuccessfullySubmittedBoolean,
     executionErrorLiteral,
+    resolvedLocaleIdentifier,
     onFormSubmitAction,
+    resetSubmissionStateAction,
   };
 };

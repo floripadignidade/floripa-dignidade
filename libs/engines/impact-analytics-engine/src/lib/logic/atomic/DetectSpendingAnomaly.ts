@@ -18,7 +18,7 @@ const CRITICAL_TRUST_MINIMUM_NUMERIC = 0.3;
  */
 export const DetectSpendingAnomaly = (
   amountNumeric: number,
-  communityTrustScoreNumeric: number
+  communityTrustScoreNumeric: number,
 ): boolean => {
   return (
     amountNumeric > CRITICAL_SPENDING_THRESHOLD_NUMERIC &&

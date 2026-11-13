@@ -35,7 +35,6 @@ export const ConsolidateUnifiedInboxEvents = (
   systemNotificationsCollection: ISystemNotification[],
   directMessagesCollection: IDirectMessage[],
 ): IUnifiedCommunicationEvent[] => {
-
   /**
    * @section Unificación de Señales
    * Transformamos cada entidad específica a su representación visual universal.

@@ -52,9 +52,7 @@ export const ExpenditureTable = (
       aria-label="Tabela de execução orçamentária forense"
     >
       <header className="p-8 border-b border-slate-100 bg-slate-900 text-white">
-        <h2 className="text-xl font-black uppercase tracking-tighter">
-          {tableHeadlineLiteral}
-        </h2>
+        <h2 className="text-xl font-black uppercase tracking-tighter">{tableHeadlineLiteral}</h2>
       </header>
 
       <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200">

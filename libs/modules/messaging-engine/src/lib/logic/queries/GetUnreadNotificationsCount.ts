@@ -35,7 +35,7 @@ const NOTIFICATION_QUERY_IDENTIFIER = 'UNREAD_NOTIFICATIONS_COUNTER_ORCHESTRATOR
  * @throws {InternalSystemException} Si la comunicación con el Tier de Datos colapsa.
  */
 export const GetUnreadNotificationsCount = async (
-  targetRecipientIdentifierLiteral: string
+  targetRecipientIdentifierLiteral: string,
 ): Promise<number> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -64,7 +64,7 @@ export const GetUnreadNotificationsCount = async (
           'system_notifications_ledger',
           `recipient_id=eq.${targetRecipientIdentifierLiteral}&interaction_status=eq.DELIVERED_UNREAD`,
           cloudStorageUrlLiteral,
-          cloudSecurityKeySecret
+          cloudSecurityKeySecret,
         );
 
         // 3. REPORTE DE SINCRONIZACIÓN (Audit Trail)
@@ -76,17 +76,15 @@ export const GetUnreadNotificationsCount = async (
           messageContentLiteral: 'Sincronización del contador de alertas ciudadanas finalizada.',
           contextMetadataSnapshot: {
             recipientId: targetRecipientIdentifierLiteral,
-            unreadQuantity: unreadMessagesQuantityNumeric
+            unreadQuantity: unreadMessagesQuantityNumeric,
           },
         });
 
         return unreadMessagesQuantityNumeric;
-
       } catch (caughtError: unknown) {
         // 4. GESTIÓN FORENSE DE FALLO (Resilience Layer)
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'ERROR',
@@ -100,9 +98,9 @@ export const GetUnreadNotificationsCount = async (
         throw new InternalSystemException('FALLO_EN_CONSULTA_DE_NOTIFICACIONES_SRE', {
           originalErrorLiteral: errorDescriptionLiteral,
           correlationIdentifier,
-          targetRecipient: targetRecipientIdentifierLiteral
+          targetRecipient: targetRecipientIdentifierLiteral,
         });
       }
-    }
+    },
   );
 };

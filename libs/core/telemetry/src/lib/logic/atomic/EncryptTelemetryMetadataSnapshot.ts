@@ -18,7 +18,7 @@ export interface IEncryptedMetadataResult {
 }
 
 export const EncryptTelemetryMetadataSnapshot = async (
-  metadataSnapshot: Record<string, unknown>
+  metadataSnapshot: Record<string, unknown>,
 ): Promise<IEncryptedMetadataResult> => {
   const { cloudStorageAccessSecurityKeySecret } = ExtractTelemetryInfrastructureConfiguration();
 
@@ -31,7 +31,7 @@ export const EncryptTelemetryMetadataSnapshot = async (
     const serializedDataBuffer = textEncoderInstance.encode(JSON.stringify(metadataSnapshot));
 
     const rawKeyBuffer = textEncoderInstance.encode(
-      cloudStorageAccessSecurityKeySecret.substring(0, 32).padEnd(32, '0')
+      cloudStorageAccessSecurityKeySecret.substring(0, 32).padEnd(32, '0'),
     );
 
     const cryptoKeyInstance = await crypto.subtle.importKey(
@@ -39,7 +39,7 @@ export const EncryptTelemetryMetadataSnapshot = async (
       rawKeyBuffer,
       { name: 'AES-GCM' },
       false,
-      ['encrypt']
+      ['encrypt'],
     );
 
     const initializationVectorBuffer = crypto.getRandomValues(new Uint8Array(12));
@@ -50,29 +50,25 @@ export const EncryptTelemetryMetadataSnapshot = async (
         iv: initializationVectorBuffer,
       },
       cryptoKeyInstance,
-      serializedDataBuffer
+      serializedDataBuffer,
     );
 
     const encryptedDataPayloadLiteral = btoa(
-      String.fromCharCode(...new Uint8Array(encryptedDataBuffer))
+      String.fromCharCode(...new Uint8Array(encryptedDataBuffer)),
     );
 
-    const initializationVectorLiteral = btoa(
-      String.fromCharCode(...initializationVectorBuffer)
-    );
+    const initializationVectorLiteral = btoa(String.fromCharCode(...initializationVectorBuffer));
 
     return {
       encryptedDataPayloadLiteral,
       initializationVectorLiteral,
     };
-
   } catch (caughtError: unknown) {
-    const errorDescriptionLiteral = caughtError instanceof Error
-      ? caughtError.message
-      : String(caughtError);
+    const errorDescriptionLiteral =
+      caughtError instanceof Error ? caughtError.message : String(caughtError);
 
     throw new InternalSystemException('COLAPSO_EN_ALGORITMO_DE_CIFRADO_SRE', {
-      errorTrace: errorDescriptionLiteral
+      errorTrace: errorDescriptionLiteral,
     });
   }
 };

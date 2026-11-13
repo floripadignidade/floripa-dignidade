@@ -12,7 +12,7 @@ import type { ITerritorialEntity } from '../../schemas/TerritorialEntity.schema'
  * Mapea una entidad territorial para el protocolo PostgREST Upsert.
  */
 export const MapTerritoryToCloudLedger = (
-  territorialEntitySnapshot: ITerritorialEntity
+  territorialEntitySnapshot: ITerritorialEntity,
 ): Record<string, unknown> => ({
   ibge_id: territorialEntitySnapshot.territorialTechnicalIdentifier,
   name_literal: territorialEntitySnapshot.officialTerritoryNameLiteral,

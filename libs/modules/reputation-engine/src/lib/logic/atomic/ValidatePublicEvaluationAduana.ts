@@ -28,7 +28,7 @@ const ATOM_IDENTIFIER = 'PUBLIC_EVALUATION_ADUANA_ATOM';
  */
 export const ValidatePublicEvaluationAduana = (
   unvalidatedPayloadSnapshot: unknown,
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): IPublicEvaluationPulse => {
   const aduanaValidationResult = PublicEvaluationPulseSchema.safeParse(unvalidatedPayloadSnapshot);
 

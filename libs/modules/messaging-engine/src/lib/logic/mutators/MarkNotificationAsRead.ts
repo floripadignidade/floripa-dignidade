@@ -25,15 +25,21 @@ import {
  * @name MarkAsReadRequestSchema
  * @description Define el contrato de integridad para marcar notificaciones como leídas.
  */
-const MarkAsReadRequestSchema = z.object({
-  /** Identificador único de la notificación capturada en el Ledger. */
-  notificationIdentifier: z.string().uuid()
-    .describe('ID de la alerta de sistema que el ciudadano ha visualizado.'),
+const MarkAsReadRequestSchema = z
+  .object({
+    /** Identificador único de la notificación capturada en el Ledger. */
+    notificationIdentifier: z
+      .string()
+      .uuid()
+      .describe('ID de la alerta de sistema que el ciudadano ha visualizado.'),
 
-  /** UUID del destinatario legítimo para validación de propiedad (RLS Guard). */
-  recipientIdentifier: z.string().uuid()
-    .describe('Identificador del ciudadano para prevenir manipulaciones cruzadas de buzón.'),
-}).readonly();
+    /** UUID del destinatario legítimo para validación de propiedad (RLS Guard). */
+    recipientIdentifier: z
+      .string()
+      .uuid()
+      .describe('Identificador del ciudadano para prevenir manipulaciones cruzadas de buzón.'),
+  })
+  .readonly();
 
 /** Identificador técnico del aparato para el Neural Sentinel. */
 const NOTIFICATION_MUTATOR_IDENTIFIER = 'MARK_NOTIFICATION_READ_MUTATOR';
@@ -49,7 +55,7 @@ const NOTIFICATION_MUTATOR_IDENTIFIER = 'MARK_NOTIFICATION_READ_MUTATOR';
  * @throws {InternalSystemException} Si la persistencia en el Tier de Datos colapsa.
  */
 export const MarkNotificationAsRead = async (
-  unvalidatedRequestSnapshot: unknown
+  unvalidatedRequestSnapshot: unknown,
 ): Promise<boolean> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -80,11 +86,11 @@ export const MarkNotificationAsRead = async (
             operationCodeLiteral: 'ACKNOWLEDGE_ADN_VIOLATION',
             correlationIdentifier,
             messageContentLiteral: 'La estructura de reconocimiento de lectura es inválida.',
-            contextMetadataSnapshot: { issuesCollection: validationResult.error.flatten() }
+            contextMetadataSnapshot: { issuesCollection: validationResult.error.flatten() },
           });
 
           throw new ValidationException('DATOS_DE_LECTURA_INVALIDOS', {
-            issuesCollection: validationResult.error.flatten()
+            issuesCollection: validationResult.error.flatten(),
           });
         }
 
@@ -101,9 +107,9 @@ export const MarkNotificationAsRead = async (
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
-              'apikey': cloudSecurityKeySecret,
-              'Authorization': `Bearer ${cloudSecurityKeySecret}`,
-              'Prefer': 'return=minimal',
+              apikey: cloudSecurityKeySecret,
+              Authorization: `Bearer ${cloudSecurityKeySecret}`,
+              Prefer: 'return=minimal',
             },
             body: JSON.stringify({
               interaction_status: 'ACKNOWLEDGED_READ',
@@ -111,8 +117,8 @@ export const MarkNotificationAsRead = async (
               mutation_correlation_id: correlationIdentifier,
             }),
             /** SRE: Tiempo de espera limitado para mantener la fluidez de la UI */
-            signal: AbortSignal.timeout(8000)
-          }
+            signal: AbortSignal.timeout(8000),
+          },
         );
 
         if (!cloudPersistenceResponse.ok) {
@@ -125,29 +131,29 @@ export const MarkNotificationAsRead = async (
           moduleIdentifierLiteral: NOTIFICATION_MUTATOR_IDENTIFIER,
           operationCodeLiteral: 'NOTIFICATION_MARKED_AS_READ_NOMINAL',
           correlationIdentifier,
-          messageContentLiteral: 'Notificación reconocida y sincronizada exitosamente con el Ledger.',
+          messageContentLiteral:
+            'Notificación reconocida y sincronizada exitosamente con el Ledger.',
           contextMetadataSnapshot: {
             notificationIdentifier,
-            recipientIdentifier
+            recipientIdentifier,
           },
         });
 
         return true;
-
       } catch (caughtError: unknown) {
         // 5. GESTIÓN FORENSE DE FALLO (Resilience Layer)
         if (caughtError instanceof ValidationException) throw caughtError;
 
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'ERROR',
           moduleIdentifierLiteral: NOTIFICATION_MUTATOR_IDENTIFIER,
           operationCodeLiteral: 'MARK_READ_PROCESS_COLLAPSE',
           correlationIdentifier,
-          messageContentLiteral: 'Error crítico al intentar transicionar el estado de la notificación.',
+          messageContentLiteral:
+            'Error crítico al intentar transicionar el estado de la notificación.',
           contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
         });
 
@@ -156,6 +162,6 @@ export const MarkNotificationAsRead = async (
           correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

@@ -20,10 +20,7 @@ import { Heart } from 'lucide-react';
 import { z } from 'zod';
 
 /* 1. Infraestructura Core y Utilidades (Sovereign Swarm - Clean Paths) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 /* 2. Átomos y Moléculas Locales (Internal Swarm - Clean Paths) */
 import { GlobalActionButton } from '../../../atoms/GlobalActionButton';
@@ -37,11 +34,13 @@ import type { IMainNavigationHeaderI18n } from '@floripa-dignidade/shared-ui-con
 /**
  * @section Aduana de ADN (Prop Validation)
  */
-const MobileNavigationDrawerPropertiesSchema = z.object({
-  isOpenBoolean: z.boolean(),
-  /** Validación estructural del diccionario de navegación. */
-  translationDictionary: z.custom<IMainNavigationHeaderI18n>(),
-}).readonly();
+const MobileNavigationDrawerPropertiesSchema = z
+  .object({
+    isOpenBoolean: z.boolean(),
+    /** Validación estructural del diccionario de navegación. */
+    translationDictionary: z.custom<IMainNavigationHeaderI18n>(),
+  })
+  .readonly();
 
 export interface IMobileNavigationDrawerProperties {
   readonly isOpenBoolean: boolean;

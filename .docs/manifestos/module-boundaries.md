@@ -1,14 +1,17 @@
 **Estado:** Aceptado (Prioridad Absoluta)  
 **Referencia Normativa:** ISO/IEC 25010 (Acoplamiento y Cohesión)  
-**Objetivo:** Establecer reglas estrictas de importación para evitar dependencias circulares, garantizar el desacoplamiento de paquetes `@floripa-dignidade/*` y facilitar la auditoría por IA.
+**Objetivo:** Establecer reglas estrictas de importación para evitar dependencias circulares,
+garantizar el desacoplamiento de paquetes `@floripa-dignidade/*` y facilitar la auditoría por IA.
 
 ---
 
 ## 1. Sistema de Clasificación (Tags de Nx)
 
-Cada proyecto en el monorepo debe estar etiquetado en su archivo `project.json` bajo tres dimensiones obligatorias:
+Cada proyecto en el monorepo debe estar etiquetado en su archivo `project.json` bajo tres
+dimensiones obligatorias:
 
 ### 1.1. Dimensión de Ámbito (`scope`)
+
 - `scope:core`: Infraestructura base (telemetry, exceptions, health-monitor).
 - `scope:engines`: Motores de lógica e inteligencia (logic-audit, health-analysis).
 - `scope:modules`: Dominios de negocio (newsletter, human-rights-reports).
@@ -16,6 +19,7 @@ Cada proyecto en el monorepo debe estar etiquetado en su archivo `project.json` 
 - `scope:app`: Aplicaciones finales que ensamblan los módulos.
 
 ### 1.2. Dimensión de Tipo (`type`)
+
 - `type:data`: Acceso a datos, APIs y persistencia.
 - `type:ui`: Componentes visuales y lógica de presentación.
 - `type:logic`: Algoritmos puros y motores de cálculo.
@@ -28,26 +32,29 @@ Cada proyecto en el monorepo debe estar etiquetado en su archivo `project.json` 
 
 Se aplican las siguientes reglas de "Oro" para las importaciones:
 
-| El proyecto con etiqueta... | SOLO puede importar de... | Razón Técnica |
-| :--- | :--- | :--- |
-| `scope:core` | `scope:core` | Los cimientos no deben conocer la lógica de negocio. |
-| `scope:engines` | `scope:core`, `scope:shared` | Los motores usan infraestructura, no módulos. |
-| `scope:modules` | `scope:core`, `scope:shared`, `scope:engines` | Los dominios ensamblan inteligencia y bases. |
-| `scope:shared` | `scope:core` | Recursos comunes deben ser altamente ligeros. |
-| `scope:app` | `scope:*` | Las apps son los orquestadores finales. |
+| El proyecto con etiqueta... | SOLO puede importar de...                     | Razón Técnica                                        |
+| :-------------------------- | :-------------------------------------------- | :--------------------------------------------------- |
+| `scope:core`                | `scope:core`                                  | Los cimientos no deben conocer la lógica de negocio. |
+| `scope:engines`             | `scope:core`, `scope:shared`                  | Los motores usan infraestructura, no módulos.        |
+| `scope:modules`             | `scope:core`, `scope:shared`, `scope:engines` | Los dominios ensamblan inteligencia y bases.         |
+| `scope:shared`              | `scope:core`                                  | Recursos comunes deben ser altamente ligeros.        |
+| `scope:app`                 | `scope:*`                                     | Las apps son los orquestadores finales.              |
 
 ### 2.1. Restricciones por Tipo (Flujo Unidireccional)
+
 - **`type:ui`** NUNCA puede importar de **`type:data`**. (Garantiza que la UI sea presentacional).
-- **`type:data`** NUNCA puede importar de **`type:ui`**. (Evita fugas de renderizado en el servidor).
+- **`type:data`** NUNCA puede importar de **`type:ui`**. (Evita fugas de renderizado en el
+  servidor).
 - **`type:schema`** NUNCA debe importar nada (Son nodos hoja).
 
 ---
 
 ## 3. Implementación Técnica (ESLint)
 
-La aplicación de estas fronteras se delega al plugin `@nx/enforce-module-boundaries` en el archivo `eslint.config.mjs`. Cualquier violación detendrá el pipeline de Integración Continua (CI).
+La aplicación de estas fronteras se delega al plugin `@nx/enforce-module-boundaries` en el archivo
+`eslint.config.mjs`. Cualquier violación detendrá el pipeline de Integración Continua (CI).
 
-```javascript
+````javascript
 // Ejemplo de configuración de límites
 depConstraints: [
   {
@@ -103,3 +110,4 @@ depConstraints: [
     onlyDependOnLibsWithTags: [] // Nodos hoja
   }
 ]
+````

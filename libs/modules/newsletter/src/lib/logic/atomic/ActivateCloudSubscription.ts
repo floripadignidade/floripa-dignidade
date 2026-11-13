@@ -56,10 +56,8 @@ export const ActivateCloudSubscription = async (
          * 🛡️ SANEADO Zenith: Inyección de 'await' para resolver la promesa
          * de la aduana antes de intentar acceder a los secretos del hardware.
          */
-        const {
-          SUPABASE_URL: cloudUrlLiteral,
-          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret,
-        } = await ValidateEnvironmentAduana();
+        const { SUPABASE_URL: cloudUrlLiteral, SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret } =
+          await ValidateEnvironmentAduana();
 
         // 2. CONSTRUCCIÓN DE SEGURIDAD (Delegación Atómica)
         const securityHeaders = BuildCloudPatchHeaders(cloudSecurityKeySecret);
@@ -69,7 +67,7 @@ export const ActivateCloudSubscription = async (
           cloudUrlLiteral,
           securityHeaders,
           verificationTokenLiteral,
-          correlationIdentifier
+          correlationIdentifier,
         );
 
         if (!networkResponse.ok) {
@@ -85,19 +83,19 @@ export const ActivateCloudSubscription = async (
         void EmitTelemetrySignal({
           severityLevelLiteral: activationResult.isActivationSuccessfulBoolean ? 'INFO' : 'WARNING',
           moduleIdentifierLiteral: ACTIVATION_ORCHESTRATOR_IDENTIFIER,
-          operationCodeLiteral: activationResult.isActivationSuccessfulBoolean ? 'CONVERSION_SUCCESS' : 'INVALID_TOKEN',
+          operationCodeLiteral: activationResult.isActivationSuccessfulBoolean
+            ? 'CONVERSION_SUCCESS'
+            : 'INVALID_TOKEN',
           correlationIdentifier,
           messageContentLiteral: 'Proceso de activación de ciudadanía finalizado.',
           contextMetadataSnapshot: { ...activationResult.metadataSnapshot },
         });
 
         return activationResult;
-
       } catch (caughtError: unknown) {
         // 6. GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',

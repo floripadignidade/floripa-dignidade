@@ -19,18 +19,18 @@ import type { IPublicReaction } from '../../schemas/PublicReaction.schema';
  */
 export const TransmitPublicReactionToCloud = async (
   targetApiEndpointLiteral: string,
-  validatedReactionSnapshot: IPublicReaction & { readonly calculatedImpactWeightNumeric: number }
+  validatedReactionSnapshot: IPublicReaction & { readonly calculatedImpactWeightNumeric: number },
 ): Promise<void> => {
   const outgoingResponse = await fetch(targetApiEndpointLiteral, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(validatedReactionSnapshot)
+    body: JSON.stringify(validatedReactionSnapshot),
   });
 
   if (!outgoingResponse.ok) {
     throw new InternalSystemException('FALLO_TRANSMISION_FISICA_REACCION', {
       httpStatus: outgoingResponse.status,
-      targetEndpoint: targetApiEndpointLiteral
+      targetEndpoint: targetApiEndpointLiteral,
     });
   }
 };

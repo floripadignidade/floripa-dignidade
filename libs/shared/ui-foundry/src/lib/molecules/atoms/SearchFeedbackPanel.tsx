@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 export const SearchFeedbackPanel: React.FC<{ isVisibleBoolean: boolean; label: string }> = ({
   isVisibleBoolean,
-  label
+  label,
 }) => {
   if (!isVisibleBoolean) return null;
   return (

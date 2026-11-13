@@ -33,7 +33,7 @@ export interface IPresenceLedgerSnapshot {
  */
 export const MapPresenceToLedgerSnapshot = (
   domainDataSnapshot: IUserPresence,
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): IPresenceLedgerSnapshot => {
   return Object.freeze({
     citizen_id: domainDataSnapshot.citizenIdentifier,

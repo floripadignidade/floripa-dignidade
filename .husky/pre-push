@@ -1,0 +1,49 @@
+# .husky/pre-push
+set -e
+
+zero_sha="0000000000000000000000000000000000000000"
+has_active_push_commits="false"
+is_pushing_to_main="false"
+
+while IFS=' ' read -r local_ref local_sha remote_ref _remote_sha; do
+  if [ "$local_sha" != "$zero_sha" ]; then
+    has_active_push_commits="true"
+  fi
+  if [ "$remote_ref" = "refs/heads/main" ] || [ "$local_ref" = "refs/heads/main" ]; then
+    is_pushing_to_main="true"
+  fi
+done
+
+if [ "$has_active_push_commits" = "false" ]; then
+  exit 0
+fi
+
+echo ""
+echo "========================================================================"
+echo " [FLORIPA DIGNIDADE - PRE-PUSH QUALITY SHIELD (ADR 0027 / ISO 25010)]"
+echo "========================================================================"
+
+if [ "$is_pushing_to_main" = "true" ]; then
+  echo "[PRE-PUSH]: Push hacia rama main detectado. Ejecutando preflight completo..."
+  pnpm preflight
+else
+  if git rev-parse --verify origin/main >/dev/null 2>&1; then
+    export NX_BASE="origin/main"
+  fi
+  echo "[PRE-PUSH]: Ejecutando auditoria incremental (affected) y contratos..."
+  pnpm prepush:check
+fi
+
+# Verificar si los diccionarios i18n compilados quedaron desincronizados respecto al commit
+stale_dictionaries=$(git diff --name-only -- apps/floripa-dignidade/src/app/i18n/dictionaries/)
+if [ -n "$stale_dictionaries" ]; then
+  echo "" >&2
+  echo "[I18N_SYNC_BLOCK]: Los diccionarios unificados cambiaron tras ejecutar weaver:build:" >&2
+  echo "$stale_dictionaries" >&2
+  echo "Ejecuta 'pnpm weaver:build' e incluye estos archivos en un commit antes del push." >&2
+  exit 1
+fi
+
+echo ""
+echo "[PRE-PUSH]: Todas las aduanas de calidad superadas. Autorizando push remoto."
+echo ""

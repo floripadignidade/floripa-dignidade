@@ -7,10 +7,7 @@
  * @author Dirección de Ingeniería - Floripa Dignidade
  */
 
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 import { InternalSystemException } from '@floripa-dignidade/exceptions';
 
@@ -30,7 +27,7 @@ export const ValidateLinguisticContract = (
   apparatusIdentifierLiteral: string,
   contractSovereignSchema: ZodTypeAny, // SANEADO: Uso directo del tipo sin instanciar 'z'
   jsonDictionaryPayload: unknown,
-  targetLocaleIdentifier: string
+  targetLocaleIdentifier: string,
 ): void => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -57,7 +54,7 @@ export const ValidateLinguisticContract = (
     throw new InternalSystemException('VIOLACION_DE_CONTRATO_LINGUISTICO', {
       apparatusIdentifierLiteral,
       targetLocaleIdentifier,
-      validationIssues: errorMetadata
+      validationIssues: errorMetadata,
     });
   }
 

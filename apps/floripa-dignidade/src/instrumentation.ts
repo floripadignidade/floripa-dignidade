@@ -1,49 +1,48 @@
 /**
- * @section Application Bootstrap - Instrumentation Orchestrator
- * @description Sensor de frontera encargado de la secuencia de arranque del servidor.
- * Ejecuta la auditoría de integridad de infraestructura (Aduana de Entorno)
+ * @section Application Bootstrap - Instrumentation Hook Orchestrator
+ * @description Sensor perimetral encargado de la secuencia de arranque del servidor.
+ * Ejecuta la verificación de integridad de infraestructura y secretos cloud
  * antes de habilitar el procesamiento de tráfico ciudadano en Next.js 16+.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Async Bootstrap Integrity.
- * SANEADO Zenith: Erradicación de acceso directo a 'process.env', blindaje ante
- * entornos de cliente y reporte forense de colapsos estructurales.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & SRE Observability).
+ * Normas: ISO/IEC 11179 (Nomenclatura Técnica) e ISO/IEC 25010 (Confiabilidad y Seguridad).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import {
+  GatherEnvironmentMetadata,
+  ValidateEnvironmentContract,
+} from '@floripa-dignidade/environment-validator';
+import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  type OperationCode,
 } from '@floripa-dignidade/telemetry';
 
-import {
-  GatherEnvironmentMetadata,
-  ValidateEnvironmentAduana
-} from '@floripa-dignidade/environment-validator';
+/** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
+const BOOTSTRAP_MODULE_IDENTIFIER = 'APPLICATION_BOOTSTRAP' as ModuleIdentifier;
 
 /**
- * Función soberana de registro invocada por el motor de Next.js al inicializar el nodo.
- * Implementa un bloqueo preventivo: si el ADN del entorno es inválido, el proceso
- * de arranque colapsa con rastro forense, protegiendo la integridad del sistema.
- *
- * 🛡️ LEY ZENITH: Esta función es el único punto de entrada permitido para
- * validaciones de hardware antes de la hidratación de rutas.
+ * Función primaria de registro invocada por el motor de Next.js al inicializar el nodo.
+ * Implementa un bloqueo preventivo Fail-Fast: si la configuración de entorno es inválida,
+ * el proceso de arranque colapsa con rastro forense, protegiendo la integridad del sistema.
  *
  * @returns {Promise<void>} Promesa que se resuelve únicamente si la infraestructura es nominal.
  */
 export async function register(): Promise<void> {
   /**
    * @section Validación de Ámbito de Ejecución
-   * SANEADO Zenith: Determinación isomórfica del entorno.
-   * La instrumentación es exclusiva de la capa de servidor (Node/Edge).
+   * Determinación isomórfica del entorno: la instrumentación es exclusiva
+   * de la capa de servidor (Node.js o Edge Runtime).
    */
   const environmentMetadataSnapshot = GatherEnvironmentMetadata();
   const executionRuntimeIdentifierLiteral = environmentMetadataSnapshot['NEXT_RUNTIME'] ?? 'nodejs';
 
   const isServerEnvironmentBoolean =
-    executionRuntimeIdentifierLiteral === 'nodejs' ||
-    executionRuntimeIdentifierLiteral === 'edge';
+    executionRuntimeIdentifierLiteral === 'nodejs' || executionRuntimeIdentifierLiteral === 'edge';
 
   if (!isServerEnvironmentBoolean) {
     return;
@@ -53,54 +52,70 @@ export async function register(): Promise<void> {
 
   // 1. REPORTE DE INICIO DE SECUENCIA (SRE Visibility)
   void EmitTelemetrySignal({
+    occurrenceTimestampISO: new Date().toISOString(),
     severityLevelLiteral: 'INFO',
-    moduleIdentifierLiteral: 'APPLICATION_BOOTSTRAP',
-    operationCodeLiteral: 'BOOTSTRAP_SEQUENCE_STARTED',
+    moduleIdentifierLiteral: BOOTSTRAP_MODULE_IDENTIFIER,
+    operationCodeLiteral: 'BOOTSTRAP_SEQUENCE_STARTED' as OperationCode,
     correlationIdentifier: bootstrapCorrelationIdentifier,
-    messageContentLiteral: 'Iniciando secuencia de instrumentación Zenith: Auditoría de cimientos en curso.',
-    contextMetadataSnapshot: { runtimeIdentifierLiteral: executionRuntimeIdentifierLiteral }
+    messageContentLiteral:
+      'Iniciando secuencia de instrumentación técnica: Auditoría de cimientos en curso.',
+    semanticIntentTag: 'SERVER_BOOTSTRAP_START',
+    contextMetadataSnapshot: {
+      runtimeIdentifierLiteral: executionRuntimeIdentifierLiteral,
+    },
   });
 
   try {
     /**
-     * 2. ACTIVACIÓN DE LA ADUANA DE ENTORNO (Integrity Guardian)
-     * Realiza el chequeo de ADN de todos los secretos cloud (Supabase, Resend, etc).
+     * 2. AUDITORÍA DE INFRAESTRUCTURA Y SECRETOS (Fail-Fast Guardian)
+     * Verifica la integridad estructural de todos los secretos cloud requeridos.
      */
-    await ValidateEnvironmentAduana();
+    await ValidateEnvironmentContract();
 
     // 3. REPORTE DE ESTADO NOMINAL (Ready for Traffic)
     void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'INFO',
-      moduleIdentifierLiteral: 'APPLICATION_BOOTSTRAP',
-      operationCodeLiteral: 'BOOTSTRAP_SEQUENCE_NOMINAL',
+      moduleIdentifierLiteral: BOOTSTRAP_MODULE_IDENTIFIER,
+      operationCodeLiteral: 'BOOTSTRAP_SEQUENCE_NOMINAL' as OperationCode,
       correlationIdentifier: bootstrapCorrelationIdentifier,
-      messageContentLiteral: 'Aduanas de infraestructura superadas con éxito. El enjambre está listo para operar.'
-    });
-
-  } catch (caughtBootstrapError: unknown) {
-    /**
-     * @section Gestión de Colapso de Arranque
-     * Capturamos la excepción para el rastro forense antes de forzar el fallo del nodo.
-     */
-    const errorDescriptionLiteral = caughtBootstrapError instanceof Error
-      ? caughtBootstrapError.message
-      : String(caughtBootstrapError);
-
-    void EmitTelemetrySignal({
-      severityLevelLiteral: 'CRITICAL',
-      moduleIdentifierLiteral: 'APPLICATION_BOOTSTRAP',
-      operationCodeLiteral: 'BOOTSTRAP_CRITICAL_COLLAPSE',
-      correlationIdentifier: bootstrapCorrelationIdentifier,
-      messageContentLiteral: `El arranque del sistema ha sido bloqueado por seguridad: ${errorDescriptionLiteral}`,
+      messageContentLiteral:
+        'Cimientos de infraestructura validados con éxito. El portal está listo para operar.',
+      semanticIntentTag: 'SERVER_BOOTSTRAP_READY',
       contextMetadataSnapshot: {
         runtimeIdentifierLiteral: executionRuntimeIdentifierLiteral,
-        errorTypeLiteral: caughtBootstrapError instanceof Error ? caughtBootstrapError.name : 'UnknownFault'
-      }
+      },
+    });
+  } catch (caughtBootstrapError: unknown) {
+    /**
+     * @section Gestión Forense de Colapso de Arranque
+     * Captura el rastro de la falla en telemetría antes de propagar la interrupción del nodo.
+     */
+    const errorDescriptionLiteral =
+      caughtBootstrapError instanceof Error
+        ? caughtBootstrapError.message
+        : String(caughtBootstrapError);
+
+    void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
+      severityLevelLiteral: 'CRITICAL',
+      moduleIdentifierLiteral: BOOTSTRAP_MODULE_IDENTIFIER,
+      operationCodeLiteral: 'BOOTSTRAP_CRITICAL_COLLAPSE' as OperationCode,
+      correlationIdentifier: bootstrapCorrelationIdentifier,
+      messageContentLiteral: `El arranque del sistema ha sido bloqueado por seguridad: ${errorDescriptionLiteral}`,
+      semanticIntentTag: 'SERVER_BOOTSTRAP_COLLAPSE',
+      contextMetadataSnapshot: {
+        runtimeIdentifierLiteral: executionRuntimeIdentifierLiteral,
+        errorTypeLiteral:
+          caughtBootstrapError instanceof Error
+            ? caughtBootstrapError.name
+            : 'UnknownBootstrapFault',
+      },
     });
 
     /**
-     * Propagamos el error para asegurar que Vercel marque el despliegue
-     * como fallido, impidiendo la publicación de un portal con cimientos rotos.
+     * Propagación de la excepción para asegurar que Vercel marque el despliegue
+     * como fallido en caso de que falten variables críticas en producción.
      */
     throw caughtBootstrapError;
   }

@@ -32,13 +32,9 @@ export type ContentFingerprint = z.infer<typeof ContentFingerprintSchema>;
 /**
  * @section Taxonomía de Severidad
  */
-export const SeverityLevelSchema = z.enum([
-  'DEBUG',
-  'INFO',
-  'WARNING',
-  'ERROR',
-  'CRITICAL'
-]).describe('Niveles de prioridad para el triaje y escalado en el Neural Sentinel.');
+export const SeverityLevelSchema = z
+  .enum(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
+  .describe('Niveles de prioridad para el triaje y escalado en el Neural Sentinel.');
 
 export type SeverityLevel = z.infer<typeof SeverityLevelSchema>;
 
@@ -47,62 +43,76 @@ export type SeverityLevel = z.infer<typeof SeverityLevelSchema>;
  * @description Contrato maestro de un pulso telemétrico de alta fidelidad.
  * Diseñado para ser inmutable y resistente a la manipulación de evidencia.
  */
-export const TelemetrySignalSchema = z.object({
-  /** Marca temporal inmutable del evento (ISO 8601). */
-  occurrenceTimestampISO: z.string().datetime()
-    .describe('Marca de tiempo exacta de la interacción física capturada por el hardware.'),
+export const TelemetrySignalSchema = z
+  .object({
+    /** Marca temporal inmutable del evento (ISO 8601). */
+    occurrenceTimestampISO: z
+      .string()
+      .datetime()
+      .describe('Marca de tiempo exacta de la interacción física capturada por el hardware.'),
 
-  /** Prioridad técnica de la señal. */
-  severityLevelLiteral: SeverityLevelSchema,
+    /** Prioridad técnica de la señal. */
+    severityLevelLiteral: SeverityLevelSchema,
 
-  /** Identificador nominal del búnker emisor (ISO: Objeto). */
-  moduleIdentifierLiteral: ModuleIdentifierSchema,
+    /** Identificador nominal del búnker emisor (ISO: Objeto). */
+    moduleIdentifierLiteral: ModuleIdentifierSchema,
 
-  /** Código semántico de la acción realizada (ISO: Propiedad). */
-  operationCodeLiteral: OperationCodeSchema,
+    /** Código semántico de la acción realizada (ISO: Propiedad). */
+    operationCodeLiteral: OperationCodeSchema,
 
-  /** Rastro forense cross-module que vincula toda la transacción digital. */
-  correlationIdentifier: CorrelationIdentifierSchema,
+    /** Rastro forense cross-module que vincula toda la transacción digital. */
+    correlationIdentifier: CorrelationIdentifierSchema,
 
-  /** Mensaje descriptivo o clave de diccionario i18n para auditoría humana. */
-  messageContentLiteral: z.string()
-    .describe('Representación textual o semántica del evento capturado.'),
+    /** Mensaje descriptivo o clave de diccionario i18n para auditoría humana. */
+    messageContentLiteral: z
+      .string()
+      .describe('Representación textual o semántica del evento capturado.'),
 
-  /**
-   * @section Capa Merkle (Cadena de Custodia)
-   */
-  previousEventHashFingerprint: ContentFingerprintSchema.optional()
-    .describe('Huella digital del log cronológicamente anterior en el Ledger.'),
+    /**
+     * @section Capa Merkle (Cadena de Custodia)
+     */
+    previousEventHashFingerprint: ContentFingerprintSchema.optional().describe(
+      'Huella digital del log cronológicamente anterior en el Ledger.',
+    ),
 
-  contentHashFingerprint: ContentFingerprintSchema.optional()
-    .describe('Firma SHA-256 del contenido actual para garantizar la inalterabilidad.'),
+    contentHashFingerprint: ContentFingerprintSchema.optional().describe(
+      'Firma SHA-256 del contenido actual para garantizar la inalterabilidad.',
+    ),
 
-  /**
-   * @section Capa de Privacidad y Blindaje PII
-   */
-  isEncryptedPayloadBoolean: z.boolean().default(false)
-    .describe('Indica si el snapshot de metadatos ha sido cifrado mediante AES-256-GCM.'),
+    /**
+     * @section Capa de Privacidad y Blindaje PII
+     */
+    isEncryptedPayloadBoolean: z
+      .boolean()
+      .default(false)
+      .describe('Indica si el snapshot de metadatos ha sido cifrado mediante AES-256-GCM.'),
 
-  /** 🛡️ SANEADO Zenith: Requerido para el descifrado de datos sensibles. */
-  encryptionInitializationVectorLiteral: z.string().optional()
-    .describe('Token Base64 del IV utilizado en el algoritmo de cifrado simétrico.'),
+    /** 🛡️ SANEADO Zenith: Requerido para el descifrado de datos sensibles. */
+    encryptionInitializationVectorLiteral: z
+      .string()
+      .optional()
+      .describe('Token Base64 del IV utilizado en el algoritmo de cifrado simétrico.'),
 
-  /** Etiqueta ontológica para el diagnóstico de la IA (Ej: "AUTH_BYPASS_ATTEMPT"). */
-  semanticIntentTag: z.string().optional()
-    .describe('Clasificación lógica para el motor de análisis de salud algorítmica.'),
+    /** Etiqueta ontológica para el diagnóstico de la IA (Ej: "AUTH_BYPASS_ATTEMPT"). */
+    semanticIntentTag: z
+      .string()
+      .optional()
+      .describe('Clasificación lógica para el motor de análisis de salud algorítmica.'),
 
-  /** Métrica de rendimiento capturada en microsegundos. */
-  executionLatencyInMillisecondsQuantity: z.number()
-    .nonnegative()
-    .optional()
-    .describe('Tiempo de procesamiento medido físicamente por el runtime.'),
+    /** Métrica de rendimiento capturada en microsegundos. */
+    executionLatencyInMillisecondsQuantity: z
+      .number()
+      .nonnegative()
+      .optional()
+      .describe('Tiempo de procesamiento medido físicamente por el runtime.'),
 
-  /** Captura inmutable de estado adicional (Contextual Snapshot). */
-  contextMetadataSnapshot: z.record(z.string(), z.unknown())
-    .optional()
-    .describe('Diccionario de variables de entorno y estados del búnker emisor.'),
-
-}).readonly(); // Inmutabilidad forzada en el ADN de datos.
+    /** Captura inmutable de estado adicional (Contextual Snapshot). */
+    contextMetadataSnapshot: z
+      .record(z.string(), z.unknown())
+      .optional()
+      .describe('Diccionario de variables de entorno y estados del búnker emisor.'),
+  })
+  .readonly(); // Inmutabilidad forzada en el ADN de datos.
 
 /** 🛡️ ADN Tipado para el Enjambre de Telemetría Zenith */
 export type ITelemetrySignal = z.infer<typeof TelemetrySignalSchema>;

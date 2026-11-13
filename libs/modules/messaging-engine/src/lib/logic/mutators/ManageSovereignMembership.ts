@@ -18,10 +18,7 @@ import { z } from 'zod';
 
 /* 1. Infraestructura Core de Entorno, Excepciones y Telemetría */
 import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
-import {
-  InternalSystemException,
-  ValidationException,
-} from '@floripa-dignidade/exceptions';
+import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
 
 import {
   EmitTelemetrySignal,
@@ -98,17 +95,15 @@ export const ManageEnterpriseGroupMembership = async (
     correlationIdentifier,
     async (): Promise<boolean> => {
       // 1. VALIDACIÓN PERIMETRAL DE ENTRADA (Contract Guard)
-      const parametersValidationResultSnapshot =
-        ManageGroupMembershipParametersSchema.safeParse({
-          groupIdentifierLiteral,
-          citizenIdentifierLiteral,
-          targetStatusLiteral,
-        });
+      const parametersValidationResultSnapshot = ManageGroupMembershipParametersSchema.safeParse({
+        groupIdentifierLiteral,
+        citizenIdentifierLiteral,
+        targetStatusLiteral,
+      });
 
       if (!parametersValidationResultSnapshot.success) {
         throw new ValidationException('PARAMETROS_MUTACION_MEMBRESIA_INVALIDOS', {
-          validationIssuesCollection:
-            parametersValidationResultSnapshot.error.flatten(),
+          validationIssuesCollection: parametersValidationResultSnapshot.error.flatten(),
           correlationIdentifier,
         });
       }
@@ -142,17 +137,13 @@ export const ManageEnterpriseGroupMembership = async (
         );
 
         // 5. REPORTE DE TELEMETRÍA FORENSE (Visibilidad Operativa)
-        const isStatusCriticalWarningBoolean =
-          targetStatusLiteral === 'BANNED_BY_MODERATION';
+        const isStatusCriticalWarningBoolean = targetStatusLiteral === 'BANNED_BY_MODERATION';
 
         void EmitTelemetrySignal({
           occurrenceTimestampISO: new Date().toISOString(),
-          severityLevelLiteral: isStatusCriticalWarningBoolean
-            ? 'WARNING'
-            : 'INFO',
+          severityLevelLiteral: isStatusCriticalWarningBoolean ? 'WARNING' : 'INFO',
           moduleIdentifierLiteral: MEMBERSHIP_ORCHESTRATOR_IDENTIFIER,
-          operationCodeLiteral:
-            'MEMBERSHIP_STATE_SYNCHRONIZED' as OperationCode,
+          operationCodeLiteral: 'MEMBERSHIP_STATE_SYNCHRONIZED' as OperationCode,
           correlationIdentifier,
           messageContentLiteral: `Estado de membresía institucional actualizado exitosamente: [${targetStatusLiteral}].`,
           semanticIntentTag: 'COMMUNITY_GOVERNANCE_MUTATION',
@@ -179,11 +170,9 @@ export const ManageEnterpriseGroupMembership = async (
           occurrenceTimestampISO: new Date().toISOString(),
           severityLevelLiteral: 'CRITICAL',
           moduleIdentifierLiteral: MEMBERSHIP_ORCHESTRATOR_IDENTIFIER,
-          operationCodeLiteral:
-            'MEMBERSHIP_TRANSITION_COLLAPSE' as OperationCode,
+          operationCodeLiteral: 'MEMBERSHIP_TRANSITION_COLLAPSE' as OperationCode,
           correlationIdentifier,
-          messageContentLiteral:
-            'Error crítico al intentar transicionar el estado de membresía.',
+          messageContentLiteral: 'Error crítico al intentar transicionar el estado de membresía.',
           semanticIntentTag: 'GOVERNANCE_INFRASTRUCTURE_FAULT',
           contextMetadataSnapshot: {
             errorTraceLiteral: errorDescriptionLiteral,
@@ -191,14 +180,11 @@ export const ManageEnterpriseGroupMembership = async (
           },
         });
 
-        throw new InternalSystemException(
-          'FALLO_EN_TRANSICION_DE_MEMBRESIA_SRE',
-          {
-            originalErrorLiteral: errorDescriptionLiteral,
-            correlationIdentifier,
-            targetStatusLiteral,
-          },
-        );
+        throw new InternalSystemException('FALLO_EN_TRANSICION_DE_MEMBRESIA_SRE', {
+          originalErrorLiteral: errorDescriptionLiteral,
+          correlationIdentifier,
+          targetStatusLiteral,
+        });
       }
     },
   );

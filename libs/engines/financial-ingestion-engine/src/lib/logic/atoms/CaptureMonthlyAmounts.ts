@@ -31,14 +31,17 @@ import type { IExtractionContext } from '../../schemas/ExtractionContext.schema'
  */
 export const CaptureMonthlyAmounts = (
   currentRowInstance: Row,
-  processContext: IExtractionContext
+  processContext: IExtractionContext,
 ): void => {
   /**
    * @section Puente de Mutabilidad (Bypass de Solo Lectura)
    * SANEADO Zenith: El casteo permite la operación '.push()' en la colección
    * residentes en el contexto sin comprometer el contrato '.readonly()' externo.
    */
-  const mutableRecordsCollectionReference = processContext.recordsCollection as Record<string, unknown>[];
+  const mutableRecordsCollectionReference = processContext.recordsCollection as Record<
+    string,
+    unknown
+  >[];
 
   /**
    * @section Ciclo de Captura Mensual
@@ -56,9 +59,7 @@ export const CaptureMonthlyAmounts = (
        * del Tier Gratuito (ADR 0015).
        */
       const isRecordWorthProcessingBoolean =
-        !!rawAmountLiteral &&
-        rawAmountLiteral !== 'R$ 0,00' &&
-        rawAmountLiteral !== '0';
+        !!rawAmountLiteral && rawAmountLiteral !== 'R$ 0,00' && rawAmountLiteral !== '0';
 
       if (isRecordWorthProcessingBoolean) {
         /**
@@ -72,6 +73,6 @@ export const CaptureMonthlyAmounts = (
           allocatedAmountNumeric: rawAmountLiteral,
         });
       }
-    }
+    },
   );
 };

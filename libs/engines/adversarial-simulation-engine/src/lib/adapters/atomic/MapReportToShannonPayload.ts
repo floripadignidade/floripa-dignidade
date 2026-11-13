@@ -12,14 +12,14 @@ import type { IForensicAuditReport } from '../../schemas/ForensicAuditReport.sch
 
 /**
  * Transforma un reporte de auditoría en un objeto compatible con Shannon AI.
- * 
+ *
  * @param forensicReportSnapshot - Datos de la simulación.
  * @returns {Record<string, unknown>} Payload enriquecido semánticamente.
  */
 export const MapReportToShannonPayload = (
-  forensicReportSnapshot: IForensicAuditReport
+  forensicReportSnapshot: IForensicAuditReport,
 ): Record<string, unknown> => {
-  const hasDetectedVulnerabilitiesBoolean = 
+  const hasDetectedVulnerabilitiesBoolean =
     forensicReportSnapshot.detectedVulnerabilitiesCollection.length > 0;
 
   /**

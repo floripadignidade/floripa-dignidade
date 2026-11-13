@@ -28,7 +28,7 @@ export {
   SearchResponseSchema,
   SearchAuthorityRoleSchema,
   SearchEntityCategorySchema,
-  SearchableEntityIdentifierSchema
+  SearchableEntityIdentifierSchema,
 } from './lib/schemas/SearchEngine.schema';
 
 export type {
@@ -36,20 +36,16 @@ export type {
   ISearchResponse,
   SearchAuthorityRole,
   SearchEntityCategory,
-  SearchableEntityIdentifier
+  SearchableEntityIdentifier,
 } from './lib/schemas/SearchEngine.schema';
 
 /**
  * @section Capa 2: Almas Lingüísticas (i18n)
  * @description Esquemas de traducción para la interfaz de búsqueda.
  */
-export {
-  SearchEngineI18nSchema
-} from './lib/i18n/SearchEngineI18n.schema';
+export { SearchEngineI18nSchema } from './lib/i18n/SearchEngineI18n.schema';
 
-export type {
-  ISearchEngineI18n
-} from './lib/i18n/SearchEngineI18n.schema';
+export type { ISearchEngineI18n } from './lib/i18n/SearchEngineI18n.schema';
 
 /**
  * @section Capa 3: Lógica de Descubrimiento (Discovery Logic)

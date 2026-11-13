@@ -9,27 +9,32 @@
 
 import { z } from 'zod';
 
-export const SocialEfficiencyReportSchema = z.object({
-  /** Referencia al gasto de la PMF auditado. */
-  expenditureIdentifier: z.string().describe('Hash determinista del gasto (FD-XXXX).'),
+export const SocialEfficiencyReportSchema = z
+  .object({
+    /** Referencia al gasto de la PMF auditado. */
+    expenditureIdentifier: z.string().describe('Hash determinista del gasto (FD-XXXX).'),
 
-  /** Datos del cruzamiento territorial. */
-  territorialContext: z.object({
-    ibgeIdentifier: z.string(),
-    territoryNameLiteral: z.string(),
-  }),
+    /** Datos del cruzamiento territorial. */
+    territorialContext: z.object({
+      ibgeIdentifier: z.string(),
+      territoryNameLiteral: z.string(),
+    }),
 
-  /** Métricas de Comparación (Cruce). */
-  analysisMetrics: z.object({
-    executedAmountNumeric: z.number().describe('Dinero invertido por la municipalidad.'),
-    communityTrustScoreNumeric: z.number().describe('Nivel de aprobación ciudadana (0-1).'),
-    efficiencyIndexNumeric: z.number().describe('Ratio calculado: Impacto por cada Real invertido.'),
-  }),
+    /** Métricas de Comparación (Cruce). */
+    analysisMetrics: z.object({
+      executedAmountNumeric: z.number().describe('Dinero invertido por la municipalidad.'),
+      communityTrustScoreNumeric: z.number().describe('Nivel de aprobación ciudadana (0-1).'),
+      efficiencyIndexNumeric: z
+        .number()
+        .describe('Ratio calculado: Impacto por cada Real invertido.'),
+    }),
 
-  /** Inferencia de la IA. */
-  anomalyAlertBoolean: z.boolean().describe('Verdadero si el gasto es alto y la confianza es crítica.'),
-  generationTimestampISO: z.string().datetime(),
-
-}).readonly();
+    /** Inferencia de la IA. */
+    anomalyAlertBoolean: z
+      .boolean()
+      .describe('Verdadero si el gasto es alto y la confianza es crítica.'),
+    generationTimestampISO: z.string().datetime(),
+  })
+  .readonly();
 
 export type ISocialEfficiencyReport = z.infer<typeof SocialEfficiencyReportSchema>;

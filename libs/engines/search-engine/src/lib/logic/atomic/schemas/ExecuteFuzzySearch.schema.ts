@@ -19,7 +19,7 @@ import { z } from 'zod';
  */
 import {
   SearchAuthorityRoleSchema,
-  SearchIndexSchema
+  SearchIndexSchema,
 } from '../../../schemas/SearchEngine.schema.js';
 
 /**
@@ -27,23 +27,27 @@ import {
  * @description Aduana de entrada para el orquestador de búsqueda.
  * Implementa el patrón "Fail-Fast" para proteger el Main Thread.
  */
-export const ExecuteFuzzySearchParametersSchema = z.object({
-  /** El término de búsqueda ingresado por el ciudadano. */
-  searchQueryLiteral: z.string().trim()
-    .min(1, { message: 'SEARCH_QUERY_TOO_SHORT' })
-    .describe('Cadena de caracteres capturada para el análisis de coincidencia.'),
+export const ExecuteFuzzySearchParametersSchema = z
+  .object({
+    /** El término de búsqueda ingresado por el ciudadano. */
+    searchQueryLiteral: z
+      .string()
+      .trim()
+      .min(1, { message: 'SEARCH_QUERY_TOO_SHORT' })
+      .describe('Cadena de caracteres capturada para el análisis de coincidencia.'),
 
-  /** La colección completa de entidades registradas en el índice. */
-  completeIndexCollection: z.array(SearchIndexSchema)
-    .min(1, { message: 'SEARCH_INDEX_COLLECTION_EMPTY' })
-    .describe('Universo total de datos autorizados para el descubrimiento.'),
+    /** La colección completa de entidades registradas en el índice. */
+    completeIndexCollection: z
+      .array(SearchIndexSchema)
+      .min(1, { message: 'SEARCH_INDEX_COLLECTION_EMPTY' })
+      .describe('Universo total de datos autorizados para el descubrimiento.'),
 
-  /** Rango de autoridad institucional del actor que realiza la consulta. */
-  authenticatedUserAuthorityRole: SearchAuthorityRoleSchema
-    .default('CITIZEN_ANONYMOUS')
-    .describe('Nivel de acceso RBAC del ciudadano (Identity Sync).'),
-
-}).readonly();
+    /** Rango de autoridad institucional del actor que realiza la consulta. */
+    authenticatedUserAuthorityRole: SearchAuthorityRoleSchema.default('CITIZEN_ANONYMOUS').describe(
+      'Nivel de acceso RBAC del ciudadano (Identity Sync).',
+    ),
+  })
+  .readonly();
 
 /** 🛡️ ADN Tipado para exportación Verbatim */
 export type IExecuteFuzzySearchParameters = z.infer<typeof ExecuteFuzzySearchParametersSchema>;

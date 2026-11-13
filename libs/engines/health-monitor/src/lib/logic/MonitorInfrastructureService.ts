@@ -72,7 +72,8 @@ export const MonitorInfrastructureService = async (
       `INFRASTRUCTURE_SERVICE_FAULT: ${targetServiceNameLiteral}`,
       {
         targetServiceNameLiteral,
-        originalErrorMessageLiteral: caughtError instanceof Error ? caughtError.message : String(caughtError),
+        originalErrorMessageLiteral:
+          caughtError instanceof Error ? caughtError.message : String(caughtError),
         correlationIdentifier,
       },
     );
@@ -114,8 +115,8 @@ export const MonitorInfrastructureService = async (
       infrastructureHealthStatus === 'DOWN'
         ? 'CRITICAL'
         : infrastructureHealthStatus === 'DEGRADED'
-        ? 'WARNING'
-        : 'INFO',
+          ? 'WARNING'
+          : 'INFO',
     moduleIdentifier: MONITOR_MODULE_IDENTIFIER,
     operationCode: `HEALTH_PROBE_FINISHED_${targetServiceNameLiteral.toUpperCase()}`,
     correlationIdentifier,

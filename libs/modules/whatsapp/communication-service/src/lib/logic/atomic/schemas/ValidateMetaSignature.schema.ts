@@ -6,12 +6,14 @@
 
 import { z } from 'zod';
 
-export const ValidateMetaSignatureSchema = z.object({
-  /** Cuerpo de la petición en formato texto plano para el cálculo del hash. */
-  rawRequestBodyLiteral: z.string().min(1),
+export const ValidateMetaSignatureSchema = z
+  .object({
+    /** Cuerpo de la petición en formato texto plano para el cálculo del hash. */
+    rawRequestBodyLiteral: z.string().min(1),
 
-  /** Cabecera X-Hub-Signature-256 enviada por los servidores de Meta. */
-  xHubSignatureHeaderLiteral: z.string().startsWith('sha256='),
-}).readonly();
+    /** Cabecera X-Hub-Signature-256 enviada por los servidores de Meta. */
+    xHubSignatureHeaderLiteral: z.string().startsWith('sha256='),
+  })
+  .readonly();
 
 export type IValidateMetaSignatureParameters = z.infer<typeof ValidateMetaSignatureSchema>;

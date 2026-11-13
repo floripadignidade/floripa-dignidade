@@ -46,11 +46,11 @@ export const usePresenceSentry = (): IUsePresenceSentryResult => {
    * objetos literales en el mapeo de Zustand.
    */
   const SetAvailabilityStatusAction = useGlobalStateStore(
-    (state: IGlobalSovereignStore) => state.SetAvailabilityStatusAction
+    (state: IGlobalSovereignStore) => state.SetAvailabilityStatusAction,
   );
 
   const availabilityStatus = useGlobalStateStore(
-    (state: IGlobalSovereignStore) => state.availabilityStatus
+    (state: IGlobalSovereignStore) => state.availabilityStatus,
   );
 
   /**
@@ -61,7 +61,7 @@ export const usePresenceSentry = (): IUsePresenceSentryResult => {
     // 1. Captura de señales físicas del dispositivo
     const targetStatusLiteral = DetermineTargetPresenceStatus({
       isNavigatorOnlineBoolean: navigator.onLine,
-      documentVisibilityStateLiteral: document.visibilityState
+      documentVisibilityStateLiteral: document.visibilityState,
     });
 
     // 2. Commmit selectivo (Evita mutaciones redundantes)
@@ -78,11 +78,31 @@ export const usePresenceSentry = (): IUsePresenceSentryResult => {
      */
     const hardwareListenerOptionsConfiguration = { passive: true };
 
-    window.addEventListener('focus', executePresenceSynchronizationAction, hardwareListenerOptionsConfiguration);
-    window.addEventListener('blur', executePresenceSynchronizationAction, hardwareListenerOptionsConfiguration);
-    window.addEventListener('online', executePresenceSynchronizationAction, hardwareListenerOptionsConfiguration);
-    window.addEventListener('offline', executePresenceSynchronizationAction, hardwareListenerOptionsConfiguration);
-    document.addEventListener('visibilitychange', executePresenceSynchronizationAction, hardwareListenerOptionsConfiguration);
+    window.addEventListener(
+      'focus',
+      executePresenceSynchronizationAction,
+      hardwareListenerOptionsConfiguration,
+    );
+    window.addEventListener(
+      'blur',
+      executePresenceSynchronizationAction,
+      hardwareListenerOptionsConfiguration,
+    );
+    window.addEventListener(
+      'online',
+      executePresenceSynchronizationAction,
+      hardwareListenerOptionsConfiguration,
+    );
+    window.addEventListener(
+      'offline',
+      executePresenceSynchronizationAction,
+      hardwareListenerOptionsConfiguration,
+    );
+    document.addEventListener(
+      'visibilitychange',
+      executePresenceSynchronizationAction,
+      hardwareListenerOptionsConfiguration,
+    );
 
     /**
      * @section Heartbeat Preventivo (Keep-Alive)
@@ -92,7 +112,7 @@ export const usePresenceSentry = (): IUsePresenceSentryResult => {
     const HEARTBEAT_INTERVAL_MILLISECONDS_QUANTITY = 120000;
     const heartbeatTimerReference = setInterval(
       executePresenceSynchronizationAction,
-      HEARTBEAT_INTERVAL_MILLISECONDS_QUANTITY
+      HEARTBEAT_INTERVAL_MILLISECONDS_QUANTITY,
     );
 
     // Inferencia de estado inmediata al montaje del sensor.
@@ -110,6 +130,6 @@ export const usePresenceSentry = (): IUsePresenceSentryResult => {
   }, [executePresenceSynchronizationAction]);
 
   return {
-    isSentryActiveBoolean: true
+    isSentryActiveBoolean: true,
   };
 };

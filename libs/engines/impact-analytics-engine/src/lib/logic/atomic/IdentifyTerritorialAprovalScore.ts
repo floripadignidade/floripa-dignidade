@@ -19,15 +19,14 @@ import type { ITerritorialImpactReport } from '../../schemas/TerritorialImpactRe
  */
 export const IdentifyTerritorialAprovalScore = (
   targetTerritoryIdentifier: string,
-  globalImpactReport: ITerritorialImpactReport
+  globalImpactReport: ITerritorialImpactReport,
 ): { readonly trustScoreNumeric: number; readonly territoryNameLiteral: string } => {
-
   const matchingTerritoryCluster = globalImpactReport.territorialClustersCollection.find(
     (cluster) => cluster.territoryIdentifierLiteral === targetTerritoryIdentifier,
   );
 
   return {
     trustScoreNumeric: matchingTerritoryCluster?.aggregatedTrustScoreNumeric ?? 0.5,
-    territoryNameLiteral: matchingTerritoryCluster?.territoryIdentifierLiteral ?? 'GLOBAL_FLORIPA'
+    territoryNameLiteral: matchingTerritoryCluster?.territoryIdentifierLiteral ?? 'GLOBAL_FLORIPA',
   };
 };

@@ -20,41 +20,50 @@ import { z } from 'zod';
  * @prompt_ia: "Valida que 'accessTokenExpirationMinutesDuration' sea siempre
  * un valor bajo (ej. < 60) para mitigar el riesgo de secuestro de sesión."
  */
-export const IdentitySecurityStandardsSchema = z.object({
+export const IdentitySecurityStandardsSchema = z
+  .object({
+    /** @domain 1: POLÍTICA DE CREDENCIALES (Credential Hygiene) */
+    credentialPolicy: z
+      .object({
+        minimumPasswordLengthQuantity: z.number().default(12),
+        minimumPasswordStrengthLevelNumeric: z.number().min(1).max(5).default(4),
+        requiresSpecialCharactersBoolean: z.boolean().default(true),
+        passwordExpirationDaysDuration: z.number().default(90),
+      })
+      .readonly(),
 
-  /** @domain 1: POLÍTICA DE CREDENCIALES (Credential Hygiene) */
-  credentialPolicy: z.object({
-    minimumPasswordLengthQuantity: z.number().default(12),
-    minimumPasswordStrengthLevelNumeric: z.number().min(1).max(5).default(4),
-    requiresSpecialCharactersBoolean: z.boolean().default(true),
-    passwordExpirationDaysDuration: z.number().default(90),
-  }).readonly(),
+    /** @domain 2: GOBERNANZA DE SESIONES (Lifecycle Management) */
+    sessionManagement: z
+      .object({
+        accessTokenExpirationMinutesDuration: z.number().default(15),
+        refreshTokenExpirationDaysDuration: z.number().default(7),
+        absoluteSessionTimeoutMinutesDuration: z.number().default(1440),
+        idleInactivityTimeoutMinutesDuration: z.number().default(30),
+        isConcurrentSessionAllowedBoolean: z.boolean().default(false),
+      })
+      .readonly(),
 
-  /** @domain 2: GOBERNANZA DE SESIONES (Lifecycle Management) */
-  sessionManagement: z.object({
-    accessTokenExpirationMinutesDuration: z.number().default(15),
-    refreshTokenExpirationDaysDuration: z.number().default(7),
-    absoluteSessionTimeoutMinutesDuration: z.number().default(1440),
-    idleInactivityTimeoutMinutesDuration: z.number().default(30),
-    isConcurrentSessionAllowedBoolean: z.boolean().default(false),
-  }).readonly(),
+    /** @domain 3: PROTECCIÓN PERIMETRAL (Intrusion Prevention) */
+    accessProtection: z
+      .object({
+        maximumLoginAttemptsQuantity: z.number().default(5),
+        lockoutCoolDownMinutesDuration: z.number().default(15),
+        isIpReputationCheckEnabledBoolean: z.boolean().default(true),
+      })
+      .readonly(),
 
-  /** @domain 3: PROTECCIÓN PERIMETRAL (Intrusion Prevention) */
-  accessProtection: z.object({
-    maximumLoginAttemptsQuantity: z.number().default(5),
-    lockoutCoolDownMinutesDuration: z.number().default(15),
-    isIpReputationCheckEnabledBoolean: z.boolean().default(true),
-  }).readonly(),
-
-  /** @domain 4: AUTENTICACIÓN MULTI-FACTOR (Identity Verification) */
-  multiFactorAuthentication: z.object({
-    isMandatoryForAdministrativeRolesBoolean: z.boolean().default(true),
-    isMandatoryForStandardRolesBoolean: z.boolean().default(false),
-    allowedMfaMethodsCollection: z.array(z.enum(['TOTP', 'SMS', 'WEB_AUTHN', 'EMAIL']))
-      .default(['TOTP', 'WEB_AUTHN']),
-  }).readonly(),
-
-}).readonly();
+    /** @domain 4: AUTENTICACIÓN MULTI-FACTOR (Identity Verification) */
+    multiFactorAuthentication: z
+      .object({
+        isMandatoryForAdministrativeRolesBoolean: z.boolean().default(true),
+        isMandatoryForStandardRolesBoolean: z.boolean().default(false),
+        allowedMfaMethodsCollection: z
+          .array(z.enum(['TOTP', 'SMS', 'WEB_AUTHN', 'EMAIL']))
+          .default(['TOTP', 'WEB_AUTHN']),
+      })
+      .readonly(),
+  })
+  .readonly();
 
 /** 🛡️ ADN Tipado para exportación Verbatim */
 export type IIdentitySecurityStandards = z.infer<typeof IdentitySecurityStandardsSchema>;

@@ -1,43 +1,43 @@
 /**
  * @section Scripts - Internationalization Weaver Trigger
- * @description Disparador de ejecución CLI para el compilador de diccionarios.
- * Orquesta la unificación física de silos lingüísticos antes de la fase de
- * construcción en producción, garantizando la soberanía de los datos de traducción.
+ * @description Disparador de ejecución CLI para el compilador de diccionarios lingüísticos.
+ * Orquesta la consolidación física de silos en `libs/` y `apps/` con validación Fail-Fast
+ * de paridad estructural entre idiomas (ADR 0030) antes de la fase de compilación en
+ * producción, propagando trazabilidad unificada y códigos de salida deterministas.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Calidad).
- * SANEADO Zenith: Nivelación integral de la signatura de telemetría con el esquema
- * TelemetrySignalSchema, erradicando advertencias de validación en tiempo de ejecución.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & ADR 0030).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Mantenibilidad y Confiabilidad).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
+import process from 'node:process';
+
+import { GlobalBaseException } from '@floripa-dignidade/exceptions';
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
   type ModuleIdentifier,
   type OperationCode,
 } from '@floripa-dignidade/telemetry';
-
 import { BuildInternationalizationDictionaries } from '@floripa-dignidade/tools';
 
 /** Identificador técnico del disparador para el monitor de salud y telemetría forense. */
 const WEAVER_TRIGGER_IDENTIFIER = 'I18N_WEAVER_CLI_TRIGGER' as ModuleIdentifier;
 
 /**
- * Ejecuta la secuencia de tejido y consolidación de diccionarios multilingües.
- * Implementa un patrón de salida determinista para integración continua (Vercel / GitHub Actions).
+ * Ejecuta la secuencia de compilación y auditoría de paridad de diccionarios multilingües.
+ * Implementa salida determinista (`0` o `1`) para pipelines locales y de integración continua.
  *
- * @returns {Promise<void>}
+ * @returns {Promise<void>} Promesa que finaliza el proceso tras emitir telemetría.
  */
 const ExecuteWeaverTriggerAction = async (): Promise<void> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
   try {
-    console.warn('\n--- [ZENITH WEAVER]: INICIANDO TEJIDO DE SOBERANÍA LINGÜÍSTICA ---');
+    console.warn('\n--- [ENTERPRISE WEAVER]: INICIANDO CONSOLIDACIÓN LINGÜÍSTICA ---');
 
-    // 1. REPORTE DE INICIO DE SECUENCIA (Contrato Estricto ISO 11179)
     void EmitTelemetrySignal({
       occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'INFO',
@@ -45,24 +45,32 @@ const ExecuteWeaverTriggerAction = async (): Promise<void> => {
       operationCodeLiteral: 'WEAVER_START_SIGNAL' as OperationCode,
       correlationIdentifier,
       messageContentLiteral:
-        'Iniciando proceso de consolidación de diccionarios desde el disparador CLI.',
+        'Iniciando proceso Fail-Fast de consolidación de diccionarios desde el disparador CLI.',
       semanticIntentTag: 'I18N_WEAVER_TRIGGER_START',
     });
 
-    // 2. EJECUCIÓN DEL ORQUESTADOR DE HERRAMIENTAS
-    await BuildInternationalizationDictionaries();
+    const auditReportSnapshot = await BuildInternationalizationDictionaries({
+      isFailFastOnParityViolationBoolean: true,
+      correlationIdentifier,
+    });
 
-    console.warn('--- [ZENITH WEAVER]: DICCIONARIOS CONSOLIDADOS EXITOSAMENTE ---\n');
+    console.warn(
+      `--- [ENTERPRISE WEAVER]: ${auditReportSnapshot.totalModulesProcessedQuantity} MÓDULOS CONSOLIDADOS (${auditReportSnapshot.activeLocalesCollection.join(', ')}) ---\n`,
+    );
 
-    // 3. REPORTE DE ÉXITO NOMINAL (Contrato Estricto ISO 11179)
     void EmitTelemetrySignal({
       occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'INFO',
       moduleIdentifierLiteral: WEAVER_TRIGGER_IDENTIFIER,
       operationCodeLiteral: 'WEAVER_SUCCESS_SIGNAL' as OperationCode,
       correlationIdentifier,
-      messageContentLiteral: 'El tejido lingüístico ha finalizado de forma nominal.',
+      messageContentLiteral: 'La consolidación lingüística ha finalizado con paridad certificada.',
       semanticIntentTag: 'I18N_WEAVER_TRIGGER_SUCCESS',
+      contextMetadataSnapshot: {
+        totalModulesProcessedQuantity: auditReportSnapshot.totalModulesProcessedQuantity,
+        activeLocalesCollection: auditReportSnapshot.activeLocalesCollection,
+        isParityVerifiedBoolean: auditReportSnapshot.isParityVerifiedBoolean,
+      },
     });
 
     process.exit(0);
@@ -72,24 +80,33 @@ const ExecuteWeaverTriggerAction = async (): Promise<void> => {
         ? caughtExecutionError.message
         : String(caughtExecutionError);
 
-    console.error(`\n[CRITICAL_INFRASTRUCTURE_FAILURE]: El tejido lingüístico ha colapsado.`);
-    console.error(`Rastro del fallo: ${errorDescriptionLiteral}`);
+    const forensicContextSnapshot =
+      caughtExecutionError instanceof GlobalBaseException
+        ? caughtExecutionError.runtimeContextSnapshot
+        : undefined;
 
-    // 4. REPORTE DE COLAPSO (Contrato Estricto ISO 11179)
+    console.error(`\n[CRITICAL_INFRASTRUCTURE_FAILURE]: ${errorDescriptionLiteral}`);
+    if (forensicContextSnapshot !== undefined) {
+      console.error(JSON.stringify(forensicContextSnapshot, null, 2));
+    }
+
     void EmitTelemetrySignal({
       occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'CRITICAL',
       moduleIdentifierLiteral: WEAVER_TRIGGER_IDENTIFIER,
       operationCodeLiteral: 'WEAVER_CRITICAL_COLLAPSE' as OperationCode,
       correlationIdentifier,
-      messageContentLiteral: 'Falla catastrófica durante el tejido de diccionarios.',
+      messageContentLiteral: 'Falla crítica durante la consolidación de diccionarios.',
       semanticIntentTag: 'I18N_WEAVER_TRIGGER_COLLAPSE',
-      contextMetadataSnapshot: { errorDescriptionLiteral },
+      contextMetadataSnapshot: {
+        errorDescriptionLiteral,
+        ...(forensicContextSnapshot !== undefined && { forensicContextSnapshot }),
+      },
     });
 
     process.exit(1);
   }
 };
 
-/** Disparo físico del proceso CLI con contención de promesa flotante */
+/** Disparo físico del proceso CLI con contención de promesa flotante. */
 void ExecuteWeaverTriggerAction();

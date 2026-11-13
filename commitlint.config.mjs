@@ -25,17 +25,17 @@ export default {
       2,
       'always',
       [
-        'feat',     // Nueva funcionalidad para el usuario o sistema
-        'fix',      // Corrección de un fallo o error en producción/staging
-        'docs',     // Modificaciones exclusivamente en documentación y manifiestos
-        'style',    // Cambios de formato que no afectan la lógica del código
+        'feat', // Nueva funcionalidad para el usuario o sistema
+        'fix', // Corrección de un fallo o error en producción/staging
+        'docs', // Modificaciones exclusivamente en documentación y manifiestos
+        'style', // Cambios de formato que no afectan la lógica del código
         'refactor', // Reestructuración de código sin alterar su comportamiento externo
-        'perf',     // Mejoras directas de rendimiento físico o SRE (latencia/memoria)
-        'test',     // Adición o corrección de pruebas unitarias o de integración
-        'build',    // Cambios que afectan el sistema de compilación o dependencias
-        'ci',       // Modificaciones en flujos de integración continua o Vercel
-        'chore',    // Tareas rutinarias de mantenimiento o tooling
-        'revert',   // Reversión de un commit previo en el árbol de Git
+        'perf', // Mejoras directas de rendimiento físico o SRE (latencia/memoria)
+        'test', // Adición o corrección de pruebas unitarias o de integración
+        'build', // Cambios que afectan el sistema de compilación o dependencias
+        'ci', // Modificaciones en flujos de integración continua o Vercel
+        'chore', // Tareas rutinarias de mantenimiento o tooling
+        'revert', // Reversión de un commit previo en el árbol de Git
       ],
     ],
 
@@ -86,11 +86,7 @@ export default {
     'type-case': [2, 'always', 'lower-case'],
     'type-empty': [2, 'never'],
     'scope-case': [2, 'always', 'lower-case'],
-    'subject-case': [
-      2,
-      'never',
-      ['sentence-case', 'start-case', 'pascal-case', 'upper-case'],
-    ],
+    'subject-case': [2, 'never', ['sentence-case', 'start-case', 'pascal-case', 'upper-case']],
     'subject-empty': [2, 'never'],
     'subject-full-stop': [2, 'never', '.'],
     'header-max-length': [2, 'always', 100],

@@ -17,20 +17,16 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
-  TraceExecutionTime
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
 import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
 import { ValidationException } from '@floripa-dignidade/exceptions';
 
 /* 2. ADN ESTRUCTURAL (Consumo desde SSOT Contracts) */
-import {
-  ValidateAdministrativeAuthoritySchema
-} from '@floripa-dignidade/contracts';
+import { ValidateAdministrativeAuthoritySchema } from '@floripa-dignidade/contracts';
 
-import type {
-  IValidateAdministrativeAuthorityParameters
-} from '@floripa-dignidade/contracts';
+import type { IValidateAdministrativeAuthorityParameters } from '@floripa-dignidade/contracts';
 
 /** Identificador técnico del aparato para el Health Monitor (IA). */
 const SECURITY_GUARD_IDENTIFIER = 'INFRASTRUCTURE_ADMIN_GATEKEEPER';
@@ -46,7 +42,7 @@ const SECURITY_GUARD_IDENTIFIER = 'INFRASTRUCTURE_ADMIN_GATEKEEPER';
  * longitud idéntica (normalizados vía HMAC) para evitar fugas de información."
  */
 export const ValidateInfrastructureAdministrativeAuthority = async (
-  parametersSnapshot: IValidateAdministrativeAuthorityParameters
+  parametersSnapshot: IValidateAdministrativeAuthorityParameters,
 ): Promise<boolean> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -55,14 +51,13 @@ export const ValidateInfrastructureAdministrativeAuthority = async (
     'EXECUTE_ADMIN_CHALLENGE_VALIDATION',
     correlationIdentifier,
     async () => {
-
       // 1. INTEGRITY GUARD (Validación del ADN de entrada)
       const validationResult = ValidateAdministrativeAuthoritySchema.safeParse(parametersSnapshot);
 
       if (!validationResult.success) {
         throw new ValidationException('ADMIN_SECURITY_TOKEN_MALFORMED', {
           validationIssuesCollection: validationResult.error.flatten(),
-          correlationIdentifier
+          correlationIdentifier,
         });
       }
 
@@ -72,7 +67,7 @@ export const ValidateInfrastructureAdministrativeAuthority = async (
 
       const {
         PAYLOAD_SECRET: cryptographicSaltSecret,
-        SOVEREIGN_EMERGENCY_TOKEN: administrativeMasterTokenSecret
+        SOVEREIGN_EMERGENCY_TOKEN: administrativeMasterTokenSecret,
       } = infrastructureSecretsSnapshot;
 
       try {
@@ -90,7 +85,10 @@ export const ValidateInfrastructureAdministrativeAuthority = async (
           .digest();
 
         // 4. COMPARACIÓN SEGURA (Constant-time Hardware Comparison)
-        const isIdentityLegitimateBoolean = timingSafeEqual(challengeHashBuffer, expectedHashBuffer);
+        const isIdentityLegitimateBoolean = timingSafeEqual(
+          challengeHashBuffer,
+          expectedHashBuffer,
+        );
 
         // 5. REPORTE SRE DE ALTA PRIORIDAD (Visibility)
         if (!isIdentityLegitimateBoolean) {
@@ -99,9 +97,10 @@ export const ValidateInfrastructureAdministrativeAuthority = async (
             moduleIdentifierLiteral: SECURITY_GUARD_IDENTIFIER,
             operationCodeLiteral: 'ADMIN_BYPASS_ATTEMPT_REJECTED',
             correlationIdentifier,
-            messageContentLiteral: 'ALERTA: Intento fallido de activación de autoridad administrativa.',
+            messageContentLiteral:
+              'ALERTA: Intento fallido de activación de autoridad administrativa.',
             semanticIntentTag: 'SECURITY_THREAT_DETECTION',
-            contextMetadataSnapshot: { threatLevelLiteral: 'HIGH_ALERT' }
+            contextMetadataSnapshot: { threatLevelLiteral: 'HIGH_ALERT' },
           });
         } else {
           void EmitTelemetrySignal({
@@ -109,17 +108,16 @@ export const ValidateInfrastructureAdministrativeAuthority = async (
             moduleIdentifierLiteral: SECURITY_GUARD_IDENTIFIER,
             operationCodeLiteral: 'ADMIN_AUTHORITY_ACTIVATED',
             correlationIdentifier,
-            messageContentLiteral: 'Autoridad administrativa de infraestructura activada exitosamente.',
-            semanticIntentTag: 'PRIVILEGE_ESCALATION_EVENT'
+            messageContentLiteral:
+              'Autoridad administrativa de infraestructura activada exitosamente.',
+            semanticIntentTag: 'PRIVILEGE_ESCALATION_EVENT',
           });
         }
 
         return isIdentityLegitimateBoolean;
-
       } catch (caughtError: unknown) {
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'ERROR',
@@ -127,11 +125,11 @@ export const ValidateInfrastructureAdministrativeAuthority = async (
           operationCodeLiteral: 'CRYPTOGRAPHIC_PROCESS_FAULT',
           correlationIdentifier,
           messageContentLiteral: 'Fallo técnico durante el proceso de verificación criptográfica.',
-          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
         });
 
         return false;
       }
-    }
+    },
   );
 };

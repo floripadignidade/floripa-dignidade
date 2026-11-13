@@ -1,0 +1,12 @@
+{
+  "logs": {
+    "REACTION_RECEIVED": "Interacción cívica capturada e integrada al termómetro popular.",
+    "ANONYMOUS_REACTION_PONDERED": "Interacción anónima registrada con peso estadístico reducido conforme a auditoría.",
+    "OFFLINE_DEFERRAL": "Sin conexión de red: reacción encolada localmente para sincronización posterior."
+  },
+  "errors": {
+    "REACTION_CONTRACT_VIOLATION": "La estructura de la interacción no cumple con los criterios de integridad técnica.",
+    "DUPLICATE_REACTION_BLOCKED": "Interacción repetida bloqueada por protección contra automatización.",
+    "CLOUD_TRANSMISSION_FAILED": "No fue posible sincronizar tu reacción con el servidor en este momento."
+  }
+}

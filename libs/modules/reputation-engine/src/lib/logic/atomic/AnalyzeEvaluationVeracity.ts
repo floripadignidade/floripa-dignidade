@@ -17,10 +17,7 @@ import { MapHttpErrorToException } from '@floripa-dignidade/exceptions';
 /** 🛡️ SANEADO Zenith (Fix TS2305): Sincronización con el orquestador cerebral nivelado. */
 import { BrainOrchestrator } from '@floripa-dignidade/health-analysis-engine';
 
-import {
-  EmitTelemetrySignal,
-  TraceExecutionTime
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, TraceExecutionTime } from '@floripa-dignidade/telemetry';
 
 /* 1. ADN Estructural y Contratos (Verbatim Module Syntax) */
 /** 🛡️ SANEADO Zenith: Inyección de extensiones '.js' para resolución de Grafo. */
@@ -56,12 +53,13 @@ export const AnalyzeEvaluationVeracity = async (
     async () => {
       try {
         // --- FASE 1: ADUANA DE ENTRADA (Input Boundary) ---
-        const inputValidationResult = AnalyzeEvaluationVeracityParametersSchema.safeParse(parametersSnapshot);
+        const inputValidationResult =
+          AnalyzeEvaluationVeracityParametersSchema.safeParse(parametersSnapshot);
 
         if (!inputValidationResult.success) {
           throw MapHttpErrorToException(400, 'PARAMETROS_DE_AUDITORIA_INVALIDOS', {
             structuralIssuesCollection: inputValidationResult.error.flatten(),
-            correlationIdentifier
+            correlationIdentifier,
           });
         }
 
@@ -79,9 +77,9 @@ export const AnalyzeEvaluationVeracity = async (
           {
             healthContextSnapshot: intelligencePayloadSnapshot,
             analysisScopeTagsCollection: ['REPUTATION_ETHICS', 'CONTENT_VERACITY'],
-            inferencePriorityLevel: 'MEDIUM'
+            inferencePriorityLevel: 'MEDIUM',
           },
-          'HUGGING_FACE'
+          'HUGGING_FACE',
         );
 
         // --- FASE 4: ADUANA DE SALIDA (Alucination Shield) ---
@@ -91,11 +89,12 @@ export const AnalyzeEvaluationVeracity = async (
          */
         const validatedVeracityResult = ValidateCognitiveVeracityAdn(
           rawInferenceResponseSnapshot.metadata['veracityAuditOutput'],
-          correlationIdentifier
+          correlationIdentifier,
         );
 
         // --- FASE 5: REPORTE DE SALUD SRE (Visibility) ---
-        const isSuspiciousBoolean = validatedVeracityResult.moderationActionSuggestion !== 'APPROVE';
+        const isSuspiciousBoolean =
+          validatedVeracityResult.moderationActionSuggestion !== 'APPROVE';
 
         void EmitTelemetrySignal({
           severityLevelLiteral: isSuspiciousBoolean ? 'WARNING' : 'INFO',
@@ -108,17 +107,15 @@ export const AnalyzeEvaluationVeracity = async (
             targetEntityIdentifier,
             veracityConfidenceScoreNumeric: validatedVeracityResult.veracityConfidenceScoreNumeric,
             moderationActionLiteral: validatedVeracityResult.moderationActionSuggestion,
-            detectedFlagsCollection: validatedVeracityResult.semanticFlagsCollection
-          }
+            detectedFlagsCollection: validatedVeracityResult.semanticFlagsCollection,
+          },
         });
 
         return validatedVeracityResult;
-
       } catch (caughtError: unknown) {
         // --- FASE 6: GESTIÓN FORENSE DE FALLO (Resilience) ---
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : 'UNKNOWN_VERACITY_FAULT';
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : 'UNKNOWN_VERACITY_FAULT';
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -127,14 +124,14 @@ export const AnalyzeEvaluationVeracity = async (
           correlationIdentifier,
           messageContentLiteral: 'Fallo catastrófico en el orquestador de veracidad cognitiva.',
           semanticIntentTag: 'COGNITIVE_PIPELINE_FAULT',
-          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
         });
 
         throw MapHttpErrorToException(500, 'FALLO_EN_AUDITORIA_DE_VERACIDAD_SRE', {
           originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier
+          correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

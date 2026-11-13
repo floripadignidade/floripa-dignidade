@@ -25,30 +25,24 @@ export const MODULE_FINANCIAL_INGESTION_ENGINE_VERSION = '1.2.0';
  */
 export {
   FinancialIngestionBatchSchema,
-  ProjectFinancialRecordSchema
+  ProjectFinancialRecordSchema,
 } from './lib/schemas/ProjectFinancialLedger.schema';
 
-export type {
-  IProjectFinancialRecord
-} from './lib/schemas/ProjectFinancialLedger.schema';
+export type { IProjectFinancialRecord } from './lib/schemas/ProjectFinancialLedger.schema';
 
 /**
  * @section Capa 2: Interfaces de Contexto (Process DNA)
  * @description Exportación de tipos necesarios para el rastro forense y
  * la gestión del estado interno de la máquina de ingesta.
  */
-export type {
-  IExtractionContext
-} from './lib/schemas/ExtractionContext.schema';
+export type { IExtractionContext } from './lib/schemas/ExtractionContext.schema';
 
 /**
  * @section Capa 3: Configuración y Estándares (Ground Truth)
  * @description Exportación de constantes físicas de las plantillas XLSX para
  * auditoría y sincronización de herramientas externas.
  */
-export {
-  WORKBOOK_INGESTION_STANDARDS
-} from './lib/constants/WorkbookIngestion.config';
+export { WORKBOOK_INGESTION_STANDARDS } from './lib/constants/WorkbookIngestion.config';
 
 /**
  * @section Capa 4: Orquestadores de Negocio (High-Level Flows)

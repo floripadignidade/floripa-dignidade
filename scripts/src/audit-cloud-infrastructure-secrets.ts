@@ -2,12 +2,17 @@
  * @section Scripts & Automation - Cloud Infrastructure Secrets Auditor CLI
  * @description Disparador ejecutable de línea de comandos (CLI) encargado de orquestar
  * la auditoría física y en vivo de todas las claves de API y servicios cloud
- * (PostgreSQL, Supabase REST, Supabase S3 Storage, Resend Email, Hugging Face SLM
- * y WhatsApp Meta Gateway).
+ * (PostgreSQL, Supabase REST, Supabase S3 Storage, Resend Email, Google Gemini AI,
+ * Hugging Face SLM y WhatsApp Meta Gateway).
  * Imprime un informe forense estructurado en la terminal y certifica la emisión del reporte JSON.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Operabilidad).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Confiabilidad) y ADR 0027.
+ *
+ * SANEADO Zenith:
+ * 1. Erradicación de importaciones relativas; consumo canónico vía '@floripa-dignidade/tools'.
+ * 2. Transición total de 'console.log' a 'console.warn' y 'console.error' (Rigor SRE).
+ * 3. Mantenimiento estricto de la matriz visual ANSI y códigos de salida para CI/CD.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -23,19 +28,16 @@ import {
   type OperationCode,
 } from '@floripa-dignidade/telemetry';
 
-/* 2. Orquestador Central de Infraestructura */
-import { AuditCloudInfrastructureSecrets } from '../../libs/tools/src/lib/infrastructure-auditor/AuditCloudInfrastructureSecrets.js';
-
-/* 3. Contratos de Tipado y Esquemas */
-import type {
-  ICloudInfrastructureAuditReport,
-  IIndividualProviderAuditSnapshot,
-  TProbeExecutionStatus,
-} from '../../libs/tools/src/lib/infrastructure-auditor/schemas/CloudInfrastructureAuditReport.schema.js';
+/* 2. Orquestador y Contratos de Infraestructura (Scope Oficial de Nx) */
+import {
+  AuditCloudInfrastructureSecrets,
+  type ICloudInfrastructureAuditReport,
+  type IIndividualProviderAuditSnapshot,
+  type TProbeExecutionStatus,
+} from '@floripa-dignidade/tools';
 
 /** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
-const SCRIPT_MODULE_IDENTIFIER =
-  'CLOUD_INFRASTRUCTURE_CLI_RUNNER' as ModuleIdentifier;
+const SCRIPT_MODULE_IDENTIFIER = 'CLOUD_INFRASTRUCTURE_CLI_RUNNER' as ModuleIdentifier;
 
 /**
  * @section Constantes de Estilo ANSI para Consola
@@ -55,16 +57,13 @@ const ANSI_COLOR_GRAY_LITERAL = '\x1b[90m';
  * @param probeStatusLiteral - Estado resultante emitido por la sonda.
  * @returns {string} Código de escape ANSI correspondiente.
  */
-const ResolveStatusColorLiteral = (
-  probeStatusLiteral: TProbeExecutionStatus,
-): string => {
+const ResolveStatusColorLiteral = (probeStatusLiteral: TProbeExecutionStatus): string => {
   switch (probeStatusLiteral) {
     case 'NOMINAL_OPERATIONAL':
       return ANSI_COLOR_GREEN_LITERAL;
     case 'DEGRADED_LATENCY':
       return ANSI_COLOR_YELLOW_LITERAL;
     case 'AUTHENTICATION_REJECTED':
-      return ANSI_COLOR_RED_LITERAL;
     case 'UNREACHABLE_FAILURE':
       return ANSI_COLOR_RED_LITERAL;
     case 'UNCONFIGURED_CREDENTIALS':
@@ -82,17 +81,17 @@ const ResolveStatusColorLiteral = (
 const RenderForensicAuditTable = (
   providersAuditCollection: readonly IIndividualProviderAuditSnapshot[],
 ): void => {
-  console.log(
+  console.warn(
     `\n${ANSI_COLOR_BOLD_LITERAL}${ANSI_COLOR_CYAN_LITERAL}--- [FLORIPA DIGNIDADE]: MATRIZ DE CONECTIVIDAD E INFRAESTRUCTURA CLOUD ---${ANSI_COLOR_RESET_LITERAL}\n`,
   );
 
-  console.log(
+  console.warn(
     `${ANSI_COLOR_GRAY_LITERAL}┌──────────────────────────────────────────┬─────────────────────────────┬────────────┬────────────────────────────────────────────────────────────┐${ANSI_COLOR_RESET_LITERAL}`,
   );
-  console.log(
+  console.warn(
     `${ANSI_COLOR_GRAY_LITERAL}│${ANSI_COLOR_RESET_LITERAL} ${ANSI_COLOR_BOLD_LITERAL}PROVEEDOR EVALUADO${ANSI_COLOR_RESET_LITERAL}                     ${ANSI_COLOR_GRAY_LITERAL}│${ANSI_COLOR_RESET_LITERAL} ${ANSI_COLOR_BOLD_LITERAL}ESTADO TÉCNICO${ANSI_COLOR_RESET_LITERAL}              ${ANSI_COLOR_GRAY_LITERAL}│${ANSI_COLOR_RESET_LITERAL} ${ANSI_COLOR_BOLD_LITERAL}LATENCIA${ANSI_COLOR_RESET_LITERAL}   ${ANSI_COLOR_GRAY_LITERAL}│${ANSI_COLOR_RESET_LITERAL} ${ANSI_COLOR_BOLD_LITERAL}DIAGNÓSTICO SRE${ANSI_COLOR_RESET_LITERAL}                                             ${ANSI_COLOR_GRAY_LITERAL}│${ANSI_COLOR_RESET_LITERAL}`,
   );
-  console.log(
+  console.warn(
     `${ANSI_COLOR_GRAY_LITERAL}├──────────────────────────────────────────┼─────────────────────────────┼────────────┼────────────────────────────────────────────────────────────┤${ANSI_COLOR_RESET_LITERAL}`,
   );
 
@@ -101,30 +100,27 @@ const RenderForensicAuditTable = (
       individualProbeSnapshot.probeStatusLiteral,
     );
 
-    const formattedProviderNameLiteral =
-      individualProbeSnapshot.providerIdentifier.padEnd(40, ' ');
+    const formattedProviderNameLiteral = individualProbeSnapshot.providerIdentifier.padEnd(40, ' ');
 
     const formattedStatusLiteral = `${statusColorLiteral}${individualProbeSnapshot.probeStatusLiteral.padEnd(
       27,
       ' ',
     )}${ANSI_COLOR_RESET_LITERAL}`;
 
-    const formattedLatencyLiteral = `${individualProbeSnapshot.executionLatencyInMillisecondsQuantity}ms`.padEnd(
-      10,
-      ' ',
-    );
+    const formattedLatencyLiteral =
+      `${individualProbeSnapshot.executionLatencyInMillisecondsQuantity}ms`.padEnd(10, ' ');
 
     const truncatedDescriptionLiteral =
       individualProbeSnapshot.statusDescriptionLiteral.length > 58
         ? `${individualProbeSnapshot.statusDescriptionLiteral.substring(0, 55)}...`
         : individualProbeSnapshot.statusDescriptionLiteral.padEnd(58, ' ');
 
-    console.log(
+    console.warn(
       `${ANSI_COLOR_GRAY_LITERAL}│${ANSI_COLOR_RESET_LITERAL} ${formattedProviderNameLiteral} ${ANSI_COLOR_GRAY_LITERAL}│${ANSI_COLOR_RESET_LITERAL} ${formattedStatusLiteral} ${ANSI_COLOR_GRAY_LITERAL}│${ANSI_COLOR_RESET_LITERAL} ${formattedLatencyLiteral} ${ANSI_COLOR_GRAY_LITERAL}│${ANSI_COLOR_RESET_LITERAL} ${truncatedDescriptionLiteral} ${ANSI_COLOR_GRAY_LITERAL}│${ANSI_COLOR_RESET_LITERAL}`,
     );
   }
 
-  console.log(
+  console.warn(
     `${ANSI_COLOR_GRAY_LITERAL}└──────────────────────────────────────────┴─────────────────────────────┴────────────┴────────────────────────────────────────────────────────────┘${ANSI_COLOR_RESET_LITERAL}\n`,
   );
 };
@@ -141,8 +137,7 @@ const ExecuteAuditCommandLineInterface = async (): Promise<void> => {
     moduleIdentifierLiteral: SCRIPT_MODULE_IDENTIFIER,
     operationCodeLiteral: 'CLI_AUDIT_EXECUTION_TRIGGERED' as OperationCode,
     correlationIdentifier,
-    messageContentLiteral:
-      'Iniciando ejecución de auditoría de infraestructura cloud desde CLI.',
+    messageContentLiteral: 'Iniciando ejecución de auditoría de infraestructura cloud desde CLI.',
     semanticIntentTag: 'CLI_INFRASTRUCTURE_AUDIT_START',
   });
 
@@ -150,38 +145,38 @@ const ExecuteAuditCommandLineInterface = async (): Promise<void> => {
     const auditReportSnapshot: ICloudInfrastructureAuditReport =
       await AuditCloudInfrastructureSecrets(undefined, correlationIdentifier);
 
-    // 1. RENDERIZADO VISUAL EN TERMINAL
+    // 1. RENDERIZADO VISUAL EN TERMINAL (Advertencia Institucional Autorizada)
     RenderForensicAuditTable(auditReportSnapshot.providersAuditCollection);
 
     // 2. RESUMEN GLOBAL DE FIABILIDAD
-    console.log(
+    console.warn(
       `${ANSI_COLOR_BOLD_LITERAL}Duración Total de Sondas:${ANSI_COLOR_RESET_LITERAL} ${auditReportSnapshot.executionDurationInMillisecondsQuantity}ms`,
     );
-    console.log(
+    console.warn(
       `${ANSI_COLOR_BOLD_LITERAL}Proveedores Evaluados:${ANSI_COLOR_RESET_LITERAL}    ${auditReportSnapshot.totalTestedProvidersQuantity}`,
     );
-    console.log(
+    console.warn(
       `${ANSI_COLOR_BOLD_LITERAL}Servicios Nominales:${ANSI_COLOR_RESET_LITERAL}      ${ANSI_COLOR_GREEN_LITERAL}${auditReportSnapshot.healthyProvidersCountQuantity}${ANSI_COLOR_RESET_LITERAL}`,
     );
-    console.log(
+    console.warn(
       `${ANSI_COLOR_BOLD_LITERAL}Servicios Comprometidos:${ANSI_COLOR_RESET_LITERAL}  ${
         auditReportSnapshot.compromisedProvidersCountQuantity > 0
           ? ANSI_COLOR_RED_LITERAL
           : ANSI_COLOR_GREEN_LITERAL
       }${auditReportSnapshot.compromisedProvidersCountQuantity}${ANSI_COLOR_RESET_LITERAL}`,
     );
-    console.log(
+    console.warn(
       `${ANSI_COLOR_BOLD_LITERAL}Reporte Persistido en:${ANSI_COLOR_RESET_LITERAL}    ${ANSI_COLOR_CYAN_LITERAL}reports/infrastructure/infrastructure-secrets-audit-report.json${ANSI_COLOR_RESET_LITERAL}\n`,
     );
 
     // 3. DICTAMEN DE SALIDA SRE
     if (auditReportSnapshot.isInfrastructureFullyOperationalBoolean) {
-      console.log(
+      console.warn(
         `${ANSI_COLOR_BOLD_LITERAL}${ANSI_COLOR_GREEN_LITERAL}✔ INFRAESTRUCTURA 100% OPERATIVA: Todas las credenciales fueron autenticadas físicamente.${ANSI_COLOR_RESET_LITERAL}\n`,
       );
       process.exit(0);
     } else {
-      console.log(
+      console.warn(
         `${ANSI_COLOR_BOLD_LITERAL}${ANSI_COLOR_RED_LITERAL}✖ ALERTA DE PREVUELO: Existen servicios con credenciales ausentes, rechazadas o inaccesibles.${ANSI_COLOR_RESET_LITERAL}\n`,
       );
       process.exit(1);

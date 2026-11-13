@@ -12,14 +12,14 @@ import { CalculateRouteRedirection } from '../atomic/CalculateRouteRedirection';
 
 export const ApplyLinguisticRedirection: IMiddlewareHandler = async (
   incomingRequest,
-  routingContext
+  routingContext,
 ) => {
   const { pathname } = incomingRequest.nextUrl;
 
   const decision = CalculateRouteRedirection(
     pathname,
     routingContext.detectedLocale,
-    incomingRequest.url
+    incomingRequest.url,
   );
 
   if (decision.isRedirectionRequiredBoolean && decision.localizedTargetUrl) {

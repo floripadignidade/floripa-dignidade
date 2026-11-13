@@ -23,7 +23,7 @@ export const RetrieveTelemetryBatchFromLocalStorage = (): ITelemetrySignal[] => 
   }
 
   const rawVaultDataLiteral = localStorageReference.getItem(
-    SOVEREIGN_STORAGE_CONFIGURATION.VAULT_KEY_LITERAL
+    SOVEREIGN_STORAGE_CONFIGURATION.VAULT_KEY_LITERAL,
   );
 
   if (!rawVaultDataLiteral) {
@@ -47,7 +47,6 @@ export const RetrieveTelemetryBatchFromLocalStorage = (): ITelemetrySignal[] => 
         return result.success ? result.data : null;
       })
       .filter((item): item is ITelemetrySignal => item !== null);
-
   } catch (_caughtParseError: unknown) {
     return [];
   }

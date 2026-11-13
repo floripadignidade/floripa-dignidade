@@ -88,7 +88,6 @@ export default async function IndexPage(): Promise<React.ReactElement> {
     <div className="min-h-screen bg-slate-50 w-full">
       <div className="w-full">
         <div className="container mx-auto max-w-4xl px-4">
-
           {/* ÁTOMO: Cabecera de Bienvenida */}
           <header id="welcome" className="py-12">
             <h1 className="text-slate-900 tracking-tighter">
@@ -128,7 +127,6 @@ export default async function IndexPage(): Promise<React.ReactElement> {
 
           {/* CONTENIDO PRINCIPAL: Recursos Técnicos y Hoja de Ruta */}
           <main id="middle-content" className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12 mb-20">
-
             {/* ÁTOMO DELEGADO (Principio de Responsabilidad Única) */}
             <LearningMaterialsSection dictionary={CMS_LANDING_DICTIONARY.learning} />
 
@@ -146,7 +144,6 @@ export default async function IndexPage(): Promise<React.ReactElement> {
                 </p>
               </article>
             </div>
-
           </main>
         </div>
       </div>

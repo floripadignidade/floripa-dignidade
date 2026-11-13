@@ -24,9 +24,8 @@
 export const BuildStorageAccessUrl = (
   cloudStorageBaseUrlLiteral: string,
   storageBucketNameLiteral: string,
-  internalStoragePathLiteral: string
+  internalStoragePathLiteral: string,
 ): string => {
-
   /**
    * @section Saneamiento de Frontera (Clean URL)
    * Eliminamos cualquier barra final en la URL base para evitar el error de
@@ -46,7 +45,7 @@ export const BuildStorageAccessUrl = (
     sanitizedBaseUrlLiteral,
     protocolPathLiteral,
     storageBucketNameLiteral,
-    internalStoragePathLiteral
+    internalStoragePathLiteral,
   ];
 
   return finalAccessUrlCollection.join('/');

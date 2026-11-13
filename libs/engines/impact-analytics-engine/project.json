@@ -3,11 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/engines/impact-analytics-engine/src",
   "projectType": "library",
-  "tags": [
-    "scope:engines",
-    "type:logic",
-    "platform:isomorphic"
-  ],
+  "tags": ["scope:engines", "type:logic", "platform:isomorphic"],
   "targets": {
     "build": {
       "executor": "@nx/js:swc",

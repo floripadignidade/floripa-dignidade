@@ -1,0 +1,18 @@
+{
+  "labels": {
+    "inputPlaceholderLiteral": "Seu melhor e-mail",
+    "submitButtonLiteral": "Participar",
+    "submittingStatusLiteral": "Enviando...",
+    "consentCheckboxLiteral": "Concordo com o tratamento seguro dos meus dados conforme a LGPD."
+  },
+  "messages": {
+    "successHeadlineLiteral": "Verifique seu e-mail!",
+    "successDescriptionLiteral": "Enviamos um link de confirmação para ativar sua participação na rede.",
+    "errorGenericLiteral": "Não foi possível concluir sua inscrição agora. Tente novamente."
+  },
+  "validation": {
+    "emailRequiredLiteral": "Informe um endereço de e-mail.",
+    "emailInvalidLiteral": "Digite um endereço de e-mail válido.",
+    "consentRequiredLiteral": "O consentimento de privacidade é obrigatório."
+  }
+}

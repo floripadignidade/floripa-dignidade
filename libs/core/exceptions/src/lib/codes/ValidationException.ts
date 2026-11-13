@@ -30,7 +30,7 @@ export class ValidationException extends GlobalBaseException {
    */
   public constructor(
     messageLiteral: string,
-    runtimeContextSnapshotSource: Record<string, unknown> = {}
+    runtimeContextSnapshotSource: Record<string, unknown> = {},
   ) {
     /**
      * @constant VALIDATION_FAILED - Código semántico inmutable para fallos de esquema.
@@ -44,7 +44,7 @@ export class ValidationException extends GlobalBaseException {
       messageLiteral,
       operationalErrorCodeLiteral,
       httpStatusCodeNumeric,
-      runtimeContextSnapshotSource
+      runtimeContextSnapshotSource,
     );
   }
 }

@@ -32,7 +32,7 @@ export const GetGlobalTelemetryWorkerInstance = (): IWorkerInstanceBridge | null
  * @param workerInstance - Nueva instancia del Worker validada.
  */
 export const UpdateGlobalTelemetryWorkerInstance = (
-  workerInstance: IWorkerInstanceBridge
+  workerInstance: IWorkerInstanceBridge,
 ): void => {
   if (privateTelemetryWorkerInstance && privateTelemetryWorkerInstance !== workerInstance) {
     privateTelemetryWorkerInstance.terminate();

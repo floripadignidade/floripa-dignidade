@@ -20,7 +20,7 @@ import type { IFinancialLedgerRow } from './MapFinancialRecordsToLedger';
 export const MapProjectFinancialRecordToLedgerRow = (
   recordSnapshot: IProjectFinancialRecord,
   ingestionTimestampISO: string,
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): IFinancialLedgerRow => {
   return {
     organization_name_literal: recordSnapshot.organizationNameLiteral,

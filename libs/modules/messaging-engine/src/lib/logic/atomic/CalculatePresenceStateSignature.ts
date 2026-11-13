@@ -38,12 +38,7 @@ export type TPresenceStateSignature = z.infer<typeof PresenceStateSignatureSchem
 export const PresenceStateSnapshotSchema = z
   .object({
     /** Estado ontológico de disponibilidad técnica. */
-    availabilityStatusLiteral: z.enum([
-      'ONLINE',
-      'AWAY',
-      'DO_NOT_DISTURB',
-      'OFFLINE',
-    ]).optional(),
+    availabilityStatusLiteral: z.enum(['ONLINE', 'AWAY', 'DO_NOT_DISTURB', 'OFFLINE']).optional(),
 
     /** Mensaje de contexto lingüístico o estado visible. */
     customStatusMessageLiteral: z.string().optional(),
@@ -52,12 +47,7 @@ export const PresenceStateSnapshotSchema = z
     pushSubscriptionTokenSecret: z.string().optional(),
 
     /** @deprecated Alias heredado para disponibilidad ontológica */
-    status: z.enum([
-      'ONLINE',
-      'AWAY',
-      'DO_NOT_DISTURB',
-      'OFFLINE',
-    ]).optional(),
+    status: z.enum(['ONLINE', 'AWAY', 'DO_NOT_DISTURB', 'OFFLINE']).optional(),
 
     /** @deprecated Alias heredado para mensaje de estado */
     customMessage: z.string().optional(),
@@ -109,21 +99,15 @@ export const CalculatePresenceStateSignature = (
    * Prioriza la nomenclatura formal ISO 11179 sobre los alias históricos heredados.
    */
   const resolvedStatusLiteral: TAvailabilityStatus =
-    presenceSnapshot.availabilityStatusLiteral ??
-    presenceSnapshot.status ??
-    'OFFLINE';
+    presenceSnapshot.availabilityStatusLiteral ?? presenceSnapshot.status ?? 'OFFLINE';
 
   const rawMessageLiteral: string =
-    presenceSnapshot.customStatusMessageLiteral ??
-    presenceSnapshot.customMessage ??
-    '';
+    presenceSnapshot.customStatusMessageLiteral ?? presenceSnapshot.customMessage ?? '';
 
   const resolvedMessageLiteral: string = rawMessageLiteral.trim();
 
   const resolvedTokenLiteral: string =
-    presenceSnapshot.pushSubscriptionTokenSecret ??
-    presenceSnapshot.pushToken ??
-    'NONE';
+    presenceSnapshot.pushSubscriptionTokenSecret ?? presenceSnapshot.pushToken ?? 'NONE';
 
   /**
    * @section Serialización Determinista Normalizada

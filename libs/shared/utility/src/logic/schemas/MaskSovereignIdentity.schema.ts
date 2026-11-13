@@ -12,11 +12,9 @@ import { z } from 'zod';
 /**
  * Catálogo de estrategias de opacidad admitidas por el enjambre.
  */
-export const IdentityMaskingStrategySchema = z.enum([
-  'BRAZILIAN_DOCUMENT',
-  'CITIZEN_NAME',
-  'ELECTRONIC_MAIL'
-]).describe('Identificador técnico de la estrategia de enmascaramiento.');
+export const IdentityMaskingStrategySchema = z
+  .enum(['BRAZILIAN_DOCUMENT', 'CITIZEN_NAME', 'ELECTRONIC_MAIL'])
+  .describe('Identificador técnico de la estrategia de enmascaramiento.');
 
 export type TIdentityMaskingStrategy = z.infer<typeof IdentityMaskingStrategySchema>;
 
@@ -24,15 +22,15 @@ export type TIdentityMaskingStrategy = z.infer<typeof IdentityMaskingStrategySch
  * @name MaskIdentityParametersSchema
  * @description Aduana de ADN para la protección de identidad ciudadana.
  */
-export const MaskIdentityParametersSchema = z.object({
-  /** El rastro de identidad original (Email, CPF, Nombre). */
-  rawIdentityLiteral: z.string()
-    .describe('Dato sensible original antes de la purificación.'),
+export const MaskIdentityParametersSchema = z
+  .object({
+    /** El rastro de identidad original (Email, CPF, Nombre). */
+    rawIdentityLiteral: z.string().describe('Dato sensible original antes de la purificación.'),
 
-  /** La estrategia a aplicar para la anonimización. */
-  maskingStrategyLiteral: IdentityMaskingStrategySchema,
-
-}).readonly();
+    /** La estrategia a aplicar para la anonimización. */
+    maskingStrategyLiteral: IdentityMaskingStrategySchema,
+  })
+  .readonly();
 
 /** 🛡️ ADN Tipado para exportación Verbatim */
 export type IMaskIdentityParameters = z.infer<typeof MaskIdentityParametersSchema>;

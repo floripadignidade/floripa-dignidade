@@ -18,19 +18,15 @@ interface IInboxFiltersResult {
  * @param citizenIdentifier - UUID del ciudadano bajo auditoría.
  * @returns {IInboxFiltersResult} Diccionario de filtros para el enjambre de red.
  */
-export const BuildInboxQueryFilters = (
-  citizenIdentifier: string
-): IInboxFiltersResult => {
+export const BuildInboxQueryFilters = (citizenIdentifier: string): IInboxFiltersResult => {
   // Filtro para Alertas: Destinatario exacto y omitir eliminadas lógicamente.
-  const notificationsQueryLiteral =
-    `recipient_id=eq.${citizenIdentifier}&interaction_status=neq.TRASHED_DELETED&order=dispatch_timestamp.desc`;
+  const notificationsQueryLiteral = `recipient_id=eq.${citizenIdentifier}&interaction_status=neq.TRASHED_DELETED&order=dispatch_timestamp.desc`;
 
   // Filtro para Mensajes: Emisor O Receptor y omitir eliminados lógicamente.
-  const messagesQueryLiteral =
-    `or=(sender_id.eq.${citizenIdentifier},recipient_id.eq.${citizenIdentifier})&current_status=neq.TRASHED_DELETED&order=transmission_timestamp.desc`;
+  const messagesQueryLiteral = `or=(sender_id.eq.${citizenIdentifier},recipient_id.eq.${citizenIdentifier})&current_status=neq.TRASHED_DELETED&order=transmission_timestamp.desc`;
 
   return Object.freeze({
     notificationsQueryLiteral,
-    messagesQueryLiteral
+    messagesQueryLiteral,
   });
 };

@@ -13,10 +13,11 @@ import { ValidationException } from '@floripa-dignidade/exceptions';
  * @name ConfirmationQuerySchema
  * @description Aduana de ADN para el rastro de la URL.
  */
-const ConfirmationQuerySchema = z.object({
-  token: z.string()
-    .uuid({ message: 'INVALID_TOKEN_FORMAT' })
-}).readonly();
+const ConfirmationQuerySchema = z
+  .object({
+    token: z.string().uuid({ message: 'INVALID_TOKEN_FORMAT' }),
+  })
+  .readonly();
 
 /**
  * Extrae el token de verificación de forma segura.
@@ -25,9 +26,7 @@ const ConfirmationQuerySchema = z.object({
  * @returns {string} Token validado (UUID v4).
  * @throws {ValidationException} Si el token es inexistente o malformado.
  */
-export const ExtractConfirmationToken = (
-  searchParametersSnapshot: URLSearchParams
-): string => {
+export const ExtractConfirmationToken = (searchParametersSnapshot: URLSearchParams): string => {
   const rawTokenLiteral = searchParametersSnapshot.get('token');
 
   const validationResult = ConfirmationQuerySchema.safeParse({

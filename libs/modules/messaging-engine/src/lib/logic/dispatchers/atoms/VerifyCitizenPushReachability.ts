@@ -32,13 +32,12 @@ export interface IReachabilityResult {
 export const VerifyCitizenPushReachability = async (
   citizenIdentifierLiteral: string,
   cloudProviderUrlLiteral: string,
-  cloudSecurityKeySecret: string
+  cloudSecurityKeySecret: string,
 ): Promise<IReachabilityResult> => {
-
   const pushTokenSnapshot = await GetCitizenPushToken(
     citizenIdentifierLiteral,
     cloudProviderUrlLiteral,
-    cloudSecurityKeySecret
+    cloudSecurityKeySecret,
   );
 
   /**
@@ -47,6 +46,6 @@ export const VerifyCitizenPushReachability = async (
    */
   return {
     isReachableBoolean: !!pushTokenSnapshot,
-    pushTokenSecret: pushTokenSnapshot ?? undefined
+    pushTokenSecret: pushTokenSnapshot ?? undefined,
   };
 };

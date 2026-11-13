@@ -1,13 +1,19 @@
 {
   "hero": {
     "headlineLiteral": "Welcome to our transparency network!",
-    "descriptionLiteral": "Your sovereignty has been successfully confirmed. You are now part of the network that monitors and protects Florianópolis. You will receive critical information and impact alerts directly in your email."
+    "descriptionLiteral": "Your participation has been confirmed. You are now part of the network that monitors and protects Florianópolis with critical information straight to your inbox."
   },
   "actions": {
     "primaryActionLabelLiteral": "View Transparency Reports",
     "secondaryActionLabelLiteral": "Back to Home"
   },
+  "supportSection": {
+    "newsHeadlineLiteral": "Dignity Voice & Press",
+    "newsDescriptionLiteral": "Follow independent reporting on human rights and public policies in Florianópolis.",
+    "dataHeadlineLiteral": "Public Expenditure Observatory",
+    "dataDescriptionLiteral": "Explore audited municipal contracts and territorial social impact indicators."
+  },
   "metadata": {
-    "pageTitleLiteral": "Sovereignty Confirmed"
+    "pageTitleLiteral": "Subscription Confirmed"
   }
 }

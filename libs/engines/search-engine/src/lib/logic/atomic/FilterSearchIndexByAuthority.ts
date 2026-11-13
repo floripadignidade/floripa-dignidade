@@ -18,9 +18,8 @@ import type { ISearchableEntity, SearchAuthorityRole } from '../../schemas/Searc
  */
 export const FilterSearchIndexByAuthority = (
   indexCollection: ISearchableEntity[],
-  actorRoleLiteral: SearchAuthorityRole
+  actorRoleLiteral: SearchAuthorityRole,
 ): ISearchableEntity[] => {
-
   return indexCollection.filter((entitySnapshot) => {
     /**
      * @section Matriz de Decisión de Acceso (Bypass Protocol)

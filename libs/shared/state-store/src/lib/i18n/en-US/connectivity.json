@@ -1,0 +1,6 @@
+{
+  "telemetry": {
+    "NETWORK_RESTORED_SIGNAL": "Network connection restored. Resuming synchronization of pending transactions.",
+    "NETWORK_LOST_SIGNAL": "Network interruption detected. Engaging local resilience and queueing mode."
+  }
+}

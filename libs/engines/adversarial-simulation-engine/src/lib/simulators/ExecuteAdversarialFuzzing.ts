@@ -14,7 +14,7 @@
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
-  TraceExecutionTime
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
 /* 🛡️ SANEADO Zenith: Importación estricta de ZodTypeAny para agnosticismo */
@@ -45,17 +45,17 @@ interface IExecuteFuzzingParameters {
  * @returns {Promise<IAdversarialVulnerability[]>} Colección de brechas encontradas.
  */
 export const ExecuteAdversarialFuzzing = async (
-  parameters: IExecuteFuzzingParameters
+  parameters: IExecuteFuzzingParameters,
 ): Promise<IAdversarialVulnerability[]> => {
-  const activeCorrelationIdentifier = parameters.correlationIdentifier ?? GenerateCorrelationIdentifier();
-  const detectedBreachesCollection: IAdversarialVulnerability[] =[];
+  const activeCorrelationIdentifier =
+    parameters.correlationIdentifier ?? GenerateCorrelationIdentifier();
+  const detectedBreachesCollection: IAdversarialVulnerability[] = [];
 
   return await TraceExecutionTime(
     FUZZING_SIMULATOR_IDENTIFIER,
     `EXECUTE_FUZZING_AGAINST_${parameters.targetApparatusIdentifierLiteral.toUpperCase()}`,
     activeCorrelationIdentifier,
     async () => {
-
       // 1. REPORTE DE INICIO DE ATAQUE
       void EmitTelemetrySignal({
         severityLevel: 'INFO',
@@ -64,20 +64,19 @@ export const ExecuteAdversarialFuzzing = async (
         correlationIdentifier: activeCorrelationIdentifier,
         message: `Iniciando simulación adversaria en memoria contra[${parameters.targetApparatusIdentifierLiteral}].`,
         contextMetadata: {
-          weaponsCountQuantity: parameters.adversarialWeaponsCollection.length
-        }
+          weaponsCountQuantity: parameters.adversarialWeaponsCollection.length,
+        },
       });
 
       // 2. CICLO DE INYECCIÓN (In-Memory Fuzzing Loop)
       for (const attackWeapon of parameters.adversarialWeaponsCollection) {
-
         /**
          * @section Impacto contra la Aduana
          * Ejecutamos safeParse. En seguridad ofensiva, buscamos un 'success: true'
          * de un payload malicioso. Eso indica que la aduana falló en bloquearlo.
          */
         const defensiveResult = parameters.targetAduanaSchema.safeParse(
-          attackWeapon.maliciousPayloadContentSnapshot
+          attackWeapon.maliciousPayloadContentSnapshot,
         );
 
         if (defensiveResult.success) {
@@ -92,7 +91,7 @@ export const ExecuteAdversarialFuzzing = async (
             injectedPayloadSnapshot: attackWeapon.maliciousPayloadContentSnapshot,
             systemResponseSnapshot: defensiveResult.data, // Lo que el sistema creyó que era válido
             remediationSuggestionLiteral: `El esquema permite el paso de [${attackWeapon.attackTechniqueDescriptionLiteral}]. Considere inyectar .refine() o regex más estrictos en Zod.`,
-            detectionTimestampISO: new Date().toISOString()
+            detectionTimestampISO: new Date().toISOString(),
           };
 
           detectedBreachesCollection.push(vulnerabilitySnapshot);
@@ -105,8 +104,8 @@ export const ExecuteAdversarialFuzzing = async (
             message: 'ADVERTENCIA: Contrato de ADN penetrado por payload malicioso.',
             contextMetadata: {
               apparatus: parameters.targetApparatusIdentifierLiteral,
-              severity: attackWeapon.intrinsicThreatSeverityLevel
-            }
+              severity: attackWeapon.intrinsicThreatSeverityLevel,
+            },
           });
         }
       }
@@ -118,11 +117,11 @@ export const ExecuteAdversarialFuzzing = async (
           moduleIdentifier: FUZZING_SIMULATOR_IDENTIFIER,
           operationCode: 'DEFENSES_HELD_NOMINAL',
           correlationIdentifier: activeCorrelationIdentifier,
-          message: `El aparato [${parameters.targetApparatusIdentifierLiteral}] resistió todos los vectores de ataque.`
+          message: `El aparato [${parameters.targetApparatusIdentifierLiteral}] resistió todos los vectores de ataque.`,
         });
       }
 
       return detectedBreachesCollection;
-    }
+    },
   );
 };

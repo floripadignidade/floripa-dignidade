@@ -2,179 +2,185 @@
 
 /**
  * @section Shared UI Foundry - Newsletter Subscription Form (Orchestrator)
- * @description Punto de ensamblaje soberano para la captación de ciudadanos en la
- * red de transparencia. Orquesta la interacción entre el hook de lógica y el
- * enjambre de átomos visuales (Input, Consentimiento, Alertas).
- * Implementa validación proactiva LGPD y rastro telemétrico forense.
+ * @description Organismo cliente para la captación ciudadana en la red de transparencia.
+ * Coordina el hook `useNewsletterSubscription` con los componentes atómicos de entrada,
+ * consentimiento LGPD, estado de éxito y alertas de infraestructura, mapeando los códigos
+ * de error Zod a mensajes localizados y emitiendo telemetría conforme a `TelemetrySignalSchema`.
  *
- * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Erradicación de extensiones (.js), atomización de alertas,
- * optimización de renderizado (useMemo) y cumplimiento estricto de Prosa ISO.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & ADR 0030).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 y LGPD (Lei 13.709/2018).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 
-/* 1. Infraestructura Core y Utilidades (Sovereign Swarm) */
+import type { TSupportedLocale } from '@floripa-dignidade/contracts';
+import {
+  type INewsletterSubscriptionFormI18n,
+  NewsletterSubscriptionFormPropertiesSchema,
+} from '@floripa-dignidade/shared-ui-contracts';
+import { GlobalStyleClassMerger } from '@floripa-dignidade/shared-utility';
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  type OperationCode,
 } from '@floripa-dignidade/telemetry';
 
-import { GlobalStyleClassMerger } from '@floripa-dignidade/shared-utility';
-
-/* 2. Planos y Contratos (Blueprints Layer - Clean Paths) */
-import {
-  NewsletterSubscriptionFormPropertiesSchema,
-} from '@floripa-dignidade/shared-ui-contracts';
-
-import type { INewsletterSubscriptionFormI18n } from '@floripa-dignidade/shared-ui-contracts';
-
-/* 3. Enjambre Atómico Local (Internal Swarm - Clean Imports) */
-import { useNewsletterSubscription } from './newsletter-form/hooks/useNewsletterSubscription';
-import { SubscriptionSuccessState } from './newsletter-form/components/SubscriptionSuccessState';
-import { SubscriptionInputGroup } from './newsletter-form/components/SubscriptionInputGroup';
-import { SubscriptionConsentBlock } from './newsletter-form/components/SubscriptionConsentBlock';
-
-/**
- * 🛡️ LEY DE ATOMIZACIÓN: La alerta de infraestructura ha sido elevada a Átomo.
- * Se entrega como búnker independiente en el siguiente ciclo.
- */
 import { NewsletterInfrastructureAlert } from './newsletter-form/components/NewsletterInfrastructureAlert';
+import { SubscriptionConsentBlock } from './newsletter-form/components/SubscriptionConsentBlock';
+import { SubscriptionInputGroup } from './newsletter-form/components/SubscriptionInputGroup';
+import { SubscriptionSuccessState } from './newsletter-form/components/SubscriptionSuccessState';
+import { useNewsletterSubscription } from './newsletter-form/hooks/useNewsletterSubscription';
 
-/** Identificador técnico del aparato para el Neural Sentinel. */
-const FORM_ORCHESTRATOR_IDENTIFIER = 'NEWSLETTER_FORM_ORCHESTRATOR';
+const FORM_ORCHESTRATOR_IDENTIFIER = 'NEWSLETTER_FORM_ORCHESTRATOR' as ModuleIdentifier;
 
 /**
  * @interface IGlobalNewsletterSubscriptionFormProperties
- * @description Contrato inmutable para la parametrización del formulario de captación.
- * Sigue la norma ISO 11179 de Objeto + Propiedad + Representación.
+ * @description Contrato inmutable de propiedades para el formulario de suscripción.
  */
-interface IGlobalNewsletterSubscriptionFormProperties {
-  /** Diccionario de traducciones íntegro validado por la aduana Zod. */
+export interface IGlobalNewsletterSubscriptionFormProperties {
   readonly translationDictionary: INewsletterSubscriptionFormI18n;
-  /** Ruta física de la API para el despacho de datos cloud (Default: /api/newsletter/subscribe). */
   readonly targetApiEndpointPathLiteral?: string;
-  /** Variante visual para adaptación en diferentes secciones (ej: Footer vs Hero). */
   readonly visualVariantLiteral?: 'STANDARD' | 'MINIMAL';
-  /** Clases CSS externas para ajustes de posicionamiento perimetral. */
+  readonly preferredLinguisticLocaleIdentifier?: TSupportedLocale;
   readonly externalClassName?: string;
-  /** Identificador único para pruebas de auditoría y automatización E2E. */
   readonly forensicTestIdentifier?: string;
 }
 
+const resolveEmailValidationMessageLiteral = (
+  errorCodeLiteral: string | undefined,
+  validationDictionary: INewsletterSubscriptionFormI18n['validation'],
+): string =>
+  errorCodeLiteral === 'ERROR_EMAIL_REQUIRED'
+    ? validationDictionary.emailRequiredLiteral
+    : validationDictionary.emailInvalidLiteral;
+
 /**
- * Orquestador encargado de la captación y validación de ciudadanos.
- * Implementa una arquitectura desacoplada donde la lógica reside en Hooks y el estilo en Átomos.
+ * Orquestador visual del formulario de captación ciudadana con validación LGPD.
  *
- * @param propertiesSnapshot - Snapshot de configuración y lenguaje.
- * @returns {React.ReactElement} Interfaz de conversión social de alta fidelidad.
+ * @param propertiesSnapshot - Diccionario localizado y configuración opcional del formulario.
+ * @returns {React.ReactElement} Interfaz de suscripción validada y accesible.
  */
 export const NewsletterSubscriptionForm: React.FC<IGlobalNewsletterSubscriptionFormProperties> = (
-  propertiesSnapshot
+  propertiesSnapshot,
 ) => {
-  /**
-   * @section Triaje de Propiedades (Aduana Zenith)
-   * 🛡️ LEY SRE: Validamos los parámetros técnicos mediante el esquema de contratos
-   * inyectando el rastro de clases externas.
-   */
-  const formConfigurationSnapshot = NewsletterSubscriptionFormPropertiesSchema.parse({
+  const { translationDictionary, preferredLinguisticLocaleIdentifier } = propertiesSnapshot;
+
+  const serializedPropertiesKeyLiteral = JSON.stringify({
     targetApiEndpointPathLiteral: propertiesSnapshot.targetApiEndpointPathLiteral,
     visualVariantLiteral: propertiesSnapshot.visualVariantLiteral,
     externalClassName: propertiesSnapshot.externalClassName,
-    forensicTestIdentifier: propertiesSnapshot.forensicTestIdentifier
+    forensicTestIdentifier: propertiesSnapshot.forensicTestIdentifier,
   });
 
-  // --- 2. TELEMETRÍA DE MONTAJE (SRE Visibility) ---
+  const formConfigurationSnapshot = useMemo(
+    () =>
+      NewsletterSubscriptionFormPropertiesSchema.parse(
+        JSON.parse(serializedPropertiesKeyLiteral) as unknown,
+      ),
+    [serializedPropertiesKeyLiteral],
+  );
+
+  const hasEmittedMountSignalBooleanReference = useRef(false);
+  const { visualVariantLiteral, forensicTestIdentifier } = formConfigurationSnapshot;
+
   useEffect(() => {
-    const correlationIdentifier = GenerateCorrelationIdentifier();
+    if (hasEmittedMountSignalBooleanReference.current) return;
+    hasEmittedMountSignalBooleanReference.current = true;
 
     void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'INFO',
       moduleIdentifierLiteral: FORM_ORCHESTRATOR_IDENTIFIER,
-      operationCodeLiteral: 'FORM_ORCHESTRATOR_MOUNTED',
-      correlationIdentifier,
-      messageContentLiteral: `Formulario de captación activo. Variante:[${formConfigurationSnapshot.visualVariantLiteral}]`,
+      operationCodeLiteral: 'FORM_ORCHESTRATOR_MOUNTED' as OperationCode,
+      correlationIdentifier: GenerateCorrelationIdentifier(),
+      messageContentLiteral: `Formulario de captación activo. Variante:[${visualVariantLiteral}]`,
       semanticIntentTag: 'UI_CONVERSION_MOUNT',
       contextMetadataSnapshot: {
-        visualVariantLiteral: formConfigurationSnapshot.visualVariantLiteral,
-        forensicId: formConfigurationSnapshot.forensicTestIdentifier,
-        timestampISO: new Date().toISOString()
-      }
+        visualVariantLiteral,
+        ...(forensicTestIdentifier !== undefined && { forensicTestIdentifier }),
+      },
     });
-  }, [formConfigurationSnapshot.visualVariantLiteral, formConfigurationSnapshot.forensicTestIdentifier]);
+  }, [visualVariantLiteral, forensicTestIdentifier]);
 
-  // --- 3. LÓGICA DE ESTADO (Hook Swarm Delegation) ---
   const {
-    formInstance: {
-      register,
-      handleSubmit,
-      formState: { errors, isSubmitting: isSubmittingBoolean },
-    },
+    formInstance,
     isSuccessfullySubmittedBoolean,
     executionErrorLiteral,
     onFormSubmitAction,
   } = useNewsletterSubscription({
-    errorGenericLiteral: propertiesSnapshot.translationDictionary.messages.errorGenericLiteral,
+    errorGenericLiteral: translationDictionary.messages.errorGenericLiteral,
     targetApiEndpointPathLiteral: formConfigurationSnapshot.targetApiEndpointPathLiteral,
+    ...(preferredLinguisticLocaleIdentifier !== undefined && {
+      preferredLinguisticLocaleIdentifier,
+    }),
   });
 
-  /**
-   * @section Gestión de Estilos Dinámicos
-   * Memoizamos la fusión de clases para proteger el rendimiento del Main Thread.
-   */
-  const containerStylesLiteral = useMemo(() =>
-    GlobalStyleClassMerger(
-      'flex flex-col w-full gap-6 transition-opacity duration-500',
-      propertiesSnapshot.externalClassName,
-      isSubmittingBoolean ? 'opacity-70' : 'opacity-100'
-    ),
-    [propertiesSnapshot.externalClassName, isSubmittingBoolean]
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting: isSubmittingBoolean },
+  } = formInstance;
+
+  const containerStylesLiteral = useMemo(
+    () =>
+      GlobalStyleClassMerger(
+        'flex flex-col w-full gap-6 transition-opacity duration-500',
+        formConfigurationSnapshot.externalClassName,
+        isSubmittingBoolean ? 'opacity-70' : 'opacity-100',
+      ),
+    [formConfigurationSnapshot.externalClassName, isSubmittingBoolean],
   );
 
-  // --- 4. ESTADO DE ÉXITO (Conversion Confirmation) ---
   if (isSuccessfullySubmittedBoolean) {
     return (
       <SubscriptionSuccessState
-        headlineLiteral={propertiesSnapshot.translationDictionary.messages.successHeadlineLiteral}
-        descriptionLiteral={propertiesSnapshot.translationDictionary.messages.successDescriptionLiteral}
+        headlineLiteral={translationDictionary.messages.successHeadlineLiteral}
+        descriptionLiteral={translationDictionary.messages.successDescriptionLiteral}
       />
     );
   }
 
-  // --- 5. RENDERIZADO DEL ENJAMBRE (Atomic Assembly) ---
+  const hasEmailErrorBoolean = Boolean(errors.electronicMailAddressLiteral);
+  const hasConsentErrorBoolean = Boolean(errors.hasGivenPrivacyConsentBoolean);
+  const resolvedEmailErrorMessageLiteral = resolveEmailValidationMessageLiteral(
+    errors.electronicMailAddressLiteral?.message,
+    translationDictionary.validation,
+  );
+  const resolvedConsentErrorMessageLiteral = hasConsentErrorBoolean
+    ? translationDictionary.validation.consentRequiredLiteral
+    : '';
+
   return (
     <form
-      onSubmit={handleSubmit(onFormSubmitAction)}
+      onSubmit={(submitEvent) => void handleSubmit(onFormSubmitAction)(submitEvent)}
       className={containerStylesLiteral}
       noValidate
-      data-testid={formConfigurationSnapshot.forensicTestIdentifier}
+      data-testid={forensicTestIdentifier}
     >
-      {/* ÁTOMO A: Captura de Identidad de Comunicación */}
       <SubscriptionInputGroup
         register={register('electronicMailAddressLiteral')}
         isExecutingBoolean={isSubmittingBoolean}
-        hasErrorBoolean={!!errors.electronicMailAddressLiteral}
-        placeholderLiteral={propertiesSnapshot.translationDictionary.labels.inputPlaceholderLiteral}
-        buttonLabelLiteral={propertiesSnapshot.translationDictionary.labels.submitButtonLiteral}
-        isMinimalVariantBoolean={formConfigurationSnapshot.visualVariantLiteral === 'MINIMAL'}
+        hasErrorBoolean={hasEmailErrorBoolean}
+        placeholderLiteral={translationDictionary.labels.inputPlaceholderLiteral}
+        buttonLabelLiteral={
+          isSubmittingBoolean
+            ? translationDictionary.labels.submittingStatusLiteral
+            : translationDictionary.labels.submitButtonLiteral
+        }
+        isMinimalVariantBoolean={visualVariantLiteral === 'MINIMAL'}
       />
-
-      {/* ÁTOMO B: Cumplimiento Legal (Consentimiento LGPD) */}
       <SubscriptionConsentBlock
         register={register('hasGivenPrivacyConsentBoolean')}
-        labelLiteral={propertiesSnapshot.translationDictionary.labels.consentCheckboxLiteral}
-        validationErrorLiteral={errors.hasGivenPrivacyConsentBoolean?.message ?? ''}
-        hasEmailErrorBoolean={!!errors.electronicMailAddressLiteral}
-        emailInvalidLiteral={propertiesSnapshot.translationDictionary.validation.emailInvalidLiteral}
+        labelLiteral={translationDictionary.labels.consentCheckboxLiteral}
+        validationErrorLiteral={resolvedConsentErrorMessageLiteral}
+        hasEmailErrorBoolean={hasEmailErrorBoolean}
+        emailInvalidLiteral={resolvedEmailErrorMessageLiteral}
       />
-
-      {/* ÁTOMO C: Alerta de Fallo de Infraestructura (Delegación Atómica) */}
-      <NewsletterInfrastructureAlert
-        errorLiteral={executionErrorLiteral}
-      />
+      <NewsletterInfrastructureAlert errorLiteral={executionErrorLiteral} />
     </form>
   );
 };

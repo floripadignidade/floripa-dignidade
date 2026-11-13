@@ -1,0 +1,12 @@
+{
+  "terminal": {
+    "auditStartedLiteral": "Iniciando auditoría física de los artefactos de compilación.",
+    "checkingPathLiteral": "Inspeccionando directorio de salida de compilación:",
+    "emptyDirectoryWarning": "Aviso: no se encontraron artefactos de compilación en el directorio inspeccionado.",
+    "ioErrorLiteral": "Error de acceso al sistema de archivos al inspeccionar el directorio de compilación.",
+    "reportGeneratedLiteral": "Informe de auditoría de compilación generado y persistido con éxito."
+  },
+  "errors": {
+    "persistenceFault": "Fallo crítico al grabar el informe de auditoría de compilación en disco."
+  }
+}

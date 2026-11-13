@@ -1,33 +1,41 @@
 # 📡 Búnker Core: Telemetry & Forensic Trace Manager (Sistema Nervioso Digital)
+
 **Estatus:** Zenith Nominal (OEDP-V17.0)  
 **Nivel de Responsabilidad:** Capa 0 (Cimentación Crítica)  
 **Rol:** Sistema Nervioso Central, Cadena de Custodia Criptográfica y Despacho SRE.  
 **Tags:** `scope:core`, `type:core`, `platform:isomorphic`
 
 ## 📖 1. Misión y Finalidad Ontológica
-En la infraestructura institucional de **Floripa Dignidade**, la telemetría no es un simple registrador de errores; es el **Flujo Sanguíneo Digital**. Su finalidad es erradicar la "Ceguera Operativa" y garantizar la **Soberanía de Datos** (ADR 0015).
 
-A través de este búnker, el sistema captura, cifra, encadena (Merkle) y despacha cada pulso vital, asegurando que la ONG posea la evidencia física e inalterable de cómo, cuándo y con qué latencia ocurre cada interacción ciudadana y cada fallo estructural.
+En la infraestructura institucional de **Floripa Dignidade**, la telemetría no es un simple
+registrador de errores; es el **Flujo Sanguíneo Digital**. Su finalidad es erradicar la "Ceguera
+Operativa" y garantizar la **Soberanía de Datos** (ADR 0015).
+
+A través de este búnker, el sistema captura, cifra, encadena (Merkle) y despacha cada pulso vital,
+asegurando que la ONG posea la evidencia física e inalterable de cómo, cuándo y con qué latencia
+ocurre cada interacción ciudadana y cada fallo estructural.
 
 ## 🏗️ 2. Arquitectura Lógica y Grafo de Ejecución (The Swarm Flow)
-Este motor opera bajo el patrón de **Ingesta Atómica, Computación en Hilo Sombra y Despacho Asimétrico**.
+
+Este motor opera bajo el patrón de **Ingesta Atómica, Computación en Hilo Sombra y Despacho
+Asimétrico**.
 
 ```mermaid
 graph TD
     A[Aparato Externo] -->|1. EmitTelemetrySignal| B{Aduana Zod}
     B -- ADN Corrupto --> C[Alerta Local / Descarte]
     B -- ADN Íntegro --> D{DetermineServerRuntime}
-    
+
     D -- Client/Browser --> E[TelemetryWorkerOrchestrator]
     E -->|Web Worker| F[AES-GCM Encrypt & SHA-256 Merkle Hash]
     F --> G[AddTelemetrySignalToBuffer]
     G --> H[PersistTelemetrySignalsToLocalStorage]
-    
+
     D -- Server/Edge --> G
-    
+
     H --> I{LogTransportDriver}
     I -- Flush on Exit / Timeout / Limit --> J[TransmitTelemetrySignalsToCloud]
-    
+
     J -- Fetch Stateless --> K[(Supabase Data Lake)]
     K --> L[ClearSovereignTelemetryVaultAction]
 🧩 3. Catálogo de Aparatos (Funcionalidad y Lógica)
@@ -65,3 +73,4 @@ Predictive Circuit Breaker: Un átomo residente en el Edge que lea el flujo tele
 P2P Telemetry Mesh (Resiliencia Offline Extrema): Si un ciudadano en una favela (sin internet) reporta una alerta crítica, el búnker usará WebRTC/Bluetooth API para saltar el log cifrado a los dispositivos de otros ciudadanos cercanos, hasta que uno de ellos encuentre señal y despache todo el lote al servidor.
 Semantic Vectorization: En lugar de guardar messageContentLiteral crudo, el Worker generará Embeedings locales (TensorFlow.js) del error para que la IA realice búsquedas vectoriales sobre el Ledger.
 "No creemos en la tecnología que no puede ser auditada. La telemetría es la memoria inalterable de nuestra dignidad."
+```

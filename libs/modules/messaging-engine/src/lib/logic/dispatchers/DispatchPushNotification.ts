@@ -42,7 +42,7 @@ const PUSH_ORCHESTRATOR_IDENTIFIER = 'WEB_PUSH_GATEWAY_ORCHESTRATOR';
  */
 export const DispatchPushNotification = async (
   targetCitizenIdentifier: string,
-  unvalidatedPushPayloadSnapshot: unknown
+  unvalidatedPushPayloadSnapshot: unknown,
 ): Promise<boolean> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -53,7 +53,7 @@ export const DispatchPushNotification = async (
    */
   const maskedRecipientIdLiteral = MaskSovereignIdentity({
     rawIdentityLiteral: targetCitizenIdentifier,
-    maskingStrategyLiteral: 'CITIZEN_NAME'
+    maskingStrategyLiteral: 'CITIZEN_NAME',
   });
 
   return await TraceExecutionTime(
@@ -63,10 +63,8 @@ export const DispatchPushNotification = async (
     async () => {
       try {
         // 1. CAPTURA DE INFRAESTRUCTURA (Aduana de Entorno)
-        const {
-          SUPABASE_URL: cloudUrlLiteral,
-          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret,
-        } = await ValidateEnvironmentAduana();
+        const { SUPABASE_URL: cloudUrlLiteral, SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret } =
+          await ValidateEnvironmentAduana();
 
         // 2. ADUANA DE ADN (Safe Parsing)
         const validationResult = PushPayloadSchema.safeParse(unvalidatedPushPayloadSnapshot);
@@ -80,8 +78,8 @@ export const DispatchPushNotification = async (
             messageContentLiteral: 'MESSAGING.ERRORS.MESSAGE_ADN_CORRUPTED',
             contextMetadataSnapshot: {
               recipientMask: maskedRecipientIdLiteral,
-              issuesCollection: validationResult.error.flatten()
-            }
+              issuesCollection: validationResult.error.flatten(),
+            },
           });
 
           throw new ValidationException('ADN_DE_NOTIFICACION_PUSH_CORRUPTO');
@@ -93,7 +91,7 @@ export const DispatchPushNotification = async (
         const { isReachableBoolean, pushTokenSecret } = await VerifyCitizenPushReachability(
           targetCitizenIdentifier,
           cloudUrlLiteral,
-          cloudSecurityKeySecret
+          cloudSecurityKeySecret,
         );
 
         if (!isReachableBoolean || !pushTokenSecret) {
@@ -103,7 +101,7 @@ export const DispatchPushNotification = async (
             operationCodeLiteral: 'CITIZEN_HARDWARE_UNREACHABLE',
             correlationIdentifier,
             messageContentLiteral: 'Despacho cancelado: El ciudadano no posee PWA vinculada.',
-            contextMetadataSnapshot: { recipientMask: maskedRecipientIdLiteral }
+            contextMetadataSnapshot: { recipientMask: maskedRecipientIdLiteral },
           });
           return false;
         }
@@ -116,7 +114,7 @@ export const DispatchPushNotification = async (
           securityHeaders,
           pushTokenSecret,
           validatedPayload,
-          correlationIdentifier
+          correlationIdentifier,
         );
 
         // 5. REPORTE DE ÉXITO (SRE Visibility)
@@ -128,19 +126,17 @@ export const DispatchPushNotification = async (
           messageContentLiteral: 'MESSAGING.LOGS.NOTIFICATION_BROADCAST_SUCCESS',
           contextMetadataSnapshot: {
             recipientMask: maskedRecipientIdLiteral,
-            tagIdentifier: validatedPayload.notificationTagIdentifier
-          }
+            tagIdentifier: validatedPayload.notificationTagIdentifier,
+          },
         });
 
         return true;
-
       } catch (caughtError: unknown) {
         // 6. GESTIÓN FORENSE DE FALLO (Resilience Layer)
         if (caughtError instanceof ValidationException) throw caughtError;
 
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -150,7 +146,7 @@ export const DispatchPushNotification = async (
           messageContentLiteral: 'Fallo catastrófico en el orquestador de alertas PWA.',
           contextMetadataSnapshot: {
             errorTrace: errorDescriptionLiteral,
-            recipientMask: maskedRecipientIdLiteral
+            recipientMask: maskedRecipientIdLiteral,
           },
         });
 
@@ -159,6 +155,6 @@ export const DispatchPushNotification = async (
           correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

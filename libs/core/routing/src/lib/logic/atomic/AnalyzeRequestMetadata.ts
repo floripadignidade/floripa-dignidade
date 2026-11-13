@@ -20,7 +20,7 @@ import type { IRoutingContext } from '../../schemas/RoutingContext.schema';
  */
 export const AnalyzeRequestMetadata = (
   incomingRequestHeaders: Headers,
-  existingRoutingContext: IRoutingContext
+  existingRoutingContext: IRoutingContext,
 ): IRoutingContext => {
   /**
    * 1. EXTRACCIÓN DE IDENTIDAD TÉCNICA
@@ -52,6 +52,6 @@ export const AnalyzeRequestMetadata = (
       ...existingRoutingContext.clientMetadata,
       ipAddressLiteral: clientIpAddressLiteral,
       userAgentLiteral: userAgentLiteral,
-    }
+    },
   };
 };

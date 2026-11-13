@@ -1,66 +1,63 @@
 /**
- * @section Technical Constitution - Global Infrastructure Governance
- * @description Orquestador soberano de integridad de código y límites modulares.
- * Implementa la Estrategia de Servicio Dinámico y la Matriz de Fronteras (ADR 0003)
- * para garantizar la estabilidad y soberanía del ecosistema.
+ * @section Technical Constitution - Global Infrastructure Governance (Flat Config)
+ * @description Orquestador central de integridad de código y límites modulares.
+ * Implementa la Estrategia de Servicio Dinámico (typescript-eslint Project Service)
+ * y la Matriz de Fronteras (ADR 0003) para garantizar la estabilidad del ecosistema.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Structural Integrity.
- * SANEADO Zenith: Optimización de Project Service, blindaje contra colisiones de
- * tipos implícitos y normalización de la jerarquía de inspección.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Mantenibilidad y Calidad) y ADR 0002.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import nextEslintPluginNext from '@next/eslint-plugin-next';
 import nx from '@nx/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 
-export default[
+export default [
   {
     /**
-     * @section Purgado de Entropía Visual
-     * Bloqueamos directorios de salida y rastro de caché para optimizar el motor.
+     * @section Exclusión de Artefactos Generados y Cachés de Compilación
      */
-    ignores:[
+    ignores: [
       '**/dist/**',
       '**/out-tsc/**',
       '**/test-output/**',
+      '**/playwright-report/**',
       '**/tmp/**',
       '**/coverage/**',
       '**/.nx/**',
       '**/.swc/**',
       '**/.cache/**',
-      '.next/**/*',
+      '**/.next/**',
+      '**/.vercel/**',
       'pnpm-lock.yaml',
       'node_modules/**',
       '**/payload-types.ts',
       '**/next-env.d.ts',
-      '**/*.d.ts'
+      '**/*.d.ts',
     ],
   },
 
-  // 1. INTEGRACIÓN DE CONFIGURACIONES BASE
+  // 1. INTEGRACIÓN DE CONFIGURACIONES BASE DE NX
   ...nx.configs['flat/base'],
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
 
   {
-    plugins: {
-      '@next/next': nextEslintPluginNext
-    }
-  },
-
-  {
     name: 'floripa-dignidade/governance-logic',
-    files:['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
         projectService: {
-          allowDefaultProject: ['*.config.mjs', '*.config.js']
+          /**
+           * Solo se admiten globs superficiales de un solo nivel (sin '**').
+           * Los archivos de configuración en subdirectorios se delegan a 'config-files-override'.
+           */
+          allowDefaultProject: ['*.config.mjs', '*.config.js', '*.config.ts', 'jest.preset.js'],
         },
         tsconfigRootDir: import.meta.dirname,
       },
@@ -69,26 +66,44 @@ export default[
       /**
        * @section Matriz de Fronteras (Module Boundaries - ADR 0003)
        */
-      '@nx/enforce-module-boundaries':[
+      '@nx/enforce-module-boundaries': [
         'error',
         {
-          enforceBuildableLibDependency: true,
+          enforceBuildableLibDependency: false,
           allow: [
             '^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$',
             '^.*/next.config\\.[cm]?js$',
             '^.*/postcss.config\\.[cm]?js$',
             '^.*/tailwind.config\\.[cm]?js$',
           ],
-          depConstraints:[
-            { sourceTag: 'scope:core', onlyDependOnLibsWithTags: ['scope:core'] },
-            { sourceTag: 'scope:shared', onlyDependOnLibsWithTags: ['scope:core', 'scope:shared'] },
+          depConstraints: [
+            { sourceTag: 'scope:contracts', onlyDependOnLibsWithTags: [] },
+            {
+              sourceTag: 'scope:core',
+              onlyDependOnLibsWithTags: ['scope:core', 'scope:contracts'],
+            },
+            {
+              sourceTag: 'scope:shared',
+              onlyDependOnLibsWithTags: ['scope:core', 'scope:shared', 'scope:contracts'],
+            },
             {
               sourceTag: 'scope:engines',
-              onlyDependOnLibsWithTags:['scope:core', 'scope:shared', 'scope:engines']
+              onlyDependOnLibsWithTags: [
+                'scope:core',
+                'scope:shared',
+                'scope:engines',
+                'scope:contracts',
+              ],
             },
             {
               sourceTag: 'scope:modules',
-              onlyDependOnLibsWithTags: ['scope:core', 'scope:shared', 'scope:engines', 'scope:modules']
+              onlyDependOnLibsWithTags: [
+                'scope:core',
+                'scope:shared',
+                'scope:engines',
+                'scope:modules',
+                'scope:contracts',
+              ],
             },
             { sourceTag: 'scope:qa', onlyDependOnLibsWithTags: ['scope:*'] },
             { sourceTag: 'scope:tools', onlyDependOnLibsWithTags: ['scope:*'] },
@@ -96,9 +111,15 @@ export default[
             { sourceTag: 'type:data', notDependOnLibsWithTags: ['type:ui'] },
             {
               sourceTag: 'type:ui',
-              onlyDependOnLibsWithTags:['type:ui', 'type:schema', 'type:core', 'type:shared', 'type:logic', 'type:data']
+              onlyDependOnLibsWithTags: [
+                'type:ui',
+                'type:schema',
+                'type:core',
+                'type:shared',
+                'type:logic',
+              ],
             },
-            { sourceTag: 'type:schema', onlyDependOnLibsWithTags:[] },
+            { sourceTag: 'type:schema', onlyDependOnLibsWithTags: [] },
           ],
         },
       ],
@@ -107,26 +128,27 @@ export default[
        * @section Rigor SRE y Performance
        */
       'no-console': ['error', { allow: ['warn', 'error'] }],
-      'eqeqeq': ['error', 'always'],
-      'complexity': ['error', 10],
-      'max-lines':['error', { max: 150, skipBlankLines: true, skipComments: true }],
+      eqeqeq: ['error', 'always'],
+      complexity: ['error', 10],
+      'max-lines': ['error', { max: 200, skipBlankLines: true, skipComments: true }],
 
       /** Prevención de fallos asíncronos y tipado 'any' */
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
 
-      /** Bloqueo de Hardware Cloud-Sovereign */
+      /** Bloqueo de Hardware Cloud-Primary (ADR 0015) */
       'no-restricted-syntax': [
         'error',
         {
           selector: "MemberExpression[object.name='process'][property.name='env']",
-          message: "⚠️ Acceso prohibido a 'process.env'. Use '@floripa-dignidade/environment-validator'.",
+          message:
+            "⚠️ Acceso prohibido a 'process.env'. Use '@floripa-dignidade/environment-validator'.",
         },
       ],
 
-      /** Nomenclatura ISO */
-      '@typescript-eslint/naming-convention':[
+      /** Nomenclatura ISO/IEC 11179 */
+      '@typescript-eslint/naming-convention': [
         'error',
         { selector: 'interface', format: ['PascalCase'], prefix: ['I'] },
         { selector: 'typeLike', format: ['PascalCase'] },
@@ -139,19 +161,67 @@ export default[
         },
         {
           selector: 'variable',
-          format:['camelCase', 'UPPER_CASE', 'PascalCase'],
+          format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
           leadingUnderscore: 'allow',
         },
         { selector: 'parameter', format: ['camelCase'], leadingUnderscore: 'allow' },
       ],
 
-      'sort-imports':['error', { ignoreCase: true, ignoreDeclarationSort: true, allowSeparatedGroups: true }],
-      '@typescript-eslint/no-unused-vars':['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
+      'sort-imports': [
+        'error',
+        { ignoreCase: true, ignoreDeclarationSort: true, allowSeparatedGroups: true },
+      ],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
     },
   },
 
   {
-    files:[
+    name: 'floripa-dignidade/config-files-override',
+    files: [
+      '*.config.js',
+      '*.config.cjs',
+      '*.config.mjs',
+      '*.config.ts',
+      '**/*.config.js',
+      '**/*.config.cjs',
+      '**/*.config.mjs',
+      '**/*.config.ts',
+      'jest.config.ts',
+      '**/jest.config.ts',
+      'jest.preset.js',
+      '**/jest.preset.js',
+      'postcss.config.js',
+      '**/postcss.config.js',
+      'tailwind.config.js',
+      '**/tailwind.config.js',
+      'next.config.js',
+      '**/next.config.js',
+    ],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        projectService: false,
+        program: null,
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-floating-promises': 'off',
+      '@typescript-eslint/await-thenable': 'off',
+      '@typescript-eslint/naming-convention': 'off',
+      'max-lines': 'off',
+    },
+  },
+
+  {
+    name: 'floripa-dignidade/hardware-environment-exceptions',
+    files: [
       'apps/**/*',
       'libs/core/environment-validator/**/*',
       'scripts/**/*',

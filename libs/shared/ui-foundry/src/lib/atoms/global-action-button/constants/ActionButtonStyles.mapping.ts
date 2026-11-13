@@ -6,7 +6,10 @@
 
 export type TVisualIntentConfigurationLiteral = 'CONVERSION' | 'STANDARD' | 'OUTLINE' | 'GHOST';
 
-export const ACTION_BUTTON_VARIANT_STYLES_MAPPING: Record<TVisualIntentConfigurationLiteral, string> = {
+export const ACTION_BUTTON_VARIANT_STYLES_MAPPING: Record<
+  TVisualIntentConfigurationLiteral,
+  string
+> = {
   CONVERSION: 'bg-amber-500 text-white hover:bg-amber-600 shadow-lg shadow-amber-200',
   STANDARD: 'bg-navy-900 text-white hover:bg-navy-800 shadow-md',
   OUTLINE: 'border-2 border-navy-900 text-navy-900 hover:bg-navy-50',

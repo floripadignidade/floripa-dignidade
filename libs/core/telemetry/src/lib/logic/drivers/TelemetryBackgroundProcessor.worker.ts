@@ -72,7 +72,8 @@ addEventListener('message', async (incomingMessageEvent: MessageEvent<IWorkerInc
     postMessage({
       transactionIdentifier,
       isOperationSuccessfulBoolean: false,
-      errorDescriptionLiteral: caughtError instanceof Error ? caughtError.message : String(caughtError),
+      errorDescriptionLiteral:
+        caughtError instanceof Error ? caughtError.message : String(caughtError),
     });
   }
 });

@@ -16,23 +16,26 @@ import type { IAdversarialPayload } from './schemas/AdversarialPayload.schema';
  * @returns {IAdversarialPayload[]} Colección de armas XSS estructuradas.
  */
 export const GenerateCrossSiteScriptingPayload = (): IAdversarialPayload[] => {
-  return[
+  return [
     {
       payloadIdentifier: crypto.randomUUID(),
       maliciousPayloadContentSnapshot: "<script>alert('SovereignBypass')</script>",
-      attackTechniqueDescriptionLiteral: 'Inyección de script directa. Debería ser atrapada por Zod o escapada por React.',
+      attackTechniqueDescriptionLiteral:
+        'Inyección de script directa. Debería ser atrapada por Zod o escapada por React.',
       intrinsicThreatSeverityLevel: 'HIGH_RISK',
     },
     {
       payloadIdentifier: crypto.randomUUID(),
       maliciousPayloadContentSnapshot: "<img src='x' onerror='alert(\"XSS\")'>",
-      attackTechniqueDescriptionLiteral: 'Evasión de limpieza de etiquetas script mediante atributos de eventos (Event Handlers).',
+      attackTechniqueDescriptionLiteral:
+        'Evasión de limpieza de etiquetas script mediante atributos de eventos (Event Handlers).',
       intrinsicThreatSeverityLevel: 'HIGH_RISK',
     },
     {
       payloadIdentifier: crypto.randomUUID(),
-      maliciousPayloadContentSnapshot: "javascript:eval('alert(\"XSS\")')",
-      attackTechniqueDescriptionLiteral: 'Abuso de protocolo URI. Altamente efectivo si Zod.string().url() no filtra el protocolo javascript:.',
+      maliciousPayloadContentSnapshot: 'javascript:eval(\'alert("XSS")\')',
+      attackTechniqueDescriptionLiteral:
+        'Abuso de protocolo URI. Altamente efectivo si Zod.string().url() no filtra el protocolo javascript:.',
       intrinsicThreatSeverityLevel: 'CRITICAL_COLLAPSE',
     },
     {
@@ -42,8 +45,9 @@ export const GenerateCrossSiteScriptingPayload = (): IAdversarialPayload[] => {
        */
       payloadIdentifier: crypto.randomUUID(),
       maliciousPayloadContentSnapshot: "%3Cscript%3Ealert('XSS')%3C%2Fscript%3E",
-      attackTechniqueDescriptionLiteral: 'Evasión de filtros básicos WAF mediante URL Encoding (Hexadecimal).',
+      attackTechniqueDescriptionLiteral:
+        'Evasión de filtros básicos WAF mediante URL Encoding (Hexadecimal).',
       intrinsicThreatSeverityLevel: 'MODERATE_FLAW',
-    }
+    },
   ];
 };

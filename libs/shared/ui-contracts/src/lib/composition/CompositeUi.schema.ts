@@ -6,8 +6,10 @@
 import { z } from 'zod';
 
 export const VisualLayoutVariantSchema = z.enum([
-  'STANDARD_CONTAINER', 'FULL_STRETCH_WIDTH',
-  'NARROW_READING_COLUMN', 'DYNAMIC_GRID_SYSTEM'
+  'STANDARD_CONTAINER',
+  'FULL_STRETCH_WIDTH',
+  'NARROW_READING_COLUMN',
+  'DYNAMIC_GRID_SYSTEM',
 ]);
 
 export const InteractionStateSchema = z.object({
@@ -22,10 +24,12 @@ export const ResponsiveVisibilitySchema = z.object({
   isDesktopVisibleBoolean: z.boolean().default(true),
 });
 
-export const CompositeUiSchema = z.object({
-  visualLayoutVariant: VisualLayoutVariantSchema.default('STANDARD_CONTAINER'),
-  interactionStates: InteractionStateSchema.optional(),
-  responsiveVisibility: ResponsiveVisibilitySchema.optional(),
-}).readonly();
+export const CompositeUiSchema = z
+  .object({
+    visualLayoutVariant: VisualLayoutVariantSchema.default('STANDARD_CONTAINER'),
+    interactionStates: InteractionStateSchema.optional(),
+    responsiveVisibility: ResponsiveVisibilitySchema.optional(),
+  })
+  .readonly();
 
 export type ICompositeUi = z.infer<typeof CompositeUiSchema>;

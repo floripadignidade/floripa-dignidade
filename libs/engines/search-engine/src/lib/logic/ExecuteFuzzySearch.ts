@@ -65,20 +65,20 @@ export const ExecuteFuzzySearch = async (
         const inputValidationResult = ExecuteFuzzySearchParametersSchema.safeParse({
           searchQueryLiteral,
           completeIndexCollection,
-          authenticatedUserAuthorityRole
+          authenticatedUserAuthorityRole,
         });
 
         if (!inputValidationResult.success) {
           throw new ValidationException('CONTRATO_DE_SOLICITUD_DE_BUSQUEDA_CORRUPTO', {
             structuralIssuesCollection: inputValidationResult.error.flatten(),
-            correlationIdentifier
+            correlationIdentifier,
           });
         }
 
         const {
           searchQueryLiteral: validatedQuery,
           completeIndexCollection: validatedIndex,
-          authenticatedUserAuthorityRole: validatedRole
+          authenticatedUserAuthorityRole: validatedRole,
         } = inputValidationResult.data;
 
         // --- FASE 2: FILTRO PERIMETRAL (RBAC Guard Delegation) ---
@@ -87,7 +87,7 @@ export const ExecuteFuzzySearch = async (
          */
         const authorizedEntityCollection = FilterSearchIndexByAuthority(
           [...validatedIndex],
-          validatedRole
+          validatedRole,
         );
 
         // --- FASE 3: COMPUTACIÓN DIFUSA (Asynchronous Driver) ---
@@ -97,7 +97,7 @@ export const ExecuteFuzzySearch = async (
          */
         const rawMatchResultsCollection = await ExecuteTechnicalFuzzySearch(
           validatedQuery,
-          authorizedEntityCollection
+          authorizedEntityCollection,
         );
 
         // --- FASE 4: ADUANA DE SALIDA (Integrity Check) ---
@@ -119,20 +119,18 @@ export const ExecuteFuzzySearch = async (
             queryLengthQuantity: validatedQuery.length,
             resultsFoundQuantity: validatedDiscoveryResults.length,
             actorAuthorityRoleLiteral: validatedRole,
-            preFilterIndexSizeQuantity: completeIndexCollection.length
-          }
+            preFilterIndexSizeQuantity: completeIndexCollection.length,
+          },
         });
 
         return [...validatedDiscoveryResults];
-
       } catch (caughtError: unknown) {
         // --- FASE 6: GESTIÓN FORENSE DE COLAPSO (Resilience Layer) ---
 
         if (caughtError instanceof ValidationException) throw caughtError;
 
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : 'UNKNOWN_SEARCH_FAULT';
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : 'UNKNOWN_SEARCH_FAULT';
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -143,7 +141,7 @@ export const ExecuteFuzzySearch = async (
           semanticIntentTag: 'SEARCH_ENGINE_FAULT',
           contextMetadataSnapshot: {
             errorTraceLiteral: errorDescriptionLiteral,
-            searchQuerySnapshot: searchQueryLiteral
+            searchQuerySnapshot: searchQueryLiteral,
           },
         });
 

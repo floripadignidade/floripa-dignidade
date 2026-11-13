@@ -33,7 +33,7 @@ import { EmitTelemetrySignal } from '@floripa-dignidade/telemetry';
 export const ReportProfessionalContext = (
   currentRowInstance: Row,
   activeCategorySpecificationLiteral: string,
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): void => {
   /**
    * @section Captura de Identidad Ejecutora

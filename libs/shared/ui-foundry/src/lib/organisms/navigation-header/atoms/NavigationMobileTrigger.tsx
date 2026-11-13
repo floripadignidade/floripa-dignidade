@@ -18,10 +18,7 @@ import React, { useCallback } from 'react';
 import { Menu, X } from 'lucide-react';
 
 /* 1. Infraestructura Core y Utilidades (Sovereign Swarm - Clean Paths) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 import { GlobalStyleClassMerger } from '@floripa-dignidade/shared-utility';
 

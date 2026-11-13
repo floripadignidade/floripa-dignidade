@@ -1,0 +1,10 @@
+{
+  "logs": {
+    "TRIAGE_SEQUENCE_STARTED": "Triage sequence initiated for the incoming webhook event.",
+    "CLASSIFYING_SIGNAL_TYPE": "Identifying and classifying message media or content type.",
+    "UNKNOWN_SIGNAL_TYPE_IGNORED": "Unsupported signal type received; event securely ignored."
+  },
+  "errors": {
+    "CORRUPT_WEBHOOK_PAYLOAD": "Meta webhook payload does not comply with the data contract requirements."
+  }
+}

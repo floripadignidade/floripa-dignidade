@@ -64,9 +64,9 @@ export { FetchSingleLedgerRecord } from './lib/logic/queries/FetchSingleLedgerRe
  */
 export { MapDirectMessageToPersistence } from './lib/logic/mappers/MapDirectMessageToPersistence';
 export { ConsolidateUnifiedInboxEvents } from './lib/logic/mappers/ConsolidateUnifiedInboxEvents';
-export { 
-  MapNotificationToUnifiedEvent, 
-  MapMessageToUnifiedEvent 
+export {
+  MapNotificationToUnifiedEvent,
+  MapMessageToUnifiedEvent,
 } from './lib/logic/mappers/MapToUnifiedCommunicationEvent';
 
 /**

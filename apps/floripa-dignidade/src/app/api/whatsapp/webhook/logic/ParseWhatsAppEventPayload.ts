@@ -14,9 +14,7 @@ import { MapHttpErrorToException } from '@floripa-dignidade/exceptions';
  * @returns {unknown} Objeto JSON para el triaje del enjambre.
  * @throws {GlobalBaseException} Si el JSON está malformado.
  */
-export const ParseWhatsAppEventPayload = (
-  rawBodyLiteral: string
-): unknown => {
+export const ParseWhatsAppEventPayload = (rawBodyLiteral: string): unknown => {
   try {
     return JSON.parse(rawBodyLiteral);
   } catch (_caughtError: unknown) {

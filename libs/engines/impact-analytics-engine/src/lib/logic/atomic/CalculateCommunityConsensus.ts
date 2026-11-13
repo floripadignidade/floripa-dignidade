@@ -13,9 +13,7 @@
  * @param weightedTrustScoreNumeric - Resultado del cálculo bayesiano.
  * @returns {number} Índice de consenso entre 0.0 y 1.0.
  */
-export const CalculateCommunityConsensus = (
-  weightedTrustScoreNumeric: number
-): number => {
+export const CalculateCommunityConsensus = (weightedTrustScoreNumeric: number): number => {
   /**
    * @section Lógica de Polarización
    * Un score de 0.5 representa máxima duda o división (Consenso 0).

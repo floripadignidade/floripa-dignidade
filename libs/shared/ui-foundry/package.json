@@ -1,9 +1,10 @@
 {
   "name": "@floripa-dignidade/shared-ui-foundry",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "private": true,
-  "description": "Enterprise Global: Búnker de componentes visuales bajo estándar Zenith.",
+  "description": "Shared UI Module: Fundición de componentes visuales accesibles React 19 bajo estándar OEDP-V18.1.",
   "type": "module",
+  "sideEffects": false,
   "author": "Raz Podestá - MetaShark Tech",
   "license": "UNLICENSED",
   "exports": {
@@ -14,25 +15,34 @@
     }
   },
   "dependencies": {
+    "@floripa-dignidade/contracts": "workspace:*",
     "@floripa-dignidade/shared-state-store": "workspace:*",
+    "@floripa-dignidade/shared-ui-contracts": "workspace:*",
     "@floripa-dignidade/shared-utility": "workspace:*",
     "@floripa-dignidade/telemetry": "workspace:*",
+    "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-navigation-menu": "^1.2.14",
-    "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-slot": "^1.5.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
-    "lucide-react": "^1.8.0",
-    "tailwind-merge": "^2.3.0"
+    "lucide-react": "^1.70.0",
+    "react-hook-form": "^7.73.1",
+    "tailwind-merge": "^3.7.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
-    "next": "~16.1.6"
+    "next": "~16.1.7"
   },
   "peerDependencies": {
-    "next": "~16.1.6",
+    "next": "~16.1.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "nx": {
-    "tags": ["scope:shared", "type:ui", "platform:web"]
+    "tags": [
+      "scope:shared",
+      "type:ui",
+      "platform:web"
+    ]
   }
 }

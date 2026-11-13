@@ -31,7 +31,7 @@ export interface IReputationActions {
   readonly CacheImpactIndicatorAction: (
     entityIdentifierLiteral: string,
     weightedTrustScoreNumeric: number,
-    communityConsensusIndexNumeric: number
+    communityConsensusIndexNumeric: number,
   ) => void;
 }
 
@@ -39,16 +39,16 @@ export interface IReputationActions {
  * @name TReputationSlice
  * @description Unión inmutable de los dominios de Identidad, Caché de Impacto y Acciones.
  */
-export type TReputationSlice =
-  IGlobalStateADN['identity'] &
+export type TReputationSlice = IGlobalStateADN['identity'] &
   IGlobalStateADN['impactCache'] &
   IReputationActions;
 
 /**
  * Generador atómico de la rebanada de Reputación Bayesiana.
  */
-export const createReputationSlice: StateCreator<TReputationSlice, [], [], TReputationSlice> = (set) => ({
-
+export const createReputationSlice: StateCreator<TReputationSlice, [], [], TReputationSlice> = (
+  set,
+) => ({
   // --- 1. ESTADO INICIAL (ADN Soberano) ---
   actorAuthorityWeightNumeric: 0.1,
   isVerifiedHumanBoolean: false,
@@ -56,32 +56,34 @@ export const createReputationSlice: StateCreator<TReputationSlice, [], [], TRepu
 
   // --- 2. ACCIONES DE MUTACIÓN (Sovereign Motors) ---
 
-  UpdateActorAuthorityWeightAction: (weightNumeric) => set({
-    actorAuthorityWeightNumeric: weightNumeric,
-    /**
-     * 🛡️ Regla de Negocio SRE:
-     * Si el peso bayesiano alcanza 0.5 (50%), se considera que la entidad
-     * ha superado el umbral de validación humana institucional.
-     */
-    isVerifiedHumanBoolean: weightNumeric >= 0.5
-  }),
+  UpdateActorAuthorityWeightAction: (weightNumeric) =>
+    set({
+      actorAuthorityWeightNumeric: weightNumeric,
+      /**
+       * 🛡️ Regla de Negocio SRE:
+       * Si el peso bayesiano alcanza 0.5 (50%), se considera que la entidad
+       * ha superado el umbral de validación humana institucional.
+       */
+      isVerifiedHumanBoolean: weightNumeric >= 0.5,
+    }),
 
   CacheImpactIndicatorAction: (
     entityIdentifierLiteral,
     weightedTrustScoreNumeric,
-    communityConsensusIndexNumeric
-  ) => set((state) => ({
-    /**
-     * 🛡️ SANEADO Zenith (Fix TS2345):
-     * Las llaves inyectadas ahora cumplen de forma absoluta con el estándar
-     * ISO exigido por el 'ImpactCacheStateSchema'. Cero abreviaturas.
-     */
-    lastViewedIndicatorsMapping: {
-      ...state.lastViewedIndicatorsMapping,
-      [entityIdentifierLiteral]: {
-        weightedTrustScoreNumeric,
-        communityConsensusIndexNumeric
-      }
-    }
-  }))
+    communityConsensusIndexNumeric,
+  ) =>
+    set((state) => ({
+      /**
+       * 🛡️ SANEADO Zenith (Fix TS2345):
+       * Las llaves inyectadas ahora cumplen de forma absoluta con el estándar
+       * ISO exigido por el 'ImpactCacheStateSchema'. Cero abreviaturas.
+       */
+      lastViewedIndicatorsMapping: {
+        ...state.lastViewedIndicatorsMapping,
+        [entityIdentifierLiteral]: {
+          weightedTrustScoreNumeric,
+          communityConsensusIndexNumeric,
+        },
+      },
+    })),
 });

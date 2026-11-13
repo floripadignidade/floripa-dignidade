@@ -41,16 +41,17 @@ export const SynchronizeTelemetryBufferAction = async (): Promise<void> => {
     // CASO A: Trazabilidad Forense Local (Modo Espejo)
     if (isDevelopmentActiveBoolean) {
       telemetrySignalsCollection.forEach((signalSnapshot: ITelemetrySignal) => {
-        console.warn(`[TELEMETRY_FORENSIC]: ${signalSnapshot.operationCodeLiteral}`, signalSnapshot);
+        console.warn(
+          `[TELEMETRY_FORENSIC]: ${signalSnapshot.operationCodeLiteral}`,
+          signalSnapshot,
+        );
       });
       return;
     }
 
     // CASO B: Persistencia en el Ledger Cloud (Supabase)
-    const {
-      cloudStorageUniformResourceLocatorLiteral,
-      cloudStorageAccessSecurityKeySecret,
-    } = ExtractTelemetryInfrastructureConfiguration();
+    const { cloudStorageUniformResourceLocatorLiteral, cloudStorageAccessSecurityKeySecret } =
+      ExtractTelemetryInfrastructureConfiguration();
 
     if (cloudStorageUniformResourceLocatorLiteral && cloudStorageAccessSecurityKeySecret) {
       await TransmitTelemetrySignalsToCloud(

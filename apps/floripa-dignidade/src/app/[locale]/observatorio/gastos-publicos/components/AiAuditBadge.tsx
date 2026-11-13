@@ -30,9 +30,7 @@ interface IAiAuditBadgeProperties {
  * @param propertiesSnapshot - Snapshot inmutable con el coeficiente de anomalía.
  * @returns {React.JSX.Element} Insignia visual auditada.
  */
-export const AiAuditBadge = (
-  propertiesSnapshot: IAiAuditBadgeProperties
-): React.JSX.Element => {
+export const AiAuditBadge = (propertiesSnapshot: IAiAuditBadgeProperties): React.JSX.Element => {
   const { anomalyScoreNumeric } = propertiesSnapshot;
 
   /**

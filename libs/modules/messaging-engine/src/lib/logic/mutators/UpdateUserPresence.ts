@@ -39,9 +39,7 @@ const PRESENCE_MUTATOR_IDENTIFIER = 'CITIZEN_PRESENCE_HEARTBEAT_MUTATOR';
  * @returns {Promise<boolean>} Verdadero si el pulso fue reconocido por la infraestructura.
  * @throws {InternalSystemException} Si el ADN es corrupto o la nube rechaza la sincronización.
  */
-export const UpdateUserPresence = async (
-  unvalidatedPayloadSnapshot: unknown
-): Promise<boolean> => {
+export const UpdateUserPresence = async (unvalidatedPayloadSnapshot: unknown): Promise<boolean> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
   return await TraceExecutionTime(
@@ -56,7 +54,7 @@ export const UpdateUserPresence = async (
          */
         const {
           SUPABASE_URL: cloudStorageUrlLiteral,
-          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret
+          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret,
         } = await ValidateEnvironmentAduana();
 
         // 2. ADUANA DE ADN (Safe Parsing)
@@ -65,7 +63,7 @@ export const UpdateUserPresence = async (
         if (!validationResult.success) {
           throw new InternalSystemException('PRESENCE_DNA_VIOLATION', {
             structuralIssuesCollection: validationResult.error.format(),
-            correlationIdentifier
+            correlationIdentifier,
           });
         }
 
@@ -74,7 +72,7 @@ export const UpdateUserPresence = async (
         // 3. TRANSFORMACIÓN DE ADN (Delegación Atómica)
         const ledgerPayloadSnapshot = MapPresenceToLedgerSnapshot(
           validatedPresenceData,
-          correlationIdentifier
+          correlationIdentifier,
         );
 
         /**
@@ -82,16 +80,19 @@ export const UpdateUserPresence = async (
          * Implementamos el protocolo de red directamente aquí para mantener la
          * eficiencia del Edge, utilizando el generador de cabeceras institucional.
          */
-        const cloudPersistenceResponse = await fetch(`${cloudStorageUrlLiteral}/rest/v1/user_presence_ledger`, {
-          method: 'POST',
-          headers: {
-            ...CreateSovereignDatabaseHeaders(cloudSecurityKeySecret, 'minimal')
-          },
-          body: JSON.stringify(ledgerPayloadSnapshot),
-          /** 🛡️ LEY DE RESILIENCIA: Upsert basado en citizen_id. */
-          'Prefer': 'resolution=merge-duplicates',
-          signal: AbortSignal.timeout(5000)
-        } as RequestInit);
+        const cloudPersistenceResponse = await fetch(
+          `${cloudStorageUrlLiteral}/rest/v1/user_presence_ledger`,
+          {
+            method: 'POST',
+            headers: {
+              ...CreateSovereignDatabaseHeaders(cloudSecurityKeySecret, 'minimal'),
+            },
+            body: JSON.stringify(ledgerPayloadSnapshot),
+            /** 🛡️ LEY DE RESILIENCIA: Upsert basado en citizen_id. */
+            Prefer: 'resolution=merge-duplicates',
+            signal: AbortSignal.timeout(5000),
+          } as RequestInit,
+        );
 
         if (!cloudPersistenceResponse.ok) {
           throw new Error(`CLOUD_LEDGER_REJECTION_HTTP_${cloudPersistenceResponse.status}`);
@@ -106,17 +107,15 @@ export const UpdateUserPresence = async (
           messageContentLiteral: 'Pulso de vida sincronizado exitosamente con el Ledger.',
           contextMetadataSnapshot: {
             citizenId: validatedPresenceData.citizenIdentifier,
-            status: validatedPresenceData.currentAvailabilityStatus
-          }
+            status: validatedPresenceData.currentAvailabilityStatus,
+          },
         });
 
         return true;
-
       } catch (caughtError: unknown) {
         // 6. GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -124,14 +123,14 @@ export const UpdateUserPresence = async (
           operationCodeLiteral: 'PRESENCE_SYNC_COLLAPSE',
           correlationIdentifier,
           messageContentLiteral: 'Fallo catastrófico en la sincronización del pulso.',
-          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
         });
 
         throw new InternalSystemException('FALLO_EN_SINCRONIZACION_DE_PRESENCIA_SRE', {
           originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier
+          correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

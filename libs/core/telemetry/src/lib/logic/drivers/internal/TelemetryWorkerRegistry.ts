@@ -46,5 +46,5 @@ export const globalTelemetryWorkerInstance: IGlobalTelemetryWorkerRegistry = {
    */
   get current(): IWorkerInstanceBridge | null {
     return GetGlobalTelemetryWorkerInstance();
-  }
+  },
 };

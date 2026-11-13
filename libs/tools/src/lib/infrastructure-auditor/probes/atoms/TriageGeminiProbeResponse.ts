@@ -2,22 +2,28 @@
  * @section Infrastructure Auditor - Gemini Response Triage Engine (Atom)
  * @description Átomo de lógica pura encargado de evaluar la respuesta HTTP de
  * Google Generative Language API, clasificar los códigos de estado RFC 9110,
- * diagnosticar la degradación de latencia y emitir telemetría forense.
+ * diagnosticar la degradación de latencia y emitir telemetría forense estandarizada.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Rendimiento).
+ * SANEADO Zenith:
+ * 1. Erradicación de TS18004 alineando el parámetro 'endpointTargetLiteral' con el contrato Zod.
+ * 2. Purga de extensión sintética '.js' en la importación de esquemas (Turbopack Clean Paths).
+ * 3. Inmutabilidad forzada mediante Object.freeze y tipado estricto sin 'any'.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
+/* 1. Infraestructura Core de Telemetría */
 import {
   EmitTelemetrySignal,
   type ModuleIdentifier,
   type OperationCode,
 } from '@floripa-dignidade/telemetry';
 
-import type { IIndividualProviderAuditSnapshot } from '../../schemas/CloudInfrastructureAuditReport.schema.js';
+/* 2. Contratos Centralizados de Auditoría (Clean Paths - Extensionless) */
+import type { IIndividualProviderAuditSnapshot } from '../../schemas/CloudInfrastructureAuditReport.schema';
 
 /** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
 const TRIAGE_MODULE_IDENTIFIER = 'GEMINI_RESPONSE_TRIAGE_ATOM' as ModuleIdentifier;
@@ -25,16 +31,16 @@ const TRIAGE_MODULE_IDENTIFIER = 'GEMINI_RESPONSE_TRIAGE_ATOM' as ModuleIdentifi
 /**
  * Procesa la respuesta HTTP recibida y construye el diagnóstico inmutable del proveedor.
  *
- * @param incomingNetworkResponse - Respuesta HTTP devuelta por Google API.
+ * @param incomingNetworkResponse - Respuesta HTTP devuelta por Google Generative Language API.
  * @param executionLatencyInMillisecondsQuantity - Latencia de red física medida en milisegundos.
- * @param targetEndpointLiteral - URL canónica consultada.
- * @param correlationIdentifier - Identificador de correlación forense.
- * @returns {IIndividualProviderAuditSnapshot} Snapshot sellado con el dictamen de salud.
+ * @param endpointTargetLiteral - URL canónica consultada durante el sondeo.
+ * @param correlationIdentifier - Identificador único de correlación para trazabilidad forense.
+ * @returns {IIndividualProviderAuditSnapshot} Snapshot sellado con el dictamen de salud del servicio.
  */
 export const TriageGeminiProbeResponse = (
   incomingNetworkResponse: Response,
   executionLatencyInMillisecondsQuantity: number,
-  targetEndpointLiteral: string,
+  endpointTargetLiteral: string,
   correlationIdentifier: string,
 ): IIndividualProviderAuditSnapshot => {
   // 1. TRIAJE DE RESPUESTA EXITOSA (HTTP 200 OK)

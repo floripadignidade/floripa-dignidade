@@ -11,19 +11,21 @@ import { z } from 'zod';
 /**
  * Representación cruda de un Distrito según la API de Localidades.
  */
-export const IbgeDistrictRawResponseSchema = z.object({
-  id: z.number().describe('Código técnico del distrito.'),
-  nome: z.string().describe('Nombre oficial de la localidad.'),
-  municipio: z.object({
-    id: z.number(),
-    nome: z.string(),
-    UF: z.object({
+export const IbgeDistrictRawResponseSchema = z
+  .object({
+    id: z.number().describe('Código técnico del distrito.'),
+    nome: z.string().describe('Nombre oficial de la localidad.'),
+    municipio: z.object({
       id: z.number(),
-      sigla: z.string(),
-      nome: z.string()
-    })
+      nome: z.string(),
+      UF: z.object({
+        id: z.number(),
+        sigla: z.string(),
+        nome: z.string(),
+      }),
+    }),
   })
-}).readonly();
+  .readonly();
 
 /**
  * Colección de distritos (Array de respuesta de la API).

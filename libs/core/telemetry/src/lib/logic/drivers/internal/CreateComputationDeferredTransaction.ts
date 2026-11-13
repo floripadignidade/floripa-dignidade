@@ -26,7 +26,7 @@ export const CreateComputationDeferredTransaction = <TResult>(
   transactionIdentifier: string,
   commandLiteral: string,
   timeoutQuantity: number,
-  hooks: IDeferredTransactionHooks<TResult>
+  hooks: IDeferredTransactionHooks<TResult>,
 ): void => {
   // 1. Configuración de Seguridad (SRE Timeout)
   const timeoutTimerReference = setTimeout(() => {
@@ -36,7 +36,7 @@ export const CreateComputationDeferredTransaction = <TResult>(
         new InternalSystemException('BACKGROUND_COMPUTATION_TIMEOUT', {
           transactionIdentifier,
           commandLiteral,
-        })
+        }),
       );
     }
   }, timeoutQuantity);

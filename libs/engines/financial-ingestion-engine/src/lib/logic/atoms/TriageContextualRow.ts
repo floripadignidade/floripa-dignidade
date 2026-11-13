@@ -33,7 +33,8 @@ import { ReportProfessionalContext } from './ReportProfessionalContext';
  * @description Puente de tipos para permitir la mutación de la máquina de estados
  * interna sin violar el contrato '.readonly()' del esquema Zod externo.
  */
-interface IInternalMutableContext extends Omit<IExtractionContext, 'activeCategorySpecificationLiteral'> {
+interface IInternalMutableContext
+  extends Omit<IExtractionContext, 'activeCategorySpecificationLiteral'> {
   activeCategorySpecificationLiteral: string;
 }
 
@@ -49,7 +50,7 @@ interface IInternalMutableContext extends Omit<IExtractionContext, 'activeCatego
 export const TriageContextualRow = (
   currentRowInstance: Row,
   rowNumberNumeric: number,
-  processContext: IExtractionContext
+  processContext: IExtractionContext,
 ): void => {
   /**
    * @section Frontera de Seguridad (Metadata Skip)
@@ -108,7 +109,7 @@ export const TriageContextualRow = (
     ReportProfessionalContext(
       currentRowInstance,
       mutableContextReference.activeCategorySpecificationLiteral,
-      mutableContextReference.correlationIdentifier
+      mutableContextReference.correlationIdentifier,
     );
   }
 };

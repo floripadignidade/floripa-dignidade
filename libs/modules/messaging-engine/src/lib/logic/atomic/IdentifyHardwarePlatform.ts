@@ -1,14 +1,14 @@
 /**
  * @section Messaging Logic - Hardware Sensor Atom
- * @description Clasificador de soberanía de hardware. Determina la procedencia física 
+ * @description Clasificador de soberanía de hardware. Determina la procedencia física
  * del pulso de interacción mediante análisis de traza de entorno (User Agent).
- * 
+ *
  * Protocolo OEDP-V16.0 - Functional Atomicity & High Performance.
  */
 
 import type { TDevicePlatform } from '../../schemas/UserPresence.schema';
 
-/** 
+/**
  * ⚡ OPTIMIZACIÓN: Motores de detección pre-compilados (Hoisting).
  * Se mantienen en el ámbito del módulo para evitar re-compilaciones en el GC.
  */
@@ -38,7 +38,5 @@ export const IdentifyHardwarePlatform = (): TDevicePlatform => {
   // Nota: Se alinea con DevicePlatformSchema definido en el ADN del búnker.
   const isAppleHardwareDetectedBoolean = APPLE_HARDWARE_ENGINE.test(userAgentLiteral);
 
-  return isAppleHardwareDetectedBoolean 
-    ? 'PWA_MOBILE_APPLE' 
-    : 'PWA_MOBILE_ANDROID';
+  return isAppleHardwareDetectedBoolean ? 'PWA_MOBILE_APPLE' : 'PWA_MOBILE_ANDROID';
 };

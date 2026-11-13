@@ -64,7 +64,9 @@ export const AggregateTerritorialSentiment = async (
          * En la Fase 8, el 'territorial-engine' normalizará estos nombres
          * contra los códigos oficiales del IBGE.
          */
-        const territoryKeyLiteral = (evaluationItem.territorialContextLiteral || 'FLORIANOPOLIS_GLOBAL')
+        const territoryKeyLiteral = (
+          evaluationItem.territorialContextLiteral || 'FLORIANOPOLIS_GLOBAL'
+        )
           .trim()
           .toUpperCase();
 

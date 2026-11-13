@@ -22,7 +22,7 @@ interface IAssemblerParameters {
  * Ensambla el snapshot forense de eficiencia social.
  */
 export const AssembleSocialEfficiencyReport = (
-  parameters: IAssemblerParameters
+  parameters: IAssemblerParameters,
 ): ISocialEfficiencyReport => {
   return Object.freeze({
     expenditureIdentifier: parameters.expenditureIdentifier,

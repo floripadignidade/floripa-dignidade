@@ -38,9 +38,7 @@ const ACCESS_VALIDATOR_IDENTIFIER = 'OBSERVATORY_ACCESS_VALIDATOR_ATOM' as Modul
  * @param targetLocaleIdentifier - Identificador de idioma para la composición de la ruta.
  * @returns {Promise<void>} Promesa que resuelve nominalmente si el acceso es legítimo.
  */
-export const ValidateObservatoryAccess = async (
-  targetLocaleIdentifier: string,
-): Promise<void> => {
+export const ValidateObservatoryAccess = async (targetLocaleIdentifier: string): Promise<void> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
   /**

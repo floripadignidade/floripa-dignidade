@@ -1,0 +1,31 @@
+{
+  "hero": {
+    "badgeLabelLiteral": "Civic Observatory • Florianópolis",
+    "headlineMainLiteral": "Technology serving",
+    "headlineAccentLiteral": "human dignity",
+    "descriptionLiteral": "Independent monitoring of public spending, territorial protection, and safe citizen reporting channels in Florianópolis.",
+    "primaryActionLabelLiteral": "Support Cause",
+    "secondaryActionLabelLiteral": "View Transparency"
+  },
+  "features": [
+    {
+      "identifier": "TRANSPARENCY",
+      "titleLiteral": "Radical Transparency",
+      "descriptionLiteral": "Civic auditing of public contracts and real-time fiscal accountability."
+    },
+    {
+      "identifier": "ALERTS",
+      "titleLiteral": "Territorial Alerts",
+      "descriptionLiteral": "District-level community monitoring with strict LGPD identity protection."
+    },
+    {
+      "identifier": "ACTION",
+      "titleLiteral": "Solidarity Response",
+      "descriptionLiteral": "Direct coordination across volunteers, legal defense, and social support."
+    }
+  ],
+  "newsletter": {
+    "sectionHeadlineLiteral": "Receive transparency alerts",
+    "sectionDescriptionLiteral": "Join the civic network and receive audited impact reports straight to your inbox."
+  }
+}

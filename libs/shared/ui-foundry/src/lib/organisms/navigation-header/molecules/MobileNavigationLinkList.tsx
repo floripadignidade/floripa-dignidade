@@ -27,14 +27,18 @@ import type { IMainNavigationHeaderI18n } from '@floripa-dignidade/shared-ui-con
 /**
  * @section Aduana de ADN (Prop Validation)
  */
-const MobileNavigationLinkListPropertiesSchema = z.object({
-  /** Fragmento del diccionario lingüístico dedicado a las rutas de navegación. */
-  translationDictionary: z.object({
-    identity: z.string().min(1),
-    transparency: z.string().min(1),
-    press: z.string().min(1),
-  }).readonly(),
-}).readonly();
+const MobileNavigationLinkListPropertiesSchema = z
+  .object({
+    /** Fragmento del diccionario lingüístico dedicado a las rutas de navegación. */
+    translationDictionary: z
+      .object({
+        identity: z.string().min(1),
+        transparency: z.string().min(1),
+        press: z.string().min(1),
+      })
+      .readonly(),
+  })
+  .readonly();
 
 export interface IMobileNavigationLinkListProperties {
   readonly translationDictionary: IMainNavigationHeaderI18n['navigationPaths'];
@@ -47,10 +51,11 @@ export interface IMobileNavigationLinkListProperties {
  * @returns {React.ReactElement} Enjambre de enlaces táctiles.
  */
 export const MobileNavigationLinkList: React.FC<IMobileNavigationLinkListProperties> = (
-  propertiesSnapshot
+  propertiesSnapshot,
 ) => {
   // 1. ADUANA DE ADN: Purificación de los literales de navegación
-  const { translationDictionary } = MobileNavigationLinkListPropertiesSchema.parse(propertiesSnapshot);
+  const { translationDictionary } =
+    MobileNavigationLinkListPropertiesSchema.parse(propertiesSnapshot);
 
   return (
     <div className="flex flex-col gap-2" role="group" aria-label="Links Institucionais">

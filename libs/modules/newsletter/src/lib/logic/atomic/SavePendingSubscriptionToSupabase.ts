@@ -25,14 +25,18 @@ import {
  * @section Aduana de ADN (Internal Schema)
  * Garantiza que el átomo no procese basura técnica.
  */
-const SavePendingSubscriptionParametersSchema = z.object({
-  emailAddressLiteral: z.string().email(),
-  verificationTokenLiteral: z.string().uuid(),
-  localeIdentifier: z.string().min(2),
-  correlationIdentifier: z.string().uuid(),
-}).readonly();
+const SavePendingSubscriptionParametersSchema = z
+  .object({
+    emailAddressLiteral: z.string().email(),
+    verificationTokenLiteral: z.string().uuid(),
+    localeIdentifier: z.string().min(2),
+    correlationIdentifier: z.string().uuid(),
+  })
+  .readonly();
 
-export type ISavePendingSubscriptionParameters = z.infer<typeof SavePendingSubscriptionParametersSchema>;
+export type ISavePendingSubscriptionParameters = z.infer<
+  typeof SavePendingSubscriptionParametersSchema
+>;
 
 /** Identificador técnico del aparato para el Neural Sentinel. */
 const PERSISTENCE_ATOM_IDENTIFIER = 'NEWSLETTER_CLOUD_PERSISTENCE_ATOM';
@@ -46,20 +50,20 @@ const PERSISTENCE_ATOM_IDENTIFIER = 'NEWSLETTER_CLOUD_PERSISTENCE_ATOM';
  * @returns {Promise<void>} Promesa de finalización de la transacción cloud.
  */
 export const SavePendingSubscriptionToSupabase = async (
-  parameters: ISavePendingSubscriptionParameters
+  parameters: ISavePendingSubscriptionParameters,
 ): Promise<void> => {
-
   return await TraceExecutionTime(
     PERSISTENCE_ATOM_IDENTIFIER,
     'EXECUTE_CLOUD_LEDGER_INSERTION',
     parameters.correlationIdentifier,
     async () => {
       // 1. ADUANA DE ADN: Validación de frontera atómica
-      const validationResultSnapshot = SavePendingSubscriptionParametersSchema.safeParse(parameters);
+      const validationResultSnapshot =
+        SavePendingSubscriptionParametersSchema.safeParse(parameters);
 
       if (!validationResultSnapshot.success) {
         throw MapHttpErrorToException(400, 'ADN_DE_PERSISTENCIA_CORRUPTO', {
-          issuesCollection: validationResultSnapshot.error.flatten()
+          issuesCollection: validationResultSnapshot.error.flatten(),
         });
       }
 
@@ -67,10 +71,8 @@ export const SavePendingSubscriptionToSupabase = async (
        * 2. CAPTURA SEGURA DE INFRAESTRUCTURA (Aduana de Entorno)
        * 🛡️ SANEADO Zenith: El búnker environment-validator garantiza Branded Types.
        */
-      const {
-        SUPABASE_URL: cloudUrlLiteral,
-        SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret
-      } = await ValidateEnvironmentAduana();
+      const { SUPABASE_URL: cloudUrlLiteral, SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret } =
+        await ValidateEnvironmentAduana();
 
       try {
         /**
@@ -83,9 +85,9 @@ export const SavePendingSubscriptionToSupabase = async (
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'apikey': cloudSecurityKeySecret,
-            'Authorization': `Bearer ${cloudSecurityKeySecret}`,
-            'Prefer': 'return=minimal'
+            apikey: cloudSecurityKeySecret,
+            Authorization: `Bearer ${cloudSecurityKeySecret}`,
+            Prefer: 'return=minimal',
           },
           body: JSON.stringify({
             email_address: parameters.emailAddressLiteral,
@@ -93,18 +95,18 @@ export const SavePendingSubscriptionToSupabase = async (
             preferred_locale: parameters.localeIdentifier,
             correlation_id: parameters.correlationIdentifier,
             status: 'PENDING_VERIFICATION',
-            created_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
           }),
           /** 🛡️ SANEADO Zenith: Garantiza que la petición termine incluso si el contexto se cierra. */
           keepalive: true,
           /** 🛡️ SANEADO Zenith: Prevención de peticiones zombis (Timeout 8s). */
-          signal: AbortSignal.timeout(8000)
+          signal: AbortSignal.timeout(8000),
         });
 
         if (!outgoingResponse.ok) {
           throw MapHttpErrorToException(outgoingResponse.status, 'SUPABASE_PROVIDER_REJECTION', {
             httpStatusNumeric: outgoingResponse.status,
-            endpoint: targetEndpointLiteral
+            endpoint: targetEndpointLiteral,
           });
         }
 
@@ -117,18 +119,16 @@ export const SavePendingSubscriptionToSupabase = async (
           messageContentLiteral: 'TELEMETRY.SIGNALS.END_PROCESS',
           contextMetadataSnapshot: {
             targetTableLiteral: 'newsletter_subscribers',
-            recordIdentityLiteral: parameters.emailAddressLiteral
-          }
+            recordIdentityLiteral: parameters.emailAddressLiteral,
+          },
         });
-
       } catch (caughtError: unknown) {
         /**
          * @section Gestión Forense de Colapso
          * Si el fallo es de red o rechazo del proveedor, lo elevamos con rastro forense.
          */
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -136,7 +136,7 @@ export const SavePendingSubscriptionToSupabase = async (
           operationCodeLiteral: 'CLOUD_PERSISTENCE_FAULT',
           correlationIdentifier: parameters.correlationIdentifier,
           messageContentLiteral: 'Fallo crítico al persistir suscripción en el Ledger Cloud.',
-          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
         });
 
         if (errorDescriptionLiteral.includes('Exception')) {
@@ -145,9 +145,9 @@ export const SavePendingSubscriptionToSupabase = async (
 
         throw MapHttpErrorToException(500, 'FALLO_FISICO_PERSISTENCIA_NEWSLETTER', {
           originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier: parameters.correlationIdentifier
+          correlationIdentifier: parameters.correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

@@ -3,11 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/core/telemetry/src",
   "projectType": "library",
-  "tags": [
-    "scope:core",
-    "type:core",
-    "platform:isomorphic"
-  ],
+  "tags": ["scope:core", "type:core", "platform:isomorphic"],
   "targets": {
     "build": {
       "executor": "@nx/js:swc",

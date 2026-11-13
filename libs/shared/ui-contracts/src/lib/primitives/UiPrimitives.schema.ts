@@ -12,14 +12,10 @@ import { AriaAttributesSchema } from '../accessibility/AriaContract.schema';
  * @description Objeto Zod puro para composición interna mediante .merge() o .extend().
  */
 export const UiPrimitivesBaseSchema = z.object({
-  technicalIdentifier: z.string().optional()
-    .describe('Atributo "id" nativo de HTML.'),
-  externalClassName: z.string().optional()
-    .describe('Clases CSS externas.'),
-  isPolymorphicBoolean: z.boolean().default(false)
-    .describe('Soporte para patrón Slot/asChild.'),
-  forensicTestIdentifier: z.string().optional()
-    .describe('ID inalterable para auditoría E2E.'),
+  technicalIdentifier: z.string().optional().describe('Atributo "id" nativo de HTML.'),
+  externalClassName: z.string().optional().describe('Clases CSS externas.'),
+  isPolymorphicBoolean: z.boolean().default(false).describe('Soporte para patrón Slot/asChild.'),
+  forensicTestIdentifier: z.string().optional().describe('ID inalterable para auditoría E2E.'),
   accessibilityConfiguration: AriaAttributesSchema.optional(),
 });
 

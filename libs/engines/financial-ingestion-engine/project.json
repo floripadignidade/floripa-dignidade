@@ -3,11 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/engines/financial-ingestion-engine/src",
   "projectType": "library",
-  "tags": [
-    "scope:engines",
-    "type:logic",
-    "platform:node"
-  ],
+  "tags": ["scope:engines", "type:logic", "platform:node"],
   "targets": {
     "build": {
       "executor": "@nx/js:swc",

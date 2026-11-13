@@ -1,0 +1,6 @@
+{
+  "telemetry": {
+    "NETWORK_RESTORED_SIGNAL": "Conexión de red restaurada. Retomando sincronización de transacciones pendientes.",
+    "NETWORK_LOST_SIGNAL": "Interrupción de red detectada. Activando modo de resiliencia y encolamiento local."
+  }
+}

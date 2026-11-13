@@ -18,10 +18,7 @@ import React, { useEffect, useMemo } from 'react';
 import * as NavigationMenu from '@radix-ui/react-navigation-menu';
 
 /* 1. Infraestructura Core y Utilidades (Sovereign Swarm) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 import { GlobalStyleClassMerger } from '@floripa-dignidade/shared-utility';
 
@@ -57,7 +54,6 @@ export const DesktopNavigationMenu: React.FC<IDesktopNavigationMenuProperties> =
   translationDictionarySnapshot,
   externalClassName,
 }) => {
-
   // --- 1. TELEMETRÍA DE MONTAJE (SRE Visibility) ---
   useEffect(() => {
     const correlationIdentifier = GenerateCorrelationIdentifier();
@@ -70,24 +66,21 @@ export const DesktopNavigationMenu: React.FC<IDesktopNavigationMenuProperties> =
       messageContentLiteral: 'Menú de navegación de escritorio ensamblado e inicializado.',
       semanticIntentTag: 'UI_COMPONENT_MOUNT',
       contextMetadataSnapshot: {
-        timestampISO: new Date().toISOString()
-      }
+        timestampISO: new Date().toISOString(),
+      },
     });
-  },[]);
+  }, []);
 
   // --- 2. ARQUITECTURA DE ESTILOS (Memoized Performance) ---
-  const containerStylesLiteral = useMemo(() =>
-    GlobalStyleClassMerger(
-      'hidden lg:flex relative',
-      externalClassName
-    ),
-  [externalClassName]);
+  const containerStylesLiteral = useMemo(
+    () => GlobalStyleClassMerger('hidden lg:flex relative', externalClassName),
+    [externalClassName],
+  );
 
   // --- 3. ENSAMBLAJE VISUAL (Atomic Composition) ---
   return (
     <NavigationMenu.Root className={containerStylesLiteral}>
       <NavigationMenu.List className="flex gap-12 items-center" aria-label="Navegación Primaria">
-
         {/* EJE DE IDENTIDAD */}
         <NavigationLink
           hrefLiteral="/identidad"
@@ -108,7 +101,6 @@ export const DesktopNavigationMenu: React.FC<IDesktopNavigationMenuProperties> =
           labelLiteral={translationDictionarySnapshot.press}
           linkIdentifierLiteral="NAV_LINK_PRESS"
         />
-
       </NavigationMenu.List>
     </NavigationMenu.Root>
   );

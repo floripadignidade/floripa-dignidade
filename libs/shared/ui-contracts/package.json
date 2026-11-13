@@ -19,6 +19,10 @@
     "zod": "^3.25.76"
   },
   "nx": {
-    "tags": ["scope:shared", "type:schema", "platform:isomorphic"]
+    "tags": [
+      "scope:shared",
+      "type:schema",
+      "platform:isomorphic"
+    ]
   }
 }

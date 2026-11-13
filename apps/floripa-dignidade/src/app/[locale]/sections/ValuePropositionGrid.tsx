@@ -83,7 +83,8 @@ export const ValuePropositionGrid: React.FC<IValuePropositionGridProperties> = (
       moduleIdentifierLiteral: ORGANISM_IDENTIFIER,
       operationCodeLiteral: 'PROPOSITION_GRID_EXPOSED' as OperationCode,
       correlationIdentifier,
-      messageContentLiteral: 'La grilla de pilares estratégicos ha entrado en el viewport del ciudadano.',
+      messageContentLiteral:
+        'La grilla de pilares estratégicos ha entrado en el viewport del ciudadano.',
       semanticIntentTag: 'UI_VISIBILITY_TRACE',
       contextMetadataSnapshot: {
         pilarCountQuantity: pilarStrategyFeatureCollectionSnapshot.length,
@@ -141,11 +142,12 @@ export const ValuePropositionGrid: React.FC<IValuePropositionGridProperties> = (
              * @section Fallback Resiliente
              * Si una clave lingüística nueva carece de variante explícita, se asigna el estado seguro.
              */
-            const visualConfigurationSnapshot =
-              strategyVisualMappingCollection[pilarSnapshot.identifier] ?? {
-                graphicIconNode: <ShieldCheck size={32} aria-hidden="true" />,
-                visualVariantLiteral: 'BLUE',
-              };
+            const visualConfigurationSnapshot = strategyVisualMappingCollection[
+              pilarSnapshot.identifier
+            ] ?? {
+              graphicIconNode: <ShieldCheck size={32} aria-hidden="true" />,
+              visualVariantLiteral: 'BLUE',
+            };
 
             return (
               <FeatureActionCard

@@ -18,10 +18,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 /* 1. Infraestructura Core (Atmos PascalCase) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 /**
  * @interface IUseSearchHardwareSentryResult

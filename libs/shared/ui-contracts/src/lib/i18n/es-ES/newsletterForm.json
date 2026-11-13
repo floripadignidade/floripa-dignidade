@@ -1,0 +1,18 @@
+{
+  "labels": {
+    "inputPlaceholderLiteral": "Tu correo electrónico",
+    "submitButtonLiteral": "Suscribirme",
+    "submittingStatusLiteral": "Enviando...",
+    "consentCheckboxLiteral": "Acepto el tratamiento seguro de mis datos conforme a la LGPD."
+  },
+  "messages": {
+    "successHeadlineLiteral": "¡Revisa tu correo!",
+    "successDescriptionLiteral": "Enviamos un enlace de confirmación para activar tu participación en la red.",
+    "errorGenericLiteral": "No pudimos completar tu suscripción ahora. Intenta nuevamente."
+  },
+  "validation": {
+    "emailRequiredLiteral": "Ingresa una dirección de correo electrónico.",
+    "emailInvalidLiteral": "Ingresa un correo electrónico válido.",
+    "consentRequiredLiteral": "El consentimiento de privacidad es obligatorio."
+  }
+}

@@ -9,7 +9,7 @@
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
-  TraceExecutionTime
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 import { Resend } from 'resend';
 
@@ -19,7 +19,7 @@ import type { IResendConfiguration } from '../../schemas/ResendEmail.schema';
 const RESEND_PROVIDER_IDENTIFIER = 'RESEND_COMMUNICATION_PROVIDER';
 
 export const AuditResendHealthProbe = async (
-  providerConfiguration: IResendConfiguration
+  providerConfiguration: IResendConfiguration,
 ): Promise<boolean> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -48,12 +48,11 @@ export const AuditResendHealthProbe = async (
           message: 'Sonda de salud exitosa: Resend API responde correctamente.',
           contextMetadata: {
             isAvailable: isServiceAvailableBoolean,
-            timestamp: new Date().toISOString()
-          }
+            timestamp: new Date().toISOString(),
+          },
         });
 
         return isServiceAvailableBoolean;
-
       } catch (caughtError) {
         EmitTelemetrySignal({
           severityLevel: 'CRITICAL',
@@ -62,12 +61,12 @@ export const AuditResendHealthProbe = async (
           correlationIdentifier,
           message: 'Sonda de salud fallida: El proveedor Resend no responde.',
           contextMetadata: {
-            errorTrace: caughtError instanceof Error ? caughtError.message : String(caughtError)
-          }
+            errorTrace: caughtError instanceof Error ? caughtError.message : String(caughtError),
+          },
         });
 
         return false;
       }
-    }
+    },
   );
 };

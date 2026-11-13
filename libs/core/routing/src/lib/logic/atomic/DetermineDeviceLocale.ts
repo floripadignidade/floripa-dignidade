@@ -1,114 +1,91 @@
 /**
- * @section Routing Logic - Device Locale Inerence Apparatus
- * @description Analiza las cabeceras de solicitud HTTP para determinar el idioma 
- * óptimo del ciudadano basándose en la configuración institucional. Implementa 
- * una estrategia de coincidencia exacta contra el ADN soberano y proporciona 
- * un fallback resiliente para garantizar la continuidad del tráfico.
- * 
- * Protocolo OEDP-V17.0 - Atomic Functional & Sovereign Type Safety.
- * SANEADO Zenith: Integración de Branded Types (ISupportedLocale) y Purga de Cronología.
- * 
+ * @section Routing Logic - Device Locale Inference Orchestrator
+ * @description Analiza la cabecera HTTP `Accept-Language` para determinar el idioma
+ * óptimo del ciudadano consultando dinámicamente el catálogo único SSOT (ADR 0030).
+ * Orquesta los átomos de parseo RFC 9110 y resolución en cascada, emitiendo trazas
+ * telemétricas conformes a `TelemetrySignalSchema`.
+ *
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & ADR 0030).
+ * Normas: BCP 47 (RFC 5646), RFC 9110, ISO/IEC 11179 e ISO/IEC 25010.
+ *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
+import { DEFAULT_LOCALE_IDENTIFIER } from '@floripa-dignidade/contracts';
+import type { ISupportedLocale } from '@floripa-dignidade/contracts';
 import {
   EmitTelemetrySignal,
-  GenerateCorrelationIdentifier
+  GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  type OperationCode,
 } from '@floripa-dignidade/telemetry';
 
-import { SupportedLocaleSchema } from '../../schemas/RoutingConfiguration.schema';
+import { ParseAcceptLanguageHeader } from './ParseAcceptLanguageHeader';
+import { ResolveSupportedLocaleFromRegistry } from './ResolveSupportedLocaleFromRegistry';
 
-/** 🛡️ SANEAMIENTO Zenith: Importación de ADN nominal inmutable */
-import type { ISupportedLocale } from '../../schemas/RoutingConfiguration.schema';
-
-/** Identificador técnico del sensor para el Neural Sentinel. */
-const ROUTING_LOCALE_SENSOR_IDENTIFIER = 'CORE_ROUTING_LOCALE_SENSOR';
+const ROUTING_LOCALE_SENSOR_IDENTIFIER = 'CORE_ROUTING_LOCALE_SENSOR' as ModuleIdentifier;
 
 /**
- * Determina el identificador de localización soberano procesando la cabecera 'accept-language'.
- * 
- * @param acceptLanguageHeaderLiteral - Valor crudo de la cabecera de lenguaje del navegador.
- * @param fallbackLocaleIdentifier - Idioma por defecto (Default: pt-BR).
- * @returns {ISupportedLocale} El código de localización validado y tipado nominalmente.
+ * Determina el identificador BCP 47 activo óptimo procesando la cabecera `Accept-Language`.
+ * Soporta coincidencia exacta, mapeo de variantes regionales catalogadas y coincidencia por
+ * idioma base ISO 639 sin listas fijas de idiomas.
+ *
+ * @param acceptLanguageHeaderLiteral - Valor crudo de la cabecera `accept-language` HTTP.
+ * @param fallbackLocaleIdentifier - Idioma de respaldo (por defecto `DEFAULT_LOCALE_IDENTIFIER`).
+ * @returns {ISupportedLocale} Código BCP 47 activo, validado y sellado nominalmente.
  */
 export const DetermineDeviceLocale = (
   acceptLanguageHeaderLiteral: string | null,
-  fallbackLocaleIdentifier: ISupportedLocale = 'pt-BR' as ISupportedLocale
+  fallbackLocaleIdentifier: ISupportedLocale = DEFAULT_LOCALE_IDENTIFIER,
 ): ISupportedLocale => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
-  // 1. REPORTE DE INICIO DE INFERENCIA (SRE Visibility)
-  void EmitTelemetrySignal({
-    severityLevel: 'INFO',
-    moduleIdentifier: ROUTING_LOCALE_SENSOR_IDENTIFIER,
-    operationCode: 'LOCALE_INFERENCE_STARTED',
-    correlationIdentifier,
-    message: 'Iniciando algoritmo de detección de soberanía lingüística del dispositivo.'
-  });
-
-  // Guardia de seguridad: Si no hay rastro en la cabecera, retornamos el fallback tipado.
-  if (!acceptLanguageHeaderLiteral) {
+  if (!acceptLanguageHeaderLiteral || acceptLanguageHeaderLiteral.trim() === '') {
     return fallbackLocaleIdentifier;
   }
 
   try {
-    /**
-     * 2. ALGORITMO DE EMPAREJAMIENTO (ISO Matching)
-     * Fragmentamos la cabecera (ej: "pt-BR,pt;q=0.9") para extraer los candidatos.
-     */
-    const preferredLocalesCollection = acceptLanguageHeaderLiteral
-      .split(',')
-      .map((segmentLiteral) => {
-        const segmentPartsCollection = segmentLiteral.split(';');
-        const targetLocaleCandidate = segmentPartsCollection[0];
-
-        /** 🛡️ SANEADO: Cumplimiento de "noUncheckedIndexedAccess" */
-        return targetLocaleCandidate ? targetLocaleCandidate.trim() : '';
-      })
-      .filter((purifiedLiteral) => purifiedLiteral.length > 0);
-
-    /**
-     * 3. ADUANA DE ADN (Safe Parsing contra Branded Type)
-     * Buscamos el primer candidato que cumpla estrictamente con nuestro esquema.
-     */
-    for (const localeCandidateLiteral of preferredLocalesCollection) {
-      const validationResult = SupportedLocaleSchema.safeParse(localeCandidateLiteral);
-
-      if (validationResult.success) {
-        const detectedLocale: ISupportedLocale = validationResult.data;
-
-        void EmitTelemetrySignal({
-          severityLevel: 'INFO',
-          moduleIdentifier: ROUTING_LOCALE_SENSOR_IDENTIFIER,
-          operationCode: 'LOCALE_MATCH_CONFIRMED',
-          correlationIdentifier,
-          message: `Coincidencia lingüística detectada: [${detectedLocale}]`,
-          contextMetadata: { detectedLocale }
-        });
-
-        return detectedLocale;
-      }
-    }
-
-  } catch (caughtError: unknown) {
-    /**
-     * @section Gestión de Anomalía Sensorial
-     * Reportamos el fallo de parseo sin interrumpir el flujo del ciudadano.
-     */
-    const errorDescriptionLiteral = caughtError instanceof Error 
-      ? caughtError.message 
-      : String(caughtError);
+    const orderedCandidatesCollection = ParseAcceptLanguageHeader(acceptLanguageHeaderLiteral);
+    const resolutionSnapshot = ResolveSupportedLocaleFromRegistry(
+      orderedCandidatesCollection,
+      fallbackLocaleIdentifier,
+    );
 
     void EmitTelemetrySignal({
-      severityLevel: 'WARNING',
-      moduleIdentifier: ROUTING_LOCALE_SENSOR_IDENTIFIER,
-      operationCode: 'LOCALE_PARSING_ANOMALY',
+      occurrenceTimestampISO: new Date().toISOString(),
+      severityLevelLiteral: 'INFO',
+      moduleIdentifierLiteral: ROUTING_LOCALE_SENSOR_IDENTIFIER,
+      operationCodeLiteral: 'LOCALE_INFERENCE_RESOLVED' as OperationCode,
       correlationIdentifier,
-      message: 'Se detectó una irregularidad al procesar las señales de lenguaje del cliente.',
-      contextMetadata: { errorTraceLiteral: errorDescriptionLiteral }
+      messageContentLiteral: `Localización resuelta: [${resolutionSnapshot.resolvedLocaleIdentifier}] vía [${resolutionSnapshot.resolutionStrategyLiteral}].`,
+      semanticIntentTag: 'ROUTING_LOCALE_DETECTION',
+      contextMetadataSnapshot: {
+        resolvedLocaleIdentifier: resolutionSnapshot.resolvedLocaleIdentifier,
+        resolutionStrategyLiteral: resolutionSnapshot.resolutionStrategyLiteral,
+        matchedCandidateLiteral: resolutionSnapshot.matchedCandidateLiteral,
+      },
     });
-  }
 
-  // 4. RETORNO DE SOBERANÍA POR DEFECTO (Resilience)
-  return fallbackLocaleIdentifier;
+    return resolutionSnapshot.resolvedLocaleIdentifier;
+  } catch (caughtError: unknown) {
+    const errorDescriptionLiteral =
+      caughtError instanceof Error ? caughtError.message : String(caughtError);
+
+    void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
+      severityLevelLiteral: 'WARNING',
+      moduleIdentifierLiteral: ROUTING_LOCALE_SENSOR_IDENTIFIER,
+      operationCodeLiteral: 'LOCALE_PARSING_ANOMALY' as OperationCode,
+      correlationIdentifier,
+      messageContentLiteral:
+        'Se detectó una irregularidad al procesar la cabecera Accept-Language.',
+      semanticIntentTag: 'ROUTING_LOCALE_ANOMALY',
+      contextMetadataSnapshot: {
+        errorTraceLiteral: errorDescriptionLiteral,
+      },
+    });
+
+    return fallbackLocaleIdentifier;
+  }
 };

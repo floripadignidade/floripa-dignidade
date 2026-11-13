@@ -73,18 +73,17 @@ export const QueueTelemetrySignalForTransportAction = async (
 
       const { currentHash } = await ExecuteMerkleChainCalculation(
         validatedTelemetrySignalSnapshot,
-        lastEventHashFingerprintValue
+        lastEventHashFingerprintValue,
       );
 
       forensicTelemetrySignalSnapshot = {
         ...forensicTelemetrySignalSnapshot,
         contentHashFingerprint: currentHash,
-        previousEventHashFingerprint: lastEventHashFingerprintValue
+        previousEventHashFingerprint: lastEventHashFingerprintValue,
       };
 
       lastEventHashFingerprintValue = currentHash;
       isCriptographicCalculationActiveBoolean = false;
-
     } catch (caughtMerkleError: unknown) {
       isCriptographicCalculationActiveBoolean = false;
 

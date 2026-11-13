@@ -74,7 +74,8 @@ export const ObservatoryMetricsGrid = (
       moduleIdentifierLiteral: MOLECULE_IDENTIFIER,
       operationCodeLiteral: 'METRICS_GRID_EXPOSED' as OperationCode,
       correlationIdentifier,
-      messageContentLiteral: 'Grilla de indicadores del observatorio de gastos expuesta al ciudadano.',
+      messageContentLiteral:
+        'Grilla de indicadores del observatorio de gastos expuesta al ciudadano.',
       semanticIntentTag: 'UI_VISIBILITY_TRACE',
       contextMetadataSnapshot: {
         totalAuditedAmountNumeric: metrics.totalAuditedAmountNumeric,

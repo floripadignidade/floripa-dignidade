@@ -126,7 +126,9 @@ export const CloudInfrastructureAuditReportSchema = z
     /** Certificación global de que la infraestructura está lista para tráfico de producción. */
     isInfrastructureFullyOperationalBoolean: z
       .boolean()
-      .describe('Verdadero si el 100% de los servicios críticos están en estado NOMINAL_OPERATIONAL.'),
+      .describe(
+        'Verdadero si el 100% de los servicios críticos están en estado NOMINAL_OPERATIONAL.',
+      ),
 
     /** Total de proveedores analizados en la corrida. */
     totalTestedProvidersQuantity: z
@@ -135,16 +137,10 @@ export const CloudInfrastructureAuditReportSchema = z
       .positive({ message: 'EL_TOTAL_DE_SERVICIOS_DEBE_SER_MAYOR_A_CERO' }),
 
     /** Cantidad de proveedores que superaron la prueba nominalmente. */
-    healthyProvidersCountQuantity: z
-      .number()
-      .int()
-      .nonnegative(),
+    healthyProvidersCountQuantity: z.number().int().nonnegative(),
 
     /** Cantidad de proveedores con credenciales rechazadas o inaccesibles. */
-    compromisedProvidersCountQuantity: z
-      .number()
-      .int()
-      .nonnegative(),
+    compromisedProvidersCountQuantity: z.number().int().nonnegative(),
 
     /** Colección estructurada de los diagnósticos unitarios por proveedor. */
     providersAuditCollection: z
@@ -161,6 +157,4 @@ export const CloudInfrastructureAuditReportSchema = z
   })
   .readonly();
 
-export type ICloudInfrastructureAuditReport = z.infer<
-  typeof CloudInfrastructureAuditReportSchema
->;
+export type ICloudInfrastructureAuditReport = z.infer<typeof CloudInfrastructureAuditReportSchema>;

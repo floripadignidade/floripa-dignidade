@@ -28,9 +28,8 @@ interface IGlobalBrowserContext {
  * @returns {void}
  */
 export const RegisterSovereignLastBreathSensor = (
-  onLifecycleTerminationAction: () => void
+  onLifecycleTerminationAction: () => void,
 ): void => {
-
   // 1. ADUANA DE HARDWARE (Detección de Isomorfismo)
   const isHardwareAvailableBoolean = IdentifyBrowserHardwareCapabilities();
 
@@ -44,14 +43,18 @@ export const RegisterSovereignLastBreathSensor = (
    */
   const { document: browserDocumentReference } = globalThis as unknown as IGlobalBrowserContext;
 
-  browserDocumentReference.addEventListener('visibilitychange', () => {
-    /**
-     * @section Lógica de "Último Suspiro"
-     * Solo disparamos el vaciado si el ciudadano sale de la vista activa
-     * (Cierre de pestaña, cambio de app en móvil, etc).
-     */
-    if (browserDocumentReference.visibilityState === 'hidden') {
-      onLifecycleTerminationAction();
-    }
-  }, { passive: true });
+  browserDocumentReference.addEventListener(
+    'visibilitychange',
+    () => {
+      /**
+       * @section Lógica de "Último Suspiro"
+       * Solo disparamos el vaciado si el ciudadano sale de la vista activa
+       * (Cierre de pestaña, cambio de app en móvil, etc).
+       */
+      if (browserDocumentReference.visibilityState === 'hidden') {
+        onLifecycleTerminationAction();
+      }
+    },
+    { passive: true },
+  );
 };

@@ -10,10 +10,7 @@
  * @license UNLICENSED
  */
 
-import {
-  EmitTelemetrySignal,
-  TraceExecutionTime
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, TraceExecutionTime } from '@floripa-dignidade/telemetry';
 
 /* 1. ADN Estructural */
 import type { IForensicAuditReport } from '../schemas/ForensicAuditReport.schema';
@@ -35,9 +32,8 @@ const SHANNON_ADAPTER_IDENTIFIER = 'SHANNON_AI_EXPORT_ADAPTER';
 export const ExportShannonForensicReport = async (
   forensicReportSnapshot: IForensicAuditReport,
   targetOutputDirectoryLiteral: string,
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): Promise<void> => {
-
   return await TraceExecutionTime(
     SHANNON_ADAPTER_IDENTIFIER,
     'ORCHESTRATE_SHANNON_REPORT_EXPORT',
@@ -48,11 +44,11 @@ export const ExportShannonForensicReport = async (
 
       // 2. PERSISTENCIA FÍSICA (Átomo de Hardware)
       const fileNameLiteral = `shannon-report-${forensicReportSnapshot.reportIdentifier}.json`;
-      
+
       const persistedPathLiteral = await PersistForensicReportToDisk(
         targetOutputDirectoryLiteral,
         fileNameLiteral,
-        enrichedPayload
+        enrichedPayload,
       );
 
       // 3. REPORTE SRE (Visibilidad)
@@ -62,8 +58,8 @@ export const ExportShannonForensicReport = async (
         operationCode: 'REPORT_EXPORT_SUCCESS',
         correlationIdentifier,
         message: 'Evidencia adversaria persistida para análisis de Shannon AI.',
-        contextMetadata: { persistedPathLiteral }
+        contextMetadata: { persistedPathLiteral },
       });
-    }
+    },
   );
 };

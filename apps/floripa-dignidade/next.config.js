@@ -41,12 +41,12 @@ const currentConfigurationDirectoryLiteral = dirname(currentFileConfigurationPat
  */
 const securityHeadersSiloPathLiteral = join(
   currentConfigurationDirectoryLiteral,
-  '../../libs/shared/utility/src/headers/GlobalSecurityHeaders.json'
+  '../../libs/shared/utility/src/headers/GlobalSecurityHeaders.json',
 );
 
 /** @type {ISecurityHeader[]} */
 const globalSecurityHeadersCollection = JSON.parse(
-  readFileSync(securityHeadersSiloPathLiteral, 'utf8')
+  readFileSync(securityHeadersSiloPathLiteral, 'utf8'),
 );
 
 /**
@@ -120,7 +120,7 @@ const applicationPluginsCollection = [withNx];
  * @type {NextConfig}
  */
 const exportedConfigurationSnapshot = composePlugins(...applicationPluginsCollection)(
-  portalNextConfigurationFoundation
+  portalNextConfigurationFoundation,
 );
 
 export default exportedConfigurationSnapshot;

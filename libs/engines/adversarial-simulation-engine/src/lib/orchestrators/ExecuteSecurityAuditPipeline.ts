@@ -15,7 +15,7 @@
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
-  TraceExecutionTime
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
 import { InternalSystemException } from '@floripa-dignidade/exceptions';
@@ -59,7 +59,7 @@ export interface ITargetAduanaDefinition {
  */
 export const ExecuteSecurityAuditPipeline = async (
   targetAduanaDefinitionsCollection: readonly ITargetAduanaDefinition[],
-  outputDirectoryLiteral: string
+  outputDirectoryLiteral: string,
 ): Promise<IForensicAuditReport> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -78,8 +78,8 @@ export const ExecuteSecurityAuditPipeline = async (
         correlationIdentifier,
         messageContentLiteral: 'ADVERSARIAL_SIMULATION.LOGS.SIMULATION_STARTED',
         contextMetadataSnapshot: {
-          targetCountQuantity: targetAduanaDefinitionsCollection.length
-        }
+          targetCountQuantity: targetAduanaDefinitionsCollection.length,
+        },
       });
 
       try {
@@ -91,13 +91,13 @@ export const ExecuteSecurityAuditPipeline = async (
          * 🛡️ SANEADO Zenith: Transición a procesamiento en paralelo para reducir
          * el tiempo de bloqueo en el pipeline de CI/CD.
          */
-        const attackPromisesCollection = targetAduanaDefinitionsCollection.map(
-          (targetAduana) => ExecuteAdversarialFuzzing({
+        const attackPromisesCollection = targetAduanaDefinitionsCollection.map((targetAduana) =>
+          ExecuteAdversarialFuzzing({
             targetApparatusIdentifierLiteral: targetAduana.apparatusNameLiteral,
             targetAduanaSchema: targetAduana.schemaInstance,
             adversarialWeaponsCollection,
-            correlationIdentifier
-          })
+            correlationIdentifier,
+          }),
         );
 
         const resultsByTargetCollection = await Promise.all(attackPromisesCollection);
@@ -115,14 +115,14 @@ export const ExecuteSecurityAuditPipeline = async (
           totalSimulationsExecutedQuantity:
             targetAduanaDefinitionsCollection.length * adversarialWeaponsCollection.length,
           startTimestampNumeric: executionStartTimestampNumeric,
-          endTimestampNumeric: performance.now()
+          endTimestampNumeric: performance.now(),
         });
 
         // 6. TRADUCCIÓN Y EXPORTACIÓN (Shannon AI Integration)
         await ExportShannonForensicReport(
           finalForensicReportSnapshot,
           outputDirectoryLiteral,
-          correlationIdentifier
+          correlationIdentifier,
         );
 
         // 7. VEREDICTO DE INTEGRIDAD (SRE Quality Gate)
@@ -137,20 +137,20 @@ export const ExecuteSecurityAuditPipeline = async (
           messageContentLiteral: 'ADVERSARIAL_SIMULATION.LOGS.SIMULATION_COMPLETED',
           contextMetadataSnapshot: {
             breachCountQuantity: globalVulnerabilitiesCollection.length,
-            isSystemCompromisedBoolean: globalVulnerabilitiesCollection.some(v => v.threatSeverityLevel === 'CRITICAL_COLLAPSE')
-          }
+            isSystemCompromisedBoolean: globalVulnerabilitiesCollection.some(
+              (v) => v.threatSeverityLevel === 'CRITICAL_COLLAPSE',
+            ),
+          },
         });
 
         return finalForensicReportSnapshot;
-
       } catch (caughtError: unknown) {
         /**
          * @section Gestión de Colapso de Pipeline
          * Si el motor de ataque falla, emitimos señal de prioridad máxima.
          */
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -159,15 +159,15 @@ export const ExecuteSecurityAuditPipeline = async (
           correlationIdentifier,
           messageContentLiteral: `Fallo catastrófico en la sesión de auditoría: ${errorDescriptionLiteral}`,
           contextMetadataSnapshot: {
-            attemptedTargetsQuantity: targetAduanaDefinitionsCollection.length
-          }
+            attemptedTargetsQuantity: targetAduanaDefinitionsCollection.length,
+          },
         });
 
         throw new InternalSystemException('FALLO_EN_PIPELINE_DE_SIMULACION_ADVERSARIA', {
           originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier
+          correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

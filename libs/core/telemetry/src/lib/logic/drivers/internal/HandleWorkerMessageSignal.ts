@@ -14,9 +14,7 @@ import type { IWorkerMessageEventBridge } from './schemas/IWorkerBridge.schema';
  *
  * @param messageEvent - Evento de mensaje capturado del hardware.
  */
-export const HandleWorkerMessageSignal = (
-  messageEvent: IWorkerMessageEventBridge
-): void => {
+export const HandleWorkerMessageSignal = (messageEvent: IWorkerMessageEventBridge): void => {
   const {
     transactionIdentifier,
     isOperationSuccessfulBoolean,

@@ -1,0 +1,7 @@
+{
+  "telemetry": {
+    "SUBSCRIPTION_TRANSACTION_STARTED": "Iniciando despacho de solicitud de suscripción.",
+    "SUBSCRIPTION_CONVERSION_SUCCESS": "Solicitud de suscripción registrada con éxito en el flujo de verificación.",
+    "SUBSCRIPTION_DISPATCH_FAULT": "Fallo al intentar sincronizar la suscripción con el gateway."
+  }
+}

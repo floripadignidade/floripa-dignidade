@@ -1,0 +1,12 @@
+{
+  "logs": {
+    "REACTION_RECEIVED": "Civic interaction captured and integrated into the public thermometer.",
+    "ANONYMOUS_REACTION_PONDERED": "Anonymous interaction registered with reduced statistical weight per audit standards.",
+    "OFFLINE_DEFERRAL": "No network connection: reaction queued locally for later synchronization."
+  },
+  "errors": {
+    "REACTION_CONTRACT_VIOLATION": "The interaction structure does not meet technical integrity criteria.",
+    "DUPLICATE_REACTION_BLOCKED": "Repeated interaction blocked by anti-automation defenses.",
+    "CLOUD_TRANSMISSION_FAILED": "Unable to synchronize your reaction with the server at this time."
+  }
+}

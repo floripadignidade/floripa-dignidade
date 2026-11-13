@@ -1,0 +1,12 @@
+{
+  "terminal": {
+    "auditStartedLiteral": "Starting physical audit of build artifacts.",
+    "checkingPathLiteral": "Inspecting build output directory:",
+    "emptyDirectoryWarning": "Warning: no build artifacts were found in the inspected directory.",
+    "ioErrorLiteral": "Filesystem access error while inspecting the build directory.",
+    "reportGeneratedLiteral": "Build audit report successfully generated and persisted."
+  },
+  "errors": {
+    "persistenceFault": "Critical failure while writing the build audit report to disk."
+  }
+}

@@ -19,7 +19,7 @@ import { RequestBackgroundComputation } from '../RequestBackgroundComputation';
  */
 export const ExecuteMerkleChainCalculation = async (
   signalSnapshot: ITelemetrySignal,
-  previousHashLiteral?: ContentFingerprint
+  previousHashLiteral?: ContentFingerprint,
 ): Promise<{ readonly currentHash: ContentFingerprint }> => {
   const computationResult = await RequestBackgroundComputation<{
     readonly hash: ContentFingerprint;

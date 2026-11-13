@@ -31,13 +31,10 @@ interface ISealerParameters {
  * @returns {IPublicEvaluationSubmissionResult} Artefacto validado e inmutable.
  */
 export const SealSubmissionResult = (
-  parametersSnapshot: ISealerParameters
+  parametersSnapshot: ISealerParameters,
 ): IPublicEvaluationSubmissionResult => {
-  const {
-    validatedPulseSnapshot,
-    veracityAuditMetadata,
-    correlationIdentifier
-  } = parametersSnapshot;
+  const { validatedPulseSnapshot, veracityAuditMetadata, correlationIdentifier } =
+    parametersSnapshot;
 
   /**
    * @section Inyección Soberana de Opcionales

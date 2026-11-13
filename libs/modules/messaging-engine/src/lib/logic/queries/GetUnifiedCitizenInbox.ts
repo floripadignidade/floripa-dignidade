@@ -54,7 +54,7 @@ const INBOX_ORCHESTRATOR_IDENTIFIER = 'MESSAGING_INBOX_ORCHESTRATOR';
  */
 export const GetUnifiedCitizenInbox = async (
   citizenIdentifierLiteral: string,
-  limitQuantityNumeric = 20
+  limitQuantityNumeric = 20,
 ): Promise<IUnifiedInboxSnapshot> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -67,14 +67,12 @@ export const GetUnifiedCitizenInbox = async (
         // 1. CAPTURA DE INFRAESTRUCTURA (Aduana de Entorno)
         const {
           SUPABASE_URL: cloudStorageUrlLiteral,
-          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret
+          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret,
         } = await ValidateEnvironmentAduana();
 
         // 2. CONSTRUCCIÓN DE ADN DE CONSULTA (Delegación Atómica)
-        const {
-          notificationsQueryLiteral,
-          messagesQueryLiteral
-        } = BuildInboxQueryFilters(citizenIdentifierLiteral);
+        const { notificationsQueryLiteral, messagesQueryLiteral } =
+          BuildInboxQueryFilters(citizenIdentifierLiteral);
 
         // 3. EXTRACCIÓN CONCURRENTE (Performance SRE)
         const [rawNotificationsCollection, rawMessagesCollection] = await Promise.all([
@@ -83,21 +81,21 @@ export const GetUnifiedCitizenInbox = async (
             notificationsQueryLiteral,
             cloudStorageUrlLiteral,
             cloudSecurityKeySecret,
-            limitQuantityNumeric
+            limitQuantityNumeric,
           ),
           FetchMessagingLedgerData<IDirectMessage>(
             'direct_messages_ledger',
             messagesQueryLiteral,
             cloudStorageUrlLiteral,
             cloudSecurityKeySecret,
-            limitQuantityNumeric
-          )
+            limitQuantityNumeric,
+          ),
         ]);
 
         // 4. CONSOLIDACIÓN LÓGICA (Mappers)
         const timelineCollection = ConsolidateUnifiedInboxEvents(
           rawNotificationsCollection,
-          rawMessagesCollection
+          rawMessagesCollection,
         );
 
         // 5. ENSAMBLAJE FINAL (Delegación Atómica)
@@ -112,17 +110,15 @@ export const GetUnifiedCitizenInbox = async (
           messageContentLiteral: 'MESSAGING.LOGS.INBOX_SYNC_SUCCESS',
           contextMetadataSnapshot: {
             itemCount: timelineCollection.length,
-            citizenId: citizenIdentifierLiteral
-          }
+            citizenId: citizenIdentifierLiteral,
+          },
         });
 
         return finalInboxSnapshot;
-
       } catch (caughtError: unknown) {
         // 7. GESTIÓN FORENSE DE FALLO (Resilience Layer)
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -130,14 +126,14 @@ export const GetUnifiedCitizenInbox = async (
           operationCodeLiteral: 'INBOX_ORCHESTRATION_COLLAPSE',
           correlationIdentifier,
           messageContentLiteral: 'MESSAGING.ERRORS.INBOX_ORCHESTRATION_FAULT',
-          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
         });
 
         throw new InternalSystemException('FALLO_EN_ORQUESTACION_DE_BUZON_UNIFICADO_SRE', {
           originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier
+          correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

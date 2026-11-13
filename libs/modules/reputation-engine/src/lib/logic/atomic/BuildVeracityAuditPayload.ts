@@ -10,7 +10,7 @@
  * Ensambla el snapshot de auditoría para el Neural Sentinel.
  */
 export const BuildVeracityAuditPayload = (
-  qualitativeCommentaryLiteral: string
+  qualitativeCommentaryLiteral: string,
 ): Record<string, unknown> => ({
   targetTextToAudit: qualitativeCommentaryLiteral,
   auditTaskIdentifier: 'VERACITY_AND_ETHICS_SCAN',

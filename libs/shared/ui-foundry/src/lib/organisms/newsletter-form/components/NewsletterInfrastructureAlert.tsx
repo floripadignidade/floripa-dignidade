@@ -20,10 +20,7 @@ import { AlertCircle } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 /* 1. Infraestructura Core (Atmos PascalCase - Clean Paths) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 /** Identificador técnico del aparato para el Neural Sentinel. */
 const ATOM_IDENTIFIER = 'NEWSLETTER_INFRASTRUCTURE_ALERT_ATOM';
@@ -67,8 +64,8 @@ export const NewsletterInfrastructureAlert: React.FC<INewsletterInfrastructureAl
       semanticIntentTag: 'UI_ERROR_VISIBILITY',
       contextMetadataSnapshot: {
         errorDescriptionLiteral: errorLiteral,
-        timestampISO: new Date().toISOString()
-      }
+        timestampISO: new Date().toISOString(),
+      },
     });
   }, [errorLiteral]);
 
@@ -91,9 +88,7 @@ export const NewsletterInfrastructureAlert: React.FC<INewsletterInfrastructureAl
           </div>
 
           {/* CUERPO DEL MENSAJE (ISO Prosa) */}
-          <span className="font-bold uppercase tracking-tight leading-tight">
-            {errorLiteral}
-          </span>
+          <span className="font-bold uppercase tracking-tight leading-tight">{errorLiteral}</span>
         </motion.div>
       )}
     </AnimatePresence>

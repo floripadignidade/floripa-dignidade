@@ -19,19 +19,21 @@ import { z } from 'zod';
  * @prompt_ia: "Valida que 'trust_weight_score' sea un flotante entre 0.1 y 1.0
  * y que 'last_authority_sync_at' cumpla con el estándar ISO 8601."
  */
-export const IdentityPhysicalRecordSchema = z.object({
-  /** Coeficiente bayesiano de confianza. */
-  trust_weight_score: z.number().min(0.1).max(1.0),
+export const IdentityPhysicalRecordSchema = z
+  .object({
+    /** Coeficiente bayesiano de confianza. */
+    trust_weight_score: z.number().min(0.1).max(1.0),
 
-  /** Bandera de validación legal humana (Auditoría Documental). */
-  is_verified_human: z.boolean(),
+    /** Bandera de validación legal humana (Auditoría Documental). */
+    is_verified_human: z.boolean(),
 
-  /** Marca temporal inmutable de la última actualización física. */
-  last_authority_sync_at: z.string().datetime(),
+    /** Marca temporal inmutable de la última actualización física. */
+    last_authority_sync_at: z.string().datetime(),
 
-  /** Identificador de seguimiento para la cadena de custodia digital. */
-  sync_correlation_id: z.string().uuid(),
-}).readonly();
+    /** Identificador de seguimiento para la cadena de custodia digital. */
+    sync_correlation_id: z.string().uuid(),
+  })
+  .readonly();
 
 /** 🛡️ ADN Tipado para exportación Verbatim */
 export type IIdentityPhysicalRecord = z.infer<typeof IdentityPhysicalRecordSchema>;

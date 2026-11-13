@@ -36,9 +36,7 @@ interface IMetricCardProperties {
  * @param propertiesSnapshot - Snapshot inmutable con los datos de la métrica.
  * @returns {React.JSX.Element} Tarjeta visual auditada.
  */
-export const MetricCard = (
-  propertiesSnapshot: IMetricCardProperties
-): React.JSX.Element => {
+export const MetricCard = (propertiesSnapshot: IMetricCardProperties): React.JSX.Element => {
   const {
     iconNode,
     labelLiteral,
@@ -56,22 +54,16 @@ export const MetricCard = (
 
   const iconContainerStylesLiteral = GlobalStyleClassMerger(
     'flex items-center gap-3 mb-4',
-    isAlertVariantBoolean ? 'text-red-500' : 'text-slate-400'
+    isAlertVariantBoolean ? 'text-red-500' : 'text-slate-400',
   );
 
   return (
     <article className={containerStylesLiteral}>
       <div className={iconContainerStylesLiteral}>
-        <div aria-hidden="true">
-          {iconNode}
-        </div>
-        <span className="text-xs font-black uppercase tracking-widest">
-          {labelLiteral}
-        </span>
+        <div aria-hidden="true">{iconNode}</div>
+        <span className="text-xs font-black uppercase tracking-widest">{labelLiteral}</span>
       </div>
-      <span className="text-3xl font-black text-slate-900">
-        {valueLiteral}
-      </span>
+      <span className="text-3xl font-black text-slate-900">{valueLiteral}</span>
     </article>
   );
 };

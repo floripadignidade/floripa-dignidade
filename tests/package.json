@@ -7,7 +7,6 @@
   "sideEffects": false,
   "author": "Raz Podesta - MetaShark Tech",
   "license": "UNLICENSED",
-
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
@@ -17,18 +16,20 @@
       "default": "./src/index.ts"
     }
   },
-
   "dependencies": {
     "@swc/helpers": "~0.5.18"
   },
-
   "peerDependencies": {
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0"
   },
   "peerDependenciesMeta": {
-    "react": { "optional": true },
-    "react-dom": { "optional": true }
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@testing-library/react": "16.3.0",
@@ -39,7 +40,6 @@
     "@swc/jest": "~0.2.38",
     "@types/node": "22.13.1"
   },
-
   "nx": {
     "name": "@floripa-dignidade/qa-mirror",
     "projectType": "library",

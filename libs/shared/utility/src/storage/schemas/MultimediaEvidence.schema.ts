@@ -26,12 +26,14 @@ export type TEvidenceIdentifier = z.infer<typeof EvidenceIdentifierSchema>;
  * @section Taxonomía de Evidencia
  * Clasificación ontológica del propósito del archivo.
  */
-export const EvidenceCategorySchema = z.enum([
-  'HUMAN_RIGHTS_PROOF',  // Pruebas directas de violaciones (Fotos/Videos)
-  'FINANCIAL_INVOICE',   // Comprobantes de gasto público (PDF/Imágenes)
-  'INSTITUTIONAL_ASSET', // Activos de marca o documentos oficiales de la ONG
-  'CITIZEN_REPORT'       // Testimonios documentados
-]).describe('Categoría técnica que determina la política de retención y cifrado.');
+export const EvidenceCategorySchema = z
+  .enum([
+    'HUMAN_RIGHTS_PROOF', // Pruebas directas de violaciones (Fotos/Videos)
+    'FINANCIAL_INVOICE', // Comprobantes de gasto público (PDF/Imágenes)
+    'INSTITUTIONAL_ASSET', // Activos de marca o documentos oficiales de la ONG
+    'CITIZEN_REPORT', // Testimonios documentados
+  ])
+  .describe('Categoría técnica que determina la política de retención y cifrado.');
 
 export type TEvidenceCategory = z.infer<typeof EvidenceCategorySchema>;
 
@@ -40,44 +42,54 @@ export type TEvidenceCategory = z.infer<typeof EvidenceCategorySchema>;
  * @description Aduana de ADN para la inyección de pruebas documentales.
  * Valida tanto la integridad binaria como los metadatos de clasificación.
  */
-export const MultimediaEvidencePayloadSchema = z.object({
-  /**
-   * 🛡️ SANEADO Zenith: Referencia binaria isomórfica.
-   * Acepta tipos nativos de navegador y de servidor sin recurrir a APIs propietarias.
-   */
-  fileBlobReference: z.instanceof(Blob)
-    .or(z.instanceof(Uint8Array))
-    .or(z.instanceof(ArrayBuffer))
-    .describe('Cuerpo binario del archivo capturado por el hardware.'),
+export const MultimediaEvidencePayloadSchema = z
+  .object({
+    /**
+     * 🛡️ SANEADO Zenith: Referencia binaria isomórfica.
+     * Acepta tipos nativos de navegador y de servidor sin recurrir a APIs propietarias.
+     */
+    fileBlobReference: z
+      .instanceof(Blob)
+      .or(z.instanceof(Uint8Array))
+      .or(z.instanceof(ArrayBuffer))
+      .describe('Cuerpo binario del archivo capturado por el hardware.'),
 
-  /** Metadata de Clasificación e Identidad Institucional */
-  institutionalContextMetadata: z.object({
-    ownerOrganizationIdentifier: z.string()
-      .default('GLOBAL_FLORIPA')
-      .describe('UUID de la organización responsable de la custodia.'),
+    /** Metadata de Clasificación e Identidad Institucional */
+    institutionalContextMetadata: z
+      .object({
+        ownerOrganizationIdentifier: z
+          .string()
+          .default('GLOBAL_FLORIPA')
+          .describe('UUID de la organización responsable de la custodia.'),
 
-    evidenceCategoryLiteral: EvidenceCategorySchema,
+        evidenceCategoryLiteral: EvidenceCategorySchema,
 
-    originalFileNameLiteral: z.string()
-      .min(1, { message: 'STORAGE.ERRORS.FILENAME_REQUIRED' })
-      .transform((value) => value.trim())
-      .describe('Nombre original del archivo para rastro forense.'),
+        originalFileNameLiteral: z
+          .string()
+          .min(1, { message: 'STORAGE.ERRORS.FILENAME_REQUIRED' })
+          .transform((value) => value.trim())
+          .describe('Nombre original del archivo para rastro forense.'),
 
-    mimeTypeLiteral: z.string()
-      .regex(/^(image|application|video|audio)\//, { message: 'STORAGE.ERRORS.INVALID_MIME_TYPE' })
-      .describe('Identificador técnico del formato de medio (ISO Standard).'),
-  }).readonly(),
+        mimeTypeLiteral: z
+          .string()
+          .regex(/^(image|application|video|audio)\//, {
+            message: 'STORAGE.ERRORS.INVALID_MIME_TYPE',
+          })
+          .describe('Identificador técnico del formato de medio (ISO Standard).'),
+      })
+      .readonly(),
 
-  /**
-   * Seguridad SRE: Límite de carga (Quota Guard).
-   * @constant MAXIMUM_FILE_SIZE_BYTES - 15MB (Límite del Tier gratuito).
-   */
-  fileSizeInBytesQuantity: z.number()
-    .nonnegative()
-    .max(15728640, { message: 'STORAGE.ERRORS.FILE_TOO_LARGE_MAX_15MB' })
-    .describe('Tamaño físico del archivo en bytes para auditoría de cuota.'),
-
-}).readonly(); // Inmutabilidad forzada del contrato.
+    /**
+     * Seguridad SRE: Límite de carga (Quota Guard).
+     * @constant MAXIMUM_FILE_SIZE_BYTES - 15MB (Límite del Tier gratuito).
+     */
+    fileSizeInBytesQuantity: z
+      .number()
+      .nonnegative()
+      .max(15728640, { message: 'STORAGE.ERRORS.FILE_TOO_LARGE_MAX_15MB' })
+      .describe('Tamaño físico del archivo en bytes para auditoría de cuota.'),
+  })
+  .readonly(); // Inmutabilidad forzada del contrato.
 
 /** 🛡️ ADN Tipado para exportación Verbatim */
 export type IMultimediaEvidencePayload = z.infer<typeof MultimediaEvidencePayloadSchema>;

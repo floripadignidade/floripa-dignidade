@@ -18,7 +18,7 @@ import { z } from 'zod';
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
-  TraceExecutionTime
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
 import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
@@ -34,15 +34,17 @@ import { TransmitPublicReactionToCloud } from './TransmitPublicReactionToCloud';
  * @description Aduana de ADN para los parámetros de ejecución del flujo.
  * Protege al motor contra datos de entrada malformados desde la interfaz.
  */
-const ExecuteReactionParametersSchema = z.object({
-  targetEntityIdentifier: z.string().uuid(),
-  polarityNumeric: z.number().min(-1).max(1),
-  targetApiEndpointLiteral: z.string().url(),
-  isNetworkOnlineBoolean: z.boolean(),
-  activeCitizenIdentitySnapshot: z.any().optional(), // Validado profundamente por ProcessPublicReactionTransaction
-  emoticonIntentionLiteral: z.string().optional(),
-  IncrementPendingQueueAction: z.function(),
-}).readonly();
+const ExecuteReactionParametersSchema = z
+  .object({
+    targetEntityIdentifier: z.string().uuid(),
+    polarityNumeric: z.number().min(-1).max(1),
+    targetApiEndpointLiteral: z.string().url(),
+    isNetworkOnlineBoolean: z.boolean(),
+    activeCitizenIdentitySnapshot: z.any().optional(), // Validado profundamente por ProcessPublicReactionTransaction
+    emoticonIntentionLiteral: z.string().optional(),
+    IncrementPendingQueueAction: z.function(),
+  })
+  .readonly();
 
 /**
  * @interface IExecuteReactionParameters
@@ -74,7 +76,7 @@ const ORCHESTRATOR_IDENTIFIER = 'EXECUTE_PUBLIC_REACTION_FLOW_ORCHESTRATOR';
  * @throws {InternalSystemException} Si ocurre un colapso en el Tier de Datos o Criptografía.
  */
 export const ExecutePublicReactionFlow = async (
-  executionParametersSnapshot: IExecuteReactionParameters
+  executionParametersSnapshot: IExecuteReactionParameters,
 ): Promise<{ readonly calculatedImpactWeightNumeric: number }> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -84,12 +86,14 @@ export const ExecutePublicReactionFlow = async (
     correlationIdentifier,
     async () => {
       // 1. ADUANA DE ENTRADA (Input Boundary Protection)
-      const inputValidationResult = ExecuteReactionParametersSchema.safeParse(executionParametersSnapshot);
+      const inputValidationResult = ExecuteReactionParametersSchema.safeParse(
+        executionParametersSnapshot,
+      );
 
       if (!inputValidationResult.success) {
         throw new ValidationException('PARAMETROS_DE_EJECUCION_DE_REACCION_INVALIDOS', {
           structuralIssuesCollection: inputValidationResult.error.flatten(),
-          correlationIdentifier
+          correlationIdentifier,
         });
       }
 
@@ -101,7 +105,7 @@ export const ExecutePublicReactionFlow = async (
           isNetworkOnlineBoolean,
           activeCitizenIdentitySnapshot,
           emoticonIntentionLiteral,
-          IncrementPendingQueueAction
+          IncrementPendingQueueAction,
         } = inputValidationResult.data;
 
         // 2. CONSTRUCCIÓN DE ADN (Delegación Atómica)
@@ -113,7 +117,7 @@ export const ExecutePublicReactionFlow = async (
           targetEntityIdentifier,
           polarityNumeric,
           activeCitizenIdentitySnapshot,
-          emoticonIntentionLiteral
+          emoticonIntentionLiteral,
         );
 
         // 3. PROCESAMIENTO Y PONDERACIÓN (Aduana Zod e Identidad)
@@ -122,7 +126,7 @@ export const ExecutePublicReactionFlow = async (
          */
         const validatedReactionSnapshot = await ProcessPublicReactionTransaction(
           rawPayloadSnapshot,
-          activeCitizenIdentitySnapshot
+          activeCitizenIdentitySnapshot,
         );
 
         // 4. TRIAJE DE RESILIENCIA SRE (Cloud Sovereign Strategy)
@@ -136,11 +140,11 @@ export const ExecutePublicReactionFlow = async (
             correlationIdentifier,
             messageContentLiteral: 'INTERACTION.LOGS.OFFLINE_DEFERRAL',
             semanticIntentTag: 'OFFLINE_STATE_RECOVERY',
-            contextMetadataSnapshot: { targetId: targetEntityIdentifier }
+            contextMetadataSnapshot: { targetId: targetEntityIdentifier },
           });
 
           return {
-            calculatedImpactWeightNumeric: validatedReactionSnapshot.calculatedImpactWeightNumeric
+            calculatedImpactWeightNumeric: validatedReactionSnapshot.calculatedImpactWeightNumeric,
           };
         }
 
@@ -148,10 +152,7 @@ export const ExecutePublicReactionFlow = async (
         /**
          * Ejecuta el despacho hacia el Tier de Datos en la nube.
          */
-        await TransmitPublicReactionToCloud(
-          targetApiEndpointLiteral,
-          validatedReactionSnapshot
-        );
+        await TransmitPublicReactionToCloud(targetApiEndpointLiteral, validatedReactionSnapshot);
 
         // 6. REPORTE DE ÉXITO OPERACIONAL
         void EmitTelemetrySignal({
@@ -160,18 +161,16 @@ export const ExecutePublicReactionFlow = async (
           operationCodeLiteral: 'REACTION_TRANSACTION_NOMINAL',
           correlationIdentifier,
           messageContentLiteral: 'Transacción de reacción pública completada y persistida.',
-          semanticIntentTag: 'DATA_LAKE_INGESTION'
+          semanticIntentTag: 'DATA_LAKE_INGESTION',
         });
 
         return {
-          calculatedImpactWeightNumeric: validatedReactionSnapshot.calculatedImpactWeightNumeric
+          calculatedImpactWeightNumeric: validatedReactionSnapshot.calculatedImpactWeightNumeric,
         };
-
       } catch (caughtError: unknown) {
         // 7. GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -179,15 +178,15 @@ export const ExecutePublicReactionFlow = async (
           operationCodeLiteral: 'REACTION_PIPELINE_COLLAPSE',
           correlationIdentifier,
           messageContentLiteral: 'Fallo catastrófico en el flujo de ejecución de la reacción.',
-          contextMetadataSnapshot: { errorTrace: errorDescriptionLiteral }
+          contextMetadataSnapshot: { errorTrace: errorDescriptionLiteral },
         });
 
         throw new InternalSystemException('FALLO_EN_FLUJO_DE_REACCION_SOBERANA', {
           originalErrorLiteral: errorDescriptionLiteral,
           entityIdentifier: executionParametersSnapshot.targetEntityIdentifier,
-          correlationIdentifier
+          correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

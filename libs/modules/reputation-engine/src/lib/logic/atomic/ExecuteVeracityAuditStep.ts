@@ -23,9 +23,8 @@ import type { IVeracityAnalysis } from '../../schemas/VeracityAnalysis.schema';
  */
 export const ExecuteVeracityAuditStep = async (
   validatedPulseSnapshot: IPublicEvaluationPulse,
-  correlationIdentifier: string = GenerateCorrelationIdentifier()
+  correlationIdentifier: string = GenerateCorrelationIdentifier(),
 ): Promise<IVeracityAnalysis | undefined> => {
-
   /**
    * @section Triaje de Requisito Cognitivo
    * Solo enviamos a la IA si existe un rastro textual (testimonio).

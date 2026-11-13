@@ -34,7 +34,7 @@ const SECURITY_ATOM_IDENTIFIER = 'WHATSAPP_SECURITY_ADUANA';
  * @throws {ValidationException} Si los parámetros de entrada violan el contrato Zod.
  */
 export const ValidateMetaSignature = async (
-  parameters: IValidateMetaSignatureParameters
+  parameters: IValidateMetaSignatureParameters,
 ): Promise<boolean> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -93,16 +93,14 @@ export const ValidateMetaSignature = async (
             operationCode: 'META_SIGNATURE_MISMATCH_DETECTED',
             correlationIdentifier,
             message: 'ALERTA DE SEGURIDAD: Intento de suplantación de Webhook de Meta.',
-            contextMetadata: { threatLevel: 'HIGH' }
+            contextMetadata: { threatLevel: 'HIGH' },
           });
         }
 
         return isIdentityMatchBoolean;
-
       } catch (caughtError: unknown) {
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevel: 'ERROR',
@@ -110,11 +108,11 @@ export const ValidateMetaSignature = async (
           operationCode: 'SIGNATURE_VERIFICATION_FAULT',
           correlationIdentifier,
           message: 'Fallo técnico al verificar la integridad criptográfica.',
-          contextMetadata: { errorTrace: errorDescriptionLiteral }
+          contextMetadata: { errorTrace: errorDescriptionLiteral },
         });
 
         return false;
       }
-    }
+    },
   );
 };

@@ -24,7 +24,7 @@ export interface ISubscriptionSuccessPayload {
  * @returns {ISubscriptionSuccessPayload} Objeto inmutable de respuesta.
  */
 export const BuildSubscriptionSuccessResponse = (
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): ISubscriptionSuccessPayload => {
   return {
     isOperationSuccessfulBoolean: true,

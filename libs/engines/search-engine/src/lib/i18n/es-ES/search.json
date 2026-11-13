@@ -1,0 +1,20 @@
+{
+  "status": {
+    "searchingStatusLiteral": "Buscando en el observatorio...",
+    "emptyResultsMessageLiteral": "No se encontraron resultados para esta consulta.",
+    "resultsFoundLabelLiteral": "resultados encontrados"
+  },
+  "categories": {
+    "INSTITUTIONAL_CONTENT": "Contenido Institucional",
+    "NEWS_ARTICLE": "Noticias y Prensa",
+    "HUMAN_RIGHTS_REPORT": "Denuncia Cívica",
+    "SOLIDARITY_RESOURCE": "Red Solidaria"
+  },
+  "placeholders": {
+    "searchInputPlaceholderLiteral": "Buscar noticias, gastos públicos o denuncias...",
+    "keyboardShortcutHintLiteral": "Atajo de teclado Ctrl + K o Command + K para buscar"
+  },
+  "logs": {
+    "SEARCH_COMPLETED": "Búsqueda difusa institucional finalizada con filtrado de autoridad aplicado."
+  }
+}

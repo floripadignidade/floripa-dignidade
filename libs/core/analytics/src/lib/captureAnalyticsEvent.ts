@@ -12,10 +12,7 @@
  * @license UNLICENSED
  */
 
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 /* 1. ADN Estructural y Esquemas (Verbatim Module Syntax) */
 import { AnalyticsEventSchema } from './schemas/AnalyticsEvent.schema';
@@ -80,7 +77,6 @@ export const CaptureAnalyticsEvent = (rawInteractionPayload: unknown): void => {
         messageContentLiteral: `Evento capturado exitosamente: ${validatedEventSnapshot.eventName}`,
         contextMetadataSnapshot: { eventNameLiteral: validatedEventSnapshot.eventName },
       });
-
     } catch (caughtError: unknown) {
       const errorDescriptionLiteral =
         caughtError instanceof Error ? caughtError.message : String(caughtError);

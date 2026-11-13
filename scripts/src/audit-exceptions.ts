@@ -36,16 +36,14 @@ const ExecuteExceptionsBuildAuditAction = async (): Promise<void> => {
 
     console.warn('--- [ZENITH SENTRY]: AUDITORIA FINALIZADA CON EXITO ---\n');
     process.exit(0);
-
   } catch (caughtError: unknown) {
     /**
      * @section Gestion de Colapso de Infraestructura
      * Si la auditoria falla, debemos detener el proceso de CI/CD inmediatamente
      * devolviendo un codigo de salida de error (1).
      */
-    const errorDescriptionLiteral = caughtError instanceof Error
-      ? caughtError.message
-      : String(caughtError);
+    const errorDescriptionLiteral =
+      caughtError instanceof Error ? caughtError.message : String(caughtError);
 
     console.error('\n[CRITICAL_INFRASTRUCTURE_FAILURE]: La auditoria forense ha colapsado.');
     console.error(`Rastro del fallo: ${errorDescriptionLiteral}`);

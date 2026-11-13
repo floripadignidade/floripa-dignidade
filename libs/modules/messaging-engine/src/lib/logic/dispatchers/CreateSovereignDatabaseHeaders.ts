@@ -26,9 +26,7 @@ export const ReturnPreferenceLiteralSchema = z
   .describe('Preferencia de retorno de datos tras mutaciones HTTP en PostgREST.');
 
 /** Tipo literal derivado para modos de respuesta de base de datos. */
-export type TReturnPreferenceLiteral = z.infer<
-  typeof ReturnPreferenceLiteralSchema
->;
+export type TReturnPreferenceLiteral = z.infer<typeof ReturnPreferenceLiteralSchema>;
 
 /**
  * @name TReturnPreference

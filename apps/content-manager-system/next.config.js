@@ -1,18 +1,14 @@
-// apps/content-manager-system/next.config.js
-
 // @ts-check
 
 /**
  * @section Next.js Configuration - CMS Enterprise Administration Foundation (Payload 3.84)
  * @description Manifiesto de configuración institucional para el sistema de gestión
- * de contenidos (CMS). Orquesta la integración con el motor de Payload CMS y el grafo de Nx,
- * garantizando la optimización de activos multimedia, la seguridad de cabeceras y la
- * estabilidad en entornos Vercel Serverless.
+ * de contenidos (CMS). Orquesta la integración con Payload CMS 3.84, la transpilación
+ * Source-First de los paquetes del monorepo y el grafo de Nx, garantizando optimización
+ * de activos multimedia, endurecimiento básico y estabilidad en Vercel Serverless.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Rendimiento y Mantenibilidad).
- * SANEADO Zenith: Erradicación del error TS2353 tipando explícitamente la extensión
- * de opciones de Nx sobre NextConfig y preservando la aserción const en formatos de imagen.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -27,11 +23,25 @@ import { withPayload } from '@payloadcms/next/withPayload';
 
 /**
  * @name cmsNextConfigurationFoundation
- * @description Configuración base de Next.js con endurecimiento de seguridad y
- * optimización de Core Web Vitals (LCP/CLS) para el panel administrativo.
+ * @description Configuración base de Next.js con transpilación de librerías internas,
+ * optimización AVIF/WebP y mitigación de fingerprinting para el panel administrativo.
  * @type {CmsNextConfig}
  */
 const cmsNextConfigurationFoundation = {
+  /**
+   * @section Librerías del Monorepo Autorizadas para Transpilación Source-First
+   * Garantiza que Next.js compile el código fuente TypeScript directo de los paquetes
+   * consumidos directa o transitivamente por el CMS y sus colecciones.
+   */
+  transpilePackages: [
+    '@floripa-dignidade/contracts',
+    '@floripa-dignidade/environment-validator',
+    '@floripa-dignidade/exceptions',
+    '@floripa-dignidade/identity',
+    '@floripa-dignidade/shared-utility',
+    '@floripa-dignidade/telemetry',
+  ],
+
   reactStrictMode: true,
 
   /**
@@ -76,12 +86,14 @@ const cmsNextConfigurationFoundation = {
  * @description Colección ordenada de orquestadores de compilación.
  * withNx precede a withPayload para asegurar la disponibilidad del sistema virtual de rutas.
  */
-const applicationPluginsCollection = [
-  withNx,
-  withPayload,
-];
+const applicationPluginsCollection = [withNx, withPayload];
 
 /**
- * Exportación del ensamble procesado para el despliegue a producción.
+ * Exportación del ensamble procesado (`NextConfigFn` asíncrono generado por `composePlugins`)
+ * para el despliegue a producción en Vercel y ejecución en Nx.
  */
-export default composePlugins(...applicationPluginsCollection)(cmsNextConfigurationFoundation);
+const exportedConfigurationSnapshot = composePlugins(...applicationPluginsCollection)(
+  cmsNextConfigurationFoundation,
+);
+
+export default exportedConfigurationSnapshot;

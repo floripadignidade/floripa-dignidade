@@ -15,24 +15,33 @@ import { AdversarialVulnerabilitySchema } from './AdversarialVulnerability.schem
  * @name ForensicAuditReportSchema
  * @description Contenedor maestro del resultado de la simulación ofensiva.
  */
-export const ForensicAuditReportSchema = z.object({
-  reportIdentifier: z.string().uuid()
-    .describe('Identificador soberano de la sesión de ejecución del Red Team.'),
+export const ForensicAuditReportSchema = z
+  .object({
+    reportIdentifier: z
+      .string()
+      .uuid()
+      .describe('Identificador soberano de la sesión de ejecución del Red Team.'),
 
-  totalSimulationsExecutedQuantity: z.number().int().nonnegative()
-    .describe('Volumen total de inyecciones intentadas contra el ecosistema.'),
+    totalSimulationsExecutedQuantity: z
+      .number()
+      .int()
+      .nonnegative()
+      .describe('Volumen total de inyecciones intentadas contra el ecosistema.'),
 
-  executionDurationInMillisecondsNumeric: z.number().nonnegative()
-    .describe('Costo de latencia total de la auditoría.'),
+    executionDurationInMillisecondsNumeric: z
+      .number()
+      .nonnegative()
+      .describe('Costo de latencia total de la auditoría.'),
 
-  /** Colección de fallas exitosas. Si está vacío, el sistema es nominalmente seguro. */
-  detectedVulnerabilitiesCollection: z.array(AdversarialVulnerabilitySchema)
-    .describe('Listado integral de brechas de seguridad confirmadas.'),
+    /** Colección de fallas exitosas. Si está vacío, el sistema es nominalmente seguro. */
+    detectedVulnerabilitiesCollection: z
+      .array(AdversarialVulnerabilitySchema)
+      .describe('Listado integral de brechas de seguridad confirmadas.'),
 
-  auditStartTimestampISO: z.string().datetime(),
-  auditEndTimestampISO: z.string().datetime(),
-
-}).readonly();
+    auditStartTimestampISO: z.string().datetime(),
+    auditEndTimestampISO: z.string().datetime(),
+  })
+  .readonly();
 
 /** 🛡️ ADN Tipado */
 export type IForensicAuditReport = z.infer<typeof ForensicAuditReportSchema>;

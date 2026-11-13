@@ -3,76 +3,73 @@
   "$schema": "../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "scripts/src",
   "projectType": "library",
-  "tags": [
-    "scope:tools",
-    "type:tool",
-    "platform:node"
-  ],
+  "tags": ["scope:tools", "type:tool", "platform:node"],
   "targets": {
     "purge-rogue-emissions": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsx scripts/src/purge-rogue-emissions.ts",
+        "command": "tsx --tsconfig ./tsconfig.base.json scripts/src/purge-rogue-emissions.ts",
         "color": true
       }
     },
     "audit-exceptions": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsx scripts/src/audit-exceptions.ts",
+        "command": "tsx --tsconfig ./tsconfig.base.json scripts/src/audit-exceptions.ts",
+        "color": true
+      }
+    },
+    "audit-infrastructure": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx --tsconfig ./tsconfig.base.json scripts/src/audit-cloud-infrastructure-secrets.ts",
+        "color": true
+      }
+    },
+    "audit-workspace": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx --tsconfig ./tsconfig.base.json scripts/src/audit-workspace-conformance.ts",
         "color": true
       }
     },
     "ingest-financial-budget": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsx scripts/src/ingest-financial-budget.ts",
+        "command": "tsx --tsconfig ./tsconfig.base.json scripts/src/ingest-financial-budget.ts",
         "color": true
       }
     },
     "internationalization-build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsx scripts/src/run-weaver.ts",
+        "command": "tsx --tsconfig ./tsconfig.base.json scripts/src/run-weaver.ts",
         "color": true
       },
       "cache": true,
       "inputs": [
         "default",
         "^production",
-        "{workspaceRoot}/libs/**/src/lib/i18n/*.json"
+        "{workspaceRoot}/libs/**/i18n/**/*.json",
+        "{workspaceRoot}/apps/**/i18n/**/*.json",
+        "!{workspaceRoot}/apps/floripa-dignidade/src/app/i18n/dictionaries/**/*.json"
       ],
       "outputs": [
-        "{workspaceRoot}/apps/floripa-dignidade/src/app/i18n/dictionaries/*.json"
+        "{workspaceRoot}/apps/floripa-dignidade/src/app/i18n/dictionaries/*.json",
+        "{workspaceRoot}/reports/internationalization-audit-report.json"
       ]
-    },
-    "build": {
-      "executor": "@nx/js:swc",
-      "outputs": [
-        "{workspaceRoot}/dist/out-tsc/scripts"
-      ],
-      "options": {
-        "outputPath": "dist/libs/scripts",
-        "main": "scripts/src/index.ts",
-        "tsConfig": "scripts/tsconfig.lib.json",
-        "stripLeadingPaths": true
-      },
-      "cache": true
     },
     "typecheck": {
       "executor": "nx:run-commands",
-      "outputs": [
-        "{workspaceRoot}/dist/out-tsc/scripts"
-      ],
       "dependsOn": [
-     
         {
           "target": "typecheck",
           "projects": "@floripa-dignidade/tools"
         }
       ],
       "options": {
-        "command": "tsc -p scripts/tsconfig.lib.json"
+        "command": "tsc -p scripts/tsconfig.lib.json --noEmit",
+        "color": true
       },
       "cache": true
     },

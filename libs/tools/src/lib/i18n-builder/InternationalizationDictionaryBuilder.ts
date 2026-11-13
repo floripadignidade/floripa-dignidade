@@ -1,50 +1,122 @@
 /**
  * @section Tools & Infrastructure - Internationalization Dictionary Weaver Orchestrator
- * @description Orquestador maestro encargado del pipeline de consolidación lingüística.
- * Coordina la secuencia determinista de Higiene previa, Inicialización de directorios,
- * Extracción de silos de traducción y Persistencia física de diccionarios unificados
- * en 'apps/floripa-dignidade/src/app/i18n/dictionaries/'.
- * Emite telemetría forense conforme a ISO/IEC 11179 y garantiza cero dependencias huérfanas.
+ * @description Orquestador maestro del pipeline de consolidación lingüística (ADR 0030).
+ * Coordina la validación opcional de parámetros, higiene previa de emisiones huérfanas,
+ * inicialización de directorios con propagación de correlación, escaneo concurrente de
+ * silos en `libs/` y `apps/`, persistencia de diccionarios/reporte forense y verificación
+ * Fail-Fast configurable de paridad lingüística.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Confiabilidad) e ISO/IEC 27001 (Seguridad).
- * SANEADO Zenith: Inyección mandatoria de 'occurrenceTimestampISO', resolución estricta con extensiones '.js'
- * y purga definitiva de metáforas informales.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: BCP 47 (RFC 5646), ISO/IEC 11179, ISO/IEC 25010 e ISO/IEC 27001.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-/* 1. Infraestructura Core de Telemetría y Excepciones */
+import { z } from 'zod';
+
 import {
+  GlobalBaseException,
+  InternalSystemException,
+  ValidationException,
+} from '@floripa-dignidade/exceptions';
+import {
+  type CorrelationIdentifier,
+  CorrelationIdentifierSchema,
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
-  TraceExecutionTime,
   type ModuleIdentifier,
   type OperationCode,
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-import { InternalSystemException } from '@floripa-dignidade/exceptions';
+import { type IWeaverAuditReport, WEAVER_CONFIGURATION } from './constants/WeaverConfiguration';
+import { InitializeWeaverInfrastructure } from './atomic/InitializeWeaverInfrastructure';
+import { PersistDictionariesAndAuditReport } from './atomic/PersistDictionariesAndAuditReport';
+import { ScanAndExtractLinguisticSilos } from './atomic/ScanAndExtractLinguisticSilos';
+import { ExecuteRecursiveEmissionsPurge } from '../maintenance-tools/ExecuteRecursiveEmissionsPurge';
 
-/* 2. Configuración y Enjambre Atómico de Construcción (Resolución ESM Estricta) */
-import { WEAVER_CONFIGURATION } from './constants/WeaverConfiguration.js';
-import { InitializeWeaverInfrastructure } from './atomic/InitializeWeaverInfrastructure.js';
-import { ScanAndExtractLinguisticSilos } from './atomic/ScanAndExtractLinguisticSilos.js';
-import { PersistDictionariesAndAuditReport } from './atomic/PersistDictionariesAndAuditReport.js';
+/**
+ * @name BuildDictionariesOptionsSchema
+ * @description Aduana Zod para configurar la ejecución del compilador lingüístico Weaver.
+ */
+export const BuildDictionariesOptionsSchema = z
+  .object({
+    isFailFastOnParityViolationBoolean: z
+      .boolean()
+      .default(false)
+      .describe(
+        'Cuando es verdadero, aborta el pipeline si faltan claves o archivos respecto al idioma fuente.',
+      ),
+    correlationIdentifier: CorrelationIdentifierSchema.optional().describe(
+      'Identificador UUID v4 opcional para enlazar la compilación con un pipeline superior.',
+    ),
+  })
+  .readonly();
 
-/* 3. Módulos de Mantenimiento e Higiene de Sistema de Archivos */
-import { ExecuteRecursiveEmissionsPurge } from '../maintenance-tools/ExecuteRecursiveEmissionsPurge.js';
+export type IBuildDictionariesOptions = z.input<typeof BuildDictionariesOptionsSchema>;
+
+const evaluateParityVerdictAction = (
+  auditReportSnapshot: IWeaverAuditReport,
+  isFailFastOnParityViolationBoolean: boolean,
+  weaverEngineIdentifierLiteral: ModuleIdentifier,
+  correlationIdentifier: CorrelationIdentifier,
+): void => {
+  if (auditReportSnapshot.isParityVerifiedBoolean) {
+    return;
+  }
+
+  const violationsCountQuantity = auditReportSnapshot.parityViolationsCollection.length;
+
+  void EmitTelemetrySignal({
+    occurrenceTimestampISO: new Date().toISOString(),
+    severityLevelLiteral: isFailFastOnParityViolationBoolean ? 'CRITICAL' : 'WARNING',
+    moduleIdentifierLiteral: weaverEngineIdentifierLiteral,
+    operationCodeLiteral: 'WEAVER_PARITY_VIOLATIONS_DETECTED' as OperationCode,
+    correlationIdentifier,
+    messageContentLiteral: `Auditoría de paridad detectó [${violationsCountQuantity}] inconsistencias frente a [${auditReportSnapshot.sourceLocaleIdentifier}].`,
+    semanticIntentTag: 'I18N_PARITY_VIOLATION',
+    contextMetadataSnapshot: {
+      isFailFastOnParityViolationBoolean,
+      violationsCountQuantity,
+      parityViolationsCollection: auditReportSnapshot.parityViolationsCollection,
+    },
+  });
+
+  if (isFailFastOnParityViolationBoolean) {
+    throw new ValidationException('VIOLACION_DE_PARIDAD_LINGUISTICA_I18N', {
+      sourceLocaleIdentifier: auditReportSnapshot.sourceLocaleIdentifier,
+      violationsCountQuantity,
+      parityViolationsCollection: auditReportSnapshot.parityViolationsCollection,
+      correlationIdentifier,
+    });
+  }
+};
 
 /**
  * Ejecuta el pipeline integral de compilación y consolidación de diccionarios multilingües.
- * Aplica el principio de estado limpio purgando emisiones huérfanas y valida la integridad
- * estructural de cada silo JSON antes de generar los diccionarios unificados.
  *
- * @returns {Promise<void>} Operación resuelta cuando los archivos están físicamente en disco.
- * @throws {InternalSystemException} Si cualquier fase del pipeline sufre un colapso irrecuperable.
+ * @param rawOptionsSnapshot - Opciones opcionales de compilación (ej. modo Fail-Fast estricto).
+ * @returns {Promise<IWeaverAuditReport>} Reporte maestro validado y persistido en disco.
+ * @throws {ValidationException} Si las opciones son inválidas o falla la paridad en modo Fail-Fast.
+ * @throws {InternalSystemException} Si cualquier fase de I/O sufre un colapso irrecuperable.
  */
-export const BuildInternationalizationDictionaries = async (): Promise<void> => {
-  const correlationIdentifier = GenerateCorrelationIdentifier();
+export const BuildInternationalizationDictionaries = async (
+  rawOptionsSnapshot: IBuildDictionariesOptions = {},
+): Promise<IWeaverAuditReport> => {
+  const optionsValidationResult = BuildDictionariesOptionsSchema.safeParse(rawOptionsSnapshot);
+
+  if (!optionsValidationResult.success) {
+    throw new ValidationException('OPCIONES_DE_COMPILACION_WEAVER_INVALIDAS', {
+      validationIssuesCollection: optionsValidationResult.error.flatten(),
+    });
+  }
+
+  const {
+    isFailFastOnParityViolationBoolean,
+    correlationIdentifier = GenerateCorrelationIdentifier(),
+  } = optionsValidationResult.data;
+
   const weaverEngineIdentifierLiteral =
     WEAVER_CONFIGURATION.WEAVER_ENGINE_IDENTIFIER_LITERAL as ModuleIdentifier;
 
@@ -52,50 +124,53 @@ export const BuildInternationalizationDictionaries = async (): Promise<void> => 
     weaverEngineIdentifierLiteral,
     'DICTIONARY_CONSOLIDATION_PIPELINE' as OperationCode,
     correlationIdentifier,
-    async (): Promise<void> => {
+    async (): Promise<IWeaverAuditReport> => {
       try {
-        // --- FASE 0: HIGIENE PREVIA DE DIRECTORIOS (Clean Pre-flight) ---
         await ExecuteRecursiveEmissionsPurge(
           WEAVER_CONFIGURATION.TARGET_OUTPUT_DIRECTORY_LITERAL,
           correlationIdentifier,
         );
 
-        // --- FASE 1: PREPARACIÓN DE INFRAESTRUCTURA Y PERMISOS ---
-        await InitializeWeaverInfrastructure();
+        await InitializeWeaverInfrastructure(correlationIdentifier);
 
-        // --- FASE 2: ESCANEO Y EXTRACCIÓN DE SILOS LINGÜÍSTICOS ---
-        const extractionResultSnapshot = await ScanAndExtractLinguisticSilos(
-          correlationIdentifier,
-        );
+        const extractionResultSnapshot = await ScanAndExtractLinguisticSilos(correlationIdentifier);
 
-        // --- FASE 3: PERSISTENCIA FÍSICA Y REPORTE DE AUDITORÍA ---
-        await PersistDictionariesAndAuditReport(
+        const auditReportSnapshot = await PersistDictionariesAndAuditReport(
           extractionResultSnapshot.aggregatedLinguisticDictionaries,
           extractionResultSnapshot.forensicAuditTrail,
           correlationIdentifier,
+          extractionResultSnapshot.parityViolationsCollection,
         );
 
-        // --- FASE 4: CONFIRMACIÓN TELEMÉTRICA NOMINAL (ISO/IEC 11179) ---
+        evaluateParityVerdictAction(
+          auditReportSnapshot,
+          isFailFastOnParityViolationBoolean,
+          weaverEngineIdentifierLiteral,
+          correlationIdentifier,
+        );
+
         void EmitTelemetrySignal({
           occurrenceTimestampISO: new Date().toISOString(),
           severityLevelLiteral: 'INFO',
           moduleIdentifierLiteral: weaverEngineIdentifierLiteral,
-          operationCodeLiteral:
-            'WEAVER_PIPELINE_NOMINAL_SUCCESS' as OperationCode,
+          operationCodeLiteral: 'WEAVER_PIPELINE_NOMINAL_SUCCESS' as OperationCode,
           correlationIdentifier,
           messageContentLiteral:
             'Consolidación lingüística finalizada: Diccionarios unificados y sincronizados.',
           semanticIntentTag: 'I18N_COMPILATION_COMPLETE',
           contextMetadataSnapshot: {
-            processedModulesQuantity:
-              extractionResultSnapshot.forensicAuditTrail.length,
-            targetPathLiteral:
-              WEAVER_CONFIGURATION.TARGET_OUTPUT_DIRECTORY_LITERAL,
-            executionTimestampISO: new Date().toISOString(),
+            processedModulesQuantity: auditReportSnapshot.totalModulesProcessedQuantity,
+            isParityVerifiedBoolean: auditReportSnapshot.isParityVerifiedBoolean,
+            targetPathLiteral: WEAVER_CONFIGURATION.TARGET_OUTPUT_DIRECTORY_LITERAL,
           },
         });
+
+        return auditReportSnapshot;
       } catch (caughtExecutionError: unknown) {
-        // --- FASE 5: GESTIÓN FORENSE DE COLAPSO (Resilience Layer) ---
+        if (caughtExecutionError instanceof GlobalBaseException) {
+          throw caughtExecutionError;
+        }
+
         const errorDescriptionLiteral =
           caughtExecutionError instanceof Error
             ? caughtExecutionError.message
@@ -105,8 +180,7 @@ export const BuildInternationalizationDictionaries = async (): Promise<void> => 
           occurrenceTimestampISO: new Date().toISOString(),
           severityLevelLiteral: 'CRITICAL',
           moduleIdentifierLiteral: weaverEngineIdentifierLiteral,
-          operationCodeLiteral:
-            'WEAVER_PIPELINE_CRITICAL_FAULT' as OperationCode,
+          operationCodeLiteral: 'WEAVER_PIPELINE_CRITICAL_FAULT' as OperationCode,
           correlationIdentifier,
           messageContentLiteral: `Fallo catastrófico en el compilador de diccionarios: ${errorDescriptionLiteral}`,
           semanticIntentTag: 'I18N_COMPILATION_FAULT',
@@ -115,13 +189,10 @@ export const BuildInternationalizationDictionaries = async (): Promise<void> => 
           },
         });
 
-        throw new InternalSystemException(
-          'FALLO_EN_PIPELINE_DE_COMPILACION_I18N',
-          {
-            originalErrorLiteral: errorDescriptionLiteral,
-            correlationIdentifier,
-          },
-        );
+        throw new InternalSystemException('FALLO_EN_PIPELINE_DE_COMPILACION_I18N', {
+          originalErrorLiteral: errorDescriptionLiteral,
+          correlationIdentifier,
+        });
       }
     },
   );
@@ -131,5 +202,4 @@ export const BuildInternationalizationDictionaries = async (): Promise<void> => 
  * @name InternationalizationDictionaryBuilder
  * @description Alias institucional de compatibilidad histórica para disparadores CLI y scripts.
  */
-export const InternationalizationDictionaryBuilder =
-  BuildInternationalizationDictionaries;
+export const InternationalizationDictionaryBuilder = BuildInternationalizationDictionaries;

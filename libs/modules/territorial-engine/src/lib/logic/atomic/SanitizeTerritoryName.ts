@@ -14,9 +14,7 @@
  * @param territoryNameLiteral - Nombre crudo (ej: "Florianópolis" o "Tapera ").
  * @returns {string} Nombre purificado (ej: "FLORIANOPOLIS" o "TAPERA").
  */
-export const SanitizeTerritoryName = (
-  territoryNameLiteral: string
-): string => {
+export const SanitizeTerritoryName = (territoryNameLiteral: string): string => {
   if (!territoryNameLiteral) {
     return 'TERRITORIO_DESCONOCIDO';
   }

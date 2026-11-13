@@ -25,10 +25,7 @@ import React, { memo, useCallback, useMemo, useState } from 'react';
 import { Command, Loader2, Search as SearchIcon } from 'lucide-react';
 
 /* 1. Infraestructura Core y Utilidades (Sovereign Swarm - Clean Paths) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 import { GlobalStyleClassMerger } from '@floripa-dignidade/shared-utility';
 
@@ -97,9 +94,8 @@ export const GlobalSearchWidget: React.FC<Partial<IGlobalSearchWidgetProperties>
   propertiesSnapshot,
 ) => {
   // 1. ADUANA DE ADN: Purificación técnica mediante contrato soberano (Blueprints)
-  const validatedConfigurationSnapshot = GlobalSearchWidgetPropertiesSchema.parse(
-    propertiesSnapshot,
-  );
+  const validatedConfigurationSnapshot =
+    GlobalSearchWidgetPropertiesSchema.parse(propertiesSnapshot);
 
   // 2. SENSORES DE HARDWARE (Hook Swarm)
   const { inputHardwareReference, isInputFocusedBoolean, handleFocusAction, handleBlurAction } =
@@ -109,7 +105,8 @@ export const GlobalSearchWidget: React.FC<Partial<IGlobalSearchWidgetProperties>
   const [activeSearchQueryLiteral, setActiveSearchQueryLiteral] = useState('');
 
   const isAlgorithmExecutingBoolean =
-    activeSearchQueryLiteral.length >= validatedConfigurationSnapshot.minimumCharacterQuantityToSearch;
+    activeSearchQueryLiteral.length >=
+    validatedConfigurationSnapshot.minimumCharacterQuantityToSearch;
 
   /**
    * @section Saneamiento de Complejidad Visual (Pilar DRY)

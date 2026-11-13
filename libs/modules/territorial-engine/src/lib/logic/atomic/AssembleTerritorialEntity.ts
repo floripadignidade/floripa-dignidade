@@ -13,10 +13,7 @@
  */
 
 import { z } from 'zod';
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 /* 1. ADN Estructural y Esquemas (Verbatim Module Syntax) */
 /**
@@ -34,12 +31,14 @@ import {
  * @description Aduana de ADN local para los parámetros de ensamblaje.
  * Protege al átomo contra ruidos de memoria o parámetros nulos.
  */
-const AssembleTerritorialEntityParametersSchema = z.object({
-  technicalIdentifierLiteral: z.string().min(1),
-  parentTerritoryIdentifierLiteral: z.string().nullable(),
-  officialTerritoryNameLiteral: z.string().min(2),
-  administrativeHierarchyLevelLiteral: z.string(), // Validado por el casting de tipo
-}).readonly();
+const AssembleTerritorialEntityParametersSchema = z
+  .object({
+    technicalIdentifierLiteral: z.string().min(1),
+    parentTerritoryIdentifierLiteral: z.string().nullable(),
+    officialTerritoryNameLiteral: z.string().min(2),
+    administrativeHierarchyLevelLiteral: z.string(), // Validado por el casting de tipo
+  })
+  .readonly();
 
 /**
  * @interface ITerritorialAssemblerParameters
@@ -64,9 +63,8 @@ const ATOM_IDENTIFIER = 'TERRITORIAL_ENTITY_ASSEMBLER_ATOM';
  * @returns {ITerritorialEntity} Entidad sellada y lista para el Ledger geográfico.
  */
 export const AssembleTerritorialEntity = (
-  parametersSnapshot: ITerritorialAssemblerParameters
+  parametersSnapshot: ITerritorialAssemblerParameters,
 ): ITerritorialEntity => {
-
   // 1. ADUANA DE ADN (Input Validation)
   const validationResult = AssembleTerritorialEntityParametersSchema.safeParse(parametersSnapshot);
 
@@ -82,7 +80,7 @@ export const AssembleTerritorialEntity = (
       operationCodeLiteral: 'ASSEMBLER_CONTRACT_VIOLATION',
       correlationIdentifier: GenerateCorrelationIdentifier(),
       messageContentLiteral: 'Se intentó ensamblar un territorio con ADN incompleto o corrupto.',
-      contextMetadataSnapshot: { issuesCollection: validationResult.error.flatten() }
+      contextMetadataSnapshot: { issuesCollection: validationResult.error.flatten() },
     });
 
     throw new Error(`[${ATOM_IDENTIFIER}]: ADN_CORRUPTO_DETECTADO`);
@@ -92,7 +90,7 @@ export const AssembleTerritorialEntity = (
     technicalIdentifierLiteral,
     parentTerritoryIdentifierLiteral,
     officialTerritoryNameLiteral,
-    administrativeHierarchyLevelLiteral
+    administrativeHierarchyLevelLiteral,
   } = validationResult.data;
 
   /**
@@ -125,8 +123,8 @@ export const AssembleTerritorialEntity = (
     semanticIntentTag: 'TERRITORIAL_DATA_NORMALIZATION',
     contextMetadataSnapshot: {
       technicalIdentifierLiteral,
-      hierarchyLiteral: administrativeHierarchyLevelLiteral
-    }
+      hierarchyLiteral: administrativeHierarchyLevelLiteral,
+    },
   });
 
   return finalTerritorialEntity;

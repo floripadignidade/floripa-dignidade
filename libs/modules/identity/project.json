@@ -3,11 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/modules/identity/src",
   "projectType": "library",
-  "tags": [
-    "scope:modules",
-    "type:logic",
-    "platform:isomorphic"
-  ],
+  "tags": ["scope:modules", "type:logic", "platform:isomorphic"],
   "targets": {
     "build": {
       "executor": "@nx/js:swc",

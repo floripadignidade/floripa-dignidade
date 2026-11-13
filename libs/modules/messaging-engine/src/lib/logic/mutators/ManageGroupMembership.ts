@@ -25,16 +25,20 @@ import {
  * @name MembershipActionSchema
  * @description Define el contrato de integridad para las transiciones de membresía.
  */
-const MembershipActionSchema = z.object({
-  groupIdentifier: z.string().uuid()
-    .describe('Identificador del Hub de Comunicación de destino.'),
+const MembershipActionSchema = z
+  .object({
+    groupIdentifier: z
+      .string()
+      .uuid()
+      .describe('Identificador del Hub de Comunicación de destino.'),
 
-  citizenIdentifier: z.string().uuid()
-    .describe('UUID de la identidad ciudadana solicitante.'),
+    citizenIdentifier: z.string().uuid().describe('UUID de la identidad ciudadana solicitante.'),
 
-  membershipActionLiteral: z.enum(['JOIN', 'LEAVE'])
-    .describe('Tipo de transición de membresía (Alta/Baja).'),
-}).readonly();
+    membershipActionLiteral: z
+      .enum(['JOIN', 'LEAVE'])
+      .describe('Tipo de transición de membresía (Alta/Baja).'),
+  })
+  .readonly();
 
 /* 2. Enjambre Atómico (Internal Swarm) */
 import { CreateSovereignDatabaseHeaders } from '../dispatchers/CreateSovereignDatabaseHeaders';
@@ -54,7 +58,7 @@ const MEMBERSHIP_ORCHESTRATOR_IDENTIFIER = 'GROUP_MEMBERSHIP_ORCHESTRATOR';
  * @throws {InternalSystemException} Si la comunicación con el Tier de Datos falla.
  */
 export const ManageGroupMembership = async (
-  unvalidatedRequestSnapshot: unknown
+  unvalidatedRequestSnapshot: unknown,
 ): Promise<boolean> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -69,10 +73,8 @@ export const ManageGroupMembership = async (
          * 🛡️ SANEADO Zenith (Fix TS2339): Inyección de await mandatorio.
          * La resolución de secretos se audita ahora dentro del rastro de latencia.
          */
-        const {
-          SUPABASE_URL: cloudUrlLiteral,
-          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret,
-        } = await ValidateEnvironmentAduana();
+        const { SUPABASE_URL: cloudUrlLiteral, SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret } =
+          await ValidateEnvironmentAduana();
 
         // 2. ADUANA DE ADN (Safe Parsing)
         const validationResult = MembershipActionSchema.safeParse(unvalidatedRequestSnapshot);
@@ -85,15 +87,16 @@ export const ManageGroupMembership = async (
             operationCodeLiteral: 'MEMBERSHIP_ADN_CONTRACT_VIOLATION',
             correlationIdentifier,
             messageContentLiteral: 'La estructura de la solicitud de membresía es ilegítima.',
-            contextMetadataSnapshot: { issuesCollection: validationResult.error.flatten() }
+            contextMetadataSnapshot: { issuesCollection: validationResult.error.flatten() },
           });
 
           throw new ValidationException('DATOS_DE_MEMBRESIA_INVALIDOS', {
-            issuesCollection: validationResult.error.flatten()
+            issuesCollection: validationResult.error.flatten(),
           });
         }
 
-        const { groupIdentifier, citizenIdentifier, membershipActionLiteral } = validationResult.data;
+        const { groupIdentifier, citizenIdentifier, membershipActionLiteral } =
+          validationResult.data;
 
         // 3. LÓGICA DE ESTADO (Join/Leave Mapping)
         /**
@@ -106,19 +109,18 @@ export const ManageGroupMembership = async (
          * @section DRY Standard
          * Reutilizamos el generador de cabeceras soberanas con preferencia 'minimal'.
          */
-        const securityHeadersSnapshot = CreateSovereignDatabaseHeaders(cloudSecurityKeySecret, 'minimal');
-
-        await PersistMembershipTransition(
-          cloudUrlLiteral,
-          securityHeadersSnapshot,
-          {
-            group_id: groupIdentifier,
-            citizen_id: citizenIdentifier,
-            membership_status: targetStatusLiteral,
-            last_action_correlation_id: correlationIdentifier,
-            updated_at: new Date().toISOString(),
-          }
+        const securityHeadersSnapshot = CreateSovereignDatabaseHeaders(
+          cloudSecurityKeySecret,
+          'minimal',
         );
+
+        await PersistMembershipTransition(cloudUrlLiteral, securityHeadersSnapshot, {
+          group_id: groupIdentifier,
+          citizen_id: citizenIdentifier,
+          membership_status: targetStatusLiteral,
+          last_action_correlation_id: correlationIdentifier,
+          updated_at: new Date().toISOString(),
+        });
 
         // 5. REPORTE DE ÉXITO (SRE Analytics)
         void EmitTelemetrySignal({
@@ -130,19 +132,17 @@ export const ManageGroupMembership = async (
           contextMetadataSnapshot: {
             groupIdentifier,
             citizenIdentifier,
-            targetStatusLiteral
-          }
+            targetStatusLiteral,
+          },
         });
 
         return true;
-
       } catch (caughtError: unknown) {
         // 6. GESTIÓN FORENSE DE FALLO (Resilience Layer)
         if (caughtError instanceof ValidationException) throw caughtError;
 
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -158,6 +158,6 @@ export const ManageGroupMembership = async (
           correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

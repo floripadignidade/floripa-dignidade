@@ -13,8 +13,6 @@ import { telemetrySignalBufferCollection } from './internal/TelemetryBufferRegis
  *
  * @param telemetrySignalSnapshot - Señal purificada por la aduana Zod.
  */
-export const AddTelemetrySignalToBuffer = (
-  telemetrySignalSnapshot: ITelemetrySignal
-): void => {
+export const AddTelemetrySignalToBuffer = (telemetrySignalSnapshot: ITelemetrySignal): void => {
   telemetrySignalBufferCollection.push(telemetrySignalSnapshot);
 };

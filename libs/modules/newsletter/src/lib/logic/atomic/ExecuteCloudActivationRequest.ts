@@ -21,7 +21,7 @@ export const ExecuteCloudActivationRequest = async (
   cloudUrlLiteral: string,
   headersSnapshot: ISovereignHeadersResult,
   tokenLiteral: string,
-  correlationId: string
+  correlationId: string,
 ): Promise<Response> => {
   const requestUrlLiteral = `${cloudUrlLiteral}/rest/v1/newsletter_subscribers?verification_token=eq.${tokenLiteral}&status=eq.PENDING_VERIFICATION`;
 
@@ -31,9 +31,9 @@ export const ExecuteCloudActivationRequest = async (
     body: JSON.stringify({
       status: 'ACTIVE',
       verified_at: new Date().toISOString(),
-      activation_correlation_id: correlationId
+      activation_correlation_id: correlationId,
     }),
     /** SRE: Límite de 10 segundos para la activación de identidad */
-    signal: AbortSignal.timeout(10000)
+    signal: AbortSignal.timeout(10000),
   });
 };

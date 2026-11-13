@@ -41,7 +41,7 @@ export interface IComprehensiveReportResult {
  */
 export const AssembleComprehensiveImpactReport = (
   globalIndicator: IPopularAcceptanceIndicator,
-  territorialReport: ITerritorialImpactReport
+  territorialReport: ITerritorialImpactReport,
 ): IComprehensiveReportResult => {
   /**
    * @section Sello de Soberanía (Inmutabilidad)
@@ -53,7 +53,7 @@ export const AssembleComprehensiveImpactReport = (
     territorialReport,
     metadata: {
       aggregationProtocolLiteral: 'MULTIDIMENSIONAL_SWARM_V1',
-      reportOccurrenceTimestampISO: new Date().toISOString()
-    }
+      reportOccurrenceTimestampISO: new Date().toISOString(),
+    },
   });
 };

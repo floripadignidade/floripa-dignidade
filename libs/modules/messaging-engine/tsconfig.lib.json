@@ -43,11 +43,7 @@
     "types": ["node", "react", "react-dom"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.json"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.json"],
   "exclude": [
     "src/**/*.spec.ts",
     "src/**/*.test.ts",

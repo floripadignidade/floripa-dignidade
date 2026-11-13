@@ -20,22 +20,23 @@ import { ShieldCheck } from 'lucide-react';
 import { z } from 'zod';
 
 /* 1. Infraestructura Core (Atmos PascalCase - Clean Paths) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 /**
  * @section Aduana de ADN (Prop Validation)
  */
-const MobileEmergencyActionPropertiesSchema = z.object({
-  /** Etiqueta localizada para la acción (ej: "DENÚNCIA URGENTE"). */
-  labelLiteral: z.string().min(1),
-  /** Identificador forense para el rastro telemétrico. */
-  actionIdentifierLiteral: z.string().default('MOBILE_EMERGENCY_TRIGGER'),
-}).readonly();
+const MobileEmergencyActionPropertiesSchema = z
+  .object({
+    /** Etiqueta localizada para la acción (ej: "DENÚNCIA URGENTE"). */
+    labelLiteral: z.string().min(1),
+    /** Identificador forense para el rastro telemétrico. */
+    actionIdentifierLiteral: z.string().default('MOBILE_EMERGENCY_TRIGGER'),
+  })
+  .readonly();
 
-export type IMobileEmergencyActionProperties = z.infer<typeof MobileEmergencyActionPropertiesSchema>;
+export type IMobileEmergencyActionProperties = z.infer<
+  typeof MobileEmergencyActionPropertiesSchema
+>;
 
 /** Identificador técnico del aparato para el Neural Sentinel. */
 const ATOM_IDENTIFIER = 'MOBILE_EMERGENCY_ACTION_ATOM';
@@ -47,7 +48,7 @@ const ATOM_IDENTIFIER = 'MOBILE_EMERGENCY_ACTION_ATOM';
  * @returns {React.ReactElement} Botón de emergencia táctil y auditado.
  */
 export const MobileEmergencyAction: React.FC<IMobileEmergencyActionProperties> = (
-  propertiesSnapshot
+  propertiesSnapshot,
 ) => {
   // 1. ADUANA DE ADN: Purificación de entrada
   const { labelLiteral, actionIdentifierLiteral } =
@@ -70,8 +71,8 @@ export const MobileEmergencyAction: React.FC<IMobileEmergencyActionProperties> =
       semanticIntentTag: 'HUMAN_RIGHTS_CONVERSION',
       contextMetadataSnapshot: {
         actionId: actionIdentifierLiteral,
-        timestampISO: new Date().toISOString()
-      }
+        timestampISO: new Date().toISOString(),
+      },
     });
   }, [labelLiteral, actionIdentifierLiteral]);
 
@@ -89,9 +90,7 @@ export const MobileEmergencyAction: React.FC<IMobileEmergencyActionProperties> =
           className="group-hover:animate-pulse transition-transform group-hover:scale-110"
           aria-hidden="true"
         />
-        <span className="font-black text-sm uppercase tracking-wider">
-          {labelLiteral}
-        </span>
+        <span className="font-black text-sm uppercase tracking-wider">{labelLiteral}</span>
       </div>
     </Link>
   );

@@ -1,12 +1,21 @@
 {
   "name": "@floripa-dignidade/contracts",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/contracts/src",
   "projectType": "library",
-  "tags":["scope:shared", "type:schema", "platform:isomorphic"],
+  "tags": ["scope:contracts", "type:schema", "platform:isomorphic"],
   "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p libs/contracts/tsconfig.json --noEmit",
+        "color": true
+      },
+      "cache": true
+    },
     "lint": {
-      "executor": "@nx/eslint:lint"
+      "executor": "@nx/eslint:lint",
+      "cache": true
     }
   }
 }

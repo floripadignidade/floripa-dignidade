@@ -29,9 +29,7 @@ export const EnterpriseStoragePathLiteralSchema = z
   .brand<'EnterpriseStoragePathLiteral'>();
 
 /** Tipo nominal inmutable para la ruta de almacenamiento relativa dentro del bucket. */
-export type TEnterpriseStoragePathLiteral = z.infer<
-  typeof EnterpriseStoragePathLiteralSchema
->;
+export type TEnterpriseStoragePathLiteral = z.infer<typeof EnterpriseStoragePathLiteralSchema>;
 
 /**
  * Genera una ruta de almacenamiento física determinista, semántica y sanitizada contra Path Traversal.
@@ -49,9 +47,7 @@ export const GenerateEnterpriseStoragePath = (
 
   // 1. EXTRACCIÓN DE COMPONENTES TEMPORALES (ISO 8601)
   const currentYearLiteral = currentExecutionDateTime.getFullYear().toString();
-  const currentMonthLiteral = (currentExecutionDateTime.getMonth() + 1)
-    .toString()
-    .padStart(2, '0');
+  const currentMonthLiteral = (currentExecutionDateTime.getMonth() + 1).toString().padStart(2, '0');
 
   // 2. SANITIZACIÓN ROBUSTA DE SEGURIDAD (Path Traversal Defense)
   /**

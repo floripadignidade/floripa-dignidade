@@ -29,7 +29,7 @@ interface IWhatsAppStatusUpdate {
  */
 export const UpdateMessageTraceStatus = async (
   statusSnapshot: IWhatsAppStatusUpdate,
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): Promise<void> => {
   /**
    * @infrastructure_sync
@@ -46,7 +46,7 @@ export const UpdateMessageTraceStatus = async (
     contextMetadata: {
       metaMessageIdentifier: statusSnapshot.id,
       deliveryStatusLiteral: statusSnapshot.status,
-      recipientIdentifier: statusSnapshot.recipient_id
-    }
+      recipientIdentifier: statusSnapshot.recipient_id,
+    },
   });
 };

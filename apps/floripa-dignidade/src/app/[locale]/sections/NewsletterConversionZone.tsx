@@ -74,7 +74,8 @@ export const NewsletterConversionZone: React.FC<INewsletterConversionZonePropert
       moduleIdentifierLiteral: ORGANISM_IDENTIFIER,
       operationCodeLiteral: 'CONVERSION_ZONE_EXPOSED' as OperationCode,
       correlationIdentifier,
-      messageContentLiteral: 'Sección de captación de boletín institucional visible en el hardware del ciudadano.',
+      messageContentLiteral:
+        'Sección de captación de boletín institucional visible en el hardware del ciudadano.',
       semanticIntentTag: 'UI_VISIBILITY_TRACE',
       contextMetadataSnapshot: {
         sectionHeadlineLiteral: contentLinguisticDictionarySnapshot.sectionHeadlineLiteral,

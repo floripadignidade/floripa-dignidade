@@ -2,7 +2,7 @@
  * @section Messaging Logic - Authority Validation Atom
  * @description Átomo encargado de verificar la jerarquía de soberanía del actor.
  * Garantiza que solo roles autorizados puedan instanciar nuevos Action Hubs.
- * 
+ *
  * Protocolo OEDP-V17.0 - Functional Atomicity & Zero-Trust.
  */
 
@@ -16,7 +16,7 @@ const AUTHORIZED_CREATION_ROLES: ReadonlyArray<string> = [
   'ROOT',
   'ADMINISTRATOR',
   'COORDINATOR',
-  'SOCIAL_WORKER_LEAD'
+  'SOCIAL_WORKER_LEAD',
 ];
 
 /**
@@ -24,16 +24,14 @@ const AUTHORIZED_CREATION_ROLES: ReadonlyArray<string> = [
  * @param assignedRoleLiteral - El rol del actor que solicita la operación.
  * @throws {ValidationException} Si el rol no tiene la autoridad necesaria.
  */
-export const ValidateGroupCreationAuthority = (
-  assignedRoleLiteral: string
-): void => {
+export const ValidateGroupCreationAuthority = (assignedRoleLiteral: string): void => {
   const isAuthorizedBoolean = AUTHORIZED_CREATION_ROLES.includes(assignedRoleLiteral);
 
   if (!isAuthorizedBoolean) {
     throw new ValidationException('INSUFFICIENT_CREATION_AUTHORITY', {
       intent: 'CREATE_COMMUNICATION_GROUP',
       providedRole: assignedRoleLiteral,
-      message: 'La identidad no posee rango suficiente para gestionar Círculos de Comunicación.'
+      message: 'La identidad no posee rango suficiente para gestionar Círculos de Comunicación.',
     });
   }
 };

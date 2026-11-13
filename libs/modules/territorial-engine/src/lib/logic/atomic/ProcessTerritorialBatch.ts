@@ -18,12 +18,12 @@ import { EmitTelemetrySignal } from '@floripa-dignidade/telemetry';
 /* 1. ADN Estructural y Tipos Nominales (Verbatim Module Syntax - Clean Paths) */
 import type {
   ITerritorialEntity,
-  TTerritorialTechnicalIdentifier
+  TTerritorialTechnicalIdentifier,
 } from '../../schemas/TerritorialEntity.schema';
 
 import type {
   IIbgeDistrictCollection,
-  IIbgeDistrictRawResponse
+  IIbgeDistrictRawResponse,
 } from '../../schemas/IbgeTerritorialProtocols.schema';
 
 /* 2. Átomos de Soporte (Internal Swarm) */
@@ -55,7 +55,7 @@ const ATOM_IDENTIFIER = 'TERRITORIAL_BATCH_PROCESSOR_ATOM';
 export const ProcessTerritorialBatch = (
   rawIbgeDistrictsCollectionSnapshot: IIbgeDistrictCollection,
   parentMunicipalityIdentifier: TTerritorialTechnicalIdentifier,
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): IBatchProcessingResult => {
   const normalizedEntitiesCollection: ITerritorialEntity[] = [];
   let failedRecordsCountQuantity = 0;
@@ -73,15 +73,14 @@ export const ProcessTerritorialBatch = (
       // 1. DELEGACIÓN AL MAPEADOR ATÓMICO (Swiss-Watch Pattern)
       const mappedEntitySnapshot = MapIbgeToTerritorialEntity(
         rawDistrictSnapshot,
-        correlationIdentifier
+        correlationIdentifier,
       );
 
       // 2. INYECCIÓN DE SOBERANÍA RELACIONAL
       normalizedEntitiesCollection.push({
         ...mappedEntitySnapshot,
-        parentTerritoryIdentifier: parentMunicipalityIdentifier
+        parentTerritoryIdentifier: parentMunicipalityIdentifier,
       });
-
     } catch (caughtMappingError: unknown) {
       failedRecordsCountQuantity++;
 
@@ -90,9 +89,10 @@ export const ProcessTerritorialBatch = (
        * Eliminamos el rastro de 'any' utilizando el contrato 'IIbgeDistrictRawResponse'.
        */
       const typedDistrictSnapshot = rawDistrictSnapshot as IIbgeDistrictRawResponse;
-      const errorDescriptionLiteral = caughtMappingError instanceof Error
-        ? caughtMappingError.message
-        : String(caughtMappingError);
+      const errorDescriptionLiteral =
+        caughtMappingError instanceof Error
+          ? caughtMappingError.message
+          : String(caughtMappingError);
 
       // 3. REPORTE DE ANOMALÍA INDIVIDUAL (SRE Visibility)
       void EmitTelemetrySignal({
@@ -100,18 +100,19 @@ export const ProcessTerritorialBatch = (
         moduleIdentifierLiteral: ATOM_IDENTIFIER,
         operationCodeLiteral: 'INDIVIDUAL_DISTRICT_MAPPING_FAULT',
         correlationIdentifier,
-        messageContentLiteral: 'Error al procesar un distrito específico; el enjambre continúa la operación.',
+        messageContentLiteral:
+          'Error al procesar un distrito específico; el enjambre continúa la operación.',
         contextMetadataSnapshot: {
           errorTraceLiteral: errorDescriptionLiteral,
           sourceDistrictNameLiteral: typedDistrictSnapshot.nome,
-          sourceDistrictIdLiteral: typedDistrictSnapshot.id
-        }
+          sourceDistrictIdLiteral: typedDistrictSnapshot.id,
+        },
       });
     }
   }
 
   return {
     normalizedEntitiesCollection,
-    failedRecordsCountQuantity
+    failedRecordsCountQuantity,
   };
 };

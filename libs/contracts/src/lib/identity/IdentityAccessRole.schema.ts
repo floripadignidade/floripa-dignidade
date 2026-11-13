@@ -49,7 +49,7 @@ export const IDENTITY_ACCESS_ROLES_COLLECTION = {
  */
 const rolesKeysCollection = Object.keys(IDENTITY_ACCESS_ROLES_COLLECTION) as [
   keyof typeof IDENTITY_ACCESS_ROLES_COLLECTION,
-  ...(keyof typeof IDENTITY_ACCESS_ROLES_COLLECTION)[]
+  ...(keyof typeof IDENTITY_ACCESS_ROLES_COLLECTION)[],
 ];
 
 /**
@@ -59,7 +59,8 @@ const rolesKeysCollection = Object.keys(IDENTITY_ACCESS_ROLES_COLLECTION) as [
  * @prompt_ia: "Cualquier modificación en esta jerarquía debe ser notificada al
  * Inference Engine para recalibrar los pesos bayesianos en el motor de impacto social."
  */
-export const IdentityAccessRoleSchema = z.enum(rolesKeysCollection)
+export const IdentityAccessRoleSchema = z
+  .enum(rolesKeysCollection)
   .describe('Jerarquía técnica de autoridad institucional bajo el estándar Multi-tenant.');
 
 /**

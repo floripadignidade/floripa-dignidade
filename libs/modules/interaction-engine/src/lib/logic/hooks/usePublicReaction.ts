@@ -21,10 +21,7 @@ import { useGlobalStateStore } from '@floripa-dignidade/shared-state-store';
 import type { IGlobalSovereignStore } from '@floripa-dignidade/shared-state-store';
 
 /* 2. Infraestructura Core (Atmos PascalCase) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 /* 3. ADN de Dominio y Motores Atómicos (Swarm Intelligence) */
 import type { IUserIdentity } from '@floripa-dignidade/identity';
@@ -46,7 +43,7 @@ export interface IUsePublicReactionResult {
   /** Acción asíncrona para disparar la reacción ciudadana. */
   readonly submitReactionAction: (
     interactionPolarityNumeric: number,
-    semanticEmoticonIntentionLiteral?: string
+    semanticEmoticonIntentionLiteral?: string,
   ) => Promise<void>;
 }
 
@@ -61,18 +58,17 @@ export interface IUsePublicReactionResult {
 export const usePublicReaction = (
   targetEntityIdentifier: string,
   targetApiEndpointUniformResourceLocatorLiteral: string,
-  activeCitizenIdentitySnapshot?: IUserIdentity
+  activeCitizenIdentitySnapshot?: IUserIdentity,
 ): IUsePublicReactionResult => {
-
   // --- 1. SELECTORES DE MEMORIA SOBERANA (Atomic Selectors) ---
   const isNetworkOnlineBoolean = useGlobalStateStore(
-    (state: IGlobalSovereignStore) => state.isNetworkOnlineBoolean
+    (state: IGlobalSovereignStore) => state.isNetworkOnlineBoolean,
   );
   const IncrementPendingQueueAction = useGlobalStateStore(
-    (state: IGlobalSovereignStore) => state.IncrementPendingQueueAction
+    (state: IGlobalSovereignStore) => state.IncrementPendingQueueAction,
   );
   const CacheImpactIndicatorAction = useGlobalStateStore(
-    (state: IGlobalSovereignStore) => state.CacheImpactIndicatorAction
+    (state: IGlobalSovereignStore) => state.CacheImpactIndicatorAction,
   );
 
   // --- 2. ESTADOS DE INTERFAZ (Prosa Booleana) ---
@@ -83,88 +79,93 @@ export const usePublicReaction = (
    * @section Acción Primaria: submitReactionAction
    * @description Orquesta el flujo sanguíneo digital delegando en el átomo de ejecución.
    */
-  const submitReactionAction = useCallback(async (
-    interactionPolarityNumeric: number,
-    semanticEmoticonIntentionLiteral?: string
-  ): Promise<void> => {
-    const previousPolarityNumeric = optimisticPolarityNumeric;
-    const correlationIdentifier = GenerateCorrelationIdentifier();
+  const submitReactionAction = useCallback(
+    async (
+      interactionPolarityNumeric: number,
+      semanticEmoticonIntentionLiteral?: string,
+    ): Promise<void> => {
+      const previousPolarityNumeric = optimisticPolarityNumeric;
+      const correlationIdentifier = GenerateCorrelationIdentifier();
 
-    // FASE 1: ACTUALIZACIÓN VISUAL INMEDIATA (Optimistic UI)
-    setOptimisticPolarityNumeric(interactionPolarityNumeric);
-    setIsExecutingBoolean(true);
+      // FASE 1: ACTUALIZACIÓN VISUAL INMEDIATA (Optimistic UI)
+      setOptimisticPolarityNumeric(interactionPolarityNumeric);
+      setIsExecutingBoolean(true);
 
-    try {
-      /**
-       * FASE 2: DELEGACIÓN AL MOTOR SOBERANO (Execution Flow)
-       * 🛡️ LEY ZENITH (Fix TS2379): Inyección condicional por dispersión.
-       * Evita pasar propiedades con valor 'undefined' al contrato exacto.
-       */
-      const { calculatedImpactWeightNumeric } = await ExecutePublicReactionFlow({
-        targetEntityIdentifier,
-        polarityNumeric: interactionPolarityNumeric,
-        targetApiEndpointLiteral: targetApiEndpointUniformResourceLocatorLiteral,
-        isNetworkOnlineBoolean,
-        IncrementPendingQueueAction,
-        ...(activeCitizenIdentitySnapshot !== undefined && { activeCitizenIdentitySnapshot }),
-        ...(semanticEmoticonIntentionLiteral !== undefined && {
-          emoticonIntentionLiteral: semanticEmoticonIntentionLiteral
-        })
-      });
+      try {
+        /**
+         * FASE 2: DELEGACIÓN AL MOTOR SOBERANO (Execution Flow)
+         * 🛡️ LEY ZENITH (Fix TS2379): Inyección condicional por dispersión.
+         * Evita pasar propiedades con valor 'undefined' al contrato exacto.
+         */
+        const { calculatedImpactWeightNumeric } = await ExecutePublicReactionFlow({
+          targetEntityIdentifier,
+          polarityNumeric: interactionPolarityNumeric,
+          targetApiEndpointLiteral: targetApiEndpointUniformResourceLocatorLiteral,
+          isNetworkOnlineBoolean,
+          IncrementPendingQueueAction,
+          ...(activeCitizenIdentitySnapshot !== undefined && { activeCitizenIdentitySnapshot }),
+          ...(semanticEmoticonIntentionLiteral !== undefined && {
+            emoticonIntentionLiteral: semanticEmoticonIntentionLiteral,
+          }),
+        });
 
-      // FASE 3: CONSOLIDACIÓN DE MEMORIA LOCAL (CLS Prevention)
-      /** 🛡️ ATOMIZACIÓN: El cálculo de consenso se delega al átomo matemático. */
-      const projectedConsensusIndexNumeric = CalculateOptimisticConsensus(interactionPolarityNumeric);
+        // FASE 3: CONSOLIDACIÓN DE MEMORIA LOCAL (CLS Prevention)
+        /** 🛡️ ATOMIZACIÓN: El cálculo de consenso se delega al átomo matemático. */
+        const projectedConsensusIndexNumeric = CalculateOptimisticConsensus(
+          interactionPolarityNumeric,
+        );
 
-      CacheImpactIndicatorAction(
-        targetEntityIdentifier,
-        calculatedImpactWeightNumeric,
-        projectedConsensusIndexNumeric
-      );
+        CacheImpactIndicatorAction(
+          targetEntityIdentifier,
+          calculatedImpactWeightNumeric,
+          projectedConsensusIndexNumeric,
+        );
 
-      void EmitTelemetrySignal({
-        severityLevelLiteral: 'INFO',
-        moduleIdentifierLiteral: HOOK_IDENTIFIER,
-        operationCodeLiteral: 'UI_REACTION_COMMITTED',
-        correlationIdentifier,
-        messageContentLiteral: 'INTERACTION.LOGS.REACTION_RECEIVED',
-        semanticIntentTag: 'UI_INTERACTION_SUCCESS'
-      });
+        void EmitTelemetrySignal({
+          severityLevelLiteral: 'INFO',
+          moduleIdentifierLiteral: HOOK_IDENTIFIER,
+          operationCodeLiteral: 'UI_REACTION_COMMITTED',
+          correlationIdentifier,
+          messageContentLiteral: 'INTERACTION.LOGS.REACTION_RECEIVED',
+          semanticIntentTag: 'UI_INTERACTION_SUCCESS',
+        });
+      } catch (caughtError: unknown) {
+        // FASE 4: RECUPERACIÓN FORENSE (Rollback)
+        setOptimisticPolarityNumeric(previousPolarityNumeric);
 
-    } catch (caughtError: unknown) {
-      // FASE 4: RECUPERACIÓN FORENSE (Rollback)
-      setOptimisticPolarityNumeric(previousPolarityNumeric);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
-      const errorDescriptionLiteral = caughtError instanceof Error
-        ? caughtError.message
-        : String(caughtError);
-
-      void EmitTelemetrySignal({
-        severityLevelLiteral: 'ERROR',
-        moduleIdentifierLiteral: HOOK_IDENTIFIER,
-        operationCodeLiteral: 'UI_REACTION_ROLLBACK',
-        correlationIdentifier,
-        messageContentLiteral: 'Fallo en flujo de reacción. Estado visual revertido.',
-        contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
-      });
-
-    } finally {
-      setIsExecutingBoolean(false);
-    }
-  }, [
-    optimisticPolarityNumeric,
-    targetEntityIdentifier,
-    targetApiEndpointUniformResourceLocatorLiteral,
-    isNetworkOnlineBoolean,
-    activeCitizenIdentitySnapshot,
-    IncrementPendingQueueAction,
-    CacheImpactIndicatorAction
-  ]);
+        void EmitTelemetrySignal({
+          severityLevelLiteral: 'ERROR',
+          moduleIdentifierLiteral: HOOK_IDENTIFIER,
+          operationCodeLiteral: 'UI_REACTION_ROLLBACK',
+          correlationIdentifier,
+          messageContentLiteral: 'Fallo en flujo de reacción. Estado visual revertido.',
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
+        });
+      } finally {
+        setIsExecutingBoolean(false);
+      }
+    },
+    [
+      optimisticPolarityNumeric,
+      targetEntityIdentifier,
+      targetApiEndpointUniformResourceLocatorLiteral,
+      isNetworkOnlineBoolean,
+      activeCitizenIdentitySnapshot,
+      IncrementPendingQueueAction,
+      CacheImpactIndicatorAction,
+    ],
+  );
 
   /** 🛡️ PERFORMANCE: Memoización del contrato de salida para evitar re-renderizados. */
-  return useMemo(() => ({
-    isExecutingBoolean,
-    optimisticPolarityNumeric,
-    submitReactionAction
-  }), [isExecutingBoolean, optimisticPolarityNumeric, submitReactionAction]);
+  return useMemo(
+    () => ({
+      isExecutingBoolean,
+      optimisticPolarityNumeric,
+      submitReactionAction,
+    }),
+    [isExecutingBoolean, optimisticPolarityNumeric, submitReactionAction],
+  );
 };

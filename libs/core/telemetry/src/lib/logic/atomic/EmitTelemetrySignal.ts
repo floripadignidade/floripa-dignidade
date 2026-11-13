@@ -34,10 +34,9 @@ const DISPATCHER_IDENTIFIER = 'TELEMETRY_ATOMIC_DISPATCHER';
  * @returns {void} Operación de tipo "Fire-and-Forget" (No bloqueante).
  */
 export const EmitTelemetrySignal = (unvalidatedTelemetrySignalPayload: unknown): void => {
-
   // 1. ADUANA DE ADN (Safe Parsing)
   const telemetrySignalValidationResult = TelemetrySignalSchema.safeParse(
-    unvalidatedTelemetrySignalPayload
+    unvalidatedTelemetrySignalPayload,
   );
 
   if (!telemetrySignalValidationResult.success) {

@@ -18,10 +18,7 @@ import type { Metadata, Viewport } from 'next';
 import './global.css';
 
 /* 2. Fundación Tipográfica Institucional */
-import {
-  institutionalDisplayFontInstance,
-  institutionalSansFontInstance,
-} from './fonts';
+import { institutionalDisplayFontInstance, institutionalSansFontInstance } from './fonts';
 
 /**
  * @section Gobernanza de Metadatos
@@ -71,9 +68,7 @@ interface IRootLayoutProperties {
  * @param propertiesSnapshot - Snapshot inmutable de propiedades de renderizado.
  * @returns {React.JSX.Element} Estructura HTML5 raíz del panel administrativo.
  */
-export default function RootLayout(
-  propertiesSnapshot: IRootLayoutProperties,
-): React.JSX.Element {
+export default function RootLayout(propertiesSnapshot: IRootLayoutProperties): React.JSX.Element {
   const { children } = propertiesSnapshot;
 
   return (

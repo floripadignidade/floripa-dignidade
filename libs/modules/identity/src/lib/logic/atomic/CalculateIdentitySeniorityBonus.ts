@@ -32,7 +32,7 @@ const FULL_TRUST_CYCLE_DAYS_QUANTITY = 365;
  * evitar discrepancias horarias entre nodos del enjambre."
  */
 export const CalculateIdentitySeniorityBonus = (
-  activationTimestampISO: string
+  activationTimestampISO: string,
 ): IIdentitySeniorityResult => {
   const activationMomentDate = new Date(activationTimestampISO);
   const currentComparisonMomentDate = new Date();
@@ -48,7 +48,7 @@ export const CalculateIdentitySeniorityBonus = (
    */
   const daysSinceActivationQuantity = Math.max(
     0,
-    Math.floor(timeDifferenceInMillisecondsQuantity / (1000 * 3600 * 24))
+    Math.floor(timeDifferenceInMillisecondsQuantity / (1000 * 3600 * 24)),
   );
 
   /**
@@ -57,14 +57,15 @@ export const CalculateIdentitySeniorityBonus = (
    */
   const seniorityProgressMultiplierNumeric = Math.min(
     daysSinceActivationQuantity / FULL_TRUST_CYCLE_DAYS_QUANTITY,
-    1
+    1,
   );
 
-  const seniorityBonusNumeric = seniorityProgressMultiplierNumeric * SENIORITY_MAXIMUM_BONUS_NUMERIC;
+  const seniorityBonusNumeric =
+    seniorityProgressMultiplierNumeric * SENIORITY_MAXIMUM_BONUS_NUMERIC;
 
   // 3. ADUANA DE ADN Y SELLADO (Integrity Check)
   return IdentitySeniorityResultSchema.parse({
     daysSinceActivationQuantity,
-    seniorityBonusNumeric
+    seniorityBonusNumeric,
   });
 };

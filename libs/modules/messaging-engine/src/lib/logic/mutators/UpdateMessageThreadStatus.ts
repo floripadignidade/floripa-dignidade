@@ -12,10 +12,7 @@
  */
 
 import { MapHttpErrorToException } from '@floripa-dignidade/exceptions';
-import {
-  EmitTelemetrySignal,
-  TraceExecutionTime,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, TraceExecutionTime } from '@floripa-dignidade/telemetry';
 
 import type { ISovereignHeadersResult } from '../dispatchers/CreateSovereignDatabaseHeaders';
 
@@ -41,9 +38,8 @@ export const UpdateMessageThreadStatus = async (
   targetThreadIdentifierLiteral: string,
   activeActorIdentifierLiteral: string,
   targetStatusLiteral: string,
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): Promise<void> => {
-
   return await TraceExecutionTime(
     PERSISTENCE_ATOM_IDENTIFIER,
     'EXECUTE_PHYSICAL_THREAD_PATCH_TRANSACTION',
@@ -67,13 +63,13 @@ export const UpdateMessageThreadStatus = async (
             updated_at: new Date().toISOString(),
           }),
           /** SRE: Límite de 8 segundos para evitar bloqueos en el hilo principal */
-          signal: AbortSignal.timeout(8000)
+          signal: AbortSignal.timeout(8000),
         });
 
         if (!networkResponse.ok) {
           throw MapHttpErrorToException(networkResponse.status, 'LEDGER_MUTATION_REJECTED', {
             targetThread: targetThreadIdentifierLiteral,
-            httpStatusNumeric: networkResponse.status
+            httpStatusNumeric: networkResponse.status,
           });
         }
 
@@ -86,18 +82,16 @@ export const UpdateMessageThreadStatus = async (
           messageContentLiteral: 'Mutación física de estado de hilo consolidada en el Ledger.',
           contextMetadataSnapshot: {
             threadId: targetThreadIdentifierLiteral,
-            newStatusLiteral: targetStatusLiteral
-          }
+            newStatusLiteral: targetStatusLiteral,
+          },
         });
-
       } catch (caughtError: unknown) {
         /**
          * @section Gestión Forense de I/O
          * Re-envolvemos cualquier error de red en la gramática de fallos institucional.
          */
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'ERROR',
@@ -105,14 +99,14 @@ export const UpdateMessageThreadStatus = async (
           operationCodeLiteral: 'PHYSICAL_PATCH_FAULT',
           correlationIdentifier,
           messageContentLiteral: 'Fallo crítico al intentar impactar el Ledger de mensajería.',
-          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
         });
 
         throw MapHttpErrorToException(500, 'FALLO_FISICO_MUTACION_HILO', {
           originalErrorLiteral: errorDescriptionLiteral,
-          threadIdentifier: targetThreadIdentifierLiteral
+          threadIdentifier: targetThreadIdentifierLiteral,
         });
       }
-    }
+    },
   );
 };

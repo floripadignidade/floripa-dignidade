@@ -9,12 +9,12 @@ export const WORKBOOK_INGESTION_STANDARDS = {
   /** Rango de columnas técnicas (C a N). */
   TEMPORAL_AXIS_RANGE: {
     START_COLUMN: 3,
-    END_COLUMN: 14
+    END_COLUMN: 14,
   },
 
   /** Marcadores visuales de la plantilla. */
   MARKERS: {
     CURRENCY_SYMBOL: 'R$',
-    HUMAN_EXECUTION_CHECK: '✓'
-  }
+    HUMAN_EXECUTION_CHECK: '✓',
+  },
 } as const;

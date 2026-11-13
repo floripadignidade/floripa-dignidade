@@ -43,9 +43,7 @@
     "lib": ["ES2022"]
   },
 
-  "include": [
-    "src/**/*.ts"
-  ],
+  "include": ["src/**/*.ts"],
 
   "exclude": [
     "src/**/*.spec.ts",

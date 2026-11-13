@@ -23,8 +23,7 @@ import {
 } from '@floripa-dignidade/telemetry';
 
 /** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
-const SENSOR_MODULE_IDENTIFIER =
-  'ENVIRONMENT_HARDWARE_SENSOR' as ModuleIdentifier;
+const SENSOR_MODULE_IDENTIFIER = 'ENVIRONMENT_HARDWARE_SENSOR' as ModuleIdentifier;
 
 /**
  * @interface IGlobalExecutionContext
@@ -41,9 +40,7 @@ interface IGlobalExecutionContext {
  * @name IEnvironmentMetadataSnapshot
  * @description Representación física inmutable de la colección de metadatos capturados.
  */
-export type IEnvironmentMetadataSnapshot = Readonly<
-  Record<string, string | undefined>
->;
+export type IEnvironmentMetadataSnapshot = Readonly<Record<string, string | undefined>>;
 
 /**
  * Recolecta las variables de entorno inyectadas en el pod o contenedor de ejecución.
@@ -59,17 +56,14 @@ export const GatherEnvironmentMetadata = (): IEnvironmentMetadataSnapshot => {
    * Se consulta 'process.env' si existe en el entorno global o se recurre a 'globalThis'
    * para garantizar que el sensor no colapse en contextos donde 'process' sea virtual.
    */
-  const globalExecutionContextReference =
-    globalThis as unknown as IGlobalExecutionContext;
+  const globalExecutionContextReference = globalThis as unknown as IGlobalExecutionContext;
 
   const rawEnvironmentVariablesRecord =
     typeof process !== 'undefined' && process.env
       ? process.env
-      : globalExecutionContextReference.process?.env ?? {};
+      : (globalExecutionContextReference.process?.env ?? {});
 
-  const environmentVariablesCountQuantity = Object.keys(
-    rawEnvironmentVariablesRecord,
-  ).length;
+  const environmentVariablesCountQuantity = Object.keys(rawEnvironmentVariablesRecord).length;
 
   // REPORTE DE ACTIVACIÓN DE SENSOR (Alineación con TelemetrySignalSchema)
   void EmitTelemetrySignal({

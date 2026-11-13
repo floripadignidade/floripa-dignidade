@@ -68,16 +68,17 @@ const CmsResourceLink: React.FC<ICmsResourceLinkProperties> = ({
     className="group flex items-start gap-4 p-5 rounded-2xl hover:bg-slate-50 transition-all duration-300 border border-transparent hover:border-slate-100"
     aria-label={`${labelLiteral} - ${descriptionLiteral}`}
   >
-    <div className="mt-1 text-slate-400 group-hover:text-amber-600 transition-colors" aria-hidden="true">
+    <div
+      className="mt-1 text-slate-400 group-hover:text-amber-600 transition-colors"
+      aria-hidden="true"
+    >
       {iconNode}
     </div>
     <div className="flex-grow">
       <span className="block font-bold text-slate-900 group-hover:text-amber-700 transition-colors">
         {labelLiteral}
       </span>
-      <span className="block text-xs text-slate-500 font-medium mt-0.5">
-        {descriptionLiteral}
-      </span>
+      <span className="block text-xs text-slate-500 font-medium mt-0.5">{descriptionLiteral}</span>
     </div>
     <ExternalLink
       size={14}
@@ -96,7 +97,10 @@ const CmsResourceLink: React.FC<ICmsResourceLinkProperties> = ({
 export const LearningMaterialsSection: React.FC<ILearningMaterialsSectionProperties> = ({
   dictionary,
 }): React.ReactElement => (
-  <div id="learning-materials" className="rounded-[2rem] bg-white p-8 shadow-sm border border-slate-100">
+  <div
+    id="learning-materials"
+    className="rounded-[2rem] bg-white p-8 shadow-sm border border-slate-100"
+  >
     <h2 className="text-xl font-black text-slate-900 mb-8 flex items-center gap-3">
       <BookOpen className="text-amber-500" size={22} aria-hidden="true" />
       <span>{dictionary.sectionHeadingLiteral}</span>

@@ -3,11 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/content-manager-system/src",
   "projectType": "application",
-  "tags": [
-    "scope:app",
-    "type:app",
-    "platform:node"
-  ],
+  "tags": ["scope:app", "type:app", "platform:node"],
   "targets": {
     "build": {
       "executor": "@nx/next:build",

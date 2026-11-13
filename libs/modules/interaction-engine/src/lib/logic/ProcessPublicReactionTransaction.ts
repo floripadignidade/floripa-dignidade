@@ -107,7 +107,6 @@ export const ProcessPublicReactionTransaction = async (
           ...validatedReaction,
           calculatedImpactWeightNumeric,
         };
-
       } catch (caughtError: unknown) {
         /**
          * @section Gestión de Resiliencia
@@ -118,7 +117,8 @@ export const ProcessPublicReactionTransaction = async (
         }
 
         throw new ValidationException('COLLAPSE_IN_REACTION_PROCESSOR', {
-          originalErrorLiteral: caughtError instanceof Error ? caughtError.message : String(caughtError),
+          originalErrorLiteral:
+            caughtError instanceof Error ? caughtError.message : String(caughtError),
           correlationIdentifier,
         });
       }

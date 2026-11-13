@@ -56,7 +56,6 @@ export const SubscriptionConsentBlock: React.FC<ISubscriptionConsentBlockPropert
 
   return (
     <div className="flex flex-col gap-3 transition-all duration-300">
-
       {/* 1. FILA DE CONSENTIMIENTO (Checkbox Custom) */}
       <label className="flex items-start gap-3 cursor-pointer group select-none">
         <div className="relative flex items-center mt-1">
@@ -71,10 +70,12 @@ export const SubscriptionConsentBlock: React.FC<ISubscriptionConsentBlockPropert
           />
         </div>
 
-        <span className={GlobalStyleClassMerger(
-          "text-sm font-medium transition-colors duration-300",
-          validationErrorLiteral ? "text-red-600" : "text-slate-500 group-hover:text-slate-700"
-        )}>
+        <span
+          className={GlobalStyleClassMerger(
+            'text-sm font-medium transition-colors duration-300',
+            validationErrorLiteral ? 'text-red-600' : 'text-slate-500 group-hover:text-slate-700',
+          )}
+        >
           {labelLiteral}
         </span>
       </label>
@@ -90,14 +91,11 @@ export const SubscriptionConsentBlock: React.FC<ISubscriptionConsentBlockPropert
               className="flex items-center gap-2 text-xs font-bold text-red-600 uppercase tracking-tight"
             >
               <AlertCircle size={14} />
-              <span>
-                {hasEmailErrorBoolean ? emailInvalidLiteral : validationErrorLiteral}
-              </span>
+              <span>{hasEmailErrorBoolean ? emailInvalidLiteral : validationErrorLiteral}</span>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-
     </div>
   );
 };

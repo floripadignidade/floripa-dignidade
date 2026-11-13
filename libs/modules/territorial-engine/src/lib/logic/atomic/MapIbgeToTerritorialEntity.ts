@@ -12,10 +12,7 @@
  * @license UNLICENSED
  */
 
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 import { ValidationException } from '@floripa-dignidade/exceptions';
 
@@ -44,9 +41,8 @@ const MAPPER_ORCHESTRATOR_IDENTIFIER = 'TERRITORIAL_IBGE_MAPPER_ORCHESTRATOR';
  */
 export const MapIbgeToTerritorialEntity = (
   rawDistrictSnapshotSource: unknown,
-  correlationIdentifier: string = GenerateCorrelationIdentifier()
+  correlationIdentifier: string = GenerateCorrelationIdentifier(),
 ): ITerritorialEntity => {
-
   /**
    * @section Ejecución con Rastro de Rendimiento (Sync Trace)
    * Aunque la operación es síncrona, medimos su latencia para detectar
@@ -56,7 +52,8 @@ export const MapIbgeToTerritorialEntity = (
 
   try {
     // --- 1. ADUANA DE ADN: Purificación del protocolo gubernamental ---
-    const protocolValidationResult = IbgeDistrictRawResponseSchema.safeParse(rawDistrictSnapshotSource);
+    const protocolValidationResult =
+      IbgeDistrictRawResponseSchema.safeParse(rawDistrictSnapshotSource);
 
     if (!protocolValidationResult.success) {
       void EmitTelemetrySignal({
@@ -67,12 +64,12 @@ export const MapIbgeToTerritorialEntity = (
         messageContentLiteral: 'TERRITORIAL.ERRORS.ADN_CORRUPTION',
         contextMetadataSnapshot: {
           issuesCollection: protocolValidationResult.error.flatten(),
-          sourceSnapshot: rawDistrictSnapshotSource
-        }
+          sourceSnapshot: rawDistrictSnapshotSource,
+        },
       });
 
       throw new ValidationException('CONTRATO_IBGE_INVALIDO', {
-        structuralIssuesCollection: protocolValidationResult.error.flatten()
+        structuralIssuesCollection: protocolValidationResult.error.flatten(),
       });
     }
 
@@ -91,11 +88,12 @@ export const MapIbgeToTerritorialEntity = (
       technicalIdentifierLiteral: validatedRawDistrictSnapshot.id.toString(),
       parentTerritoryIdentifierLiteral: validatedRawDistrictSnapshot.municipio.id.toString(),
       officialTerritoryNameLiteral: officialTerritoryNameLiteral,
-      administrativeHierarchyLevelLiteral: 'DISTRICT'
+      administrativeHierarchyLevelLiteral: 'DISTRICT',
     });
 
     // --- 4. REPORTE SRE (Visibility) ---
-    const executionLatencyInMillisecondsQuantity = performance.now() - executionStartTimestampNumeric;
+    const executionLatencyInMillisecondsQuantity =
+      performance.now() - executionStartTimestampNumeric;
 
     void EmitTelemetrySignal({
       severityLevelLiteral: 'DEBUG',
@@ -107,25 +105,23 @@ export const MapIbgeToTerritorialEntity = (
       semanticIntentTag: 'TERRITORIAL_DATA_INGESTION',
       contextMetadataSnapshot: {
         territoryIdentifier: territorialEntitySnapshot.territorialTechnicalIdentifier,
-        officialName: officialTerritoryNameLiteral
-      }
+        officialName: officialTerritoryNameLiteral,
+      },
     });
 
     return territorialEntitySnapshot;
-
   } catch (caughtError: unknown) {
     /** 🛡️ LEY DE RESILIENCIA: Las excepciones de validación se propagan intactas. */
     if (caughtError instanceof ValidationException) {
       throw caughtError;
     }
 
-    const errorDescriptionLiteral = caughtError instanceof Error
-      ? caughtError.message
-      : String(caughtError);
+    const errorDescriptionLiteral =
+      caughtError instanceof Error ? caughtError.message : String(caughtError);
 
     throw new ValidationException('FALLO_EN_MAPEO_TERRITORIAL_COGNITIVO', {
       originalErrorLiteral: errorDescriptionLiteral,
-      correlationIdentifier
+      correlationIdentifier,
     });
   }
 };

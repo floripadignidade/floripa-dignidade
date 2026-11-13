@@ -64,7 +64,8 @@ export const ReportForensicException = (
      * Realizamos casting a 'unknown' para cruzar Branded Types entre dominios.
      * El 'operationalErrorCodeLiteral' de Exceptions se mapea al 'OperationCode' de Telemetry.
      */
-    operationCodeLiteral: caughtExceptionInstance.operationalErrorCodeLiteral as unknown as OperationCode,
+    operationCodeLiteral:
+      caughtExceptionInstance.operationalErrorCodeLiteral as unknown as OperationCode,
 
     correlationIdentifier: correlationIdentifier as CorrelationIdentifier,
     messageContentLiteral: caughtExceptionInstance.message,

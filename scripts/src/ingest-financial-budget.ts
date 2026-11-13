@@ -25,9 +25,8 @@ const executeTriggerAction = async (): Promise<void> => {
      * El error ya ha sido reportado por telemetría dentro del orquestador.
      * Aquí solo aseguramos el cierre del proceso con señal de fallo.
      */
-    const errorDescriptionLiteral = caughtError instanceof Error
-      ? caughtError.message
-      : String(caughtError);
+    const errorDescriptionLiteral =
+      caughtError instanceof Error ? caughtError.message : String(caughtError);
 
     console.error(`[FATAL_CLI_ERROR]: Ingesta interrumpida. Rastro: ${errorDescriptionLiteral}`);
     process.exit(1);

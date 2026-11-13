@@ -18,22 +18,21 @@ import Link from 'next/link';
 import { z } from 'zod';
 
 /* 1. Infraestructura Core (Atmos PascalCase - Clean Paths) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 /**
  * @section Aduana de ADN (Prop Validation)
  */
-const MobileNavigationLinkPropertiesSchema = z.object({
-  /** Ruta física absoluta o relativa del destino. */
-  hrefLiteral: z.string().min(1),
-  /** Etiqueta textual visible para el ciudadano. */
-  labelLiteral: z.string().min(1),
-  /** Icono vectorial de la librería Lucide o componente React. */
-  iconNode: z.custom<React.ReactNode>(),
-}).readonly();
+const MobileNavigationLinkPropertiesSchema = z
+  .object({
+    /** Ruta física absoluta o relativa del destino. */
+    hrefLiteral: z.string().min(1),
+    /** Etiqueta textual visible para el ciudadano. */
+    labelLiteral: z.string().min(1),
+    /** Icono vectorial de la librería Lucide o componente React. */
+    iconNode: z.custom<React.ReactNode>(),
+  })
+  .readonly();
 
 export type IMobileNavigationLinkProperties = z.infer<typeof MobileNavigationLinkPropertiesSchema>;
 
@@ -48,7 +47,7 @@ const ATOM_IDENTIFIER = 'MOBILE_NAVIGATION_LINK_ATOM';
  * @returns {React.ReactElement} Enlace táctil auditado.
  */
 export const MobileNavigationLink: React.FC<IMobileNavigationLinkProperties> = (
-  propertiesSnapshot
+  propertiesSnapshot,
 ) => {
   // 1. ADUANA DE ADN: Purificación de entrada
   const { hrefLiteral, labelLiteral, iconNode } =
@@ -70,8 +69,8 @@ export const MobileNavigationLink: React.FC<IMobileNavigationLinkProperties> = (
       semanticIntentTag: 'UI_NAVIGATION_DRAWER_EXIT',
       contextMetadataSnapshot: {
         destinationPathLiteral: hrefLiteral,
-        labelLiteral
-      }
+        labelLiteral,
+      },
     });
   }, [hrefLiteral, labelLiteral]);
 
@@ -81,7 +80,10 @@ export const MobileNavigationLink: React.FC<IMobileNavigationLinkProperties> = (
       onClick={handleNavigationTriggerAction}
       className="flex items-center gap-5 p-5 rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-navy-900 transition-all group active:scale-[0.98] touch-target-min"
     >
-      <div className="text-slate-400 group-hover:text-amber-500 transition-colors" aria-hidden="true">
+      <div
+        className="text-slate-400 group-hover:text-amber-500 transition-colors"
+        aria-hidden="true"
+      >
         {iconNode}
       </div>
       <span className="font-bold text-base">{labelLiteral}</span>

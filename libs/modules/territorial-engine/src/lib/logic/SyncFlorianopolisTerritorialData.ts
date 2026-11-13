@@ -61,11 +61,12 @@ export const SyncFlorianopolisTerritorialData = async (): Promise<void> => {
          * Delegamos la iteración y el control de errores individuales al átomo
          * 'ProcessTerritorialBatch', manteniendo este orquestador libre de ramificaciones.
          */
-        const { normalizedEntitiesCollection, failedRecordsCountQuantity } = ProcessTerritorialBatch(
-          rawIbgeDistrictsCollection,
-          FLORIANOPOLIS_MUNICIPALITY_ID,
-          correlationIdentifier
-        );
+        const { normalizedEntitiesCollection, failedRecordsCountQuantity } =
+          ProcessTerritorialBatch(
+            rawIbgeDistrictsCollection,
+            FLORIANOPOLIS_MUNICIPALITY_ID,
+            correlationIdentifier,
+          );
 
         // --- FASE 3: PERSISTENCIA (Cloud Ledger Write) ---
         const hasDataToSyncBoolean = normalizedEntitiesCollection.length > 0;
@@ -73,7 +74,7 @@ export const SyncFlorianopolisTerritorialData = async (): Promise<void> => {
         if (hasDataToSyncBoolean) {
           await PersistTerritorialEntitiesToCloud(
             normalizedEntitiesCollection,
-            correlationIdentifier
+            correlationIdentifier,
           );
         }
 
@@ -83,7 +84,9 @@ export const SyncFlorianopolisTerritorialData = async (): Promise<void> => {
         void EmitTelemetrySignal({
           severityLevelLiteral: isPartiallySuccessfulBoolean ? 'WARNING' : 'INFO',
           moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
-          operationCodeLiteral: isPartiallySuccessfulBoolean ? 'SYNC_PARTIALLY_COMPLETED' : 'SYNC_NOMINAL_SUCCESS',
+          operationCodeLiteral: isPartiallySuccessfulBoolean
+            ? 'SYNC_PARTIALLY_COMPLETED'
+            : 'SYNC_NOMINAL_SUCCESS',
           correlationIdentifier,
           messageContentLiteral: 'TERRITORIAL.LOGS.SYNC_NOMINAL',
           semanticIntentTag: 'TERRITORIAL_DATA_SYNC_COMPLETE',
@@ -91,31 +94,30 @@ export const SyncFlorianopolisTerritorialData = async (): Promise<void> => {
             totalAttemptedQuantity: rawIbgeDistrictsCollection.length,
             successfulRecordsQuantity: normalizedEntitiesCollection.length,
             failedRecordsQuantity: failedRecordsCountQuantity,
-            isPersistenceExecutedBoolean: hasDataToSyncBoolean
-          }
+            isPersistenceExecutedBoolean: hasDataToSyncBoolean,
+          },
         });
-
       } catch (caughtError: unknown) {
         // --- FASE 5: GESTIÓN FORENSE DE COLAPSO (Resilience Layer) ---
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : 'UNKNOWN_ORCHESTRATION_FAULT';
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : 'UNKNOWN_ORCHESTRATION_FAULT';
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
           moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
           operationCodeLiteral: 'TERRITORIAL_SYNC_PIPELINE_COLLAPSE',
           correlationIdentifier,
-          messageContentLiteral: 'Fallo catastrófico en la orquestación de sincronización territorial.',
+          messageContentLiteral:
+            'Fallo catastrófico en la orquestación de sincronización territorial.',
           semanticIntentTag: 'INFRASTRUCTURE_PIPELINE_FAULT',
-          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
+          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
         });
 
         throw new InternalSystemException('COLAPSO_EN_PIPELINE_DE_SINCRONIZACION_TERRITORIAL', {
           originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier
+          correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

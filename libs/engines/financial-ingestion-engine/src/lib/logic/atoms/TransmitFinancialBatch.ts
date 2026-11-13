@@ -47,13 +47,9 @@ export interface ITransmissionParameters {
  * @throws {GlobalBaseException} Si la nube rechaza la persistencia o el enlace falla.
  */
 export const TransmitFinancialBatch = async (
-  parameters: ITransmissionParameters
+  parameters: ITransmissionParameters,
 ): Promise<void> => {
-  const {
-    cloudUrlLiteral,
-    cloudSecurityKeySecret,
-    ledgerPayloadCollection
-  } = parameters;
+  const { cloudUrlLiteral, cloudSecurityKeySecret, ledgerPayloadCollection } = parameters;
 
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -73,31 +69,27 @@ export const TransmitFinancialBatch = async (
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'apikey': cloudSecurityKeySecret,
-            'Authorization': `Bearer ${cloudSecurityKeySecret}`,
+            apikey: cloudSecurityKeySecret,
+            Authorization: `Bearer ${cloudSecurityKeySecret}`,
             /**
              * 🛡️ ESTRATEGIA DE INTEGRIDAD:
              * Upsert por llaves naturales para evitar duplicidad de registros financieros.
              */
-            'Prefer': 'return=minimal, resolution=merge-duplicates'
+            Prefer: 'return=minimal, resolution=merge-duplicates',
           },
           body: JSON.stringify(ledgerPayloadCollection),
 
           /** SRE: Protección ante bloqueos de hardware por latencia de red. */
           signal: AbortSignal.timeout(
-            FINANCIAL_PERSISTENCE_CONFIG.NETWORK_TRANSMISSION_TIMEOUT_MILLISECONDS_QUANTITY
-          )
+            FINANCIAL_PERSISTENCE_CONFIG.NETWORK_TRANSMISSION_TIMEOUT_MILLISECONDS_QUANTITY,
+          ),
         });
 
         if (!networkResponse.ok) {
-          throw MapHttpErrorToException(
-            networkResponse.status,
-            'LEDGER_PERSISTENCE_REJECTED',
-            {
-              httpStatusNumeric: networkResponse.status,
-              targetTable: FINANCIAL_PERSISTENCE_CONFIG.TARGET_DATABASE_TABLE_NAME_LITERAL
-            }
-          );
+          throw MapHttpErrorToException(networkResponse.status, 'LEDGER_PERSISTENCE_REJECTED', {
+            httpStatusNumeric: networkResponse.status,
+            targetTable: FINANCIAL_PERSISTENCE_CONFIG.TARGET_DATABASE_TABLE_NAME_LITERAL,
+          });
         }
 
         // REPORTE DE ÉXITO (SRE Visibility)
@@ -111,18 +103,16 @@ export const TransmitFinancialBatch = async (
           semanticIntentTag: 'DATA_LAKE_INGESTION',
           contextMetadataSnapshot: {
             recordsQuantity: ledgerPayloadCollection.length,
-            targetTable: FINANCIAL_PERSISTENCE_CONFIG.TARGET_DATABASE_TABLE_NAME_LITERAL
-          }
+            targetTable: FINANCIAL_PERSISTENCE_CONFIG.TARGET_DATABASE_TABLE_NAME_LITERAL,
+          },
         });
-
       } catch (caughtError: unknown) {
         /**
          * @section Gestión Forense de Fallo
          * Transformamos el colapso de red en una excepción semántica para el Sentinel.
          */
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -133,8 +123,8 @@ export const TransmitFinancialBatch = async (
           semanticIntentTag: 'INFRASTRUCTURE_IO_FAULT',
           contextMetadataSnapshot: {
             errorTraceLiteral: errorDescriptionLiteral,
-            attemptedRecordsQuantity: ledgerPayloadCollection.length
-          }
+            attemptedRecordsQuantity: ledgerPayloadCollection.length,
+          },
         });
 
         // Re-envolvemos para asegurar que el error sea capturado por el búnker de 'exceptions'.
@@ -144,9 +134,9 @@ export const TransmitFinancialBatch = async (
 
         throw MapHttpErrorToException(500, 'FALLO_FISICO_TRANSMISION_LEDGER', {
           originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier
+          correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

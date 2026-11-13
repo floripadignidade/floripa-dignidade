@@ -16,15 +16,19 @@ import { EvaluationInputSchema } from '../../../schemas/EvaluationInput.schema';
  * @name GenerateImpactAnalyticsReportSchema
  * @description Aduana de entrada para el orquestador de reportes.
  */
-export const GenerateImpactAnalyticsReportSchema = z.object({
-  /** Identificador nominal de la entidad (Branded Type). */
-  targetEntityIdentifier: EvaluatedEntityIdentifierSchema,
+export const GenerateImpactAnalyticsReportSchema = z
+  .object({
+    /** Identificador nominal de la entidad (Branded Type). */
+    targetEntityIdentifier: EvaluatedEntityIdentifierSchema,
 
-  /** Colección de pulsos de interacción a procesar. */
-  evaluationInputsCollection: z.array(EvaluationInputSchema)
-    .min(1, { message: 'EMPTY_EVALUATION_COLLECTION_FOR_REPORT' }),
-
-}).readonly();
+    /** Colección de pulsos de interacción a procesar. */
+    evaluationInputsCollection: z
+      .array(EvaluationInputSchema)
+      .min(1, { message: 'EMPTY_EVALUATION_COLLECTION_FOR_REPORT' }),
+  })
+  .readonly();
 
 /** 🛡️ ADN Tipado para exportación Verbatim */
-export type IGenerateImpactAnalyticsReportParameters = z.infer<typeof GenerateImpactAnalyticsReportSchema>;
+export type IGenerateImpactAnalyticsReportParameters = z.infer<
+  typeof GenerateImpactAnalyticsReportSchema
+>;

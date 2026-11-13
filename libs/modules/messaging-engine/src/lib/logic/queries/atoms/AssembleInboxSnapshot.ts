@@ -16,13 +16,13 @@ import type { IUnifiedInboxSnapshot } from '../GetUnifiedCitizenInbox';
  * @returns {IUnifiedInboxSnapshot} Contrato de salida sellado.
  */
 export const AssembleInboxSnapshot = (
-  timelineCollection: IUnifiedCommunicationEvent[]
+  timelineCollection: IUnifiedCommunicationEvent[],
 ): IUnifiedInboxSnapshot => {
   return Object.freeze({
     unifiedTimelineCollection: timelineCollection,
     metadata: {
       totalItemsQuantityNumeric: timelineCollection.length,
-      synchronizationTimestampISO: new Date().toISOString()
-    }
+      synchronizationTimestampISO: new Date().toISOString(),
+    },
   });
 };

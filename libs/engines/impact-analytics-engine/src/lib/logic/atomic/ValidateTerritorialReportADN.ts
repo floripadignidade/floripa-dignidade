@@ -19,14 +19,14 @@ import { ValidationException } from '@floripa-dignidade/exceptions';
  * @throws {ValidationException} Si el reporte viola el contrato de integridad.
  */
 export const ValidateTerritorialReportADN = (
-  unvalidatedPayload: unknown
+  unvalidatedPayload: unknown,
 ): ITerritorialImpactReport => {
   const validationResult = TerritorialImpactReportSchema.safeParse(unvalidatedPayload);
 
   if (!validationResult.success) {
     throw new ValidationException('IMPACT_ANALYTICS.ERRORS.ADN_CORRUPTION', {
       structuralIssuesCollection: validationResult.error.flatten(),
-      apparatusIdentifierLiteral: 'TerritorialImpactReportSchema'
+      apparatusIdentifierLiteral: 'TerritorialImpactReportSchema',
     });
   }
 

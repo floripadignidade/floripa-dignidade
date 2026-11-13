@@ -30,18 +30,18 @@ export interface IRouteCalculationResult {
 export const CalculateRouteRedirection = (
   currentPathnameLiteral: string,
   detectedLocaleIdentifier: string,
-  baseRequestUrlLiteral: string
+  baseRequestUrlLiteral: string,
 ): IRouteCalculationResult => {
   const isPathAlreadyLocalizedBoolean = SUPPORTED_LOCALE_COLLECTION.some(
     (localeIdentifier) =>
       currentPathnameLiteral.startsWith(`/${localeIdentifier}`) ||
-      currentPathnameLiteral === `/${localeIdentifier}`
+      currentPathnameLiteral === `/${localeIdentifier}`,
   );
 
   if (!isPathAlreadyLocalizedBoolean) {
     const localizedUrl = new URL(
       `/${detectedLocaleIdentifier}${currentPathnameLiteral}`,
-      baseRequestUrlLiteral
+      baseRequestUrlLiteral,
     );
 
     return {

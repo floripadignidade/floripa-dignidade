@@ -19,7 +19,7 @@ import {
 /* 1. Enjambre Atómico Local */
 import type {
   IWorkerConstructorBridge,
-  IWorkerInstanceBridge
+  IWorkerInstanceBridge,
 } from './schemas/IWorkerBridge.schema';
 import { HandleWorkerMessageSignal } from './HandleWorkerMessageSignal';
 

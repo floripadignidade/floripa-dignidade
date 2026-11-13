@@ -8,10 +8,12 @@
 
 import { z } from 'zod';
 
-export const ExpenditureInputSchema = z.object({
-  expenditureIdentifier: z.string().describe('Identificador único del gasto.'),
-  targetTerritoryIdentifier: z.string().describe('Código técnico del territorio (IBGE).'),
-  totalExecutedAmountNumeric: z.number().nonnegative().describe('Monto financiero neto.'),
-}).readonly();
+export const ExpenditureInputSchema = z
+  .object({
+    expenditureIdentifier: z.string().describe('Identificador único del gasto.'),
+    targetTerritoryIdentifier: z.string().describe('Código técnico del territorio (IBGE).'),
+    totalExecutedAmountNumeric: z.number().nonnegative().describe('Monto financiero neto.'),
+  })
+  .readonly();
 
 export type IExpenditureInput = z.infer<typeof ExpenditureInputSchema>;

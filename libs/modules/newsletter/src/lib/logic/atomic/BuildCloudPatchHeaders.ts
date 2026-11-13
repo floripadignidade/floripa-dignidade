@@ -24,10 +24,10 @@ export interface ISovereignHeadersResult {
  * @returns {ISovereignHeadersResult} Diccionario de cabeceras técnico.
  */
 export const BuildCloudPatchHeaders = (
-  cloudSecurityKeySecret: string
+  cloudSecurityKeySecret: string,
 ): ISovereignHeadersResult => ({
   'Content-Type': 'application/json',
-  'apikey': cloudSecurityKeySecret,
-  'Authorization': `Bearer ${cloudSecurityKeySecret}`,
-  'Prefer': 'return=representation'
+  apikey: cloudSecurityKeySecret,
+  Authorization: `Bearer ${cloudSecurityKeySecret}`,
+  Prefer: 'return=representation',
 });

@@ -12,10 +12,7 @@
  * @license UNLICENSED
  */
 
-import {
-  EmitTelemetrySignal,
-  TraceExecutionTime
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, TraceExecutionTime } from '@floripa-dignidade/telemetry';
 
 import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
 import { InternalSystemException } from '@floripa-dignidade/exceptions';
@@ -62,9 +59,8 @@ const ATOM_IDENTIFIER = 'PRESENCE_SYNC_TRANSACTION_ATOM';
  * @throws {InternalSystemException} Si la infraestructura o la validación de ADN colapsan.
  */
 export const ExecutePresenceSyncTransaction = async (
-  parameters: IPresenceSyncParameters
+  parameters: IPresenceSyncParameters,
 ): Promise<void> => {
-
   /**
    * 🛡️ LEY ZENITH: Validación de cimientos asíncrona obligatoria.
    * Garantiza que los secretos del Tier de Datos estén disponibles.
@@ -91,10 +87,10 @@ export const ExecutePresenceSyncTransaction = async (
           lastActivePlatformLiteral: platformIdentifierLiteral,
           lastHeartbeatTimestampISO: parameters.lastHeartbeatTimestampISO,
           ...(parameters.customStatusMessageLiteral !== undefined && {
-            customStatusMessageLiteral: parameters.customStatusMessageLiteral
+            customStatusMessageLiteral: parameters.customStatusMessageLiteral,
           }),
           ...(parameters.activePushTokenSecret !== undefined && {
-            activePushTokenSecret: parameters.activePushTokenSecret
+            activePushTokenSecret: parameters.activePushTokenSecret,
           }),
         };
 
@@ -115,12 +111,10 @@ export const ExecutePresenceSyncTransaction = async (
             statusLiteral: parameters.currentAvailabilityStatus,
           },
         });
-
       } catch (caughtError: unknown) {
         // 5. GESTIÓN FORENSE DE FALLO (Resilience Layer)
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'ERROR',
@@ -131,15 +125,15 @@ export const ExecutePresenceSyncTransaction = async (
           semanticIntentTag: 'INFRASTRUCTURE_IO_FAULT',
           contextMetadataSnapshot: {
             errorTraceLiteral: errorDescriptionLiteral,
-            attemptedStatusLiteral: parameters.currentAvailabilityStatus
+            attemptedStatusLiteral: parameters.currentAvailabilityStatus,
           },
         });
 
         throw new InternalSystemException('FALLO_EN_TRANSACCION_DE_PRESENCIA_SRE', {
           originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier: parameters.correlationIdentifier
+          correlationIdentifier: parameters.correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

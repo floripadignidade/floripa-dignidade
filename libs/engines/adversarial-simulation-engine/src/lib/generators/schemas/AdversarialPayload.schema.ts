@@ -15,22 +15,25 @@ import { ThreatSeverityLevelSchema } from '../../schemas/AdversarialVulnerabilit
  * @name AdversarialPayloadSchema
  * @description Estructura inmutable de un vector de inyección simulado.
  */
-export const AdversarialPayloadSchema = z.object({
-  /** Identificador técnico del arma. */
-  payloadIdentifier: z.string().uuid(),
+export const AdversarialPayloadSchema = z
+  .object({
+    /** Identificador técnico del arma. */
+    payloadIdentifier: z.string().uuid(),
 
-  /** El dato corrupto real que será inyectado en el sistema (String o JSON). */
-  maliciousPayloadContentSnapshot: z.unknown()
-    .describe('El contenido del ataque que se enviará a la aduana Zod o función.'),
+    /** El dato corrupto real que será inyectado en el sistema (String o JSON). */
+    maliciousPayloadContentSnapshot: z
+      .unknown()
+      .describe('El contenido del ataque que se enviará a la aduana Zod o función.'),
 
-  /** Descripción de la técnica de hacking utilizada. */
-  attackTechniqueDescriptionLiteral: z.string()
-    .describe('Explicación técnica de la evasión (Ej: "Mutación de prototipo JSON").'),
+    /** Descripción de la técnica de hacking utilizada. */
+    attackTechniqueDescriptionLiteral: z
+      .string()
+      .describe('Explicación técnica de la evasión (Ej: "Mutación de prototipo JSON").'),
 
-  /** Severidad inherente al payload si lograse ejecutarse. */
-  intrinsicThreatSeverityLevel: ThreatSeverityLevelSchema,
-
-}).readonly();
+    /** Severidad inherente al payload si lograse ejecutarse. */
+    intrinsicThreatSeverityLevel: ThreatSeverityLevelSchema,
+  })
+  .readonly();
 
 /** 🛡️ ADN Tipado para exportación Verbatim */
 export type IAdversarialPayload = z.infer<typeof AdversarialPayloadSchema>;

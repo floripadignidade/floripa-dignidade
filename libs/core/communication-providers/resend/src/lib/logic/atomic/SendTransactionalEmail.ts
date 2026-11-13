@@ -9,7 +9,7 @@
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
-  TraceExecutionTime
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 import { InternalSystemException } from '@floripa-dignidade/exceptions';
 import { Resend } from 'resend';
@@ -22,7 +22,7 @@ const RESEND_PROVIDER_IDENTIFIER = 'RESEND_COMMUNICATION_PROVIDER';
 
 export const SendTransactionalEmail = async (
   providerConfiguration: IResendConfiguration,
-  unvalidatedEmailPayload: unknown
+  unvalidatedEmailPayload: unknown,
 ): Promise<string> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -36,7 +36,7 @@ export const SendTransactionalEmail = async (
       if (!validationResult.success) {
         throw new InternalSystemException('ADN_CORREO_CORRUPTO', {
           validationIssues: validationResult.error.flatten(),
-          receivedPayloadSnapshot: unvalidatedEmailPayload
+          receivedPayloadSnapshot: unvalidatedEmailPayload,
         });
       }
 
@@ -52,8 +52,8 @@ export const SendTransactionalEmail = async (
             html: validatedPayload.emailHtmlContentLiteral,
             tags: [
               { name: 'correlation_identifier', value: correlationIdentifier },
-              { name: 'tracking_category', value: validatedPayload.trackingCategoryIdentifier }
-            ]
+              { name: 'tracking_category', value: validatedPayload.trackingCategoryIdentifier },
+            ],
           });
 
         if (transmissionErrorSignal) {
@@ -67,14 +67,14 @@ export const SendTransactionalEmail = async (
           correlationIdentifier,
           message: `Correo despachado con éxito a: [${validatedPayload.targetRecipientAddressLiteral}]`,
           contextMetadata: {
-            resendMessageIdentifier: transmissionData?.id
-          }
+            resendMessageIdentifier: transmissionData?.id,
+          },
         });
 
         return transmissionData?.id || 'SUCCESS_SIGNAL';
-
       } catch (caughtError) {
-        const errorMessageLiteral = caughtError instanceof Error ? caughtError.message : String(caughtError);
+        const errorMessageLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         EmitTelemetrySignal({
           severityLevel: 'CRITICAL',
@@ -83,15 +83,15 @@ export const SendTransactionalEmail = async (
           correlationIdentifier,
           message: `Fallo crítico en el enlace con el proveedor: ${errorMessageLiteral}`,
           contextMetadata: {
-            correlationIdentifier
-          }
+            correlationIdentifier,
+          },
         });
 
         throw new InternalSystemException('FALLO_DE_TRANSMISION_EXTERNA', {
           originalProviderErrorLiteral: errorMessageLiteral,
-          correlationIdentifier
+          correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

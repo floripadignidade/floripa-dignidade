@@ -1,0 +1,18 @@
+{
+  "labels": {
+    "inputPlaceholderLiteral": "Your email address",
+    "submitButtonLiteral": "Subscribe",
+    "submittingStatusLiteral": "Submitting...",
+    "consentCheckboxLiteral": "I agree to secure data processing under LGPD privacy standards."
+  },
+  "messages": {
+    "successHeadlineLiteral": "Check your inbox!",
+    "successDescriptionLiteral": "We sent a confirmation link to activate your participation in the network.",
+    "errorGenericLiteral": "Unable to complete your subscription right now. Please try again."
+  },
+  "validation": {
+    "emailRequiredLiteral": "Please provide an email address.",
+    "emailInvalidLiteral": "Please enter a valid email address.",
+    "consentRequiredLiteral": "Privacy consent is mandatory."
+  }
+}

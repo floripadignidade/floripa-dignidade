@@ -1,6 +1,6 @@
 /**
  * @section Messaging Logic - Hardware Communication Atom
- * @description Átomo encargado exclusivamente de la transmisión física de la 
+ * @description Átomo encargado exclusivamente de la transmisión física de la
  * señal al Web Push Gateway. Implementa el protocolo Stateless para el Edge.
  *
  * Protocolo OEDP-V16.0 - I/O Isolation & Network Resilience.
@@ -13,7 +13,7 @@ import type { IPushPayload } from '../../schemas/PushPayload.schema';
 
 /**
  * Ejecuta el envío físico hacia el motor de entrega de notificaciones.
- * 
+ *
  * @param cloudUrl - Endpoint de la infraestructura cloud.
  * @param securityHeaders - Cabeceras de seguridad institucionales.
  * @param targetToken - Token secreto del dispositivo ciudadano.
@@ -25,7 +25,7 @@ export const TransmitPushSignal = async (
   securityHeaders: ISovereignHeadersResult,
   targetToken: string,
   payload: IPushPayload,
-  correlationId: string
+  correlationId: string,
 ): Promise<void> => {
   const outgoingResponse = await fetch(`${cloudUrl}/functions/v1/deliver-push-signal`, {
     method: 'POST',
@@ -40,7 +40,7 @@ export const TransmitPushSignal = async (
   if (!outgoingResponse.ok) {
     throw new InternalSystemException('FALLO_TRANSMISION_PUSH_GATEWAY', {
       httpStatus: outgoingResponse.status,
-      statusText: outgoingResponse.statusText
+      statusText: outgoingResponse.statusText,
     });
   }
 };

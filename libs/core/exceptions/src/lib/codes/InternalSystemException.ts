@@ -29,7 +29,7 @@ export class InternalSystemException extends GlobalBaseException {
    */
   public constructor(
     messageLiteral: string,
-    runtimeContextSnapshotSource: Record<string, unknown> = {}
+    runtimeContextSnapshotSource: Record<string, unknown> = {},
   ) {
     /**
      * @constant INTERNAL_SYSTEM_FAILURE - Código semántico inmutable (ISO Standard).
@@ -43,7 +43,7 @@ export class InternalSystemException extends GlobalBaseException {
       messageLiteral,
       operationalErrorCodeLiteral,
       httpStatusCodeNumeric,
-      runtimeContextSnapshotSource
+      runtimeContextSnapshotSource,
     );
   }
 }

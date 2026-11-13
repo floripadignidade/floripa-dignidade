@@ -9,10 +9,7 @@
  * @author Raz  Podestá - MetaShark Tech
  */
 
-import {
-  EmitTelemetrySignal,
-  TraceExecutionTime
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, TraceExecutionTime } from '@floripa-dignidade/telemetry';
 
 /** Identificador soberano del búnker de ruteo para el Neural Sentinel. */
 const NEWSLETTER_ENGINE_IDENTIFIER = 'NEWSLETTER_SUBSCRIPTION_ENGINE';
@@ -27,15 +24,13 @@ const NEWSLETTER_ENGINE_IDENTIFIER = 'NEWSLETTER_SUBSCRIPTION_ENGINE';
  */
 export const ConfirmNewsletterSubscription = async (
   verificationSecurityTokenLiteral: string,
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): Promise<boolean> => {
-
   return await TraceExecutionTime(
     NEWSLETTER_ENGINE_IDENTIFIER,
     'CONFIRM_SUBSCRIPTION_OPERATION',
     correlationIdentifier,
     async () => {
-
       /**
        * 1. VALIDACIÓN DE INTEGRIDAD DE TOKEN (Security Guard)
        * @todo En la fase de persistencia, aquí se realizará el 'Find & Destroy'
@@ -53,8 +48,8 @@ export const ConfirmNewsletterSubscription = async (
           contextMetadata: {
             tokenLengthQuantity: verificationSecurityTokenLiteral.length,
             // Registramos solo el inicio del token por seguridad forense (PII Protection)
-            tokenPrefixSnapshot: verificationSecurityTokenLiteral.substring(0, 4)
-          }
+            tokenPrefixSnapshot: verificationSecurityTokenLiteral.substring(0, 4),
+          },
         });
 
         return false;
@@ -74,11 +69,11 @@ export const ConfirmNewsletterSubscription = async (
         correlationIdentifier,
         message: 'Suscripción finalizada con éxito. Ciudadano verificado y activo.',
         contextMetadata: {
-          confirmationTimestamp: new Date().toISOString()
-        }
+          confirmationTimestamp: new Date().toISOString(),
+        },
       });
 
       return true;
-    }
+    },
   );
 };

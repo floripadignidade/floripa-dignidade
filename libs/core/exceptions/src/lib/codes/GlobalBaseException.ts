@@ -21,7 +21,7 @@ import type { ErrorCode, IRuntimeSnapshot } from '../schemas/Exception.schema';
 interface IV8StackProvider {
   readonly captureStackTrace: (
     targetObject: object,
-    constructorOption?: (...args: unknown[]) => unknown
+    constructorOption?: (...args: unknown[]) => unknown,
   ) => void;
 }
 
@@ -56,7 +56,7 @@ export abstract class GlobalBaseException extends Error {
     messageLiteral: string,
     operationalErrorCodeLiteral: ErrorCode,
     httpStatusCodeNumeric: number,
-    runtimeContextSnapshotSource: Record<string, unknown> = {}
+    runtimeContextSnapshotSource: Record<string, unknown> = {},
   ) {
     super(messageLiteral);
 

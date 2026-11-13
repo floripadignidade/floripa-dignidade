@@ -15,11 +15,5 @@
     "lib": ["DOM", "DOM.Iterable", "ES2022"]
   },
   "include": ["src/**/*.ts", "src/**/*.json"],
-  "exclude": [
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts",
-    "jest.config.ts",
-    "dist",
-    "out-tsc"
-  ]
+  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts", "jest.config.ts", "dist", "out-tsc"]
 }

@@ -15,7 +15,7 @@ import type { INewsletterI18n } from '../../i18n/NewsletterI18n.schema';
 export const GenerateDoubleOptInEmailHtml = (
   dictionary: INewsletterI18n,
   securityToken: string,
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): string => {
   return `
     <div style="font-family: sans-serif; padding: 40px; color: #003366; max-width: 600px; margin: auto; border: 1px solid #eee;">

@@ -39,19 +39,17 @@ export interface IReportOutcomeParameters {
  * @returns {void}
  */
 export const ReportReputationSubmissionOutcome = (
-  parametersSnapshot: IReportOutcomeParameters
+  parametersSnapshot: IReportOutcomeParameters,
 ): void => {
-  const {
-    validatedPulseSnapshot,
-    veracityAuditMetadata,
-    correlationIdentifier
-  } = parametersSnapshot;
+  const { validatedPulseSnapshot, veracityAuditMetadata, correlationIdentifier } =
+    parametersSnapshot;
 
   /**
    * @section Triaje de Resiliencia
    * Si la auditoría no existe, asumimos neutralidad informativa.
    */
-  const isRejectionRecommendedBoolean = veracityAuditMetadata?.moderationActionSuggestion === 'REJECT';
+  const isRejectionRecommendedBoolean =
+    veracityAuditMetadata?.moderationActionSuggestion === 'REJECT';
 
   void EmitTelemetrySignal({
     severityLevelLiteral: isRejectionRecommendedBoolean ? 'WARNING' : 'INFO',

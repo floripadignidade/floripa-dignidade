@@ -5,10 +5,5 @@
     "jsx": "preserve",
     "ignoreDeprecations": "5.0"
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "index.d.ts",
-    "next-env.d.ts"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "index.d.ts", "next-env.d.ts"]
 }

@@ -16,7 +16,7 @@
  */
 export const CalculateSocialEfficiencyRatio = (
   amountNumeric: number,
-  communityTrustScoreNumeric: number
+  communityTrustScoreNumeric: number,
 ): number => {
   const normalizedSpendingNumeric = Math.log10(amountNumeric + 1);
   const efficiencyRatioResult = communityTrustScoreNumeric / (normalizedSpendingNumeric || 1);

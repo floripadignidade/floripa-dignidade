@@ -1,108 +1,106 @@
 /**
- * @section State Slice - Sync Sentry (SRE Connectivity)
- * @description Sensor de resiliencia encargado de monitorear el estado de la red
- * y gestionar la cola de acciones pendientes de sincronización. Garantiza
- * la integridad de la experiencia en escenarios offline (ADR 0025).
+ * @section Shared State Store - Connectivity Sync Slice (Orchestrator)
+ * @description Segmento de estado encargado de monitorear el enlace físico de red
+ * y administrar la cola de transacciones pendientes en escenarios offline (ADR 0025).
+ * Delega la emisión de telemetría estructurada en `EmitNetworkConnectivitySignal`.
  *
- * Protocolo OEDP-V17.0 - High Performance, SRE Resilience & ISO Standards.
- * SANEADO Zenith: Resolución de violación de nomenclatura booleana (Fix naming-convention),
- * normalización de telemetría forense y alineación de Prosa ISO.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Técnica) e ISO/IEC 25010 (Confiabilidad y Tolerancia a Fallos).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
+import { z } from 'zod';
 import type { StateCreator } from 'zustand';
+
 import {
   EmitTelemetrySignal,
-  GenerateCorrelationIdentifier
+  GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  type OperationCode,
 } from '@floripa-dignidade/telemetry';
+
+import { EmitNetworkConnectivitySignal } from '../logic/connectivity/atoms/EmitNetworkConnectivitySignal';
 import type { IGlobalStateADN } from '../schemas/GlobalState.schema';
+
+const CONNECTIVITY_SLICE_MODULE_IDENTIFIER = 'STATE_CONNECTIVITY_SYNC_SLICE' as ModuleIdentifier;
 
 /**
  * @interface ISyncSentryActions
- * @description Acciones atómicas para la gobernanza de la sincronización y resiliencia.
+ * @description Acciones atómicas para la gestión de conectividad y reconciliación offline.
  */
 export interface ISyncSentryActions {
-  /**
-   * Actualiza el estado físico de la conexión detectado por el hardware.
-   * Dispara ráfagas de sincronización al recuperar el enlace.
-   */
+  /** Actualiza el estado de conectividad reportado por el navegador y emite telemetría en cambios reales. */
   readonly UpdateNetworkStatusAction: (isOnlineBoolean: boolean) => void;
-
-  /** Registra una nueva acción en la cola de espera por interrupción de red. */
+  /** Incrementa de forma atómica el contador de transacciones encoladas por falta de conexión. */
   readonly IncrementPendingQueueAction: () => void;
-
-  /** Notifica la finalización de un despacho físico exitoso hacia la nube. */
+  /** Decrementa sin subdesbordamiento la cola pendiente y sella la marca temporal de sincronización. */
   readonly MarkSuccessfulSyncAction: () => void;
 }
 
 /**
  * @name TSyncSentrySlice
- * @description Unión del ADN estructural de sincronización y sus motores de mutación.
+ * @description Unión inmutable del dominio de sincronización y sus acciones de mutación.
  */
 export type TSyncSentrySlice = IGlobalStateADN['sync'] & ISyncSentryActions;
 
-/** Identificador técnico del aparato para el Neural Sentinel. */
-const SYNC_SENTRY_IDENTIFIER = 'STATE_SYNC_SENTRY_SLICE';
-
 /**
- * Generador de la rebanada de Sincronización SRE.
- * Implementa el patrón de vigilancia activa de conectividad.
+ * Crea el segmento de conectividad y resiliencia offline para el almacén global de Zustand.
+ *
+ * @param set - Mutador atómico de estado proporcionado por Zustand.
+ * @param get - Selector síncrono del estado actual proporcionado por Zustand.
+ * @returns {TSyncSentrySlice} Estado inicial y acciones puras de sincronización.
  */
-export const createSyncSentrySlice: StateCreator<TSyncSentrySlice, [], [], TSyncSentrySlice> = (set, get) => ({
-
-  // --- 1. ESTADO INICIAL (ADN Sincronización) ---
+export const createSyncSentrySlice: StateCreator<TSyncSentrySlice, [], [], TSyncSentrySlice> = (
+  set,
+  get,
+) => ({
   isNetworkOnlineBoolean: true,
   pendingActionsQueueQuantity: 0,
-  lastSuccessfulSyncTimestampISO: undefined,
 
-  // --- 2. ACCIONES DE ÉLITE (Motores de Mutación) ---
+  UpdateNetworkStatusAction: (isOnlineBoolean: boolean): void => {
+    const inputValidationResult = z.boolean().safeParse(isOnlineBoolean);
+    if (!inputValidationResult.success) {
+      void EmitTelemetrySignal({
+        occurrenceTimestampISO: new Date().toISOString(),
+        severityLevelLiteral: 'WARNING',
+        moduleIdentifierLiteral: CONNECTIVITY_SLICE_MODULE_IDENTIFIER,
+        operationCodeLiteral: 'NETWORK_STATUS_CONTRACT_VIOLATION' as OperationCode,
+        correlationIdentifier: GenerateCorrelationIdentifier(),
+        messageContentLiteral:
+          'Se recibió un valor no booleano al actualizar el estado de conectividad de red.',
+        semanticIntentTag: 'STATE_MUTATION_CONTRACT_WARNING',
+        contextMetadataSnapshot: {
+          validationIssuesCollection: inputValidationResult.error.flatten(),
+        },
+      });
+      return;
+    }
 
-  UpdateNetworkStatusAction: (isOnlineBoolean) => {
-    /**
-     * 🛡️ SANEADO Zenith: Uso de prefijo 'was' para cumplir con la Constitución Técnica.
-     * Representa el estado inmediatamente anterior a la captura del hardware.
-     */
+    const isValidatedNetworkOnlineBoolean = inputValidationResult.data;
     const wasNetworkOnlineBoolean = get().isNetworkOnlineBoolean;
 
-    /**
-     * @section Telemetría de Frontera
-     * Emitimos señal solo si se detecta una transición real en el hardware de red.
-     */
-    if (wasNetworkOnlineBoolean !== isOnlineBoolean) {
-      void EmitTelemetrySignal({
-        severityLevelLiteral: isOnlineBoolean ? 'INFO' : 'WARNING',
-        moduleIdentifierLiteral: SYNC_SENTRY_IDENTIFIER,
-        operationCodeLiteral: isOnlineBoolean ? 'NETWORK_RESTORED_SIGNAL' : 'NETWORK_LOST_SIGNAL',
-        correlationIdentifier: GenerateCorrelationIdentifier(),
-        messageContentLiteral: isOnlineBoolean
-          ? 'Conexión recuperada. Iniciando enjambre de sincronización con el Ledger Cloud.'
-          : 'Se ha detectado una interrupción de red. Activando modo de resiliencia local.',
-        contextMetadataSnapshot: {
-          pendingActionsQueueQuantity: get().pendingActionsQueueQuantity,
-          occurrenceTimestampISO: new Date().toISOString()
-        }
+    if (wasNetworkOnlineBoolean !== isValidatedNetworkOnlineBoolean) {
+      EmitNetworkConnectivitySignal({
+        isOnlineBoolean: isValidatedNetworkOnlineBoolean,
+        pendingActionsQueueQuantity: get().pendingActionsQueueQuantity,
       });
 
-      set({ isNetworkOnlineBoolean: isOnlineBoolean });
+      set({ isNetworkOnlineBoolean: isValidatedNetworkOnlineBoolean });
     }
   },
 
-  IncrementPendingQueueAction: () => {
+  IncrementPendingQueueAction: (): void => {
     set((state) => ({
-      pendingActionsQueueQuantity: state.pendingActionsQueueQuantity + 1
+      pendingActionsQueueQuantity: state.pendingActionsQueueQuantity + 1,
     }));
   },
 
-  MarkSuccessfulSyncAction: () => {
+  MarkSuccessfulSyncAction: (): void => {
     set((state) => ({
-      /**
-       * 🛡️ LEY DE RESILIENCIA:
-       * Garantizamos que el contador de cola nunca sea negativo ante desincronizaciones.
-       */
       pendingActionsQueueQuantity: Math.max(0, state.pendingActionsQueueQuantity - 1),
-      lastSuccessfulSyncTimestampISO: new Date().toISOString()
+      lastSuccessfulSyncTimestampISO: new Date().toISOString(),
     }));
-  }
+  },
 });

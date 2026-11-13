@@ -17,23 +17,26 @@ import type { IAdversarialPayload } from './schemas/AdversarialPayload.schema';
  * @returns {IAdversarialPayload[]} Colección de armas de inyección estructuradas.
  */
 export const GenerateSqlInjectionPayload = (): IAdversarialPayload[] => {
-  return[
+  return [
     {
       payloadIdentifier: crypto.randomUUID(),
       maliciousPayloadContentSnapshot: "' OR 1=1 --",
-      attackTechniqueDescriptionLiteral: 'Tautología clásica para bypass de autenticación o extracción masiva de filas.',
+      attackTechniqueDescriptionLiteral:
+        'Tautología clásica para bypass de autenticación o extracción masiva de filas.',
       intrinsicThreatSeverityLevel: 'CRITICAL_COLLAPSE',
     },
     {
       payloadIdentifier: crypto.randomUUID(),
       maliciousPayloadContentSnapshot: "admin' /*",
-      attackTechniqueDescriptionLiteral: 'Evasión de filtros mediante comentarios en línea (Inline Comments).',
+      attackTechniqueDescriptionLiteral:
+        'Evasión de filtros mediante comentarios en línea (Inline Comments).',
       intrinsicThreatSeverityLevel: 'HIGH_RISK',
     },
     {
       payloadIdentifier: crypto.randomUUID(),
       maliciousPayloadContentSnapshot: "'; EXEC pg_sleep(5); --",
-      attackTechniqueDescriptionLiteral: 'Inyección basada en tiempo (Blind SQLi). Si el sistema demora 5s, es vulnerable.',
+      attackTechniqueDescriptionLiteral:
+        'Inyección basada en tiempo (Blind SQLi). Si el sistema demora 5s, es vulnerable.',
       intrinsicThreatSeverityLevel: 'CRITICAL_COLLAPSE',
     },
     {
@@ -43,7 +46,8 @@ export const GenerateSqlInjectionPayload = (): IAdversarialPayload[] => {
        */
       payloadIdentifier: crypto.randomUUID(),
       maliciousPayloadContentSnapshot: '{"role": "admin", "id": "1"}',
-      attackTechniqueDescriptionLiteral: 'Intento de envenenamiento de JSONB (Parameter Pollution) en endpoints REST.',
+      attackTechniqueDescriptionLiteral:
+        'Intento de envenenamiento de JSONB (Parameter Pollution) en endpoints REST.',
       intrinsicThreatSeverityLevel: 'HIGH_RISK',
     },
   ];

@@ -1,82 +1,267 @@
 {
-  "generationTimestampISO": "2026-11-11T22:57:37.919Z",
-  "correlationIdentifier": "9cf348f6-eef0-4d44-af16-a2ea8e7eb2d1",
-  "totalModulesProcessedQuantity": 15,
+  "generationTimestampISO": "2026-11-13T19:34:33.913Z",
+  "correlationIdentifier": "2e01010e-1525-4e4c-ae9d-2dfce3a3fb18",
+  "sourceLocaleIdentifier": "pt-BR",
+  "activeLocalesCollection": [
+    "pt-BR",
+    "es-ES",
+    "en-US"
+  ],
+  "totalModulesProcessedQuantity": 21,
+  "isParityVerifiedBoolean": true,
+  "parityViolationsCollection": [],
   "auditTrailCollection": [
     {
-      "moduleIdentifierLiteral": "contracts/src",
+      "moduleIdentifierLiteral": "contracts/identity",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\contracts\\src\\lib\\identity\\i18n",
-      "processedLocalesCollection": ["pt-BR", "en-US", "es-ES"]
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "LEGACY_FLAT_FILE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
     },
     {
       "moduleIdentifierLiteral": "core/analytics",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\core\\analytics\\src\\lib\\i18n",
-      "processedLocalesCollection": ["en-US", "es-ES", "pt-BR"]
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "LEGACY_FLAT_FILE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
     },
     {
       "moduleIdentifierLiteral": "core/environment-validator",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\core\\environment-validator\\src\\lib\\i18n",
-      "processedLocalesCollection": ["en-US", "es-ES", "pt-BR"]
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "LEGACY_FLAT_FILE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
     },
     {
       "moduleIdentifierLiteral": "core/exceptions",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\core\\exceptions\\src\\lib\\i18n",
-      "processedLocalesCollection": ["pt-BR", "es-ES", "en-US"]
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "LEGACY_FLAT_FILE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
     },
     {
       "moduleIdentifierLiteral": "core/telemetry",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\core\\telemetry\\src\\lib\\i18n",
-      "processedLocalesCollection": ["pt-BR", "es-ES", "en-US"]
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "LEGACY_FLAT_FILE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
     },
     {
       "moduleIdentifierLiteral": "engines/adversarial-simulation-engine",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\engines\\adversarial-simulation-engine\\src\\lib\\i18n",
-      "processedLocalesCollection": ["es-ES", "pt-BR", "en-US"]
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "LEGACY_FLAT_FILE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
     },
     {
       "moduleIdentifierLiteral": "engines/impact-analytics-engine",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\engines\\impact-analytics-engine\\src\\lib\\i18n",
-      "processedLocalesCollection": ["en-US", "es-ES", "pt-BR"]
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "LEGACY_FLAT_FILE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
     },
     {
       "moduleIdentifierLiteral": "engines/search-engine",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\engines\\search-engine\\src\\lib\\i18n",
-      "processedLocalesCollection": []
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "FOLDER_PER_LOCALE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
     },
     {
       "moduleIdentifierLiteral": "modules/interaction-engine",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\modules\\interaction-engine\\src\\lib\\i18n",
-      "processedLocalesCollection": []
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "FOLDER_PER_LOCALE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
     },
     {
       "moduleIdentifierLiteral": "modules/messaging-engine",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\modules\\messaging-engine\\src\\lib\\i18n",
-      "processedLocalesCollection": ["en-US", "es-ES", "pt-BR"]
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "LEGACY_FLAT_FILE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
     },
     {
       "moduleIdentifierLiteral": "modules/newsletter",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\modules\\newsletter\\src\\lib\\i18n",
-      "processedLocalesCollection": ["pt-BR", "es-ES", "en-US"]
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "LEGACY_FLAT_FILE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
     },
     {
       "moduleIdentifierLiteral": "modules/reputation-engine",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\modules\\reputation-engine\\src\\lib\\i18n",
-      "processedLocalesCollection": ["pt-BR", "es-ES", "en-US"]
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "LEGACY_FLAT_FILE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
     },
     {
       "moduleIdentifierLiteral": "modules/territorial-engine",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\modules\\territorial-engine\\src\\lib\\i18n",
-      "processedLocalesCollection": ["pt-BR", "en-US", "es-ES"]
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "LEGACY_FLAT_FILE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
     },
     {
-      "moduleIdentifierLiteral": "modules/whatsapp",
+      "moduleIdentifierLiteral": "modules/whatsapp/communication-service",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\modules\\whatsapp\\communication-service\\src\\lib\\i18n",
-      "processedLocalesCollection": []
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "FOLDER_PER_LOCALE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
     },
     {
-      "moduleIdentifierLiteral": "tools/src",
+      "moduleIdentifierLiteral": "shared/state-store",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\shared\\state-store\\src\\lib\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "FOLDER_PER_LOCALE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
+    },
+    {
+      "moduleIdentifierLiteral": "shared/ui-contracts",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\shared\\ui-contracts\\src\\lib\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "FOLDER_PER_LOCALE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
+    },
+    {
+      "moduleIdentifierLiteral": "shared/ui-foundry/organisms/newsletter-form",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\shared\\ui-foundry\\src\\lib\\organisms\\newsletter-form\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "FOLDER_PER_LOCALE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
+    },
+    {
+      "moduleIdentifierLiteral": "tools/build-auditor",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\tools\\src\\lib\\build-auditor\\i18n",
-      "processedLocalesCollection": []
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "FOLDER_PER_LOCALE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
+    },
+    {
+      "moduleIdentifierLiteral": "apps/floripa-dignidade",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\apps\\floripa-dignidade\\src\\app\\[locale]\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "FOLDER_PER_LOCALE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
+    },
+    {
+      "moduleIdentifierLiteral": "apps/floripa-dignidade/newsletter/welcome",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\apps\\floripa-dignidade\\src\\app\\[locale]\\newsletter\\welcome\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "LEGACY_FLAT_FILE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
+    },
+    {
+      "moduleIdentifierLiteral": "apps/floripa-dignidade/observatorio",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\apps\\floripa-dignidade\\src\\app\\[locale]\\observatorio\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "LEGACY_FLAT_FILE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
     }
   ]
 }

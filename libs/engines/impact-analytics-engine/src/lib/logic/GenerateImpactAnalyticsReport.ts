@@ -30,7 +30,7 @@ import { AggregateTerritorialSentiment } from './atomic/AggregateTerritorialSent
 import { ValidateTerritorialReportADN } from './atomic/ValidateTerritorialReportADN';
 import {
   AssembleComprehensiveImpactReport,
-  type IComprehensiveReportResult
+  type IComprehensiveReportResult,
 } from './atomic/AssembleComprehensiveImpactReport';
 
 /** Identificador técnico del motor para el Neural Sentinel. */
@@ -66,19 +66,19 @@ export const GenerateImpactAnalyticsReport = async (
          */
         const inputValidationResult = GenerateImpactAnalyticsReportSchema.safeParse({
           targetEntityIdentifier: targetEntityIdentifierLiteral,
-          evaluationInputsCollection
+          evaluationInputsCollection,
         });
 
         if (!inputValidationResult.success) {
           throw new ValidationException('CONTRATO_DE_SOLICITUD_DE_REPORTE_CORRUPTO', {
             structuralIssuesCollection: inputValidationResult.error.flatten(),
-            correlationIdentifier
+            correlationIdentifier,
           });
         }
 
         const {
           targetEntityIdentifier,
-          evaluationInputsCollection: validatedEvaluationInputsCollection
+          evaluationInputsCollection: validatedEvaluationInputsCollection,
         } = inputValidationResult.data;
 
         // --- FASE 2: ANALÍTICA BAYESIANA GLOBAL (Confianza Ponderada) ---
@@ -115,7 +115,7 @@ export const GenerateImpactAnalyticsReport = async (
          */
         const finalComprehensiveReport = AssembleComprehensiveImpactReport(
           globalIndicatorSnapshot,
-          territorialReportSnapshot
+          territorialReportSnapshot,
         );
 
         // --- FASE 6: REPORTE DE ÉXITO (SRE Visibility) ---
@@ -130,12 +130,11 @@ export const GenerateImpactAnalyticsReport = async (
           contextMetadataSnapshot: {
             targetEntityIdentifier: targetEntityIdentifier as string,
             totalEvaluationsProcessedQuantity: validatedEvaluationInputsCollection.length,
-            territorialClusterCountQuantity: rawTerritorialClustersCollection.length
+            territorialClusterCountQuantity: rawTerritorialClustersCollection.length,
           },
         });
 
         return finalComprehensiveReport;
-
       } catch (caughtError: unknown) {
         // --- FASE 7: GESTIÓN FORENSE DE COLAPSO (Resilience Layer) ---
 
@@ -143,20 +142,20 @@ export const GenerateImpactAnalyticsReport = async (
         if (caughtError instanceof ValidationException) throw caughtError;
         if (caughtError instanceof InternalSystemException) throw caughtError;
 
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : 'UNKNOWN_ANALYTICS_FAULT';
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : 'UNKNOWN_ANALYTICS_FAULT';
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
           moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
           operationCodeLiteral: 'COMPREHENSIVE_REPORT_PIPELINE_COLLAPSE',
           correlationIdentifier,
-          messageContentLiteral: 'Fallo catastrófico en la generación del reporte multidimensional.',
+          messageContentLiteral:
+            'Fallo catastrófico en la generación del reporte multidimensional.',
           semanticIntentTag: 'IMPACT_ENGINE_FAULT',
           contextMetadataSnapshot: {
             errorTraceLiteral: errorDescriptionLiteral,
-            attemptedEntityIdentifier: targetEntityIdentifierLiteral
+            attemptedEntityIdentifier: targetEntityIdentifierLiteral,
           },
         });
 

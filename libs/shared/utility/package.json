@@ -24,7 +24,7 @@
     "zod": "^3.25.76"
   },
   "nx": {
-    "tags":[
+    "tags": [
       "scope:shared",
       "type:logic",
       "platform:isomorphic"

@@ -27,9 +27,7 @@ export {
   SyncMunicipalityExpenditureParametersSchema,
 } from './lib/logic/orchestrators/SyncMunicipalityExpenditure';
 
-export type {
-  ISyncMunicipalityExpenditureParameters,
-} from './lib/logic/orchestrators/SyncMunicipalityExpenditure';
+export type { ISyncMunicipalityExpenditureParameters } from './lib/logic/orchestrators/SyncMunicipalityExpenditure';
 
 /**
  * @section 2. Contratos Centralizados de Dominio Presupuestario

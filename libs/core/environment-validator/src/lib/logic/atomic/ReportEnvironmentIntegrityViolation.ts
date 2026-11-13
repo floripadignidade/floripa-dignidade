@@ -23,8 +23,7 @@ import {
 } from '@floripa-dignidade/telemetry';
 
 /** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
-const ENVIRONMENT_VALIDATOR_IDENTIFIER =
-  'ENVIRONMENT_INFRASTRUCTURE_VALIDATOR' as ModuleIdentifier;
+const ENVIRONMENT_VALIDATOR_IDENTIFIER = 'ENVIRONMENT_INFRASTRUCTURE_VALIDATOR' as ModuleIdentifier;
 
 /**
  * Procesa un error de validación de entorno, emite el reporte forense inmutable y aborta la ejecución.
@@ -47,8 +46,7 @@ export const ReportEnvironmentIntegrityViolation = (
     occurrenceTimestampISO: new Date().toISOString(),
     severityLevelLiteral: 'CRITICAL',
     moduleIdentifierLiteral: ENVIRONMENT_VALIDATOR_IDENTIFIER,
-    operationCodeLiteral:
-      'ENVIRONMENT_INTEGRITY_VIOLATION' as OperationCode,
+    operationCodeLiteral: 'ENVIRONMENT_INTEGRITY_VIOLATION' as OperationCode,
     correlationIdentifier,
     messageContentLiteral: 'ENVIRONMENT.LOGS.INTEGRITY_VIOLATION',
     semanticIntentTag: 'INFRASTRUCTURE_VIOLATION_CRITICAL',

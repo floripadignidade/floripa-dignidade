@@ -27,7 +27,7 @@ const ATOM_IDENTIFIER = 'COGNITIVE_ADN_VALIDATOR_ATOM';
  */
 export const ValidateCognitiveAdn = (
   rawAiPayloadSnapshot: unknown,
-  correlationIdentifier: string = GenerateCorrelationIdentifier()
+  correlationIdentifier: string = GenerateCorrelationIdentifier(),
 ): IInferenceResponse => {
   const validationResult = InferenceResponseSchema.safeParse(rawAiPayloadSnapshot);
 
@@ -40,12 +40,12 @@ export const ValidateCognitiveAdn = (
       messageContentLiteral: 'HEALTH_ANALYSIS.ERRORS.AI_CONTRACT_VIOLATION',
       contextMetadataSnapshot: {
         structuralIssuesCollection: validationResult.error.flatten(),
-        rawPayloadSnapshot: rawAiPayloadSnapshot
-      }
+        rawPayloadSnapshot: rawAiPayloadSnapshot,
+      },
     });
 
     throw new InternalSystemException('ALUCINACION_O_ADN_COGNITIVO_CORRUPTO', {
-      validationIssues: validationResult.error.flatten()
+      validationIssues: validationResult.error.flatten(),
     });
   }
 

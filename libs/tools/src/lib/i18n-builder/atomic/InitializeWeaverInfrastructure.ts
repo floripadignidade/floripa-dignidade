@@ -1,114 +1,143 @@
 /**
  * @section Tools & Infrastructure - Weaver Infrastructure Initialization Atom
- * @description Garantiza la disponibilidad e integridad de la infraestructura física
- * de directorios para la compilación del Weaver. Implementa normalización de rutas absolutas,
- * auditoría proactiva de permisos de escritura de hardware (W_OK) y rastro telemétrico SRE.
+ * @description Garantiza la disponibilidad e integridad física de los directorios de
+ * salida y reportes del compilador lingüístico Weaver. Normaliza y deduplica rutas absolutas,
+ * valida el identificador de correlación contra el esquema nominal SSOT, verifica que los
+ * destinos sean directorios reales con permisos de escritura (`W_OK`) y mide latencia SRE.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Confiabilidad) e ISO/IEC 27001 (Seguridad).
- * SANEADO Zenith: Inyección obligatoria de 'occurrenceTimestampISO', trazabilidad de 'correlationIdentifier',
- * resolución estricta con extensiones '.js' y reporte telemétrico en condiciones de colapso de I/O.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Técnica), ISO/IEC 25010 (Confiabilidad) e ISO/IEC 27001.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import {
-  promises as filesystemPromises,
-  constants as filesystemStandardConstants,
-} from 'node:fs';
+import { constants as filesystemConstants, promises as filesystemPromises } from 'node:fs';
 import { normalize, resolve } from 'node:path';
 
-/* 1. Infraestructura Core de Telemetría y Excepciones */
+import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
 import {
+  CorrelationIdentifierSchema,
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
   type ModuleIdentifier,
   type OperationCode,
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-import { InternalSystemException } from '@floripa-dignidade/exceptions';
+import { WEAVER_CONFIGURATION } from '../constants/WeaverConfiguration';
 
-/* 2. Contratos de Configuración Local (Resolución ESM Estricta) */
-import { WEAVER_CONFIGURATION } from '../constants/WeaverConfiguration.js';
+const INITIALIZER_MODULE_IDENTIFIER = 'WEAVER_INFRASTRUCTURE_INITIALIZER' as ModuleIdentifier;
 
-/** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
-const INITIALIZER_MODULE_IDENTIFIER =
-  'WEAVER_INFRASTRUCTURE_INITIALIZER' as ModuleIdentifier;
+const extractSystemErrorCodeLiteral = (caughtExecutionError: unknown): string => {
+  if (
+    typeof caughtExecutionError === 'object' &&
+    caughtExecutionError !== null &&
+    'code' in caughtExecutionError &&
+    typeof caughtExecutionError.code === 'string'
+  ) {
+    return caughtExecutionError.code;
+  }
+
+  return 'FS_ERROR';
+};
+
+const ensureWritableDirectoryAction = async (directoryPathLiteral: string): Promise<void> => {
+  await filesystemPromises.mkdir(directoryPathLiteral, { recursive: true });
+  const directoryStatsSnapshot = await filesystemPromises.stat(directoryPathLiteral);
+
+  if (!directoryStatsSnapshot.isDirectory()) {
+    throw new Error(`PATH_IS_NOT_A_DIRECTORY:${directoryPathLiteral}`);
+  }
+
+  await filesystemPromises.access(directoryPathLiteral, filesystemConstants.W_OK);
+};
 
 /**
- * Inicializa los directorios base para el procesamiento lingüístico y valida permisos de hardware.
+ * Inicializa los directorios base del compilador lingüístico y certifica permisos de escritura.
  *
- * @param correlationIdentifierFallback - Identificador único de correlación opcional para trazabilidad forense.
- * @returns {Promise<void>} Promesa que resuelve nominalmente si la infraestructura está lista.
- * @throws {InternalSystemException} Si falla la creación de carpetas o el acceso de escritura en disco.
+ * @param correlationIdentifierFallback - Identificador único de correlación opcional para trazabilidad.
+ * @returns {Promise<void>} Resuelve cuando todos los directorios requeridos están listos.
+ * @throws {ValidationException} Si el identificador de correlación provisto no es un UUID v4 válido.
+ * @throws {InternalSystemException} Si falla la creación o verificación de permisos en disco.
  */
 export const InitializeWeaverInfrastructure = async (
   correlationIdentifierFallback: string = GenerateCorrelationIdentifier(),
 ): Promise<void> => {
-  const correlationIdentifier = correlationIdentifierFallback;
+  const correlationValidationResult = CorrelationIdentifierSchema.safeParse(
+    correlationIdentifierFallback,
+  );
 
-  const targetPathsCollection = [
-    normalize(resolve(WEAVER_CONFIGURATION.TARGET_OUTPUT_DIRECTORY_LITERAL)),
-    normalize(resolve(WEAVER_CONFIGURATION.FORENSIC_REPORTS_DIRECTORY_LITERAL)),
-  ];
-
-  try {
-    // 1. CREACIÓN IDEMPOTENTE DE DIRECTORIOS (Hardware Isolation)
-    await Promise.all(
-      targetPathsCollection.map((pathLiteral) =>
-        filesystemPromises.mkdir(pathLiteral, { recursive: true }),
-      ),
-    );
-
-    // 2. AUDITORÍA SRE: Verificación de permisos de escritura física (Pre-flight Check)
-    await Promise.all(
-      targetPathsCollection.map((pathLiteral) =>
-        filesystemPromises.access(pathLiteral, filesystemStandardConstants.W_OK),
-      ),
-    );
-
-    // 3. TELEMETRÍA FORENSE: Reporte conforme a TelemetrySignalSchema
-    void EmitTelemetrySignal({
-      occurrenceTimestampISO: new Date().toISOString(),
-      severityLevelLiteral: 'INFO',
-      moduleIdentifierLiteral: INITIALIZER_MODULE_IDENTIFIER,
-      operationCodeLiteral: 'INFRASTRUCTURE_READY' as OperationCode,
-      correlationIdentifier,
-      messageContentLiteral:
-        'Infraestructura de persistencia para el Weaver inicializada correctamente.',
-      semanticIntentTag: 'I18N_INFRASTRUCTURE_INITIALIZATION',
-      contextMetadataSnapshot: {
-        initializedPathsCollection: targetPathsCollection,
-      },
-    });
-  } catch (caughtExecutionError: unknown) {
-    // 4. GESTIÓN FORENSE DE FALLO DE HARDWARE (Resilience Layer)
-    const errorInstance = caughtExecutionError as NodeJS.ErrnoException;
-    const errorDescriptionLiteral =
-      errorInstance.message ?? String(caughtExecutionError);
-
-    void EmitTelemetrySignal({
-      occurrenceTimestampISO: new Date().toISOString(),
-      severityLevelLiteral: 'CRITICAL',
-      moduleIdentifierLiteral: INITIALIZER_MODULE_IDENTIFIER,
-      operationCodeLiteral:
-        'INFRASTRUCTURE_INITIALIZATION_FAULT' as OperationCode,
-      correlationIdentifier,
-      messageContentLiteral: `Fallo crítico de hardware al inicializar directorios del Weaver: ${errorDescriptionLiteral}`,
-      semanticIntentTag: 'I18N_INFRASTRUCTURE_FAULT',
-      contextMetadataSnapshot: {
-        faultyPathsCollection: targetPathsCollection,
-        systemErrorCodeLiteral: errorInstance.code ?? 'FS_ERROR',
-      },
-    });
-
-    throw new InternalSystemException('WEAVER_INFRASTRUCTURE_FAILURE', {
-      intentLiteral: 'INITIALIZE_BUILD_DIRECTORIES',
-      faultyPathsCollection: targetPathsCollection,
-      systemErrorCodeLiteral: errorInstance.code ?? 'FS_ERROR',
-      originalErrorLiteral: errorDescriptionLiteral,
-      correlationIdentifier,
+  if (!correlationValidationResult.success) {
+    throw new ValidationException('WEAVER_CORRELATION_IDENTIFIER_INVALIDO', {
+      validationIssuesCollection: correlationValidationResult.error.flatten(),
     });
   }
+
+  const correlationIdentifier = correlationValidationResult.data;
+  const targetPathsCollection: readonly string[] = Object.freeze(
+    Array.from(
+      new Set([
+        normalize(resolve(WEAVER_CONFIGURATION.TARGET_OUTPUT_DIRECTORY_LITERAL)),
+        normalize(resolve(WEAVER_CONFIGURATION.FORENSIC_REPORTS_DIRECTORY_LITERAL)),
+      ]),
+    ),
+  );
+
+  return await TraceExecutionTime(
+    INITIALIZER_MODULE_IDENTIFIER,
+    'INITIALIZE_WEAVER_INFRASTRUCTURE' as OperationCode,
+    correlationIdentifier,
+    async (): Promise<void> => {
+      try {
+        await Promise.all(
+          targetPathsCollection.map((directoryPathLiteral) =>
+            ensureWritableDirectoryAction(directoryPathLiteral),
+          ),
+        );
+
+        void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
+          severityLevelLiteral: 'INFO',
+          moduleIdentifierLiteral: INITIALIZER_MODULE_IDENTIFIER,
+          operationCodeLiteral: 'INFRASTRUCTURE_READY' as OperationCode,
+          correlationIdentifier,
+          messageContentLiteral:
+            'Infraestructura de persistencia para el compilador Weaver inicializada correctamente.',
+          semanticIntentTag: 'I18N_INFRASTRUCTURE_INITIALIZATION',
+          contextMetadataSnapshot: {
+            initializedPathsCollection: targetPathsCollection,
+          },
+        });
+      } catch (caughtExecutionError: unknown) {
+        const errorDescriptionLiteral =
+          caughtExecutionError instanceof Error
+            ? caughtExecutionError.message
+            : String(caughtExecutionError);
+        const systemErrorCodeLiteral = extractSystemErrorCodeLiteral(caughtExecutionError);
+
+        void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: INITIALIZER_MODULE_IDENTIFIER,
+          operationCodeLiteral: 'INFRASTRUCTURE_INITIALIZATION_FAULT' as OperationCode,
+          correlationIdentifier,
+          messageContentLiteral: `Fallo crítico de hardware al inicializar directorios del Weaver: ${errorDescriptionLiteral}`,
+          semanticIntentTag: 'I18N_INFRASTRUCTURE_FAULT',
+          contextMetadataSnapshot: {
+            faultyPathsCollection: targetPathsCollection,
+            systemErrorCodeLiteral,
+          },
+        });
+
+        throw new InternalSystemException('WEAVER_INFRASTRUCTURE_FAILURE', {
+          intentLiteral: 'INITIALIZE_BUILD_DIRECTORIES',
+          faultyPathsCollection: targetPathsCollection,
+          systemErrorCodeLiteral,
+          originalErrorLiteral: errorDescriptionLiteral,
+          correlationIdentifier,
+        });
+      }
+    },
+  );
 };

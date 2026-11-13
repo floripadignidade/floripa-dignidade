@@ -1,0 +1,14 @@
+{
+  "navigationPaths": {
+    "identity": "Identity",
+    "transparency": "Transparency",
+    "press": "Press & Voice",
+    "complaint": "Citizen Report"
+  },
+  "actions": {
+    "donateCallToAction": "Support Cause",
+    "searchPlaceholder": "Search observatory...",
+    "mobileMenuToggle": "Toggle menu",
+    "reportEmergencyLabel": "Urgent Report"
+  }
+}

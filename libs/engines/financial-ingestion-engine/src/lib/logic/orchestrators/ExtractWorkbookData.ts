@@ -58,7 +58,7 @@ const loadWorksheetFromHardware = async (absoluteFilePathLiteral: string): Promi
 
   if (!targetWorksheetSnapshot) {
     throw new InternalSystemException('WORKSHEET_IDENTIFICATION_FAULT', {
-      targetFileLiteral: absoluteFilePathLiteral
+      targetFileLiteral: absoluteFilePathLiteral,
     });
   }
 
@@ -71,7 +71,7 @@ const loadWorksheetFromHardware = async (absoluteFilePathLiteral: string): Promi
  */
 const processWorksheetRows = (
   targetWorksheetSnapshot: Worksheet,
-  extractionContext: IExtractionContext
+  extractionContext: IExtractionContext,
 ): void => {
   targetWorksheetSnapshot.eachRow((currentRowInstance: Row, rowNumberNumeric: number) => {
     TriageContextualRow(currentRowInstance, rowNumberNumeric, extractionContext);
@@ -89,7 +89,8 @@ const processWorksheetRows = (
 export const ExtractWorkbookData = async (
   parametersSnapshot: IExtractionParameters,
 ): Promise<readonly IProjectFinancialRecord[]> => {
-  const correlationIdentifier = parametersSnapshot.correlationIdentifier ?? GenerateCorrelationIdentifier();
+  const correlationIdentifier =
+    parametersSnapshot.correlationIdentifier ?? GenerateCorrelationIdentifier();
 
   return await TraceExecutionTime(
     ORCHESTRATOR_IDENTIFIER,
@@ -99,18 +100,18 @@ export const ExtractWorkbookData = async (
       try {
         // --- FASE 1: CARGA DE HARDWARE (Delegación de I/O) ---
         const targetWorksheetSnapshot = await loadWorksheetFromHardware(
-          parametersSnapshot.absoluteFilePathLiteral
+          parametersSnapshot.absoluteFilePathLiteral,
         );
 
         // --- FASE 2: MAPEO CRONOLÓGICO Y CONTEXTO ---
         const headerRowIndexNumeric = WORKBOOK_INGESTION_STANDARDS.HEADER_ROW_INDEX_QUANTITY;
         const monthHeadersMapping = IdentifyMonthHeaders(
-          targetWorksheetSnapshot.getRow(headerRowIndexNumeric)
+          targetWorksheetSnapshot.getRow(headerRowIndexNumeric),
         );
 
         const extractionContextSnapshot = InitializeExtractionContext(
           monthHeadersMapping,
-          correlationIdentifier
+          correlationIdentifier,
         );
 
         // --- FASE 3: ESCANEO POR ENJAMBRE (Delegación de Iteración) ---
@@ -118,7 +119,7 @@ export const ExtractWorkbookData = async (
 
         // --- FASE 4: ADUANA DE ADN FINAL (Lote Validation) ---
         const finalSovereignBatchSnapshot = ValidateExtractedBatchADN(
-          extractionContextSnapshot.recordsCollection as unknown[]
+          extractionContextSnapshot.recordsCollection as unknown[],
         );
 
         // --- FASE 5: REPORTE DE ÉXITO (SRE Visibility) ---
@@ -131,21 +132,19 @@ export const ExtractWorkbookData = async (
           semanticIntentTag: 'FINANCIAL_DATA_ACQUISITION',
           contextMetadataSnapshot: {
             extractedRecordsQuantity: finalSovereignBatchSnapshot.length,
-            sourceFileLiteral: parametersSnapshot.absoluteFilePathLiteral
-          }
+            sourceFileLiteral: parametersSnapshot.absoluteFilePathLiteral,
+          },
         });
 
         return finalSovereignBatchSnapshot;
-
       } catch (caughtError: unknown) {
         // --- FASE 6: GESTIÓN FORENSE DE COLAPSO (Resilience Layer) ---
         if (caughtError instanceof InternalSystemException) {
           throw caughtError;
         }
 
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -156,15 +155,15 @@ export const ExtractWorkbookData = async (
           semanticIntentTag: 'DATA_PIPELINE_FAULT',
           contextMetadataSnapshot: {
             errorTraceLiteral: errorDescriptionLiteral,
-            targetFileLiteral: parametersSnapshot.absoluteFilePathLiteral
-          }
+            targetFileLiteral: parametersSnapshot.absoluteFilePathLiteral,
+          },
         });
 
         throw new InternalSystemException('FALLO_EN_EXTRACCION_DE_LIBRO_FINANCIERO_SRE', {
           originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier
+          correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

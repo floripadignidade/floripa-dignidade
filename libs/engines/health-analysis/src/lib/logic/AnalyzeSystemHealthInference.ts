@@ -34,7 +34,7 @@ const COGNITIVE_ENGINE_IDENTIFIER = 'HEALTH_ANALYSIS_COGNITIVE_ENGINE';
  */
 const validateCognitiveAdn = (
   rawAiPayload: unknown,
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): IInferenceResponse => {
   const validationResult = InferenceResponseSchema.safeParse(rawAiPayload);
 
@@ -48,12 +48,12 @@ const validateCognitiveAdn = (
       message: 'HEALTH_ANALYSIS.ERRORS.AI_CONTRACT_VIOLATION',
       contextMetadata: {
         structuralIssuesCollection: validationResult.error.flatten(),
-        rawAiResponseSnapshot: rawAiPayload
-      }
+        rawAiResponseSnapshot: rawAiPayload,
+      },
     });
 
     throw new InternalSystemException('ALUCINACION_O_ADN_COGNITIVO_CORRUPTO', {
-      validationIssues: validationResult.error.flatten()
+      validationIssues: validationResult.error.flatten(),
     });
   }
 
@@ -70,7 +70,7 @@ const validateCognitiveAdn = (
  */
 export const AnalyzeSystemHealthInference = async (
   unvalidatedHealthPayloadSnapshot: unknown,
-  targetAiProviderLiteral: TAIProvider = 'HUGGING_FACE'
+  targetAiProviderLiteral: TAIProvider = 'HUGGING_FACE',
 ): Promise<IInferenceResponse> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -85,13 +85,13 @@ export const AnalyzeSystemHealthInference = async (
 
         // 2. EJECUCIÓN DE INFERENCIA (I/O Red Externa)
         const unvalidatedIntelligenceResponse = await executeInferenceAction(
-          unvalidatedHealthPayloadSnapshot
+          unvalidatedHealthPayloadSnapshot,
         );
 
         // 3. ADUANA DE ADN (Delegación a Átomo Interno)
         const validatedInferenceResult = validateCognitiveAdn(
           unvalidatedIntelligenceResponse,
-          correlationIdentifier
+          correlationIdentifier,
         );
 
         const isConfidenceWarningRequiredBoolean = validatedInferenceResult.confidenceScore < 0.75;
@@ -108,12 +108,11 @@ export const AnalyzeSystemHealthInference = async (
             analysisId: validatedInferenceResult.analysisId,
             suggestedActionLiteral: validatedInferenceResult.suggestedAction,
             confidenceScoreNumeric: validatedInferenceResult.confidenceScore,
-            providerLiteral: targetAiProviderLiteral
+            providerLiteral: targetAiProviderLiteral,
           },
         });
 
         return validatedInferenceResult;
-
       } catch (caughtError: unknown) {
         // 5. GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
 
@@ -122,9 +121,8 @@ export const AnalyzeSystemHealthInference = async (
           throw caughtError;
         }
 
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevel: 'CRITICAL',
@@ -134,15 +132,15 @@ export const AnalyzeSystemHealthInference = async (
           message: 'HEALTH_ANALYSIS.ERRORS.ORCHESTRATION_FAULT',
           contextMetadata: {
             errorTraceLiteral: errorDescriptionLiteral,
-            providerLiteral: targetAiProviderLiteral
+            providerLiteral: targetAiProviderLiteral,
           },
         });
 
         throw new InternalSystemException('FALLO_EN_ORQUESTACION_COGNITIVA', {
           originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier
+          correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

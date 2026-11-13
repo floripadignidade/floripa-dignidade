@@ -23,26 +23,29 @@ import { z } from 'zod';
  * Identificación Personal (PII). La transformación a UpperCase en este nivel
  * garantiza que los índices de búsqueda sean deterministas."
  */
-export const AnonymizeIdentityNameSchema = z.object({
-  /**
-   * Nombre legal completo capturado del registro o proveedor.
-   * Representación: Literal.
-   * 🛡️ SANEADO (Fix TS7006): Tipado explícito en transformación de ADN.
-   */
-  fullLegalNameLiteral: z.string()
-    .min(1, { message: 'IDENTITY_RECORD_NOT_FOUND' })
-    .transform((valueLiteral: string) => valueLiteral.toUpperCase().trim())
-    .describe('Nombre civil original para procesamiento de privacidad.'),
+export const AnonymizeIdentityNameSchema = z
+  .object({
+    /**
+     * Nombre legal completo capturado del registro o proveedor.
+     * Representación: Literal.
+     * 🛡️ SANEADO (Fix TS7006): Tipado explícito en transformación de ADN.
+     */
+    fullLegalNameLiteral: z
+      .string()
+      .min(1, { message: 'IDENTITY_RECORD_NOT_FOUND' })
+      .transform((valueLiteral: string) => valueLiteral.toUpperCase().trim())
+      .describe('Nombre civil original para procesamiento de privacidad.'),
 
-  /**
-   * Marcador de posición lingüístico (Fallback) para identidades no reconocidas.
-   * Representación: Literal (Sincronizado con diccionarios institucionales).
-   */
-  anonymousPlaceholderLiteral: z.string()
-    .default('IDENTIDADE ANÔNIMA')
-    .describe('Texto de sustitución para proteger la privacidad en la interfaz pública.'),
-
-}).readonly();
+    /**
+     * Marcador de posición lingüístico (Fallback) para identidades no reconocidas.
+     * Representación: Literal (Sincronizado con diccionarios institucionales).
+     */
+    anonymousPlaceholderLiteral: z
+      .string()
+      .default('IDENTIDADE ANÔNIMA')
+      .describe('Texto de sustitución para proteger la privacidad en la interfaz pública.'),
+  })
+  .readonly();
 
 /**
  * @interface IAnonymizeIdentityNameParameters

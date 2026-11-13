@@ -3,11 +3,7 @@
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/core/communication-providers/resend/src",
   "projectType": "library",
-  "tags": [
-    "scope:core",
-    "type:data",
-    "platform:node"
-  ],
+  "tags": ["scope:core", "type:data", "platform:node"],
   "targets": {
     "build": {
       "executor": "@nx/js:swc",

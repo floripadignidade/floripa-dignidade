@@ -20,14 +20,14 @@ import { AnalyzeRequestMetadata } from './AnalyzeRequestMetadata';
  */
 export const InitializeRoutingContext = (
   incomingRequest: NextRequest,
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): IRoutingContext => {
   const initialContext: IRoutingContext = {
     correlationIdentifier,
     detectedLocale: DetermineDeviceLocale(incomingRequest.headers.get('accept-language')),
     clientMetadata: {
       ipAddressLiteral: 'unknown',
-      userAgentLiteral: 'unknown'
+      userAgentLiteral: 'unknown',
     },
     isRequestAuthorizedBoolean: true,
   };

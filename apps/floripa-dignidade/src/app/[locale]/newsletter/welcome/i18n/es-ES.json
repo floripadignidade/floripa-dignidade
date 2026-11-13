@@ -1,13 +1,19 @@
 {
   "hero": {
     "headlineLiteral": "¡Bienvenido a nuestra red de transparencia!",
-    "descriptionLiteral": "Tu soberanía ha sido confirmada con éxito. Ahora formas parte de la red que vigila y protege Florianópolis. Recibirás información crítica y alertas de impacto directamente en tu correo electrónico."
+    "descriptionLiteral": "Tu participación ha sido confirmada. Ahora formas parte de la red que monitorea y protege Florianópolis con información crítica directamente en tu correo electrónico."
   },
   "actions": {
     "primaryActionLabelLiteral": "Ver Reportes de Transparencia",
     "secondaryActionLabelLiteral": "Volver al Inicio"
   },
+  "supportSection": {
+    "newsHeadlineLiteral": "Voz Dignidad y Prensa",
+    "newsDescriptionLiteral": "Sigue investigaciones independientes sobre derechos humanos y políticas públicas en Florianópolis.",
+    "dataHeadlineLiteral": "Observatorio de Gastos",
+    "dataDescriptionLiteral": "Consulta contratos municipales auditados e indicadores de impacto social por territorio."
+  },
   "metadata": {
-    "pageTitleLiteral": "Soberanía Confirmada"
+    "pageTitleLiteral": "Suscripción Confirmada"
   }
 }

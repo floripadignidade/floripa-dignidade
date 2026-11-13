@@ -1,5 +1,80 @@
 {
-  "contracts/src": {
+  "apps/floripa-dignidade": {
+    "frontpage": {
+      "hero": {
+        "badgeLabelLiteral": "Civic Observatory • Florianópolis",
+        "headlineMainLiteral": "Technology serving",
+        "headlineAccentLiteral": "human dignity",
+        "descriptionLiteral": "Independent monitoring of public spending, territorial protection, and safe citizen reporting channels in Florianópolis.",
+        "primaryActionLabelLiteral": "Support Cause",
+        "secondaryActionLabelLiteral": "View Transparency"
+      },
+      "features": [
+        {
+          "identifier": "TRANSPARENCY",
+          "titleLiteral": "Radical Transparency",
+          "descriptionLiteral": "Civic auditing of public contracts and real-time fiscal accountability."
+        },
+        {
+          "identifier": "ALERTS",
+          "titleLiteral": "Territorial Alerts",
+          "descriptionLiteral": "District-level community monitoring with strict LGPD identity protection."
+        },
+        {
+          "identifier": "ACTION",
+          "titleLiteral": "Solidarity Response",
+          "descriptionLiteral": "Direct coordination across volunteers, legal defense, and social support."
+        }
+      ],
+      "newsletter": {
+        "sectionHeadlineLiteral": "Receive transparency alerts",
+        "sectionDescriptionLiteral": "Join the civic network and receive audited impact reports straight to your inbox."
+      }
+    }
+  },
+  "apps/floripa-dignidade/newsletter/welcome": {
+    "hero": {
+      "headlineLiteral": "Welcome to our transparency network!",
+      "descriptionLiteral": "Your participation has been confirmed. You are now part of the network that monitors and protects Florianópolis with critical information straight to your inbox."
+    },
+    "actions": {
+      "primaryActionLabelLiteral": "View Transparency Reports",
+      "secondaryActionLabelLiteral": "Back to Home"
+    },
+    "supportSection": {
+      "newsHeadlineLiteral": "Dignity Voice & Press",
+      "newsDescriptionLiteral": "Follow independent reporting on human rights and public policies in Florianópolis.",
+      "dataHeadlineLiteral": "Public Expenditure Observatory",
+      "dataDescriptionLiteral": "Explore audited municipal contracts and territorial social impact indicators."
+    },
+    "metadata": {
+      "pageTitleLiteral": "Subscription Confirmed"
+    }
+  },
+  "apps/floripa-dignidade/observatorio": {
+    "metadata": {
+      "pageTitleLiteral": "Public Expenditure Observatory",
+      "pageDescriptionLiteral": "Algorithmic audit and proactive transparency of municipal budget execution in Florianópolis."
+    },
+    "dashboard": {
+      "totalInvestedLabel": "Total Audited",
+      "anomalyCountLabel": "Suspicious Anomalies",
+      "territorialReachLabel": "Covered Districts",
+      "aiAuditStatusLabel": "AI Integrity"
+    },
+    "table": {
+      "columnEntity": "Public Expenditures & Contracts",
+      "columnAmount": "Executed Amount",
+      "columnIntegrityHash": "Forensic Identifier",
+      "columnAiScore": "Cognitive Health"
+    },
+    "actions": {
+      "exportCsvLabel": "Export Report",
+      "printReportLabel": "Print Certificate",
+      "restrictAccessToggle": "Filter by Severity"
+    }
+  },
+  "contracts/identity": {
     "metadataDescriptions": {
       "FULL_NAME_LABEL": "Full legal name and surname according to civil registry or identity provider.",
       "EMAIL_ADDRESS_LABEL": "Electronic mail address linked to the institutional account.",
@@ -101,6 +176,42 @@
       "NOMINAL_HEALTH_REASON": "The analysis indicates a healthy and transparent correlation between public investment and popular acceptance."
     }
   },
+  "engines/search-engine": {
+    "search": {
+      "status": {
+        "searchingStatusLiteral": "Searching observatory...",
+        "emptyResultsMessageLiteral": "No results found for this query.",
+        "resultsFoundLabelLiteral": "results found"
+      },
+      "categories": {
+        "INSTITUTIONAL_CONTENT": "Institutional Content",
+        "NEWS_ARTICLE": "News & Press",
+        "HUMAN_RIGHTS_REPORT": "Citizen Report",
+        "SOLIDARITY_RESOURCE": "Solidarity Network"
+      },
+      "placeholders": {
+        "searchInputPlaceholderLiteral": "Search news, public spending, or reports...",
+        "keyboardShortcutHintLiteral": "Keyboard shortcut Ctrl + K or Command + K to search"
+      },
+      "logs": {
+        "SEARCH_COMPLETED": "Institutional fuzzy search completed with authority filtering applied."
+      }
+    }
+  },
+  "modules/interaction-engine": {
+    "interaction": {
+      "logs": {
+        "REACTION_RECEIVED": "Civic interaction captured and integrated into the public thermometer.",
+        "ANONYMOUS_REACTION_PONDERED": "Anonymous interaction registered with reduced statistical weight per audit standards.",
+        "OFFLINE_DEFERRAL": "No network connection: reaction queued locally for later synchronization."
+      },
+      "errors": {
+        "REACTION_CONTRACT_VIOLATION": "The interaction structure does not meet technical integrity criteria.",
+        "DUPLICATE_REACTION_BLOCKED": "Repeated interaction blocked by anti-automation defenses.",
+        "CLOUD_TRANSMISSION_FAILED": "Unable to synchronize your reaction with the server at this time."
+      }
+    }
+  },
   "modules/messaging-engine": {
     "interface": {
       "emptyInboxTitleLiteral": "Your inbox is clear",
@@ -158,6 +269,91 @@
       "MUNICIPALITY_NOT_FOUND": "The requested municipality was not identified in the IBGE database.",
       "PERSISTENCE_FAULT": "Error while attempting to save territorial entities to the cloud database.",
       "ADN_CORRUPTION": "The data format returned by IBGE is incompatible with the current contract."
+    }
+  },
+  "modules/whatsapp/communication-service": {
+    "whatsapp": {
+      "logs": {
+        "TRIAGE_SEQUENCE_STARTED": "Triage sequence initiated for the incoming webhook event.",
+        "CLASSIFYING_SIGNAL_TYPE": "Identifying and classifying message media or content type.",
+        "UNKNOWN_SIGNAL_TYPE_IGNORED": "Unsupported signal type received; event securely ignored."
+      },
+      "errors": {
+        "CORRUPT_WEBHOOK_PAYLOAD": "Meta webhook payload does not comply with the data contract requirements."
+      }
+    }
+  },
+  "shared/state-store": {
+    "connectivity": {
+      "telemetry": {
+        "NETWORK_RESTORED_SIGNAL": "Network connection restored. Resuming synchronization of pending transactions.",
+        "NETWORK_LOST_SIGNAL": "Network interruption detected. Engaging local resilience and queueing mode."
+      }
+    },
+    "hydration": {
+      "telemetry": {
+        "HYDRATION_STORAGE_READ_FAILURE": "Failed to retrieve or parse persisted state from local storage.",
+        "HYDRATION_SCHEMA_CORRUPTION_DETECTED": "Structural inconsistency detected in rehydrated local storage data.",
+        "HYDRATION_NOMINAL_SUCCESS": "Application state rehydrated and validated successfully from local storage.",
+        "HYDRATION_COLD_START_NOMINAL": "Clean initialization with no prior snapshot in local storage."
+      }
+    }
+  },
+  "shared/ui-contracts": {
+    "header": {
+      "navigationPaths": {
+        "identity": "Identity",
+        "transparency": "Transparency",
+        "press": "Press & Voice",
+        "complaint": "Citizen Report"
+      },
+      "actions": {
+        "donateCallToAction": "Support Cause",
+        "searchPlaceholder": "Search observatory...",
+        "mobileMenuToggle": "Toggle menu",
+        "reportEmergencyLabel": "Urgent Report"
+      }
+    },
+    "newsletterForm": {
+      "labels": {
+        "inputPlaceholderLiteral": "Your email address",
+        "submitButtonLiteral": "Subscribe",
+        "submittingStatusLiteral": "Submitting...",
+        "consentCheckboxLiteral": "I agree to secure data processing under LGPD privacy standards."
+      },
+      "messages": {
+        "successHeadlineLiteral": "Check your inbox!",
+        "successDescriptionLiteral": "We sent a confirmation link to activate your participation in the network.",
+        "errorGenericLiteral": "Unable to complete your subscription right now. Please try again."
+      },
+      "validation": {
+        "emailRequiredLiteral": "Please provide an email address.",
+        "emailInvalidLiteral": "Please enter a valid email address.",
+        "consentRequiredLiteral": "Privacy consent is mandatory."
+      }
+    }
+  },
+  "shared/ui-foundry/organisms/newsletter-form": {
+    "newsletterTelemetry": {
+      "telemetry": {
+        "SUBSCRIPTION_TRANSACTION_STARTED": "Initiating newsletter subscription request dispatch.",
+        "SUBSCRIPTION_CONVERSION_SUCCESS": "Subscription request registered successfully into verification flow.",
+        "SUBSCRIPTION_DISPATCH_FAULT": "Failed to synchronize subscription request with gateway."
+      }
+    }
+  },
+  "tools/build-auditor": {
+    "buildAuditor": {
+      "terminal": {
+        "auditStartedLiteral": "Starting physical audit of build artifacts.",
+        "checkingPathLiteral": "Inspecting build output directory:",
+        "emptyDirectoryWarning": "Warning: no build artifacts were found in the inspected directory.",
+        "ioErrorLiteral": "Filesystem access error while inspecting the build directory.",
+        "reportGeneratedLiteral": "Build audit report successfully generated and persisted."
+      },
+      "errors": {
+        "persistenceFault": "Critical failure while writing the build audit report to disk."
+      }
     }
   }
 }

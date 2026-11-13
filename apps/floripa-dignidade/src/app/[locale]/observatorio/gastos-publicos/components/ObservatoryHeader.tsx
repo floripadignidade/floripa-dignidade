@@ -24,10 +24,7 @@ import { useCallback } from 'react';
 import { FileText, ShieldCheck } from 'lucide-react';
 
 /* 1. Infraestructura Core (Sovereign Boundaries) */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 /* 2. Primitivos de Interfaz (Foundry Layer) */
 import { GlobalActionButton } from '@floripa-dignidade/shared-ui-foundry';
@@ -52,13 +49,9 @@ const ATOM_IDENTIFIER = 'OBSERVATORY_HEADER_ATOM';
  * @returns {React.JSX.Element} Estructura HTML5 semántica y responsiva.
  */
 export const ObservatoryHeader = (
-  propertiesSnapshot: IObservatoryHeaderProperties
+  propertiesSnapshot: IObservatoryHeaderProperties,
 ): React.JSX.Element => {
-  const {
-    titleLiteral,
-    descriptionLiteral,
-    exportActionLabelLiteral,
-  } = propertiesSnapshot;
+  const { titleLiteral, descriptionLiteral, exportActionLabelLiteral } = propertiesSnapshot;
 
   /**
    * @section Gestión de Telemetría de Interacción
@@ -75,10 +68,10 @@ export const ObservatoryHeader = (
       messageContentLiteral: 'Ciudadano solicitó la exportación del Ledger de gastos.',
       semanticIntentTag: 'OPEN_DATA_EXPORT',
       contextMetadataSnapshot: {
-        timestampISO: new Date().toISOString()
-      }
+        timestampISO: new Date().toISOString(),
+      },
     });
-  },[]);
+  }, []);
 
   return (
     <header

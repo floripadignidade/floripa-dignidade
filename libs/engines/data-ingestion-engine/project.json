@@ -3,11 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/engines/data-ingestion-engine/src",
   "projectType": "library",
-  "tags": [
-    "scope:engines",
-    "type:data",
-    "platform:isomorphic"
-  ],
+  "tags": ["scope:engines", "type:data", "platform:isomorphic"],
   "targets": {
     "build": {
       "executor": "@nx/js:swc",

@@ -38,12 +38,7 @@ export type TPresenceStateSignature = z.infer<typeof PresenceStateSignatureSchem
 export const PresenceIdentitySnapshotSchema = z
   .object({
     /** Estado ontológico de disponibilidad (ONLINE, AWAY, DO_NOT_DISTURB, OFFLINE). */
-    availabilityStatusLiteral: z.enum([
-      'ONLINE',
-      'AWAY',
-      'DO_NOT_DISTURB',
-      'OFFLINE',
-    ]),
+    availabilityStatusLiteral: z.enum(['ONLINE', 'AWAY', 'DO_NOT_DISTURB', 'OFFLINE']),
 
     /** Mensaje de contexto o estado personalizado definido por el usuario. */
     customStatusMessageLiteral: z.string(),

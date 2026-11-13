@@ -1,18 +1,24 @@
 # 🏛️ Manifiesto de Arquitectura Zenith (The Swiss-Watch Standard)
-**Versión:** OEDP-V17.0
-**Estado:** LEY ABSOLUTA (Reemplaza todos los manifiestos de configuración anteriores)
-**Objetivo:** Erradicar la "Hemorragia de Tipos" (TS6059), los colapsos de grafo (TS6305/TS6310) y optimizar el monorepo para Next.js 16+, SWC y Vercel Edge Runtime.
+
+**Versión:** OEDP-V17.0 **Estado:** LEY ABSOLUTA (Reemplaza todos los manifiestos de configuración
+anteriores) **Objetivo:** Erradicar la "Hemorragia de Tipos" (TS6059), los colapsos de grafo
+(TS6305/TS6310) y optimizar el monorepo para Next.js 16+, SWC y Vercel Edge Runtime.
 
 ## 1. La Ley de la Doble Compilación (SWC + TSC)
+
 En el ecosistema Floripa Dignidade, separamos la lógica del ADN:
+
 - **SWC (`build`):** Empaqueta y transpila el código a altísima velocidad. Ignora los tipos.
 - **TSC (`typecheck`):** Valida la integridad y **EMITE FIRMAS FÍSICAS (`.d.ts`)**.
 
 ## 2. El Patrón del "Doble Escudo" (TypeScript)
+
 Todo búnker (`libs/*`) está obligado a poseer dos archivos de configuración.
 
 ### A. El Gatekeeper (`tsconfig.json`)
+
 Su misión es proteger la frontera física y actuar como índice para el IDE. **PROHIBIDO COMPILAR**.
+
 ```json
 {
   "extends": "../../../tsconfig.base.json",
@@ -43,7 +49,7 @@ JSON
     "emitDeclarationOnly": true,
     "rootDir": "src",
     "noEmit": false,
-    
+
     "module": "Preserve",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
@@ -92,3 +98,4 @@ JSON
 }
 
 ---
+```

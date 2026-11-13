@@ -1,8 +1,8 @@
 /**
  * @section State Slice - UI Navigation
- * @description Gestiona el estado volátil de los componentes de interfaz. 
+ * @description Gestiona el estado volátil de los componentes de interfaz.
  * Estas propiedades no se persisten en disco para garantizar un arranque limpio.
- * 
+ *
  * Protocolo OEDP-V16.0 - Functional Atomicity.
  */
 
@@ -26,10 +26,11 @@ export const createUiSlice: StateCreator<TUiSlice, [], [], TUiSlice> = (set) => 
 
   // --- ACCIONES ATÓMICAS ---
   SetSearchPanelState: (isOpenBoolean) => set({ isSearchPanelOpenBoolean: isOpenBoolean }),
-  
+
   SetMobileMenuState: (isOpenBoolean) => set({ isMobileMenuOpenBoolean: isOpenBoolean }),
-  
-  OpenModalAction: (modalIdentifierLiteral) => set({ activeModalIdentifierLiteral: modalIdentifierLiteral }),
-  
-  CloseAllModalsAction: () => set({ activeModalIdentifierLiteral: null })
+
+  OpenModalAction: (modalIdentifierLiteral) =>
+    set({ activeModalIdentifierLiteral: modalIdentifierLiteral }),
+
+  CloseAllModalsAction: () => set({ activeModalIdentifierLiteral: null }),
 });

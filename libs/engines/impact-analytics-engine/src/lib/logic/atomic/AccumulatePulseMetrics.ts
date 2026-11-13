@@ -30,7 +30,7 @@ export interface IAccumulatedMetricsResult {
  * @returns {IAccumulatedMetricsResult} Resultados para la fórmula de Bayes.
  */
 export const AccumulatePulseMetrics = (
-  evaluationInputsCollection: readonly IEvaluationInput[]
+  evaluationInputsCollection: readonly IEvaluationInput[],
 ): IAccumulatedMetricsResult => {
   let weightedTrustScoreSumAccumulator = 0;
   let totalTrustWeightAccumulator = 0;
@@ -42,11 +42,12 @@ export const AccumulatePulseMetrics = (
      * 🛡️ SANEADO: Determinación de peso basada en la identidad del contrato agnóstico.
      */
     const currentInteractionWeightNumeric = MapEvaluationAuthorityWeight(
-      evaluationItem.evaluatorIdentityIdentifier
+      evaluationItem.evaluatorIdentityIdentifier,
     );
 
     // 1. Acumulación de Confianza Ponderada
-    weightedTrustScoreSumAccumulator += (evaluationItem.quantitativeTrustScoreNumeric * currentInteractionWeightNumeric);
+    weightedTrustScoreSumAccumulator +=
+      evaluationItem.quantitativeTrustScoreNumeric * currentInteractionWeightNumeric;
     totalTrustWeightAccumulator += currentInteractionWeightNumeric;
 
     // 2. Triaje de Distribución
@@ -62,7 +63,7 @@ export const AccumulatePulseMetrics = (
     totalTrustWeightAccumulator,
     distributionMetadata: {
       verifiedCitizensQuantity,
-      anonymousInteractionsQuantity
-    }
+      anonymousInteractionsQuantity,
+    },
   };
 };

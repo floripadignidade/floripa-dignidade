@@ -3,24 +3,49 @@
 @tailwind utilities;
 
 /**
- * @section Global Base Styles - ISO Technical Rigor
- * @description Configuración de fundamentos visuales y normalización de renderizado.
+ * @section Global Base Styles - Enterprise Identity & SRE Foundations
+ * @description Fundamentos visuales, normalización de renderizado y sincronización
+ * con los tokens del Manifiesto de Branding e Identidad Visual (ADR 0029).
+ *
+ * Protocolo OEDP-V18.1 - High Performance UI & Universal Accessibility (WCAG 2.2 AAA).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Ergonomía y Rendimiento).
  */
 @layer base {
   :root {
-    /* Sincronización con el DNA Cromático de shared/design-system */
-    --color-navy-900: 0 51 102;   /* #003366 */
-    --color-amber-500: 245 166 35; /* #F5A623 */
-    --color-slate-50: 248 250 252; /* #F8FAFC */
+    /* =========================================================================
+     * PALETA INSTITUCIONAL FLORIPA DIGNIDADE (Valores RGB para canal Alpha)
+     * ========================================================================= */
+    /* Primario de Autoridad: Azul Hércules (#003366) */
+    --color-navy-900: 0 51 102;
+    --color-navy-950: 0 34 68;
+
+    /* Secundarios de Vitalidad y Conectividad */
+    --color-ocean-600: 0 92 153; /* Azul Bahía (#005C99) */
+    --color-bridge-500: 74 144 226; /* Azul Cielo Hercílio (#4A90E2) */
+
+    /* Acento de Conversión Social y Amparo Cívico */
+    --color-amber-500: 245 166 35; /* Ámbar Acción (#F5A623) */
+    --color-amber-600: 212 136 6; /* Ámbar Hover (#D48806) */
+
+    /* Superficies y Neutros de Lectura */
+    --color-pure-white: 255 255 255; /* Blanco Nieve (#FFFFFF) */
+    --color-slate-50: 248 250 252; /* Lienzo Suave (#F8FAFC) */
+    --color-slate-600: 100 116 139; /* Gris Metadato (#64748B) */
+    --color-slate-900: 30 41 59; /* Pizarra Texto (#1E293B) */
+
+    /* Señales de Estado y Resiliencia SRE */
+    --color-status-error: 225 29 72; /* Rojo Rescate (#E11D48) */
+    --color-status-success: 16 185 129; /* Verde Sello (#10B981) */
+    --color-status-warning: 251 191 36; /* Amarillo Alerta (#FBBF24) */
   }
 
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
-    /* Tipografía fluida: 16px en mobile -> 18px en desktop */
+    /* Tipografía fluida calibrada: 16px en mobile (320px) -> 18px en desktop (1280px+) */
     font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
     background-color: rgb(var(--color-slate-50));
-    color: #1e293b;
+    color: rgb(var(--color-slate-900));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -31,66 +56,65 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
+    width: 100%;
   }
 
   /**
-   * @section Accesibilidad de Enfoque (Focus States)
-   * Garantiza visibilidad para navegación por teclado (ISO/IEC 40500).
+   * @section Accesibilidad de Enfoque Universal (Focus Rings)
+   * Cumplimiento estricto de ISO/IEC 40500 y WCAG 2.2 AAA para navegación asistida por teclado.
    */
   :focus-visible {
-    outline: 2px solid rgb(var(--color-amber-500));
-    outline-offset: 2px;
+    outline: 3px solid rgb(var(--color-amber-500));
+    outline-offset: 3px;
   }
 
-  /* Normalización de elementos de texto */
-  h1, h2, h3, h4, h5, h6 {
+  /* Normalización semántica de encabezados (Lexend Display) */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-display font-black tracking-tight text-slate-900;
   }
 
   p {
-    @apply mb-4;
+    @apply mb-4 leading-relaxed text-slate-600 font-normal;
   }
 }
 
 /**
- * @section Global Component Overrides
- * @description Ajustes técnicos para librerías de terceros (Radix UI, Framer Motion).
+ * @section Componentes de Estructura y Protección de Layout
  */
 @layer components {
+  /* Contenedor institucional con márgenes simétricos */
   .container-standard {
     @apply max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8;
   }
 
-  /**
-   * Optimización de Imágenes Next.js
-   * Evita CLS (Cumulative Layout Shift) en la carga inicial.
-   */
+  /* Optimización de activos visuales para erradicar Cumulative Layout Shift (CLS) */
   .image-rendering-optimized {
     @apply object-cover transition-opacity duration-500;
   }
 }
 
 /**
- * @section Utility Extensions
- * @description Clases técnicas para el soporte de la infraestructura atómica.
+ * @section Extensiones Utilitarias de Rendimiento y Ergonomía Táctil
  */
 @layer utilities {
+  /* Balance tipográfico automático en titulares */
   .text-balance {
     text-wrap: balance;
   }
 
-  /* Área de toque mínima según estándares móviles (44x44px) */
+  /* Área de contacto mínima según estándares HIG y Android (44x44px) */
   .touch-target-min {
     @apply min-w-[44px] min-h-[44px];
   }
 
+  /* Efecto de superficie de cristal para navegación perimetral */
   .glass-effect {
-    @apply bg-white/80 backdrop-blur-xl border border-white/20;
+    @apply bg-white/80 backdrop-blur-xl border border-white/30 shadow-sm;
   }
-}
-
-/* Supresión de scroll horizontal accidental por animaciones de Framer Motion */
-body {
-  overflow-x: hidden;
-  width: 100%;
 }

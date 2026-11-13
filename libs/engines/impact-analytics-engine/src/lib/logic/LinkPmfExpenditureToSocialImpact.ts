@@ -59,7 +59,7 @@ export const LinkPmfExpenditureToSocialImpact = async (
         // FASE 1: BÚSQUEDA DE AFINIDAD TERRITORIAL (Delegación Atómica)
         const { trustScoreNumeric, territoryNameLiteral } = IdentifyTerritorialAprovalScore(
           expenditureInputSnapshot.targetTerritoryIdentifier,
-          globalImpactReportSnapshot
+          globalImpactReportSnapshot,
         );
 
         // FASE 2: INTELIGENCIA ATÓMICA (Cálculos Puros)
@@ -81,7 +81,7 @@ export const LinkPmfExpenditureToSocialImpact = async (
           executedAmountNumeric: expenditureInputSnapshot.totalExecutedAmountNumeric,
           communityTrustScoreNumeric: trustScoreNumeric,
           efficiencyIndexNumeric,
-          isAnomalyDetectedBoolean
+          isAnomalyDetectedBoolean,
         });
 
         // 4. ADUANA DE ADN (Validación de Integridad Final)
@@ -94,11 +94,11 @@ export const LinkPmfExpenditureToSocialImpact = async (
             operationCodeLiteral: 'EFFICIENCY_REPORT_DNA_CORRUPTION',
             correlationIdentifier,
             messageContentLiteral: 'El cruce de datos generó un rastro de reporte inválido.',
-            contextMetadataSnapshot: { issues: validationResult.error.flatten() }
+            contextMetadataSnapshot: { issues: validationResult.error.flatten() },
           });
 
           throw new ValidationException('CONTRATO_DE_EFICIENCIA_SOCIAL_CORRUPTO', {
-            structuralIssuesCollection: validationResult.error.flatten()
+            structuralIssuesCollection: validationResult.error.flatten(),
           });
         }
 
@@ -113,12 +113,11 @@ export const LinkPmfExpenditureToSocialImpact = async (
           contextMetadataSnapshot: {
             efficiencyIndexNumeric,
             isAnomalyDetectedBoolean,
-            territoryLiteral: territoryNameLiteral
+            territoryLiteral: territoryNameLiteral,
           },
         });
 
         return validationResult.data;
-
       } catch (caughtError: unknown) {
         // 6. GESTIÓN FORENSE DE FALLO (Resilience Layer)
         if (caughtError instanceof ValidationException) throw caughtError;

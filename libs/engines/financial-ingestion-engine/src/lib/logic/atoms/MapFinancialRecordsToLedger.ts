@@ -15,10 +15,7 @@
 import type { IProjectFinancialRecord } from '../../schemas/ProjectFinancialLedger.schema';
 
 /* 2. Infraestructura Core y Utilidades */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-} from '@floripa-dignidade/telemetry';
+import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
 /* 3. Sub-átomos de Especialidad */
 import { MapProjectFinancialRecordToLedgerRow } from './MapProjectFinancialRecordToLedgerRow';
@@ -51,9 +48,8 @@ const MAPPER_IDENTIFIER = 'FINANCIAL_LEDGER_MAPPER_ATOM';
  */
 export const MapFinancialRecordsToLedger = (
   financialRecordsCollection: readonly IProjectFinancialRecord[],
-  correlationIdentifier: string = GenerateCorrelationIdentifier()
+  correlationIdentifier: string = GenerateCorrelationIdentifier(),
 ): readonly IFinancialLedgerRow[] => {
-
   // 1. FILTRO DE ATOMICIDAD: Si no hay datos, no hay proceso.
   if (financialRecordsCollection.length === 0) {
     return Object.freeze([]);
@@ -72,11 +68,12 @@ export const MapFinancialRecordsToLedger = (
    * Delegamos el mapeo de cada registro al sub-átomo de especialidad.
    */
   const mappedLedgerRowsCollection: IFinancialLedgerRow[] = financialRecordsCollection.map(
-    (recordSnapshot) => MapProjectFinancialRecordToLedgerRow(
-      recordSnapshot,
-      currentIngestionTimestampISO,
-      correlationIdentifier
-    )
+    (recordSnapshot) =>
+      MapProjectFinancialRecordToLedgerRow(
+        recordSnapshot,
+        currentIngestionTimestampISO,
+        correlationIdentifier,
+      ),
   );
 
   // 2. REPORTE DE MÉTRICAS SÍNCRONAS (SRE Visibility)
@@ -91,8 +88,8 @@ export const MapFinancialRecordsToLedger = (
     executionLatencyInMillisecondsQuantity,
     contextMetadataSnapshot: {
       processedRecordsQuantity: financialRecordsCollection.length,
-      timestampISO: currentIngestionTimestampISO
-    }
+      timestampISO: currentIngestionTimestampISO,
+    },
   });
 
   /**

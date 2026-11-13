@@ -16,32 +16,39 @@ import { z } from 'zod';
  * @description Aduana de validación para las almas lingüísticas (JSON).
  * Implementa inmutabilidad absoluta para prevenir ruidos en el motor de renderizado.
  */
-export const ExceptionsLinguisticDictionarySchema = z.object({
+export const ExceptionsLinguisticDictionarySchema = z
+  .object({
+    /**
+     * Mapeo de Mensajes de Error Localizados.
+     * Cada llave debe corresponder a un literal del catálogo ErrorCode.
+     */
+    localizedErrorMessagesMapping: z
+      .object({
+        VALIDATION_FAILED: z
+          .string()
+          .describe('Mensaje emitido cuando los datos fallan la auditoría de esquema Zod.'),
 
-  /**
-   * Mapeo de Mensajes de Error Localizados.
-   * Cada llave debe corresponder a un literal del catálogo ErrorCode.
-   */
-  localizedErrorMessagesMapping: z.object({
+        UNAUTHORIZED_ACCESS: z
+          .string()
+          .describe('Mensaje emitido ante violaciones de jerarquía de autoridad (RBAC).'),
 
-    VALIDATION_FAILED: z.string()
-      .describe('Mensaje emitido cuando los datos fallan la auditoría de esquema Zod.'),
+        INTERNAL_SYSTEM_FAILURE: z
+          .string()
+          .describe('Mensaje genérico de resiliencia para colapsos de infraestructura.'),
 
-    UNAUTHORIZED_ACCESS: z.string()
-      .describe('Mensaje emitido ante violaciones de jerarquía de autoridad (RBAC).'),
+        RESOURCE_NOT_FOUND: z
+          .string()
+          .describe('Mensaje emitido cuando una entidad solicitada no existe en el Ledger.'),
 
-    INTERNAL_SYSTEM_FAILURE: z.string()
-      .describe('Mensaje genérico de resiliencia para colapsos de infraestructura.'),
-
-    RESOURCE_NOT_FOUND: z.string()
-      .describe('Mensaje emitido cuando una entidad solicitada no existe en el Ledger.'),
-
-    EXTERNAL_SERVICE_TIMEOUT: z.string()
-      .describe('Mensaje emitido ante latencias críticas en proveedores (Resend/Meta/Supabase).')
-
-  }).readonly(),
-
-}).readonly();
+        EXTERNAL_SERVICE_TIMEOUT: z
+          .string()
+          .describe(
+            'Mensaje emitido ante latencias críticas en proveedores (Resend/Meta/Supabase).',
+          ),
+      })
+      .readonly(),
+  })
+  .readonly();
 
 /**
  * @section ADN Tipado (Verbatim Module Syntax)

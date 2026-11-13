@@ -18,22 +18,20 @@
 export {
   PopularAcceptanceIndicatorSchema,
   IndicatorIdentifierSchema,
-  AcceptanceTrendSchema
+  AcceptanceTrendSchema,
 } from './lib/schemas/PopularAcceptanceIndicator.schema';
 
 export type {
   IPopularAcceptanceIndicator,
-  ImpactIndicatorIdentifier
+  ImpactIndicatorIdentifier,
 } from './lib/schemas/PopularAcceptanceIndicator.schema';
 
 export {
   TerritorialImpactReportSchema,
-  TerritorialClusterSchema
+  TerritorialClusterSchema,
 } from './lib/schemas/TerritorialImpactReport.schema';
 
-export type {
-  ITerritorialImpactReport
-} from './lib/schemas/TerritorialImpactReport.schema';
+export type { ITerritorialImpactReport } from './lib/schemas/TerritorialImpactReport.schema';
 
 /**
  * @section Almas Lingüísticas (Internationalization)

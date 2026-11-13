@@ -43,7 +43,7 @@ const MESSAGE_DISPATCHER_IDENTIFIER = 'DIRECT_MESSAGE_TRANSACTION_ORCHESTRATOR';
  * @throws {InternalSystemException} Si la infraestructura cloud colapsa.
  */
 export const SendDirectMessage = async (
-  unvalidatedMessagePayloadSnapshot: unknown
+  unvalidatedMessagePayloadSnapshot: unknown,
 ): Promise<IDirectMessage> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -72,11 +72,11 @@ export const SendDirectMessage = async (
             operationCodeLiteral: 'MESSAGE_CONTRACT_VIOLATION',
             correlationIdentifier,
             messageContentLiteral: 'MESSAGING.ERRORS.MESSAGE_ADN_CORRUPTED',
-            contextMetadataSnapshot: { issuesCollection: validationResult.error.flatten() }
+            contextMetadataSnapshot: { issuesCollection: validationResult.error.flatten() },
           });
 
           throw new ValidationException('ESTRUCTURA_DE_MENSAJE_INVALIDA', {
-            issuesCollection: validationResult.error.flatten()
+            issuesCollection: validationResult.error.flatten(),
           });
         }
 
@@ -88,23 +88,29 @@ export const SendDirectMessage = async (
          */
         const maskedSenderLiteral = MaskSovereignIdentity({
           rawIdentityLiteral: validatedMessage.senderIdentityIdentifier,
-          maskingStrategyLiteral: 'CITIZEN_NAME'
+          maskingStrategyLiteral: 'CITIZEN_NAME',
         });
 
         const maskedRecipientLiteral = MaskSovereignIdentity({
           rawIdentityLiteral: validatedMessage.recipientIdentityIdentifier,
-          maskingStrategyLiteral: 'CITIZEN_NAME'
+          maskingStrategyLiteral: 'CITIZEN_NAME',
         });
 
         // 4. SEGURIDAD Y TRANSFORMACIÓN (Protocol Translation)
-        const databaseHeaders = CreateSovereignDatabaseHeaders(cloudSecurityKeySecret, 'representation');
-        const databasePayload = MapDirectMessageToPersistence(validatedMessage, correlationIdentifier);
+        const databaseHeaders = CreateSovereignDatabaseHeaders(
+          cloudSecurityKeySecret,
+          'representation',
+        );
+        const databasePayload = MapDirectMessageToPersistence(
+          validatedMessage,
+          correlationIdentifier,
+        );
 
         // 5. PERSISTENCIA FÍSICA (Delegación Atómica I/O)
         await PersistDirectMessageTransaction(
           cloudStorageUrlLiteral,
           databaseHeaders,
-          databasePayload
+          databasePayload,
         );
 
         /**
@@ -124,20 +130,18 @@ export const SendDirectMessage = async (
             recipientMask: maskedRecipientLiteral,
             isSensitiveBoolean: validatedMessage.containsSensitiveInformationBoolean,
             ...(!validatedMessage.containsSensitiveInformationBoolean && {
-              attachmentsQuantity: validatedMessage.attachedMediaIdentifiersCollection.length
-            })
+              attachmentsQuantity: validatedMessage.attachedMediaIdentifiersCollection.length,
+            }),
           },
         });
 
         return validatedMessage;
-
       } catch (caughtError: unknown) {
         // 7. GESTIÓN FORENSE DE FALLO (Resilience Layer)
         if (caughtError instanceof ValidationException) throw caughtError;
 
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -153,6 +157,6 @@ export const SendDirectMessage = async (
           correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

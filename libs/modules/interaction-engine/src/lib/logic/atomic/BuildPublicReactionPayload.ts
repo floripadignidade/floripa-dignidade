@@ -7,10 +7,13 @@
  * aduana Zod (PublicReactionSchema). Aísla la construcción de datos de los ciclos
  * de vida del framework visual y normaliza los identificadores ciudadanos.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Modularidad y Confiabilidad).
- * SANEADO Zenith: Erradicación del error TS2339 eliminando el acceso a la propiedad
- * inexistente avatarImageUniformResourceLocator y consumiendo canónicamente desde @floripa-dignidade/contracts.
+ *
+ * SANEADO Zenith:
+ * 1. Resolución de fronteras modulares con @floripa-dignidade/contracts.
+ * 2. Inmutabilidad forzada en runtime mediante Object.freeze.
+ * 3. Cumplimiento de 'exactOptionalPropertyTypes' en la interfaz de salida.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED

@@ -1,0 +1,20 @@
+{
+  "status": {
+    "searchingStatusLiteral": "Searching observatory...",
+    "emptyResultsMessageLiteral": "No results found for this query.",
+    "resultsFoundLabelLiteral": "results found"
+  },
+  "categories": {
+    "INSTITUTIONAL_CONTENT": "Institutional Content",
+    "NEWS_ARTICLE": "News & Press",
+    "HUMAN_RIGHTS_REPORT": "Citizen Report",
+    "SOLIDARITY_RESOURCE": "Solidarity Network"
+  },
+  "placeholders": {
+    "searchInputPlaceholderLiteral": "Search news, public spending, or reports...",
+    "keyboardShortcutHintLiteral": "Keyboard shortcut Ctrl + K or Command + K to search"
+  },
+  "logs": {
+    "SEARCH_COMPLETED": "Institutional fuzzy search completed with authority filtering applied."
+  }
+}

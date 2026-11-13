@@ -67,9 +67,12 @@ export const AuditExceptionsBuildArtifacts = async (): Promise<void> => {
        */
       for (const auditTarget of targetAuditPathsCollection) {
         try {
-          const directoryEntriesCollection = await filesystemPromises.readdir(auditTarget.pathLiteral, {
-            withFileTypes: true,
-          });
+          const directoryEntriesCollection = await filesystemPromises.readdir(
+            auditTarget.pathLiteral,
+            {
+              withFileTypes: true,
+            },
+          );
 
           for (const entry of directoryEntriesCollection) {
             if (entry.isFile()) {
@@ -82,7 +85,8 @@ export const AuditExceptionsBuildArtifacts = async (): Promise<void> => {
                 fileNameLiteral: entry.name,
                 fileAbsolutePathLiteral,
                 fileSizeInBytesQuantity: fileStatusMetadata.size,
-                artifactTypeLiteral: auditTarget.artifactCategoryLabelLiteral as IBuildArtifact['artifactTypeLiteral']
+                artifactTypeLiteral:
+                  auditTarget.artifactCategoryLabelLiteral as IBuildArtifact['artifactTypeLiteral'],
               });
             }
           }
@@ -106,7 +110,10 @@ export const AuditExceptionsBuildArtifacts = async (): Promise<void> => {
        * Sincronizado con el estándar BuildAuditReportSchema.
        */
       const isBuildNominalBoolean = discoveredArtifactsCollection.length > 0;
-      const reportFilePathLiteral = join(workspaceRootDirectoryPathLiteral, 'reports/exceptions-build-audit.json');
+      const reportFilePathLiteral = join(
+        workspaceRootDirectoryPathLiteral,
+        'reports/exceptions-build-audit.json',
+      );
 
       const finalAuditReportSnapshot: IBuildAuditReport = {
         auditTimestampISO: new Date().toISOString(),
@@ -122,18 +129,20 @@ export const AuditExceptionsBuildArtifacts = async (): Promise<void> => {
         await filesystemPromises.writeFile(
           reportFilePathLiteral,
           JSON.stringify(finalAuditReportSnapshot, null, 2),
-          'utf-8'
+          'utf-8',
         );
 
         // Notificación visual mínima para el auditor humano (CLI)
-        console.warn(`[${BUILD_AUDITOR_IDENTIFIER}]: Reporte forense generado en ${basename(reportFilePathLiteral)}`);
-
+        console.warn(
+          `[${BUILD_AUDITOR_IDENTIFIER}]: Reporte forense generado en ${basename(reportFilePathLiteral)}`,
+        );
       } catch (caughtPersistenceError: unknown) {
         throw new InternalSystemException('FALLO_AL_GRABAR_REPORTE_DE_AUDITORIA', {
-          originalErrorLiteral: caughtPersistenceError instanceof Error
-            ? caughtPersistenceError.message
-            : String(caughtPersistenceError),
-          targetPathLiteral: reportFilePathLiteral
+          originalErrorLiteral:
+            caughtPersistenceError instanceof Error
+              ? caughtPersistenceError.message
+              : String(caughtPersistenceError),
+          targetPathLiteral: reportFilePathLiteral,
         });
       }
 
@@ -146,9 +155,9 @@ export const AuditExceptionsBuildArtifacts = async (): Promise<void> => {
         messageContentLiteral: 'La auditoría física de integridad de construcción ha finalizado.',
         contextMetadataSnapshot: {
           artifactsDiscoveredQuantity: discoveredArtifactsCollection.length,
-          isNominalBoolean: isBuildNominalBoolean
-        }
+          isNominalBoolean: isBuildNominalBoolean,
+        },
       });
-    }
+    },
   );
 };

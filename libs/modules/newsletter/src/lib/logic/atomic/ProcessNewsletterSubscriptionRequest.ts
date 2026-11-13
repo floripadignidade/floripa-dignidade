@@ -17,10 +17,7 @@ import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-valida
  * 🛡️ LEY ZENITH (Fix sort-imports):
  * Ordenamiento alfabético estricto de miembros (M < V).
  */
-import {
-  MapHttpErrorToException,
-  ValidationException
-} from '@floripa-dignidade/exceptions';
+import { MapHttpErrorToException, ValidationException } from '@floripa-dignidade/exceptions';
 
 import { MaskSovereignIdentity } from '@floripa-dignidade/shared-utility';
 
@@ -54,7 +51,7 @@ const ORCHESTRATOR_IDENTIFIER = 'NEWSLETTER_SUBSCRIPTION_ORCHESTRATOR';
  * @throws {InternalSystemException} Si la infraestructura Cloud colapsa.
  */
 export const ProcessNewsletterSubscriptionRequest = async (
-  rawSubscriptionPayloadSnapshot: unknown
+  rawSubscriptionPayloadSnapshot: unknown,
 ): Promise<string> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -72,12 +69,14 @@ export const ProcessNewsletterSubscriptionRequest = async (
         const infrastructureSnapshot = await ValidateEnvironmentAduana();
 
         // 2. ADUANA DE ADN: Validación de entrada (Safe Parsing)
-        const validationResultSnapshot = NewsletterSubscriptionRequestSchema.safeParse(rawSubscriptionPayloadSnapshot);
+        const validationResultSnapshot = NewsletterSubscriptionRequestSchema.safeParse(
+          rawSubscriptionPayloadSnapshot,
+        );
 
         if (!validationResultSnapshot.success) {
           throw new ValidationException('NEWSLETTER.ERRORS.ADN_CORRUPTED', {
             validationIssuesCollection: validationResultSnapshot.error.flatten(),
-            correlationIdentifier
+            correlationIdentifier,
           });
         }
 
@@ -91,7 +90,7 @@ export const ProcessNewsletterSubscriptionRequest = async (
          */
         const maskedCommunicationIdentifierLiteral = await MaskSovereignIdentity({
           rawIdentityLiteral: validatedRequest.communicationIdentifierLiteral,
-          maskingStrategyLiteral: 'ELECTRONIC_MAIL'
+          maskingStrategyLiteral: 'ELECTRONIC_MAIL',
         });
 
         // 3. PERSISTENCIA STATELESS (Supabase Cloud)
@@ -104,7 +103,7 @@ export const ProcessNewsletterSubscriptionRequest = async (
 
         // 4. CARGA DE ALMA LINGÜÍSTICA
         const linguisticDictionarySnapshot = await LoadNewsletterLinguisticDictionary(
-          validatedRequest.preferredLinguisticLocaleIdentifier
+          validatedRequest.preferredLinguisticLocaleIdentifier,
         );
 
         // 5. DESPACHO DE NOTIFICACIÓN (Delegación Atómica)
@@ -116,8 +115,8 @@ export const ProcessNewsletterSubscriptionRequest = async (
           correlationIdentifier,
           infrastructureSecrets: {
             resendApiKeySecret: infrastructureSnapshot.RESEND_API_KEY,
-            resendFromEmailLiteral: infrastructureSnapshot.RESEND_FROM_EMAIL
-          }
+            resendFromEmailLiteral: infrastructureSnapshot.RESEND_FROM_EMAIL,
+          },
         });
 
         // 6. CIERRE DE CICLO NOMINAL (SRE Visibility)
@@ -131,28 +130,29 @@ export const ProcessNewsletterSubscriptionRequest = async (
           semanticIntentTag: 'NEWSLETTER_CONVERSION_START',
           contextMetadataSnapshot: {
             preferredLocaleIdentifier: validatedRequest.preferredLinguisticLocaleIdentifier,
-            citizenMaskLiteral: maskedCommunicationIdentifierLiteral
-          }
+            citizenMaskLiteral: maskedCommunicationIdentifierLiteral,
+          },
         });
 
         return correlationIdentifier;
-
       } catch (caughtError: unknown) {
         /**
          * 7. GESTIÓN FORENSE DE FALLO (Resilience Layer)
          */
-        const normalizedException = caughtError instanceof ValidationException
-          ? caughtError
-          : MapHttpErrorToException(500, 'NEWSLETTER.ERRORS.ORCHESTRATION_FAULT', {
-              originalErrorLiteral: caughtError instanceof Error ? caughtError.message : String(caughtError),
-              correlationIdentifier
-            });
+        const normalizedException =
+          caughtError instanceof ValidationException
+            ? caughtError
+            : MapHttpErrorToException(500, 'NEWSLETTER.ERRORS.ORCHESTRATION_FAULT', {
+                originalErrorLiteral:
+                  caughtError instanceof Error ? caughtError.message : String(caughtError),
+                correlationIdentifier,
+              });
 
         // Reporte forense detallado al Neural Sentinel
         ReportForensicException(normalizedException, correlationIdentifier);
 
         throw normalizedException;
       }
-    }
+    },
   );
 };

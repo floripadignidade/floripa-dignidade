@@ -1,5 +1,80 @@
 {
-  "contracts/src": {
+  "apps/floripa-dignidade": {
+    "frontpage": {
+      "hero": {
+        "badgeLabelLiteral": "Observatório Cívico • Florianópolis",
+        "headlineMainLiteral": "Tecnologia a serviço da",
+        "headlineAccentLiteral": "dignidade humana",
+        "descriptionLiteral": "Monitoramento independente de gastos públicos, proteção territorial e canais seguros de denúncia em Florianópolis.",
+        "primaryActionLabelLiteral": "Apoiar Causa",
+        "secondaryActionLabelLiteral": "Ver Transparência"
+      },
+      "features": [
+        {
+          "identifier": "TRANSPARENCY",
+          "titleLiteral": "Transparência Radical",
+          "descriptionLiteral": "Auditoria cidadã de contratos públicos e prestação de contas em tempo real."
+        },
+        {
+          "identifier": "ALERTS",
+          "titleLiteral": "Alertas Territoriais",
+          "descriptionLiteral": "Monitoramento comunitário por distritos com proteção de identidade sob a LGPD."
+        },
+        {
+          "identifier": "ACTION",
+          "titleLiteral": "Resposta Solidária",
+          "descriptionLiteral": "Articulação direta entre voluntários, rede jurídica e assistência social."
+        }
+      ],
+      "newsletter": {
+        "sectionHeadlineLiteral": "Receba alertas de transparência",
+        "sectionDescriptionLiteral": "Participe da rede cidadã e acompanhe relatórios auditados diretamente no seu e-mail."
+      }
+    }
+  },
+  "apps/floripa-dignidade/newsletter/welcome": {
+    "hero": {
+      "headlineLiteral": "Bem-vindo à nossa rede de transparência!",
+      "descriptionLiteral": "Sua participação foi confirmada. Agora você faz parte da rede que monitora e protege Florianópolis com informações críticas diretamente no seu e-mail."
+    },
+    "actions": {
+      "primaryActionLabelLiteral": "Ver Relatórios de Transparência",
+      "secondaryActionLabelLiteral": "Voltar para o Início"
+    },
+    "supportSection": {
+      "newsHeadlineLiteral": "Voz Dignidade & Imprensa",
+      "newsDescriptionLiteral": "Acompanhe apurações independentes sobre direitos humanos e políticas públicas em Florianópolis.",
+      "dataHeadlineLiteral": "Observatório de Gastos",
+      "dataDescriptionLiteral": "Consulte contratos municipais auditados e indicadores de impacto social por território."
+    },
+    "metadata": {
+      "pageTitleLiteral": "Inscrição Confirmada"
+    }
+  },
+  "apps/floripa-dignidade/observatorio": {
+    "metadata": {
+      "pageTitleLiteral": "Observatório de Gastos Públicos",
+      "pageDescriptionLiteral": "Auditoria algorítmica e transparência ativa da execução orçamentária municipal de Florianópolis."
+    },
+    "dashboard": {
+      "totalInvestedLabel": "Total Auditado",
+      "anomalyCountLabel": "Anomalias Suspeitas",
+      "territorialReachLabel": "Distritos Cobertos",
+      "aiAuditStatusLabel": "Integridade da IA"
+    },
+    "table": {
+      "columnEntity": "Despesas Públicas e Contratos",
+      "columnAmount": "Valor Executado",
+      "columnIntegrityHash": "Identificador Forense",
+      "columnAiScore": "Saúde Cognitiva"
+    },
+    "actions": {
+      "exportCsvLabel": "Exportar Relatório",
+      "printReportLabel": "Imprimir Certificado",
+      "restrictAccessToggle": "Filtrar por Gravidade"
+    }
+  },
+  "contracts/identity": {
     "metadataDescriptions": {
       "FULL_NAME_LABEL": "Nome e sobrenome completos de acordo com o registro legal ou provedor de identidade.",
       "EMAIL_ADDRESS_LABEL": "Endereço de correio eletrônico vinculado à conta institucional.",
@@ -101,6 +176,42 @@
       "NOMINAL_HEALTH_REASON": "A análise indica uma correlação saudável e transparente entre o investimento público e a aceitação popular."
     }
   },
+  "engines/search-engine": {
+    "search": {
+      "status": {
+        "searchingStatusLiteral": "Buscando no observatório...",
+        "emptyResultsMessageLiteral": "Nenhum resultado encontrado para esta consulta.",
+        "resultsFoundLabelLiteral": "resultados encontrados"
+      },
+      "categories": {
+        "INSTITUTIONAL_CONTENT": "Conteúdo Institucional",
+        "NEWS_ARTICLE": "Notícias & Imprensa",
+        "HUMAN_RIGHTS_REPORT": "Denúncia Cívica",
+        "SOLIDARITY_RESOURCE": "Rede Solidária"
+      },
+      "placeholders": {
+        "searchInputPlaceholderLiteral": "Buscar notícias, gastos públicos ou denúncias...",
+        "keyboardShortcutHintLiteral": "Atalho de teclado Ctrl + K ou Command + K para buscar"
+      },
+      "logs": {
+        "SEARCH_COMPLETED": "Busca difusa institucional concluída com filtragem de autoridade aplicada."
+      }
+    }
+  },
+  "modules/interaction-engine": {
+    "interaction": {
+      "logs": {
+        "REACTION_RECEIVED": "Interação cívica capturada e integrada ao termômetro popular.",
+        "ANONYMOUS_REACTION_PONDERED": "Interação anônima registrada com peso estatístico reduzido conforme auditoria.",
+        "OFFLINE_DEFERRAL": "Sem conexão de rede: reação enfileirada localmente para sincronização posterior."
+      },
+      "errors": {
+        "REACTION_CONTRACT_VIOLATION": "A estrutura da interação não atende aos critérios de integridade técnica.",
+        "DUPLICATE_REACTION_BLOCKED": "Interação repetida bloqueada por proteção contra automação.",
+        "CLOUD_TRANSMISSION_FAILED": "Não foi possível sincronizar sua reação com o servidor no momento."
+      }
+    }
+  },
   "modules/messaging-engine": {
     "interface": {
       "emptyInboxTitleLiteral": "Sua caixa de entrada está limpa",
@@ -158,6 +269,91 @@
       "MUNICIPALITY_NOT_FOUND": "O município solicitado não foi identificado na base do IBGE.",
       "PERSISTENCE_FAULT": "Erro ao tentar gravar as entidades territoriais na base de dados cloud.",
       "ADN_CORRUPTION": "O formato de dados retornado pelo IBGE é incompatível com o contrato atual."
+    }
+  },
+  "modules/whatsapp/communication-service": {
+    "whatsapp": {
+      "logs": {
+        "TRIAGE_SEQUENCE_STARTED": "Sequência de triagem iniciada para o evento de webhook recebido.",
+        "CLASSIFYING_SIGNAL_TYPE": "Identificando e classificando o tipo de mídia ou conteúdo da mensagem.",
+        "UNKNOWN_SIGNAL_TYPE_IGNORED": "Tipo de sinal não suportado recebido; evento ignorado de forma segura."
+      },
+      "errors": {
+        "CORRUPT_WEBHOOK_PAYLOAD": "A carga útil do webhook da Meta não atende aos requisitos do contrato de dados."
+      }
+    }
+  },
+  "shared/state-store": {
+    "connectivity": {
+      "telemetry": {
+        "NETWORK_RESTORED_SIGNAL": "Conexão de rede restaurada. Retomando sincronização de transações pendentes.",
+        "NETWORK_LOST_SIGNAL": "Interrupção de rede detectada. Ativando modo de resiliência e enfileiramento local."
+      }
+    },
+    "hydration": {
+      "telemetry": {
+        "HYDRATION_STORAGE_READ_FAILURE": "Falha ao recuperar ou analisar o estado persistido no armazenamento local.",
+        "HYDRATION_SCHEMA_CORRUPTION_DETECTED": "Inconsistência estrutural detectada nos dados reidratados do armazenamento local.",
+        "HYDRATION_NOMINAL_SUCCESS": "Memória institucional reidratada e validada com sucesso a partir do armazenamento local.",
+        "HYDRATION_COLD_START_NOMINAL": "Inicialização limpa sem snapshot prévio no armazenamento local."
+      }
+    }
+  },
+  "shared/ui-contracts": {
+    "header": {
+      "navigationPaths": {
+        "identity": "Identidade",
+        "transparency": "Transparência",
+        "press": "Imprensa & Voz",
+        "complaint": "Denúncia Cívica"
+      },
+      "actions": {
+        "donateCallToAction": "Apoiar Causa",
+        "searchPlaceholder": "Buscar no observatório...",
+        "mobileMenuToggle": "Alternar menu",
+        "reportEmergencyLabel": "Denúncia Urgente"
+      }
+    },
+    "newsletterForm": {
+      "labels": {
+        "inputPlaceholderLiteral": "Seu melhor e-mail",
+        "submitButtonLiteral": "Participar",
+        "submittingStatusLiteral": "Enviando...",
+        "consentCheckboxLiteral": "Concordo com o tratamento seguro dos meus dados conforme a LGPD."
+      },
+      "messages": {
+        "successHeadlineLiteral": "Verifique seu e-mail!",
+        "successDescriptionLiteral": "Enviamos um link de confirmação para ativar sua participação na rede.",
+        "errorGenericLiteral": "Não foi possível concluir sua inscrição agora. Tente novamente."
+      },
+      "validation": {
+        "emailRequiredLiteral": "Informe um endereço de e-mail.",
+        "emailInvalidLiteral": "Digite um endereço de e-mail válido.",
+        "consentRequiredLiteral": "O consentimento de privacidade é obrigatório."
+      }
+    }
+  },
+  "shared/ui-foundry/organisms/newsletter-form": {
+    "newsletterTelemetry": {
+      "telemetry": {
+        "SUBSCRIPTION_TRANSACTION_STARTED": "Iniciando envio de solicitação de inscrição.",
+        "SUBSCRIPTION_CONVERSION_SUCCESS": "Solicitação de inscrição registrada com sucesso no fluxo de verificação.",
+        "SUBSCRIPTION_DISPATCH_FAULT": "Falha ao sincronizar solicitação de inscrição com o gateway."
+      }
+    }
+  },
+  "tools/build-auditor": {
+    "buildAuditor": {
+      "terminal": {
+        "auditStartedLiteral": "Iniciando auditoria física dos artefatos de compilação.",
+        "checkingPathLiteral": "Inspecionando diretório de saída de compilação:",
+        "emptyDirectoryWarning": "Aviso: nenhum artefato de compilação foi localizado no diretório inspecionado.",
+        "ioErrorLiteral": "Erro de acesso ao sistema de arquivos ao inspecionar o diretório de compilação.",
+        "reportGeneratedLiteral": "Relatório de auditoria de compilação gerado e persistido com sucesso."
+      },
+      "errors": {
+        "persistenceFault": "Falha crítica ao gravar o relatório de auditoria de compilação em disco."
+      }
     }
   }
 }

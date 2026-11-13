@@ -17,26 +17,29 @@ import { z } from 'zod';
  * de telemetría. Impede que el sistema nervioso emita señales sin una
  * descripción humana clara en los idiomas soportados.
  */
-export const TelemetryLinguisticDictionarySchema = z.object({
+export const TelemetryLinguisticDictionarySchema = z
+  .object({
+    /**
+     * Mapeo de Señales Telemétricas Localizadas.
+     * Define la representación textual de los hitos del flujo de ejecución.
+     */
+    telemetrySignalsMapping: z
+      .object({
+        START_PROCESS: z
+          .string()
+          .describe('Mensaje técnico emitido al inicio de una operación atómica.'),
 
-  /**
-   * Mapeo de Señales Telemétricas Localizadas.
-   * Define la representación textual de los hitos del flujo de ejecución.
-   */
-  telemetrySignalsMapping: z.object({
+        END_PROCESS: z
+          .string()
+          .describe('Mensaje de confirmación tras la finalización exitosa de un proceso.'),
 
-    START_PROCESS: z.string()
-      .describe('Mensaje técnico emitido al inicio de una operación atómica.'),
-
-    END_PROCESS: z.string()
-      .describe('Mensaje de confirmación tras la finalización exitosa de un proceso.'),
-
-    LATENCY_REPORT: z.string()
-      .describe('Texto descriptivo que acompaña al reporte de microsegundos de ejecución.')
-
-  }).readonly(),
-
-}).readonly();
+        LATENCY_REPORT: z
+          .string()
+          .describe('Texto descriptivo que acompaña al reporte de microsegundos de ejecución.'),
+      })
+      .readonly(),
+  })
+  .readonly();
 
 /**
  * @section ADN Tipado (Verbatim Module Syntax)

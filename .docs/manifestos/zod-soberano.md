@@ -6,26 +6,43 @@
 ---
 
 ## 1. A Filosofia: "Esquema como Única Fonte de Verdade (SSOT)"
-En el ecosistema de **Floripa Dignidade**, Zod no es solo un validador de formularios; es la **Aduana de ADN**. Todo dato que entra en un aparato (vía API, entrada de usuario o Props) debe ser "desnudado" y reconstruído por Zod. Si el ADN no coincide, el aparato ni siquiera inicia su ejecución.
+
+En el ecosistema de **Floripa Dignidade**, Zod no es solo un validador de formularios; es la
+**Aduana de ADN**. Todo dato que entra en un aparato (vía API, entrada de usuario o Props) debe ser
+"desnudado" y reconstruído por Zod. Si el ADN no coincide, el aparato ni siquiera inicia su
+ejecución.
 
 ---
 
 ## 2. Regras de Construção de Elite
+
 Para extraer el máximo de inteligencia de nuestros esquemas, aplicamos estas directrices:
 
 ### 2.1. Tipagem Nominal (Branded Types)
-Evitamos la "obsesión por los primitivos". No todas las strings son iguales. Usamos `.brand<T>()` para impedir que se envíe un `UserId` donde se espera un `NewsId`.
+
+Evitamos la "obsesión por los primitivos". No todas las strings son iguales. Usamos `.brand<T>()`
+para impedir que se envíe un `UserId` donde se espera un `NewsId`.
+
 - ✅ `const NewsId = z.string().uuid().brand<'NewsId'>()`
 
 ### 2.2. Injeção de Metadados para IA (.describe)
-Cada campo **debe** poseer una descripción técnica. Esto permite que el `core-ai-audit-brain` entienda la intención del dato al analizar logs o sugerir cambios.
-- ✅ `email: z.string().email().describe('Correo oficial del ciudadano para notificaciones de derechos humanos')`
+
+Cada campo **debe** poseer una descripción técnica. Esto permite que el `core-ai-audit-brain`
+entienda la intención del dato al analizar logs o sugerir cambios.
+
+- ✅
+  `email: z.string().email().describe('Correo oficial del ciudadano para notificaciones de derechos humanos')`
 
 ### 2.3. Transformação Proativa
-Usamos `.transform()` y `.trim()` para que el dato salga de la aduana purificado y listo para la base de datos o lógica de negocio (Principio DRY).
+
+Usamos `.transform()` y `.trim()` para que el dato salga de la aduana purificado y listo para la
+base de datos o lógica de negocio (Principio DRY).
 
 ### 2.4. Erros Customizados e i18n
-No permitimos mensajes predeterminados de Zod. Los errores deben ser códigos semánticos que mapeen a nuestros diccionarios granulares.
+
+No permitimos mensajes predeterminados de Zod. Los errores deben ser códigos semánticos que mapeen a
+nuestros diccionarios granulares.
+
 - ✅ `{ message: 'ERROR_INVALID_BRAZILIAN_PHONE' }`
 
 ---
@@ -50,12 +67,12 @@ export type ComplaintId = z.infer<typeof ComplaintIdSchema>;
  */
 export const HumanRightsComplaintSchema = z.object({
   identifier: ComplaintIdSchema.describe('Identificador único inalterable de la denuncia'),
-  
+
   informantName: z.string()
     .min(3)
     .transform(val => val.trim())
     .describe('Nombre del denunciante o "Anónimo"'),
-  
+
   description: z.string()
     .min(50, { message: 'COMPLAINT_DESCRIPTION_TOO_SHORT' })
     .describe('Relato detallado de la violación de derechos humanos detectada'),
@@ -79,7 +96,7 @@ code
 TypeScript
 const processIncomingData = (rawPayload: unknown) => {
   const result = HumanRightsComplaintSchema.safeParse(rawPayload);
-  
+
   if (!result.success) {
     // La IA recibe los 'issues' y sabe exactamente qué campo falló y por qué.
     coreLogger.error('ADN_CORRUPTO_DETECTADO', {
@@ -88,7 +105,7 @@ const processIncomingData = (rawPayload: unknown) => {
     });
     throw new Error('SECURITY_ADUANA_BLOCK');
   }
-  
+
   return result.data; // Dato purificado, transformado y tipado
 };
 5. O Papel da IA de Autocura (Neural Auditor)
@@ -99,3 +116,4 @@ Sugerir Evoluções: "He notado que el 70% de las denuncias de WhatsApp fallan e
 ---
 
 
+```

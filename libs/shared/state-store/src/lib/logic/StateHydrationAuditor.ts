@@ -1,84 +1,58 @@
 /**
- * @section State Store Logic - Hydration Auditor
- * @description Átomo encargado de la vigilancia forense durante la recuperación
- * del estado desde el almacenamiento físico. Emite señales al Neural Sentinel
- * confirmando el éxito o el colapso del proceso de rehidratación (ADR 0025).
+ * @section Shared State Store - Hydration Auditor Orchestrator
+ * @description Orquestador de observabilidad encargado de auditar la recuperación del
+ * estado persistido desde almacenamiento local (ADR 0025). Coordina la validación Zod
+ * del snapshot rehidratado, mide latencia física y despacha telemetría estructurada
+ * sin bloquear el hilo principal ni interrumpir el montaje de la interfaz.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & ISO Technical Naming.
- * SANEADO Zenith: Inyección de firma explícita (Fix Implicit Return) y
- * sincronización de parámetros de telemetría a la norma inmutable.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Técnica) e ISO/IEC 25010 (Confiabilidad y Rendimiento).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier
-} from '@floripa-dignidade/telemetry';
+import { GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
+
 import type { IGlobalSovereignStore } from '../GlobalInfrastructureStateStore';
+import { EmitHydrationAuditSignal } from './hydration/atoms/EmitHydrationAuditSignal';
+import { ValidateRehydratedStateSnapshot } from './hydration/atoms/ValidateRehydratedStateSnapshot';
 
 /**
  * @name THydrationAuditorCallback
- * @description Contrato técnico para el retorno de la función interceptora de Zustand.
- * Garantiza la legibilidad del compilador y acelera el Typecheck.
+ * @description Contrato de firma para el callback `onRehydrateStorage` del middleware de Zustand.
  */
-type THydrationAuditorCallback = (
+export type THydrationAuditorCallback = (
   rehydratedState: IGlobalSovereignStore | undefined,
-  caughtError: unknown
+  caughtError: unknown,
 ) => void;
 
-/** Identificador técnico del aparato para el Neural Sentinel. */
-const HYDRATION_SENTRY_IDENTIFIER = 'GLOBAL_STATE_ORCHESTRATOR';
-
 /**
- * Genera el callback de auditoría para el middleware de persistencia.
+ * Genera el interceptor síncrono de auditoría para la rehidratación del almacén global.
  *
- * @param _ignoredInitialState - Estado antes de la hidratación (Ignorado por diseño).
- * @returns {THydrationAuditorCallback} Función que procesa el resultado de la hidratación.
+ * @param _ignoredInitialState - Estado base previo a la hidratación (no utilizado por diseño).
+ * @returns {THydrationAuditorCallback} Callback auditado y libre de excepciones no contenidas.
  */
-export const StateHydrationAuditor = (
-  _ignoredInitialState: unknown
-): THydrationAuditorCallback => {
+export const StateHydrationAuditor = (_ignoredInitialState: unknown): THydrationAuditorCallback => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
-  return (
-    rehydratedState: IGlobalSovereignStore | undefined,
-    caughtError: unknown
-  ): void => {
+  return (rehydratedState: IGlobalSovereignStore | undefined, caughtError: unknown): void => {
+    const executionStartTimestampNumeric = globalThis.performance.now();
 
-    /**
-     * @section Gestión Forense de Fallo (Resilience Layer)
-     */
-    if (caughtError) {
-      const errorDescriptionLiteral = caughtError instanceof Error
-        ? caughtError.message
-        : String(caughtError);
+    const auditVerdictSnapshot = caughtError
+      ? undefined
+      : ValidateRehydratedStateSnapshot(rehydratedState);
 
-      void EmitTelemetrySignal({
-        severityLevelLiteral: 'ERROR',
-        moduleIdentifierLiteral: HYDRATION_SENTRY_IDENTIFIER,
-        operationCodeLiteral: 'STATE_HYDRATION_FAULT',
-        correlationIdentifier,
-        messageContentLiteral: 'Fallo crítico al intentar recuperar la soberanía del disco local.',
-        contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral }
-      });
-      return;
-    }
+    const executionLatencyInMillisecondsQuantity = Math.max(
+      0,
+      globalThis.performance.now() - executionStartTimestampNumeric,
+    );
 
-    /**
-     * @section Reporte de Éxito Operacional
-     */
-    void EmitTelemetrySignal({
-      severityLevelLiteral: 'INFO',
-      moduleIdentifierLiteral: HYDRATION_SENTRY_IDENTIFIER,
-      operationCodeLiteral: 'STATE_HYDRATION_NOMINAL',
+    EmitHydrationAuditSignal({
       correlationIdentifier,
-      messageContentLiteral: 'Soberanía recuperada: Memoria institucional sincronizada con el hardware local.',
-      contextMetadataSnapshot: {
-        hasActiveMandataryBoolean: !!rehydratedState?.activeMandataryIdentifier,
-        isNetworkOnlineBoolean: !!rehydratedState?.isNetworkOnlineBoolean
-      }
+      executionLatencyInMillisecondsQuantity,
+      caughtError,
+      auditVerdictSnapshot,
     });
   };
 };

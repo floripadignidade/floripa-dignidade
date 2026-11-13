@@ -1,0 +1,31 @@
+{
+  "hero": {
+    "badgeLabelLiteral": "Observatório Cívico • Florianópolis",
+    "headlineMainLiteral": "Tecnologia a serviço da",
+    "headlineAccentLiteral": "dignidade humana",
+    "descriptionLiteral": "Monitoramento independente de gastos públicos, proteção territorial e canais seguros de denúncia em Florianópolis.",
+    "primaryActionLabelLiteral": "Apoiar Causa",
+    "secondaryActionLabelLiteral": "Ver Transparência"
+  },
+  "features": [
+    {
+      "identifier": "TRANSPARENCY",
+      "titleLiteral": "Transparência Radical",
+      "descriptionLiteral": "Auditoria cidadã de contratos públicos e prestação de contas em tempo real."
+    },
+    {
+      "identifier": "ALERTS",
+      "titleLiteral": "Alertas Territoriais",
+      "descriptionLiteral": "Monitoramento comunitário por distritos com proteção de identidade sob a LGPD."
+    },
+    {
+      "identifier": "ACTION",
+      "titleLiteral": "Resposta Solidária",
+      "descriptionLiteral": "Articulação direta entre voluntários, rede jurídica e assistência social."
+    }
+  ],
+  "newsletter": {
+    "sectionHeadlineLiteral": "Receba alertas de transparência",
+    "sectionDescriptionLiteral": "Participe da rede cidadã e acompanhe relatórios auditados diretamente no seu e-mail."
+  }
+}

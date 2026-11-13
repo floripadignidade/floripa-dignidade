@@ -11,7 +11,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "skipLibCheck": true,
+    "skipLibCheck": true
     /**
      * 🛡️ LEY DE RESOLUCIÓN:
      * Al no existir baseUrl, no definimos 'paths' locales aquí.
@@ -19,12 +19,6 @@
      * mapeados correctamente hacia las fuentes (.ts).
      */
   },
-  "include": [
-    "./src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "out-tsc"
-  ]
+  "include": ["./src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "out-tsc"]
 }

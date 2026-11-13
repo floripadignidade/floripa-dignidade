@@ -59,7 +59,7 @@ export const GET = async (incomingRequest: NextRequest): Promise<NextResponse> =
   // 1. EVALUACIÓN DE HANDSHAKE (Delegación Atómica)
   const { isAuthorizedBoolean, challengeLiteral } = ValidateWhatsAppHandshake(
     searchParams,
-    systemVerifyTokenSecret
+    systemVerifyTokenSecret,
   );
 
   if (isAuthorizedBoolean && challengeLiteral) {
@@ -106,7 +106,7 @@ export const POST = async (incomingRequest: NextRequest): Promise<NextResponse> 
          */
         const isIdentityLegitimateBoolean = await ValidateMetaSignature({
           rawRequestBodyLiteral,
-          xHubSignatureHeaderLiteral
+          xHubSignatureHeaderLiteral,
         });
 
         if (!isIdentityLegitimateBoolean) {
@@ -127,21 +127,22 @@ export const POST = async (incomingRequest: NextRequest): Promise<NextResponse> 
         await ProcessIncomingWhatsAppEvent(eventPayloadSnapshot);
 
         return new NextResponse('EVENT_ACKNOWLEDGED', { status: 200 });
-
       } catch (caughtError: unknown) {
         // 4. GESTIÓN FORENSE DE FALLOS (Resilience Layer)
 
-        const normalizedException = caughtError instanceof GlobalBaseException
-          ? caughtError
-          : MapHttpErrorToException(500, 'UNEXPECTED_WEBHOOK_ORCHESTRATION_FAULT', {
-              originalErrorLiteral: caughtError instanceof Error ? caughtError.message : String(caughtError),
-            });
+        const normalizedException =
+          caughtError instanceof GlobalBaseException
+            ? caughtError
+            : MapHttpErrorToException(500, 'UNEXPECTED_WEBHOOK_ORCHESTRATION_FAULT', {
+                originalErrorLiteral:
+                  caughtError instanceof Error ? caughtError.message : String(caughtError),
+              });
 
         // Reporte automático al Neural Sentinel
         ReportForensicException(normalizedException, correlationIdentifier);
 
         return new NextResponse('INTERNAL_SERVICE_ERROR', { status: 500 });
       }
-    }
+    },
   );
 };

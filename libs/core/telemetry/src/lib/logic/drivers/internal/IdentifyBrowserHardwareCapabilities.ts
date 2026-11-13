@@ -22,8 +22,7 @@ export const IdentifyBrowserHardwareCapabilities = (): boolean => {
   const globalContext = globalThis as unknown as IGlobalBrowserContext;
 
   const isBrowserHardwarePresentBoolean =
-    typeof globalContext.window !== 'undefined' &&
-    typeof globalContext.document !== 'undefined';
+    typeof globalContext.window !== 'undefined' && typeof globalContext.document !== 'undefined';
 
   return isBrowserHardwarePresentBoolean;
 };

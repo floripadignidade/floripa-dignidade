@@ -17,7 +17,7 @@ import type { IGlobalSovereignStore } from '../GlobalInfrastructureStateStore';
  * @returns {Partial<IGlobalSovereignStore>} Fragmento de ADN para persistencia.
  */
 export const StatePersistenceFilter = (
-  stateSnapshot: IGlobalSovereignStore
+  stateSnapshot: IGlobalSovereignStore,
 ): Partial<IGlobalSovereignStore> => {
   return {
     // Dominio: Identidad & Reputación

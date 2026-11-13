@@ -30,10 +30,9 @@ export const HandleIndividualWhatsAppMessage = async (
   incomingWhatsAppMessageSnapshot: IWhatsAppMessage,
   correlationIdentifier: string,
 ): Promise<void> => {
-
   // 1. PROTECCIÓN DE IDENTIDAD CIUDADANA (Delegación Atómica)
   const maskedSenderIdentifierLiteral = MaskSensitivePhoneIdentifier(
-    incomingWhatsAppMessageSnapshot.from
+    incomingWhatsAppMessageSnapshot.from,
   );
 
   // 2. REPORTE DE RECEPCIÓN (Forensic Trace)
@@ -88,7 +87,7 @@ export const HandleIndividualWhatsAppMessage = async (
         correlationIdentifier,
         message: 'WHATSAPP.LOGS.UNKNOWN_SIGNAL_TYPE_IGNORED',
         contextMetadata: {
-          unhandledTypeLiteral: incomingWhatsAppMessageSnapshot.type
+          unhandledTypeLiteral: incomingWhatsAppMessageSnapshot.type,
         },
       });
   }

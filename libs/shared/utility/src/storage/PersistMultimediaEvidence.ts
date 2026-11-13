@@ -89,13 +89,13 @@ export const PersistMultimediaEvidence = async (
 
         // 3. TRANSFORMACIÓN BINARIA (Delegación Atómica Isomórfica)
         const binaryContentBody = await TransformToSovereignBinary(
-          validatedPayload.fileBlobReference
+          validatedPayload.fileBlobReference,
         );
 
         // 4. CÁLCULO DE JURISDICCIÓN FÍSICA (Sovereign Routing)
         const storagePathLiteral = GenerateSovereignStoragePath(
           validatedPayload,
-          evidenceIdentifierLiteral
+          evidenceIdentifierLiteral,
         );
 
         // 5. DESPACHO FÍSICO A LA NUBE (Cloud I/O)
@@ -108,14 +108,14 @@ export const PersistMultimediaEvidence = async (
           targetUploadEndpointLiteral,
           cloudAccessSecurityKeySecret: cloudSecurityKeySecret,
           contentMimeTypeLiteral: institutionalContextMetadata.mimeTypeLiteral,
-          binaryContentBody
+          binaryContentBody,
         });
 
         // 6. GENERACIÓN DE IDENTIDAD DE ACCESO PÚBLICO
         const evidenceUrlLiteral = BuildStorageAccessUrl(
           storageUrlLiteral,
           bucketNameLiteral,
-          storagePathLiteral
+          storagePathLiteral,
         );
 
         // 7. REPORTE DE ÉXITO OPERACIONAL (SRE Visibility)
@@ -124,19 +124,19 @@ export const PersistMultimediaEvidence = async (
           moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
           operationCodeLiteral: 'EVIDENCE_VAULTED_NOMINAL_SUCCESS',
           correlationIdentifier,
-          messageContentLiteral: 'Evidencia multimedia consolidada exitosamente en la bóveda de la nube.',
+          messageContentLiteral:
+            'Evidencia multimedia consolidada exitosamente en la bóveda de la nube.',
           contextMetadataSnapshot: {
             storagePathLiteral,
             mimeTypeLiteral: institutionalContextMetadata.mimeTypeLiteral,
-            fileSizeInBytesQuantity: validatedPayload.fileSizeInBytesQuantity
-          }
+            fileSizeInBytesQuantity: validatedPayload.fileSizeInBytesQuantity,
+          },
         });
 
         return {
           evidenceUrlLiteral,
-          storagePathLiteral
+          storagePathLiteral,
         };
-
       } catch (caughtError: unknown) {
         // 8. GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
 
@@ -145,9 +145,8 @@ export const PersistMultimediaEvidence = async (
           throw caughtError;
         }
 
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         /**
          * Reportamos el colapso al Neural Sentinel.

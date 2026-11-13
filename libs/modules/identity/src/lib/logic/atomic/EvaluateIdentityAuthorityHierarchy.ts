@@ -20,9 +20,9 @@
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
-  TraceExecutionTime,
   type ModuleIdentifier,
   type OperationCode,
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
 import { ValidationException } from '@floripa-dignidade/exceptions';
@@ -89,7 +89,8 @@ export const EvaluateIdentityAuthorityHierarchy = async (
        * total intrínseca para evitar bloqueos operativos en contingencias críticas.
        */
       const hasAdministrativeBypassBoolean =
-        activeRoleLiteral === IDENTITY_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR ||
+        activeRoleLiteral ===
+          IDENTITY_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR ||
         activeRoleLiteral === IDENTITY_ACCESS_ROLES_COLLECTION.PLATFORM_GLOBAL_MANAGER;
 
       if (hasAdministrativeBypassBoolean) {
@@ -98,7 +99,8 @@ export const EvaluateIdentityAuthorityHierarchy = async (
 
       // 3. EVALUACIÓN DE PESO JERÁRQUICO DETERMINISTA
       const activeAuthorityWeightNumeric = ROLE_AUTHORITY_WEIGHTS_MAPPING[activeRoleLiteral] ?? 0;
-      const requiredAuthorityWeightNumeric = ROLE_AUTHORITY_WEIGHTS_MAPPING[requiredRoleLiteral] ?? 0;
+      const requiredAuthorityWeightNumeric =
+        ROLE_AUTHORITY_WEIGHTS_MAPPING[requiredRoleLiteral] ?? 0;
 
       const isAuthorizedBoolean = activeAuthorityWeightNumeric >= requiredAuthorityWeightNumeric;
 

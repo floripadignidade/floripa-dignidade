@@ -17,7 +17,7 @@ import { InternalSystemException } from '@floripa-dignidade/exceptions';
  * @returns {readonly IProjectFinancialRecord[]} Lote purificado y sellado.
  */
 export const ValidateExtractedBatchADN = (
-  rawRecordsCollection: unknown[]
+  rawRecordsCollection: unknown[],
 ): readonly IProjectFinancialRecord[] => {
   const validationResult = FinancialIngestionBatchSchema.safeParse(rawRecordsCollection);
 

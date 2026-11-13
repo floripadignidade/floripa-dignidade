@@ -20,16 +20,17 @@ interface IHandshakeResult {
  */
 export const ValidateWhatsAppHandshake = (
   queryParameters: URLSearchParams,
-  systemVerifyTokenSecret: string
+  systemVerifyTokenSecret: string,
 ): IHandshakeResult => {
   const modeLiteral = queryParameters.get('hub.mode');
   const tokenLiteral = queryParameters.get('hub.verify_token');
   const challengeLiteral = queryParameters.get('hub.challenge');
 
-  const isAuthorizedBoolean = modeLiteral === 'subscribe' && tokenLiteral === systemVerifyTokenSecret;
+  const isAuthorizedBoolean =
+    modeLiteral === 'subscribe' && tokenLiteral === systemVerifyTokenSecret;
 
   return {
     isAuthorizedBoolean,
-    challengeLiteral
+    challengeLiteral,
   };
 };

@@ -9,7 +9,7 @@
 import type { ITelemetrySignal } from '../../schemas/TelemetrySignal.schema';
 import {
   telemetrySignalBufferCollection,
-  UpdateTelemetryBufferRegistry
+  UpdateTelemetryBufferRegistry,
 } from './internal/TelemetryBufferRegistry';
 
 /**

@@ -25,13 +25,19 @@ import {
  * @name ArchiveThreadRequestSchema
  * @description Define el contrato de integridad para la operación de archivado.
  */
-const ArchiveThreadRequestSchema = z.object({
-  targetThreadIdentifier: z.string().uuid()
-    .describe('Identificador único del hilo de conversación a procesar.'),
+const ArchiveThreadRequestSchema = z
+  .object({
+    targetThreadIdentifier: z
+      .string()
+      .uuid()
+      .describe('Identificador único del hilo de conversación a procesar.'),
 
-  activeActorIdentifier: z.string().uuid()
-    .describe('Identificador del ciudadano solicitante para validación de propiedad.'),
-}).readonly();
+    activeActorIdentifier: z
+      .string()
+      .uuid()
+      .describe('Identificador del ciudadano solicitante para validación de propiedad.'),
+  })
+  .readonly();
 
 /* 2. Enjambre Atómico Local (Internal Swarm) */
 import { CreateSovereignDatabaseHeaders } from '../dispatchers/CreateSovereignDatabaseHeaders';
@@ -51,7 +57,7 @@ const THREAD_MUTATOR_IDENTIFIER = 'MESSAGE_THREAD_ARCHIVE_ORCHESTRATOR';
  * @throws {InternalSystemException} Si la infraestructura cloud colapsa.
  */
 export const ArchiveMessageThread = async (
-  unvalidatedRequestSnapshot: unknown
+  unvalidatedRequestSnapshot: unknown,
 ): Promise<boolean> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -66,10 +72,8 @@ export const ArchiveMessageThread = async (
          * 🛡️ SANEADO Zenith (Fix TS2339): Inyección de await mandatorio.
          * La resolución de secretos se audita ahora dentro del rastro de latencia.
          */
-        const {
-          SUPABASE_URL: cloudUrlLiteral,
-          SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret,
-        } = await ValidateEnvironmentAduana();
+        const { SUPABASE_URL: cloudUrlLiteral, SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret } =
+          await ValidateEnvironmentAduana();
 
         // 2. ADUANA DE ADN (Safe Parsing)
         const validationResult = ArchiveThreadRequestSchema.safeParse(unvalidatedRequestSnapshot);
@@ -82,11 +86,11 @@ export const ArchiveMessageThread = async (
             operationCodeLiteral: 'ARCHIVE_ADN_CONTRACT_VIOLATION',
             correlationIdentifier,
             messageContentLiteral: 'La estructura de la solicitud de archivado es inválida.',
-            contextMetadataSnapshot: { issuesCollection: validationResult.error.flatten() }
+            contextMetadataSnapshot: { issuesCollection: validationResult.error.flatten() },
           });
 
           throw new ValidationException('DATOS_DE_ARCHIVADO_INVALIDOS', {
-            issuesCollection: validationResult.error.flatten()
+            issuesCollection: validationResult.error.flatten(),
           });
         }
 
@@ -105,7 +109,7 @@ export const ArchiveMessageThread = async (
           targetThreadIdentifier,
           activeActorIdentifier,
           'ARCHIVED_BY_USER',
-          correlationIdentifier
+          correlationIdentifier,
         );
 
         // 4. REPORTE DE ÉXITO (SRE Analytics)
@@ -114,19 +118,18 @@ export const ArchiveMessageThread = async (
           moduleIdentifierLiteral: THREAD_MUTATOR_IDENTIFIER,
           operationCodeLiteral: 'THREAD_ARCHIVED_SUCCESSFULLY',
           correlationIdentifier,
-          messageContentLiteral: 'Ciclo de vida de la conversación finalizado. Hilo archivado lógicamente.',
-          contextMetadataSnapshot: { targetThreadIdentifier }
+          messageContentLiteral:
+            'Ciclo de vida de la conversación finalizado. Hilo archivado lógicamente.',
+          contextMetadataSnapshot: { targetThreadIdentifier },
         });
 
         return true;
-
       } catch (caughtError: unknown) {
         // 5. GESTIÓN FORENSE DE FALLO (Resilience Layer)
         if (caughtError instanceof ValidationException) throw caughtError;
 
-        const errorDescriptionLiteral = caughtError instanceof Error
-          ? caughtError.message
-          : String(caughtError);
+        const errorDescriptionLiteral =
+          caughtError instanceof Error ? caughtError.message : String(caughtError);
 
         void EmitTelemetrySignal({
           severityLevelLiteral: 'CRITICAL',
@@ -142,6 +145,6 @@ export const ArchiveMessageThread = async (
           correlationIdentifier,
         });
       }
-    }
+    },
   );
 };

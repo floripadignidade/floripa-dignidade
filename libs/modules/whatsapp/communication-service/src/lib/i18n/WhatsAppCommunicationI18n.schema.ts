@@ -1,34 +1,68 @@
 /**
- * @section WhatsApp DNA - Linguistic Integrity Schema
- * @description Define el contrato soberano para las almas lingüísticas del búnker
- * de WhatsApp. Garantiza consistencia en logs semánticos y respuestas automáticas.
+ * @section WhatsApp Communication Service - Linguistic Integrity Schema (SSOT)
+ * @description Contrato Zod inmutable para validar los diccionarios de traducción del servicio
+ * de comunicación y webhooks de Meta WhatsApp (@floripa-dignidade/whatsapp-communication-service).
+ * Garantiza consistencia semántica en registros telemétricos y manejo de errores de interfaz.
  *
- * Protocolo OEDP-V16.0 - Sovereign Data & ReadOnly Integrity.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & ADR 0030).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Mantenibilidad y Confiabilidad).
+ *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import { z } from 'zod';
 
 /**
- * @name WhatsAppCommunicationI18nSchema
- * @description Aduana de validación para los diccionarios de comunicación.
+ * Crea un validador estricto para literales de traducción requeridos sin espacios en blanco residuales.
+ *
+ * @param semanticDescriptionLiteral - Descripción técnica del propósito semántico del literal.
+ * @returns Esquema Zod purificado con longitud mínima de 1 carácter.
  */
-export const WhatsAppCommunicationI18nSchema = z.object({
-  logs: z.object({
-    TRIAGE_SEQUENCE_STARTED: z.string()
-      .describe('Señal emitida al recibir un paquete de datos de Meta.'),
+const createRequiredTranslationLiteralSchema = (semanticDescriptionLiteral: string) =>
+  z
+    .string()
+    .trim()
+    .min(1, { message: 'WHATSAPP_I18N_EMPTY_TRANSLATION_LITERAL' })
+    .describe(semanticDescriptionLiteral);
 
-    CLASSIFYING_SIGNAL_TYPE: z.string()
-      .describe('Mensaje de trazabilidad durante la identificación del medio (Text/Image/etc).'),
+/**
+ * @name WhatsAppCommunicationI18nSchema
+ * @description Esquema maestro inmutable para la validación de diccionarios del servicio de WhatsApp.
+ */
+export const WhatsAppCommunicationI18nSchema = z
+  .object({
+    /** Mensajes de trazabilidad emitidos durante el procesamiento de eventos de Meta. */
+    logs: z
+      .object({
+        TRIAGE_SEQUENCE_STARTED: createRequiredTranslationLiteralSchema(
+          'Señal emitida al recibir e iniciar el triaje de un paquete de datos de Meta.',
+        ),
+        CLASSIFYING_SIGNAL_TYPE: createRequiredTranslationLiteralSchema(
+          'Mensaje de trazabilidad durante la identificación del tipo de medio recibido.',
+        ),
+        UNKNOWN_SIGNAL_TYPE_IGNORED: createRequiredTranslationLiteralSchema(
+          'Alerta emitida cuando se recibe un evento no soportado por el ecosistema.',
+        ),
+      })
+      .readonly()
+      .describe('Catálogo de mensajes de registro operativo del servicio de WhatsApp.'),
 
-    UNKNOWN_SIGNAL_TYPE_IGNORED: z.string()
-      .describe('Alerta cuando se recibe un evento no soportado por la ONG.'),
-  }),
-  errors: z.object({
-    CORRUPT_WEBHOOK_PAYLOAD: z.string()
-      .describe('Error semántico cuando el JSON de Meta no cumple el esquema.'),
+    /** Mensajes descriptivos de errores de procesamiento y validación de webhooks. */
+    errors: z
+      .object({
+        CORRUPT_WEBHOOK_PAYLOAD: createRequiredTranslationLiteralSchema(
+          'Error semántico cuando la carga útil JSON de Meta no cumple el contrato de datos.',
+        ),
+      })
+      .readonly()
+      .describe('Catálogo de mensajes de error de procesamiento de webhooks de WhatsApp.'),
   })
-}).readonly();
+  .readonly()
+  .describe('Contrato lingüístico integral del servicio de comunicación de WhatsApp.');
 
-/** 🛡️ ADN Tipado para exportación Verbatim */
+/**
+ * @name IWhatsAppCommunicationI18n
+ * @description Tipo inferido inmutable del diccionario validado de WhatsApp.
+ */
 export type IWhatsAppCommunicationI18n = z.infer<typeof WhatsAppCommunicationI18nSchema>;

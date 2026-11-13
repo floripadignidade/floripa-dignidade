@@ -19,7 +19,7 @@ import type { ContentFingerprint } from '../../schemas/TelemetrySignal.schema';
  * @returns {Promise<ContentFingerprint>} Firma hexadecimal de 64 caracteres.
  */
 export const GenerateForensicHash = async (
-  dataPayloadSnapshot: Record<string, unknown>
+  dataPayloadSnapshot: Record<string, unknown>,
 ): Promise<ContentFingerprint> => {
   /**
    * @section Serialización Determinista
@@ -56,7 +56,6 @@ export const GenerateForensicHash = async (
      * Retornamos la firma validando el contrato de longitud del ADN.
      */
     return hexDigestLiteral as ContentFingerprint;
-
   } catch (_caughtAlgorithmError: unknown) {
     /**
      * @section Resiliencia en Fallo Criptográfico

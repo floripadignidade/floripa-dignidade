@@ -1,0 +1,8 @@
+{
+  "telemetry": {
+    "HYDRATION_STORAGE_READ_FAILURE": "Falha ao recuperar ou analisar o estado persistido no armazenamento local.",
+    "HYDRATION_SCHEMA_CORRUPTION_DETECTED": "Inconsistência estrutural detectada nos dados reidratados do armazenamento local.",
+    "HYDRATION_NOMINAL_SUCCESS": "Memória institucional reidratada e validada com sucesso a partir do armazenamento local.",
+    "HYDRATION_COLD_START_NOMINAL": "Inicialização limpa sem snapshot prévio no armazenamento local."
+  }
+}

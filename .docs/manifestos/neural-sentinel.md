@@ -1,46 +1,70 @@
 **Estatus:** <SUPREME_ZENITH>  
 **Subsistema:** `apps/neural-sentinel` (Desplegado en Hugging Face Spaces)  
 **Autor:** Raz Podestá - MetaShark Tech  
-**Objetivo:** Establecer una inteligencia auditora asíncrona que procese el flujo sanguíneo digital para detectar anomalías, predecir fallos y orquestar la recuperación atómica del ecosistema Floripa Dignidade.
+**Objetivo:** Establecer una inteligencia auditora asíncrona que procese el flujo sanguíneo digital
+para detectar anomalías, predecir fallos y orquestar la recuperación atómica del ecosistema Floripa
+Dignidade.
 
 ---
 
 ## 👁️ 1. La Visión Holística: El Sistema Inmunitario Desacoplado
-El Neural Sentinel no es un servidor de logs; es una entidad cognitiva que opera bajo la doctrina de **Observabilidad Omnisciente**:
 
-1.  **Aislamiento Térmico:** Reside en un entorno de computación independiente (Hugging Face). Un colapso en el Sentinel nunca afecta al blog principal, y una carga masiva en el blog no ciega al Sentinel.
-2.  **Inferencia Asíncrona:** Consume los payloads de telemetría que el sistema despacha en periodos de inactividad, garantizando que la inteligencia no compita con los 60fps de la experiencia de usuario.
+El Neural Sentinel no es un servidor de logs; es una entidad cognitiva que opera bajo la doctrina de
+**Observabilidad Omnisciente**:
+
+1.  **Aislamiento Térmico:** Reside en un entorno de computación independiente (Hugging Face). Un
+    colapso en el Sentinel nunca afecta al blog principal, y una carga masiva en el blog no ciega al
+    Sentinel.
+2.  **Inferencia Asíncrona:** Consume los payloads de telemetría que el sistema despacha en periodos
+    de inactividad, garantizando que la inteligencia no compita con los 60fps de la experiencia de
+    usuario.
 
 ---
 
 ## 🧪 2. El Proceso de Refinado Cognitivo (Inference Pipeline)
+
 El Sentinel procesa los datos en cuatro etapas de alta fidelidad:
 
-1.  **Ingestión y Descifrado:** Recibe paquetes JWE (JSON Web Encryption). Valida la firma para asegurar que el dato no ha sido inyectado por un agente externo.
-2.  **Mapeo Semántico:** Traduce los eventos técnicos a la Ontología de la ONG (Ej: Convierte un error 403 en "Falla de acceso en el Búnker de Denuncias").
-3.  **Análisis de Patrones Conductuales:** Cruza la telemetría actual con el historial. 
-    *   *Ejemplo:* Detecta que un ciudadano en el barrio "Tapera" está sufriendo una latencia inusual al intentar subir una foto de una denuncia.
-4.  **Activación de Respuesta:** Si el *Anomaly Score* supera el umbral crítico, el Sentinel emite una **Directiva de Sanación**.
+1.  **Ingestión y Descifrado:** Recibe paquetes JWE (JSON Web Encryption). Valida la firma para
+    asegurar que el dato no ha sido inyectado por un agente externo.
+2.  **Mapeo Semántico:** Traduce los eventos técnicos a la Ontología de la ONG (Ej: Convierte un
+    error 403 en "Falla de acceso en el Búnker de Denuncias").
+3.  **Análisis de Patrones Conductuales:** Cruza la telemetría actual con el historial.
+    - _Ejemplo:_ Detecta que un ciudadano en el barrio "Tapera" está sufriendo una latencia inusual
+      al intentar subir una foto de una denuncia.
+4.  **Activación de Respuesta:** Si el _Anomaly Score_ supera el umbral crítico, el Sentinel emite
+    una **Directiva de Sanación**.
 
 ---
 
 ## 🛠️ 3. Protocolos de Respuesta (The Healing Modes)
+
 El Sentinel influye en el Kernel de la aplicación a través de un Bridge-Bus seguro:
 
 ### A. Auto-Sanación Atómica (Atomic Recovery)
-Si detecta un error recurrente en una pieza de Lego (Ej: El módulo de Newsletter), el Sentinel ordena:
+
+Si detecta un error recurrente en una pieza de Lego (Ej: El módulo de Newsletter), el Sentinel
+ordena:
+
 - **Force Re-Hydrate:** Forzar la carga de una versión previa estable del módulo.
 - **Cache Purge:** Limpieza selectiva de la rama de datos corrupta en la memoria local del usuario.
 
 ### B. Parcheo Predictivo (Predictive Patching)
-Detecta "Fricción de Intención": Si un usuario hace clics repetitivos en un área no interactiva, el Sentinel ordena inyectar dinámicamente un componente de **"Ayuda Contextual"** o un **"Chat de Soporte IA"** instantáneo.
+
+Detecta "Fricción de Intención": Si un usuario hace clics repetitivos en un área no interactiva, el
+Sentinel ordena inyectar dinámicamente un componente de **"Ayuda Contextual"** o un **"Chat de
+Soporte IA"** instantáneo.
 
 ### C. Defensa Activa (Sentinel Shield)
-Si detecta patrones de ataque (fuerza bruta o scraping de noticias), dispara el **"Modo Espejismo"**, alimentando al atacante con datos sintéticos realistas pero falsos, protegiendo la integridad de la base de datos real.
+
+Si detecta patrones de ataque (fuerza bruta o scraping de noticias), dispara el **"Modo
+Espejismo"**, alimentando al atacante con datos sintéticos realistas pero falsos, protegiendo la
+integridad de la base de datos real.
 
 ---
 
 ## 🧬 4. La Gramática del Sentinel (Audit DNA)
+
 El Sentinel genera directivas bajo un contrato estricto (Zod SSOT):
 
 ```typescript
@@ -75,3 +99,4 @@ Soberanía Centralizada: La inteligencia generada se utiliza para mejorar la vid
 ---
 
 
+```

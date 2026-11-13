@@ -29,7 +29,6 @@ export const TransmitTelemetrySignalsToCloud = async (
   cloudProviderEndpointUniformResourceLocator: string,
   cloudProviderAccessSecurityKeySecret: string,
 ): Promise<void> => {
-
   // 1. FILTRO DE ATOMICIDADE: Se não há dados, não há transação.
   if (telemetrySignalsCollection.length === 0) {
     return;
@@ -44,9 +43,9 @@ export const TransmitTelemetrySignalsToCloud = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'apikey': cloudProviderAccessSecurityKeySecret,
-        'Authorization': `Bearer ${cloudProviderAccessSecurityKeySecret}`,
-        'Prefer': 'return=minimal',
+        apikey: cloudProviderAccessSecurityKeySecret,
+        Authorization: `Bearer ${cloudProviderAccessSecurityKeySecret}`,
+        Prefer: 'return=minimal',
       },
       body: JSON.stringify(telemetrySignalsCollection),
       /**

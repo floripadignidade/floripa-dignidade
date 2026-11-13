@@ -14,7 +14,7 @@
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
-  TraceExecutionTime
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
 import { ValidationException } from '@floripa-dignidade/exceptions';
@@ -38,7 +38,7 @@ const ATOM_IDENTIFIER = 'IDENTITY_NAME_ANONYMIZER_ATOM';
  * mediante el uso de regex estandarizado."
  */
 export const AnonymizeIdentityName = async (
-  parametersSnapshot: IAnonymizeIdentityNameParameters
+  parametersSnapshot: IAnonymizeIdentityNameParameters,
 ): Promise<string> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -47,14 +47,13 @@ export const AnonymizeIdentityName = async (
     'EXECUTE_IDENTITY_NAME_ANONYMIZATION_TRANSACTION',
     correlationIdentifier,
     async () => {
-
       // 1. INTEGRITY GUARD (Validación contra el Contrato Global)
       const aduanaValidationResult = AnonymizeIdentityNameSchema.safeParse(parametersSnapshot);
 
       if (!aduanaValidationResult.success) {
         throw new ValidationException('IDENTITY_ANONYMIZATION_CONTRACT_VIOLATION', {
           validationIssuesCollection: aduanaValidationResult.error.flatten(),
-          correlationIdentifier
+          correlationIdentifier,
         });
       }
 
@@ -97,11 +96,11 @@ export const AnonymizeIdentityName = async (
         contextMetadataSnapshot: {
           resultSnapshotLiteral: finalAnonymizedResultLiteral,
           originalNameLengthQuantity: fullLegalNameLiteral.length,
-          segmentsCountQuantity: nameSegmentsCollection.length
-        }
+          segmentsCountQuantity: nameSegmentsCollection.length,
+        },
       });
 
       return finalAnonymizedResultLiteral;
-    }
+    },
   );
 };

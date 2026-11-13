@@ -43,7 +43,7 @@ interface IFuseMatchResult {
  */
 export const ExecuteTechnicalFuzzySearch = async (
   searchQueryLiteral: string,
-  searchableEntityCollection: ISearchableEntity[]
+  searchableEntityCollection: ISearchableEntity[],
 ): Promise<ISearchableEntity[]> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
@@ -64,7 +64,7 @@ export const ExecuteTechnicalFuzzySearch = async (
        */
       const discoveryEngineInstance = new Fuse<ISearchableEntity>(
         searchableEntityCollection,
-        GLOBAL_FUSE_CONFIGURATION_OPTIONS
+        GLOBAL_FUSE_CONFIGURATION_OPTIONS,
       );
 
       // 3. EJECUCIÓN DEL ALGORITMO
@@ -79,8 +79,8 @@ export const ExecuteTechnicalFuzzySearch = async (
         messageContentLiteral: `Búsqueda ejecutada. Hallazgos:[${rawMatchResultsCollection.length}]`,
         contextMetadataSnapshot: {
           queryLengthQuantity: searchQueryLiteral.length,
-          resultsCountQuantity: rawMatchResultsCollection.length
-        }
+          resultsCountQuantity: rawMatchResultsCollection.length,
+        },
       });
 
       /**
@@ -90,6 +90,6 @@ export const ExecuteTechnicalFuzzySearch = async (
       return rawMatchResultsCollection.map((matchResultSnapshot: IFuseMatchResult) => {
         return matchResultSnapshot.item;
       });
-    }
+    },
   );
 };

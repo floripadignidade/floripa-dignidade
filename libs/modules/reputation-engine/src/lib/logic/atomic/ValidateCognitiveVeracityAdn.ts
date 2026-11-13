@@ -15,7 +15,7 @@ import type { IVeracityAnalysis } from '../../schemas/VeracityAnalysis.schema';
  */
 export const ValidateCognitiveVeracityAdn = (
   unvalidatedAuditOutput: unknown,
-  correlationIdentifier: string
+  correlationIdentifier: string,
 ): IVeracityAnalysis => {
   const veracityValidationResult = VeracityAnalysisSchema.safeParse(unvalidatedAuditOutput);
 
@@ -31,15 +31,16 @@ export const ValidateCognitiveVeracityAdn = (
       correlationIdentifier,
       message: 'Fallo estructural en la respuesta de la IA. Aplicando fallback de triaje humano.',
       contextMetadataSnapshot: {
-        structuralIssuesCollection: veracityValidationResult.error.flatten()
-      }
+        structuralIssuesCollection: veracityValidationResult.error.flatten(),
+      },
     });
 
     return {
       veracityConfidenceScoreNumeric: 0.5,
       semanticFlagsCollection: ['LOGICAL_INCONSISTENCY'],
       moderationActionSuggestion: 'FLAG_FOR_REVIEW',
-      inferenceReasoningLiteral: 'Auditoría automática inconsistente; activada contingencia de auditoría manual.'
+      inferenceReasoningLiteral:
+        'Auditoría automática inconsistente; activada contingencia de auditoría manual.',
     };
   }
 

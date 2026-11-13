@@ -28,9 +28,7 @@ import { WORKBOOK_INGESTION_STANDARDS } from '../../constants/WorkbookIngestion.
  * @param headerRowInstance - Instancia de la fila que contiene las etiquetas cronológicas.
  * @returns {Record<number, string>} Mapeo inmutable de [Índice de Columna]: "Mes Año".
  */
-export const IdentifyMonthHeaders = (
-  headerRowInstance: Row
-): Record<number, string> => {
+export const IdentifyMonthHeaders = (headerRowInstance: Row): Record<number, string> => {
   const monthYearMappingCollection: Record<number, string> = {};
 
   const { START_COLUMN, END_COLUMN } = WORKBOOK_INGESTION_STANDARDS.TEMPORAL_AXIS_RANGE;
@@ -39,11 +37,7 @@ export const IdentifyMonthHeaders = (
    * @section Algoritmo de Mapeo de Ejes
    * Recorremos el rango técnico de columnas para identificar los periodos activos.
    */
-  for (
-    let columnNumeric = START_COLUMN;
-    columnNumeric <= END_COLUMN;
-    columnNumeric++
-  ) {
+  for (let columnNumeric = START_COLUMN; columnNumeric <= END_COLUMN; columnNumeric++) {
     /**
      * Capturamos el rastro textual de la celda.
      * SANEADO: El puente garantiza que '.text' es una propiedad válida de 'Cell'.

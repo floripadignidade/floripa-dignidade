@@ -20,10 +20,7 @@ import { ValidationException } from '@floripa-dignidade/exceptions';
  * @name THeterogeneousBinarySourceData
  * @description Tipo de unión que define las fuentes binarias reconocidas por el motor.
  */
-export type THeterogeneousBinarySourceData =
-  | Blob
-  | Uint8Array
-  | ArrayBuffer;
+export type THeterogeneousBinarySourceData = Blob | Uint8Array | ArrayBuffer;
 
 /**
  * Transforma una referencia binaria heterogénea en un búfer de datos crudos estandarizado.
@@ -37,35 +34,29 @@ export const TransformToStandardBinaryBuffer = async (
   heterogeneousBinarySourceData: THeterogeneousBinarySourceData,
 ): Promise<Uint8Array> => {
   // --- CASO A: Entorno de Interfaz Web API (Blob / File) ---
-  const isBlobInstanceBoolean =
-    heterogeneousBinarySourceData instanceof Blob;
+  const isBlobInstanceBoolean = heterogeneousBinarySourceData instanceof Blob;
 
   if (isBlobInstanceBoolean) {
-    const rawArrayBufferSnapshot =
-      await heterogeneousBinarySourceData.arrayBuffer();
+    const rawArrayBufferSnapshot = await heterogeneousBinarySourceData.arrayBuffer();
     return new Uint8Array(rawArrayBufferSnapshot);
   }
 
   // --- CASO B: Estructura de Memoria Pura (ArrayBuffer) ---
-  const isArrayBufferInstanceBoolean =
-    heterogeneousBinarySourceData instanceof ArrayBuffer;
+  const isArrayBufferInstanceBoolean = heterogeneousBinarySourceData instanceof ArrayBuffer;
 
   if (isArrayBufferInstanceBoolean) {
     return new Uint8Array(heterogeneousBinarySourceData);
   }
 
   // --- CASO C: Vista de Búfer Pre-Estandarizada (Uint8Array) ---
-  const isUint8ArrayInstanceBoolean =
-    heterogeneousBinarySourceData instanceof Uint8Array;
+  const isUint8ArrayInstanceBoolean = heterogeneousBinarySourceData instanceof Uint8Array;
 
   if (isUint8ArrayInstanceBoolean) {
     return heterogeneousBinarySourceData;
   }
 
   // --- SALVAGUARDA DE INTEGRIDAD ESTRUCTURAL ---
-  const identifiedTypeNameLiteral = Object.prototype.toString.call(
-    heterogeneousBinarySourceData,
-  );
+  const identifiedTypeNameLiteral = Object.prototype.toString.call(heterogeneousBinarySourceData);
 
   throw new ValidationException('FORMATO_DE_FUENTE_BINARIA_INCOMPATIBLE', {
     identifiedTypeNameLiteral,

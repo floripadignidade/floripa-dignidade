@@ -20,9 +20,7 @@ interface IBayesianParameters {
  * @param parameters - Factores de peso y promedios globales.
  * @returns {number} Score final entre 0.0 y 1.0.
  */
-export const CalculateWeightedBayesianScore = (
-  parameters: IBayesianParameters
-): number => {
+export const CalculateWeightedBayesianScore = (parameters: IBayesianParameters): number => {
   const {
     currentEntityWeightedSum,
     currentEntityTotalWeight,
@@ -38,7 +36,8 @@ export const CalculateWeightedBayesianScore = (
     return globalSystemMeanScore;
   }
 
-  const weightedNumerator = currentEntityWeightedSum + (confidenceThresholdConstant * globalSystemMeanScore);
+  const weightedNumerator =
+    currentEntityWeightedSum + confidenceThresholdConstant * globalSystemMeanScore;
   const totalDenominator = currentEntityTotalWeight + confidenceThresholdConstant;
 
   return weightedNumerator / totalDenominator;

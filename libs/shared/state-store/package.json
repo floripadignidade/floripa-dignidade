@@ -2,7 +2,7 @@
   "name": "@floripa-dignidade/shared-state-store",
   "version": "1.1.0",
   "private": true,
-  "description": "Enterprise Global: Centro de memoria, persistencia de estado y gobernanza de soberanía ciudadana.",
+  "description": "Centro de memoria reactiva, persistencia multicapa y estado de gobernanza ciudadana.",
   "type": "module",
   "sideEffects": false,
   "author": "Raz Podestá - MetaShark Tech",
@@ -15,8 +15,10 @@
     }
   },
   "dependencies": {
+    "@floripa-dignidade/contracts": "workspace:*",
     "@floripa-dignidade/shared-utility": "workspace:*",
     "@floripa-dignidade/telemetry": "workspace:*",
+    "zod": "^3.25.76",
     "zustand": "^5.0.12"
   },
   "peerDependencies": {
@@ -24,7 +26,7 @@
     "react-dom": "^19.0.0"
   },
   "nx": {
-    "tags":[
+    "tags": [
       "scope:shared",
       "type:logic",
       "platform:web"
