@@ -1,12 +1,12 @@
 /**
  * @section Newsletter Welcome Logic - Resilient Dictionary Loader (Atom)
  * @description Carga y valida el diccionario de la página de bienvenida siguiendo la
- * cascada ADR 0030 (`diccionario unificado compilado → silo local → idioma base → pt-BR →
- * respaldo inmutable en memoria`), soportando claves con barra y árboles anidados sin
- * generar errores 404 ante claves secundarias faltantes.
+ * cascada ADR 0030 (`diccionario unificado compilado → silo local estático → idioma base → pt-BR →
+ * respaldo inmutable en memoria`), eliminando importaciones opacas para compatibilidad
+ * estricta con Turbopack y Next.js 16 sin generar errores 404 por claves secundarias.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & ADR 0030).
- * Normas: BCP 47 (RFC 5646), ISO/IEC 11179 e ISO/IEC 25010 (Disponibilidad y Confiabilidad).
+ * Normas: BCP 47 (RFC 5646), ISO/IEC 11179 e ISO/IEC 25010 (Disponibilidad y Rendimiento).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -102,25 +102,21 @@ const tryResolveFromUnifiedDictionaryAction = async (
   }
 };
 
+/**
+ * Resuelve el silo local mediante importación estáticamente analizable por Turbopack/Webpack.
+ */
 const tryResolveFromLocalSiloAction = async (
   localeCodeLiteral: string,
 ): Promise<INewsletterWelcomeI18n | null> => {
-  const candidatePaths = [
-    `../i18n/${localeCodeLiteral}/newsletterWelcome.json`,
-    `../i18n/${localeCodeLiteral}.json`,
-  ];
-
-  for (const relativePath of candidatePaths) {
-    try {
-      const importedModule = (await import(relativePath)) as { readonly default?: unknown };
-      const validationResult = NewsletterWelcomeI18nSchema.safeParse(importedModule.default);
-      if (validationResult.success) return validationResult.data;
-    } catch {
-      continue;
-    }
+  try {
+    const importedModule = (await import(`../i18n/${localeCodeLiteral}.json`)) as {
+      readonly default?: unknown;
+    };
+    const validationResult = NewsletterWelcomeI18nSchema.safeParse(importedModule.default);
+    return validationResult.success ? validationResult.data : null;
+  } catch {
+    return null;
   }
-
-  return null;
 };
 
 const emitFallbackWarningTelemetryAction = (

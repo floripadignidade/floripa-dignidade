@@ -1,12 +1,12 @@
 /**
  * @section Shared UI Foundry - Configuration Gatekeeper
  * @description Orquestador de la frontera física del búnker de construcción visual (React 19).
- * Actúa como pasaporte de visibilidad e índice para el TypeScript Project Service y el IDE,
- * indexando directamente las fuentes bajo la doctrina Source-First (OEDP-V18.1).
+ * Rige bajo la doctrina Source-First (OEDP-V18.1), indexando directamente las fuentes para
+ * el TypeScript Project Service y el IDE, y erradicando referencias compuestas residuales
+ * que provocan colisiones TS6306 y TS6310 con configuraciones noEmit: true.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad).
- * SANEADO: Inclusión directa de fuentes (src/**\/*.ts, src/**\/*.tsx) para resolución de Project Service en ESLint.
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Estabilidad).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -20,9 +20,5 @@
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules", "dist", "out-tsc"],
-  "references": [
-    {
-      "path": "./tsconfig.lib.json"
-    }
-  ]
+  "references": []
 }

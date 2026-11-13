@@ -692,3 +692,45 @@ batería de certificación pre-vuelo sobre el monorepo:
     compatibilidad plena con Turbopack.
 
   ***
+
+  Resumen Técnico del Estado Consolidado en este Turno En este ciclo dejamos saneados los siguientes
+  aparatos críticos que bloqueaban el despliegue y renderizado en Vercel: .prettierignore: Se
+  incorporaron .pnpm-store, \*_/.pnpm-store y /vercel.json (resolviendo la caída de pnpm
+  format:check reportada en el log de Vercel). apps/floripa-dignidade/tailwind.config.js: Se
+  corrigió el glob roto ../../libs/shared/_/src/... (rescatando estilos de ui-foundry), se preservó
+  la escala completa de amber y slate de Tailwind y se normalizaron rutas POSIX.
+  apps/floripa-dignidade/package.json: Se declararon dependencias directas de estilos (tailwindcss,
+  postcss, autoprefixer, plugins) y tipos de Node/React. apps/floripa-dignidade/src/proxy.ts: Se
+  excluyeron en config.matcher /manifest.webmanifest, /sitemap.xml, /meta/\* y extensiones estáticas
+  modernas (.avif, .ico, .webmanifest).
+  libs/shared/ui-foundry/src/lib/organisms/navigation-header/logic/ResolveHeaderPresentationState.ts:
+  Nuevo átomo creado para garantizar contraste WCAG 2.2 AAA desde scroll = 0 (evitando logotipo y
+  menú invisibles).
+  libs/shared/ui-foundry/src/lib/organisms/navigation-header/hooks/useHeaderMountTelemetry.ts: Nuevo
+  hook atómico de telemetría SRE. libs/shared/ui-foundry/src/lib/organisms/MainNavigationHeader.tsx:
+  Orquestador purificado sin mezclar presentación con telemetría.
+  libs/shared/ui-foundry/src/lib/organisms/navigation-header/hooks/useHeaderSentry.ts: Nivelado con
+  occurrenceTimestampISO y estado inicial en montaje.
+  libs/shared/ui-foundry/src/lib/organisms/navigation-header/logic/ResolveLocalizedNavigationPath.ts:
+  Nuevo átomo creado para componer rutas localizadas BCP 47 (/[locale]/...) contra el SSOT
+  @floripa-dignidade/contracts.
+  libs/shared/ui-foundry/src/lib/organisms/navigation-header/atoms/MobileEmergencyAction.tsx:
+  Nivelado con UrlObject (typedRoutes: true) y telemetría conforme.
+  libs/shared/ui-foundry/src/lib/organisms/navigation-header/atoms/MobileNavigationLink.tsx:
+  Nivelado con UrlObject, aria-current="page" y telemetría conforme.
+  libs/shared/ui-foundry/src/lib/organisms/navigation-header/atoms/NavigationLink.tsx: Nivelado con
+  UrlObject (typedRoutes: true) y resolución localizada única.
+  apps/floripa-dignidade/src/app/[locale]/newsletter/welcome/logic/LoadNewsletterWelcomeDictionary.ts:
+  Eliminado await import(relativePath) opaco por importaciones estáticamente analizables por
+  Turbopack.
+  apps/floripa-dignidade/src/app/[locale]/observatorio/gastos-publicos/logic/LoadObservatoryDictionary.ts:
+  Eliminado await import(relativePath) opaco por importaciones estáticamente analizables por
+  Turbopack. apps/floripa-dignidade/src/app/[locale]/observatorio/gastos-publicos/page.tsx:
+  Inyectado export const dynamic = 'force-dynamic' para evitar que next build realice llamadas HTTP
+  externas bloqueantes durante la compilación estática.
+  apps/floripa-dignidade/src/app/[locale]/observatorio/gastos-publicos/components/ExpenditureTableRow.tsx:
+  Migrada la importación a MaskCitizenIdentity (Ítem 2.5 de TODO.md) con timezone explícito
+  America/Sao_Paulo. libs/shared/ui-foundry/tsconfig.json: Eliminado el bloque "references": [{
+  "path": "./tsconfig.lib.json" }] residual, erradicando los errores TS6306 y TS6310.
+
+---

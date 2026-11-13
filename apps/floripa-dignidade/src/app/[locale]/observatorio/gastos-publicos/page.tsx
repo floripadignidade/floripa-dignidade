@@ -3,12 +3,12 @@
  * @description Punto de acceso institucional para la auditoría ciudadana de recursos
  * públicos. Valida el segmento `[locale]` contra el catálogo único BCP 47
  * (`@floripa-dignidade/contracts`), ejecuta la verificación de acceso fuera del
- * bloque de captura (preservando `NEXT_REDIRECT`), mide la ejecución con
- * `TraceExecutionTime`, carga diccionarios con cascada resiliente (ADR 0030) y
- * garantiza disponibilidad continua sin emitir errores 404 por contingencias de datos.
+ * bloque de captura (preservando `NEXT_REDIRECT`), fuerza renderizado dinámico en el servidor
+ * para prevenir bloqueos de red en tiempo de compilación, mide latencia con `TraceExecutionTime`,
+ * carga diccionarios con cascada resiliente (ADR 0030) y garantiza disponibilidad continua.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & ADR 0030).
- * Normas: BCP 47 (RFC 5646), ISO/IEC 11179, ISO/IEC 25010 y W3C WCAG 2.2.
+ * Normas: BCP 47 (RFC 5646), ISO/IEC 11179, ISO/IEC 25010 y W3C WCAG 2.2 AAA.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -43,7 +43,13 @@ import { LoadObservatoryDictionary } from './logic/LoadObservatoryDictionary';
 import { ResolveObservatoryInMemoryFallback } from './logic/ObservatoryFallbackDictionaries';
 import { ValidateObservatoryAccess } from './logic/ValidateObservatoryAccess';
 
-const ORCHESTRATOR_IDENTIFIER = 'PUBLIC_EXPENDITURE_OBSERVATORY_SHELL' as ModuleIdentifier;
+/**
+ * Fuerza la ejecución dinámica en el servidor (RSC) para evitar que 'next build'
+ * ejecute llamadas de red externas a portales gubernamentales durante la compilación en Vercel.
+ */
+export const dynamic = 'force-dynamic';
+
+const ORCHESTRATOR_MODULE_IDENTIFIER = 'PUBLIC_EXPENDITURE_OBSERVATORY_SHELL' as ModuleIdentifier;
 
 interface IObservatoryPageProperties {
   readonly params: Promise<{ readonly locale: string }>;
@@ -105,11 +111,11 @@ export default async function PublicExpenditureObservatoryPage(
 
   const validatedLocaleLiteral = localeValidationResult.data;
 
-  // Guard perimetral fuera de TraceExecutionTime y try/catch para preservar NEXT_REDIRECT
+  // Verificación perimetral de acceso fuera de TraceExecutionTime y try/catch para preservar NEXT_REDIRECT
   await ValidateObservatoryAccess(validatedLocaleLiteral);
 
   return await TraceExecutionTime(
-    ORCHESTRATOR_IDENTIFIER,
+    ORCHESTRATOR_MODULE_IDENTIFIER,
     'ASSEMBLE_OBSERVATORY_DASHBOARD' as OperationCode,
     correlationIdentifier,
     async (): Promise<React.JSX.Element> => {
@@ -133,7 +139,7 @@ export default async function PublicExpenditureObservatoryPage(
         void EmitTelemetrySignal({
           occurrenceTimestampISO: new Date().toISOString(),
           severityLevelLiteral: 'INFO',
-          moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
+          moduleIdentifierLiteral: ORCHESTRATOR_MODULE_IDENTIFIER,
           operationCodeLiteral: 'OBSERVATORY_DASHBOARD_ASSEMBLED' as OperationCode,
           correlationIdentifier,
           messageContentLiteral: `Observatorio ensamblado nominalmente en [${validatedLocaleLiteral}].`,
@@ -164,7 +170,7 @@ export default async function PublicExpenditureObservatoryPage(
         void EmitTelemetrySignal({
           occurrenceTimestampISO: new Date().toISOString(),
           severityLevelLiteral: 'CRITICAL',
-          moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
+          moduleIdentifierLiteral: ORCHESTRATOR_MODULE_IDENTIFIER,
           operationCodeLiteral: 'OBSERVATORY_FAULT_TRACE' as OperationCode,
           correlationIdentifier,
           messageContentLiteral:

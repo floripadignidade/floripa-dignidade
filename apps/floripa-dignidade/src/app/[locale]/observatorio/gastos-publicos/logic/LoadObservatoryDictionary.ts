@@ -2,12 +2,12 @@
  * @section Observatory Logic - Resilient Dictionary Loader (Atom)
  * @description Carga y valida contra `ObservatoryI18nSchema` el diccionario localizado del
  * Observatorio de Gastos Públicos aplicando la cascada resiliente de ADR 0030:
- * `diccionario unificado compilado → silo local (carpeta por idioma o plano) → idioma base →
- * idioma fuente por defecto → respaldo inmutable en memoria`, midiendo latencia con
- * `TraceExecutionTime` y garantizando cero errores 404 por claves o archivos faltantes.
+ * `diccionario unificado compilado → silo local estático → idioma base → idioma fuente →
+ * respaldo inmutable en memoria`, eliminando importaciones opacas para compatibilidad estricta
+ * con Turbopack y Next.js 16 sin generar errores 404 por claves secundarias.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & ADR 0030).
- * Normas: BCP 47 (RFC 5646), ISO/IEC 11179 e ISO/IEC 25010 (Disponibilidad y Confiabilidad).
+ * Normas: BCP 47 (RFC 5646), ISO/IEC 11179 e ISO/IEC 25010 (Disponibilidad y Rendimiento).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -35,12 +35,16 @@ const OBSERVATORY_LOADER_MODULE_IDENTIFIER = 'OBSERVATORY_DICTIONARY_LOADER' as 
 
 type TPlainRecord = Readonly<Record<string, unknown>>;
 
-const buildLocaleCascadeCollection = (requestedLocaleLiteral: string): readonly string[] => {
-  const baseLanguageCode = requestedLocaleLiteral.split('-')[0]?.toLowerCase() ?? '';
-  const baseEntry = SUPPORTED_LOCALES_REGISTRY.find(
+const findActiveBaseLocaleEntry = (baseLanguageCode: string) => {
+  return SUPPORTED_LOCALES_REGISTRY.find(
     (entry) =>
       entry.isEnabledBoolean && entry.iso639LanguageCodeLiteral.toLowerCase() === baseLanguageCode,
   );
+};
+
+const buildLocaleCascadeCollection = (requestedLocaleLiteral: string): readonly string[] => {
+  const baseLanguageCode = requestedLocaleLiteral.split('-')[0]?.toLowerCase() ?? '';
+  const baseEntry = findActiveBaseLocaleEntry(baseLanguageCode);
 
   return Object.freeze(
     Array.from(
@@ -88,25 +92,21 @@ const tryResolveFromUnifiedDictionaryAction = async (
   }
 };
 
+/**
+ * Resuelve el silo local mediante importación estáticamente analizable por Turbopack/Webpack.
+ */
 const tryResolveFromLocalSiloAction = async (
   localeCodeLiteral: string,
 ): Promise<IObservatoryI18n | null> => {
-  const candidateRelativePathsCollection = [
-    `../../i18n/${localeCodeLiteral}/observatorio.json`,
-    `../../i18n/${localeCodeLiteral}.json`,
-  ];
-
-  for (const relativePath of candidateRelativePathsCollection) {
-    try {
-      const importedModule = (await import(relativePath)) as { readonly default?: unknown };
-      const validationResult = ObservatoryI18nSchema.safeParse(importedModule.default);
-      if (validationResult.success) return validationResult.data;
-    } catch {
-      continue;
-    }
+  try {
+    const importedModule = (await import(`../../i18n/${localeCodeLiteral}.json`)) as {
+      readonly default?: unknown;
+    };
+    const validationResult = ObservatoryI18nSchema.safeParse(importedModule.default);
+    return validationResult.success ? validationResult.data : null;
+  } catch {
+    return null;
   }
-
-  return null;
 };
 
 const emitFallbackWarningTelemetryAction = (

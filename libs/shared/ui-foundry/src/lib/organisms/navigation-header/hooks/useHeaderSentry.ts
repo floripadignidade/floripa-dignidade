@@ -1,100 +1,118 @@
 'use client';
 
 /**
- * @section UI Logic - Header Sentry (Hook)
- * @description Orquestador sensorial encargado de monitorear la actividad física
- * del hardware (scroll) y gestionar la visibilidad del menú de navegación móvil.
- * Implementa optimización de rendimiento mediante oyentes pasivos.
+ * @section Shared UI Foundry - Header Hardware Sentry Hook (Atom)
+ * @description Hook sensorial encargado de monitorear el desplazamiento vertical (scroll)
+ * mediante oyentes pasivos y administrar el estado de apertura del menú móvil.
+ * Sincroniza el estado inicial en montaje, estabiliza referencias con `useMemo` y emite
+ * telemetría conforme a `TelemetrySignalSchema`.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & ISO Technical Naming.
- * SANEADO Zenith: Erradicación de entropía de importación, inyección de
- * constantes técnicas y blindaje contra ejecución en servidor (SSR).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Rendimiento y Mantenibilidad).
  *
- * @author  Raz Podestá - Metashark Tech
+ * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-/* 1. Infraestructura Core (Atmos PascalCase) */
-import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
+import {
+  EmitTelemetrySignal,
+  GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+} from '@floripa-dignidade/telemetry';
 
 /**
  * @interface IUseHeaderSentryResult
- * @description Contrato de salida inmutable para el control del orquestador de navegación.
+ * @description Contrato de salida inmutable para el control de estado del encabezado.
  */
 export interface IUseHeaderSentryResult {
-  /** Indica si el menú de navegación móvil está físicamente desplegado. */
+  /** Indica si el cajón de navegación móvil está actualmente desplegado. */
   readonly isMobileMenuOpenBoolean: boolean;
-  /** Indica si el desplazamiento vertical ha superado el umbral institucional. */
+  /** Indica si el desplazamiento vertical superó el umbral de transición visual. */
   readonly isScrollThresholdExceededBoolean: boolean;
-  /** Acción atómica para alternar la visibilidad del menú móvil. */
+  /** Alterna el estado de visibilidad del menú móvil. */
   readonly toggleMobileMenuAction: () => void;
+  /** Cierra explícitamente el menú móvil tras navegación o cancelación. */
+  readonly closeMobileMenuAction: () => void;
 }
 
-/**
- * @constant SCROLL_ACTIVATION_THRESHOLD_PIXELS_QUANTITY
- * Umbral técnico (40px) para transicionar el encabezado de transparente a sólido.
- */
+/** Umbral técnico en píxeles (40px) para activar el modo compacto del encabezado. */
 const SCROLL_ACTIVATION_THRESHOLD_PIXELS_QUANTITY = 40;
+const FALLBACK_SENSOR_MODULE_IDENTIFIER = 'HEADER_HARDWARE_SENTRY_HOOK' as ModuleIdentifier;
 
 /**
- * Hook de vigilancia para la respuesta del encabezado ante estímulos del ciudadano.
+ * Monitorea el scroll del navegador con listeners pasivos y gestiona el menú móvil.
  *
- * @param moduleIdentifierLiteral - Identificador nominal del componente emisor.
- * @returns {IUseHeaderSentryResult} Sensores de estado y controladores de visibilidad.
+ * @param moduleIdentifierLiteral - Identificador técnico del componente consumidor.
+ * @returns {IUseHeaderSentryResult} Sensores de estado y acciones memoizadas.
  */
 export const useHeaderSentry = (moduleIdentifierLiteral: string): IUseHeaderSentryResult => {
-  // --- 1. ESTADOS DE INTERFAZ (Prosa Booleana) ---
   const [isMobileMenuOpenBoolean, setIsMobileMenuOpenBoolean] = useState(false);
   const [isScrollThresholdExceededBoolean, setIsScrollThresholdExceededBoolean] = useState(false);
+  const hasTelemetryActivatedBooleanReference = useRef(false);
 
-  /**
-   * @section Gestión de Sensores de Hardware (Scroll)
-   */
+  const validatedModuleIdentifier = useMemo((): ModuleIdentifier => {
+    const parseResult = ModuleIdentifierSchema.safeParse(moduleIdentifierLiteral);
+    return parseResult.success ? parseResult.data : FALLBACK_SENSOR_MODULE_IDENTIFIER;
+  }, [moduleIdentifierLiteral]);
+
   useEffect(() => {
-    /** 🛡️ ADUANA SRE: Evitamos la vinculación de eventos en entornos de servidor. */
-    if (typeof window === 'undefined') return;
-
-    const correlationIdentifier = GenerateCorrelationIdentifier();
+    if (typeof window === 'undefined') {
+      return;
+    }
 
     const handleWindowScrollAction = (): void => {
-      const currentScrollYPositionQuantity = window.scrollY;
-
       const hasExceededThresholdBoolean =
-        currentScrollYPositionQuantity > SCROLL_ACTIVATION_THRESHOLD_PIXELS_QUANTITY;
+        window.scrollY > SCROLL_ACTIVATION_THRESHOLD_PIXELS_QUANTITY;
 
       setIsScrollThresholdExceededBoolean(hasExceededThresholdBoolean);
     };
 
-    /**
-     * Registro de oyente pasivo para optimizar el Main Thread
-     * y mejorar la métrica INP (Interaction to Next Paint).
-     */
     window.addEventListener('scroll', handleWindowScrollAction, { passive: true });
+    handleWindowScrollAction();
 
-    void EmitTelemetrySignal({
-      severityLevelLiteral: 'INFO',
-      moduleIdentifierLiteral,
-      operationCodeLiteral: 'HEADER_HARDWARE_SENSORS_ACTIVATED',
-      correlationIdentifier,
-      messageContentLiteral: 'Vigilancia de scroll e interfaz móvil inicializada con éxito.',
-      semanticIntentTag: 'UI_SENSOR_VINCULATION',
-    });
+    if (!hasTelemetryActivatedBooleanReference.current) {
+      hasTelemetryActivatedBooleanReference.current = true;
 
-    return () => window.removeEventListener('scroll', handleWindowScrollAction);
-  }, [moduleIdentifierLiteral]);
+      void EmitTelemetrySignal({
+        occurrenceTimestampISO: new Date().toISOString(),
+        severityLevelLiteral: 'INFO',
+        moduleIdentifierLiteral: validatedModuleIdentifier,
+        operationCodeLiteral: 'HEADER_HARDWARE_SENSORS_ACTIVATED' as OperationCode,
+        correlationIdentifier: GenerateCorrelationIdentifier(),
+        messageContentLiteral: 'Vigilancia de scroll e interfaz móvil inicializada con éxito.',
+        semanticIntentTag: 'UI_SENSOR_VINCULATION',
+      });
+    }
 
-  /**
-   * @section Acciones de Mutación (Controllers)
-   */
+    return () => {
+      window.removeEventListener('scroll', handleWindowScrollAction);
+    };
+  }, [validatedModuleIdentifier]);
+
   const toggleMobileMenuAction = useCallback((): void => {
     setIsMobileMenuOpenBoolean((wasOpenBoolean) => !wasOpenBoolean);
   }, []);
 
-  return {
-    isMobileMenuOpenBoolean,
-    isScrollThresholdExceededBoolean,
-    toggleMobileMenuAction,
-  };
+  const closeMobileMenuAction = useCallback((): void => {
+    setIsMobileMenuOpenBoolean(false);
+  }, []);
+
+  return useMemo(
+    () => ({
+      isMobileMenuOpenBoolean,
+      isScrollThresholdExceededBoolean,
+      toggleMobileMenuAction,
+      closeMobileMenuAction,
+    }),
+    [
+      isMobileMenuOpenBoolean,
+      isScrollThresholdExceededBoolean,
+      toggleMobileMenuAction,
+      closeMobileMenuAction,
+    ],
+  );
 };

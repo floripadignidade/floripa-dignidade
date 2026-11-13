@@ -94,7 +94,7 @@
 
 ## [ ] FASE 3: Ejecución de Migración Relacional (Supabase Cloud Ledger)
 
-- [ ] **Ejecución en Supabase SQL Editor (Proyecto `vekjuwrdeozvvnqyweox`):**
+- [] **Ejecución en Supabase SQL Editor (Proyecto `vekjuwrdeozvvnqyweox`):**
   - [ ] Ejecutar `database/00_migration_master_schema.sql` y certificar la creación de
         `public.citizen_identities_ledger`, índices y políticas RLS.
   - [ ] Crear y ejecutar `database/02_ecosystem_operational_ledgers.sql` conteniendo las tablas del

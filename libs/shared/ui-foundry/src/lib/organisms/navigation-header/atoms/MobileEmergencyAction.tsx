@@ -2,87 +2,99 @@
 
 /**
  * @section Shared UI Foundry - Mobile Emergency Action (Atom)
- * @description Átomo de alta jerarquía visual diseñado para el acceso inmediato
- * al canal de denuncias ciudadanas. Implementa rastro telemétrico de conversión
- * de impacto y accesibilidad reforzada para situaciones de crisis.
+ * @description Átomo de alta jerarquía visual diseñado para el acceso inmediato al
+ * canal de denuncias ciudadanas desde la navegación móvil. Preserva el idioma BCP 47
+ * activo, cumple con Next.js 16 `typedRoutes: true` mediante `UrlObject`, respeta
+ * semántica WAI-ARIA/WCAG 2.2 y emite telemetría conforme a `TelemetrySignalSchema`.
  *
- * Protocolo OEDP-V17.0 - High Performance UI & SRE Resilience.
- * SANEADO Zenith: Aislamiento funcional, validación de ADN mediante Zod,
- * cumplimiento de Prosa ISO y telemetría de Derechos Humanos.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 y W3C WCAG 2.2 AAA.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ShieldCheck } from 'lucide-react';
 import { z } from 'zod';
 
-/* 1. Infraestructura Core (Atmos PascalCase - Clean Paths) */
-import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
+import {
+  EmitTelemetrySignal,
+  GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  type OperationCode,
+} from '@floripa-dignidade/telemetry';
+
+import { ResolveLocalizedNavigationPath } from '../logic/ResolveLocalizedNavigationPath';
 
 /**
- * @section Aduana de ADN (Prop Validation)
+ * @name MobileEmergencyActionPropertiesSchema
+ * @description Contrato Zod inmutable para validar las propiedades de entrada del botón de auxilio.
  */
-const MobileEmergencyActionPropertiesSchema = z
+export const MobileEmergencyActionPropertiesSchema = z
   .object({
-    /** Etiqueta localizada para la acción (ej: "DENÚNCIA URGENTE"). */
-    labelLiteral: z.string().min(1),
-    /** Identificador forense para el rastro telemétrico. */
-    actionIdentifierLiteral: z.string().default('MOBILE_EMERGENCY_TRIGGER'),
+    /** Etiqueta textual localizada para la acción de emergencia. */
+    labelLiteral: z.string().trim().min(1),
+    /** Ruta destino relativa al dominio institucional (por defecto `/denuncia`). */
+    hrefLiteral: z.string().trim().min(1).default('/denuncia'),
+    /** Identificador forense para trazabilidad telemétrica de conversión cívica. */
+    actionIdentifierLiteral: z.string().trim().min(1).default('MOBILE_EMERGENCY_TRIGGER'),
   })
   .readonly();
 
-export type IMobileEmergencyActionProperties = z.infer<
+export type IMobileEmergencyActionProperties = z.input<
   typeof MobileEmergencyActionPropertiesSchema
 >;
 
-/** Identificador técnico del aparato para el Neural Sentinel. */
-const ATOM_IDENTIFIER = 'MOBILE_EMERGENCY_ACTION_ATOM';
+const ATOM_MODULE_IDENTIFIER = 'MOBILE_EMERGENCY_ACTION_ATOM' as ModuleIdentifier;
 
 /**
- * Aparato encargado de la señalética de auxilio y conversión en el entorno móvil.
+ * Renderiza el acceso prioritario al canal de denuncias con área táctil mínima WCAG (44x44px).
  *
- * @param propertiesSnapshot - Snapshot de configuración inyectado por el orquestador.
- * @returns {React.ReactElement} Botón de emergencia táctil y auditado.
+ * @param propertiesSnapshot - Etiqueta localizada e identificadores de acción opcionales.
+ * @returns {React.ReactElement} Enlace de acción prioritaria accesible y auditado.
  */
 export const MobileEmergencyAction: React.FC<IMobileEmergencyActionProperties> = (
   propertiesSnapshot,
 ) => {
-  // 1. ADUANA DE ADN: Purificación de entrada
-  const { labelLiteral, actionIdentifierLiteral } =
+  const validatedPropertiesSnapshot =
     MobileEmergencyActionPropertiesSchema.parse(propertiesSnapshot);
 
-  /**
-   * @section Gestión de Telemetría de Conversión
-   * 🛡️ LEY ZENITH: La activación de este canal es un evento de alta saliencia.
-   * Se utiliza el tag 'HUMAN_RIGHTS_CONVERSION' para el triaje de la IA.
-   */
+  const { labelLiteral, hrefLiteral, actionIdentifierLiteral } = validatedPropertiesSnapshot;
+  const currentPathnameLiteral = usePathname();
+
+  const localizedDestinationPathnameLiteral = useMemo(
+    () => ResolveLocalizedNavigationPath(hrefLiteral, currentPathnameLiteral),
+    [hrefLiteral, currentPathnameLiteral],
+  );
+
   const handleEmergencyTriggerAction = useCallback((): void => {
-    const correlationIdentifier = GenerateCorrelationIdentifier();
+    const occurrenceTimestampISO = new Date().toISOString();
 
     void EmitTelemetrySignal({
+      occurrenceTimestampISO,
       severityLevelLiteral: 'WARNING',
-      moduleIdentifierLiteral: ATOM_IDENTIFIER,
-      operationCodeLiteral: 'EMERGENCY_CHANNEL_ACTIVATED',
-      correlationIdentifier,
-      messageContentLiteral: `Ciudadano activó el búnker de denuncias desde el menú móvil: [${labelLiteral}].`,
+      moduleIdentifierLiteral: ATOM_MODULE_IDENTIFIER,
+      operationCodeLiteral: 'EMERGENCY_CHANNEL_ACTIVATED' as OperationCode,
+      correlationIdentifier: GenerateCorrelationIdentifier(),
+      messageContentLiteral: `Activación del canal de denuncias desde el menú móvil: [${labelLiteral}].`,
       semanticIntentTag: 'HUMAN_RIGHTS_CONVERSION',
       contextMetadataSnapshot: {
-        actionId: actionIdentifierLiteral,
-        timestampISO: new Date().toISOString(),
+        actionIdentifierLiteral,
+        destinationPathnameLiteral: localizedDestinationPathnameLiteral,
+        occurrenceTimestampISO,
       },
     });
-  }, [labelLiteral, actionIdentifierLiteral]);
+  }, [labelLiteral, actionIdentifierLiteral, localizedDestinationPathnameLiteral]);
 
   return (
     <Link
-      href="/denuncia"
+      href={{ pathname: localizedDestinationPathnameLiteral }}
       onClick={handleEmergencyTriggerAction}
       className="mt-4 flex items-center justify-between p-5 rounded-2xl bg-red-50 text-red-700 border border-red-100 active:scale-95 transition-all group touch-target-min"
       aria-label={labelLiteral}
-      role="button"
     >
       <div className="flex items-center gap-4">
         <ShieldCheck
