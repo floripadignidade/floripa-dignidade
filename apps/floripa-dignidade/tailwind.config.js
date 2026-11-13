@@ -1,12 +1,13 @@
 // @ts-check
 /**
  * @section Style Architecture - Tailwind CSS Configuration
- * @description Manifiesto soberano de diseño para el portal ciudadano.
- * Define los límites de la identidad visual, el sistema de espaciado y la
- * purga de rastro muerto (Tree-shaking) para optimización de Core Web Vitals.
+ * @description Manifiesto institucional de diseño para el portal ciudadano Floripa Dignidade.
+ * Define las rutas de escaneo para tree-shaking, preserva íntegramente las escalas cromáticas
+ * base de Tailwind CSS e inyecta los tokens oficiales del Design System (ADR 0029) y tipografías
+ * administradas por Next.js Fonts.
  *
- * Protocolo OEDP-V17.0 - ESM-First Architecture & ISO Standard Naming.
- * SANEADO Zenith: Sincronización con Design System y normalización de rutas.
+ * Protocolo OEDP-V18.1 - ESM-First Architecture & ISO/IEC 11179 Technical Naming.
+ * Normas: ISO/IEC 25010 (Mantenibilidad y Eficiencia), W3C WCAG 2.2 AAA y ADR 0029.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -16,43 +17,58 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import tailwindTypographyPlugin from '@tailwindcss/typography';
 import tailwindAnimatePlugin from 'tailwindcss-animate';
+import tailwindcssColors from 'tailwindcss/colors';
 
 /**
  * @section Resolución de Contexto Isomórfico (ESM)
- * Calculamos las rutas físicas para el escaneo de contenido evitando rastro relativo.
+ * Calculamos la ruta física del directorio de la aplicación para construir globs deterministas.
  */
 const currentFileConfigurationPathLiteral = fileURLToPath(import.meta.url);
 const currentConfigurationDirectoryLiteral = dirname(currentFileConfigurationPathLiteral);
 
 /**
+ * Construye una ruta glob normalizada con separadores POSIX ('/') para garantizar
+ * compatibilidad determinista de fast-glob entre Windows (local) y Linux (Vercel CI).
+ *
+ * @param {string} baseDirectoryLiteral - Ruta absoluta de partida.
+ * @param {string} relativeGlobPatternLiteral - Patrón glob relativo al directorio de la app.
+ * @returns {string} Patrón glob normalizado.
+ */
+const buildNormalizedScanPatternLiteral = (baseDirectoryLiteral, relativeGlobPatternLiteral) =>
+  join(baseDirectoryLiteral, relativeGlobPatternLiteral).replace(/\\/g, '/');
+
+/**
  * @name tailwindConfigurationMaster
- * @description ADN de configuración del motor de utilidades CSS.
+ * @description Configuración maestra del motor de utilidades CSS del portal ciudadano.
  * @type {import('tailwindcss').Config}
  */
 const tailwindConfigurationMaster = {
   /**
-   * @section Fronteras de Escaneo (Swarm Content)
-   * Define dónde el motor busca clases para el empaquetado final.
-   * Se incluyen todos los búnkeres de lógica que poseen representaciones visuales.
+   * @section Fronteras de Escaneo de Contenido
+   * Incluye explícitamente todos los paquetes visuales compartidos, módulos de negocio y motores
+   * evitando escanear especificaciones de prueba o directorios de dependencias.
    */
   content: [
-    // 1. Aplicación Principal
-    join(currentConfigurationDirectoryLiteral, 'src/**/!(*.spec|*.test).{ts,tsx,html}'),
-
-    // 2. Búnker de Fundición Visual (Shared)
-    join(
+    // 1. Aplicación Principal (Portal Ciudadano)
+    buildNormalizedScanPatternLiteral(
       currentConfigurationDirectoryLiteral,
-      '../../libs/shared/src/**/!(*.spec|*.test).{ts,tsx,html}',
+      'src/**/!(*.spec|*.test).{ts,tsx,html}',
     ),
 
-    // 3. Dominios de Negocio (Modules)
-    join(
+    // 2. Capa Compartida (UI Foundry, State Store, Utility, Design System)
+    buildNormalizedScanPatternLiteral(
+      currentConfigurationDirectoryLiteral,
+      '../../libs/shared/*/src/**/!(*.spec|*.test).{ts,tsx,html}',
+    ),
+
+    // 3. Módulos de Dominio (Incluye sub-módulos anidados como whatsapp/communication-service)
+    buildNormalizedScanPatternLiteral(
       currentConfigurationDirectoryLiteral,
       '../../libs/modules/**/src/**/!(*.spec|*.test).{ts,tsx,html}',
     ),
 
-    // 4. Motores Cognitivos (Engines - Visual Atoms)
-    join(
+    // 4. Motores Analíticos y Cognitivos (Componentes visuales auxiliares)
+    buildNormalizedScanPatternLiteral(
       currentConfigurationDirectoryLiteral,
       '../../libs/engines/**/src/**/!(*.spec|*.test).{ts,tsx,html}',
     ),
@@ -61,38 +77,55 @@ const tailwindConfigurationMaster = {
   theme: {
     extend: {
       /**
-       * @section Sincronización Cromática (ISO Design Tokens)
-       * Refleja fielmente el catálogo de colores del GlobalDesignSystem.
+       * @section Sincronización Cromática (ADR 0029 & Design System Tokens)
+       * Se preservan las escalas completas de Tailwind CSS para 'amber' y 'slate'
+       * sobreescribiendo únicamente los pasos institucionales calibrados.
        */
       colors: {
-        // Color Hércules de Autoridad
+        // Primario de Autoridad (Azul Hércules Institucional)
         navy: {
-          900: '#003366',
-          800: '#002852',
+          50: '#EFF4FA',
+          100: '#DCE6F2',
           700: '#001E3D',
+          800: '#002852',
+          900: '#003366',
+          950: '#002244',
         },
-        // Color de Conversión Social e Impacto
-        amber: {
-          500: '#F5A623',
-          600: '#D48806',
-          400: '#F7B84B',
+        // Secundario de Vitalidad Marítima (Azul Bahía)
+        ocean: {
+          600: '#005C99',
         },
-        // Color de Soporte Institucional
+        // Conectividad y Datos Abiertos (Azul Cielo Hercílio)
         bridge: {
+          500: '#4A90E2',
           blue: '#4A90E2',
         },
-        // Escala de Neutros y Superficies
+        // Acento de Conversión Cívica (Ámbar Impacto Social + escala completa Tailwind)
+        amber: {
+          ...tailwindcssColors.amber,
+          400: '#F7B84B',
+          500: '#F5A623',
+          600: '#D48806',
+        },
+        // Escala de Neutros y Superficies de Lectura (Pizarra + escala completa Tailwind)
         slate: {
-          950: '#0F172A',
-          900: '#1E293B',
-          600: '#64748B',
+          ...tailwindcssColors.slate,
           50: '#F8FAFC',
+          600: '#64748B',
+          900: '#1E293B',
+          950: '#0F172A',
+        },
+        // Señales de Estado SRE y Alerta Ciudadana (ADR 0029)
+        status: {
+          error: '#E11D48',
+          success: '#10B981',
+          warning: '#FBBF24',
         },
       },
 
       /**
-       * @section Tipografía Soberana
-       * Inyección de variables CSS gestionadas por Next.js Fonts.
+       * @section Tipografía Institucional
+       * Variables CSS inyectadas en el DOM por 'apps/floripa-dignidade/src/app/fonts.ts'.
        */
       fontFamily: {
         sans: ['var(--font-inter)', 'Inter', 'ui-sans-serif', 'system-ui'],

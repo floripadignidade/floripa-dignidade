@@ -1,9 +1,11 @@
-# Dependencias y Lockfiles gestionados por pnpm
+# Dependencias, almacenes y lockfiles gestionados por pnpm
 node_modules
 **/node_modules
+.pnpm-store
+**/.pnpm-store
 pnpm-lock.yaml
 
-# Artefactos de compilación, caché y despliegue
+# Artefactos de compilación, caché, pruebas y despliegue
 dist
 **/dist
 out-tsc
@@ -12,17 +14,23 @@ out-tsc
 **/.next
 coverage
 **/coverage
+playwright-report
+**/playwright-report
 .nx
 **/.nx
 .swc
 **/.swc
 .cache
 **/.cache
+.eslintcache
+**/.eslintcache
 tmp
 **/tmp
 test-output
 **/test-output
 .vercel
+**/.vercel
+/vercel.json
 
 # Artefactos autogenerados por frameworks y herramientas del monorepo
 **/payload-types.ts
