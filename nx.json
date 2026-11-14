@@ -32,7 +32,7 @@
     },
     "@nx/next:build": {
       "cache": true,
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "inputs": ["production", "^production"]
     },
     "typecheck": {
