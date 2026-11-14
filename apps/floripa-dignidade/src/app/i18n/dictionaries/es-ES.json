@@ -173,6 +173,67 @@
       "noVulnerabilitiesFoundLiteral": "El enjambre de seguridad no detectó brechas en los contratos de ADN auditados."
     }
   },
+  "engines/health-analysis": {
+    "geminiDriver": {
+      "observations": {
+        "nominalInferenceFallbackLiteral": "Inferencia procesada nominalmente por Google Gemini.",
+        "missingCredentialsLiteral": "La clave GOOGLE_GEMINI_API_KEY no está configurada en el entorno.",
+        "invalidKeyFormatLiteral": "La clave GOOGLE_GEMINI_API_KEY no tiene un formato compatible (AIza o AQ.).",
+        "malformedResponseLiteral": "La API de Google Gemini respondió HTTP 200, pero el JSON está corrupto.",
+        "authenticationRejectedLiteral": "Autenticación o permisos rechazados por la API de Google Gemini.",
+        "rateLimitExceededLiteral": "Límite de solicitudes o cuota gratuita excedida en Google Gemini API (HTTP 429).",
+        "modelUnavailableLiteral": "El modelo Gemini solicitado no existe o fue retirado (HTTP 404).",
+        "unexpectedHttpErrorLiteral": "La API de Google Gemini respondió con un error HTTP inesperado.",
+        "networkTimeoutLiteral": "La API de Google Gemini excedió el tiempo límite configurado.",
+        "networkFailureLiteral": "Fallo de comunicación de red con la API de Google Gemini."
+      },
+      "telemetry": {
+        "credentialsRejectedLiteral": "Inferencia con Google Gemini cancelada por ausencia o formato inválido de clave.",
+        "inferenceSuccessLiteral": "Inferencia cognitiva procesada exitosamente mediante Google Gemini.",
+        "inferenceFailureLiteral": "Fallo HTTP devuelto por la API de Google Gemini.",
+        "networkCollapseLiteral": "Fallo crítico de red o timeout al conectar con Google Gemini API."
+      }
+    },
+    "huggingFaceDriver": {
+      "observations": {
+        "missingCredentialsLiteral": "El token de acceso HUGGING_FACE_API_TOKEN no está configurado en el entorno.",
+        "invalidTokenFormatLiteral": "El token HUGGING_FACE_API_TOKEN no cumple con el formato institucional válido.",
+        "invalidEndpointProtocolLiteral": "El endpoint configurado para el enrutador de Hugging Face debe utilizar protocolo seguro HTTPS.",
+        "networkTimeoutLiteral": "El enrutador de inferencia Hugging Face excedió el tiempo límite configurado.",
+        "networkFailureLiteral": "Fallo de comunicación de red con el enrutador de inferencia Hugging Face."
+      },
+      "telemetry": {
+        "credentialsRejectedLiteral": "Consulta al enrutador Hugging Face cancelada por ausencia o inconsistencia de configuración.",
+        "networkCollapseLiteral": "Fallo crítico de red o tiempo límite al consultar el enrutador Hugging Face."
+      }
+    },
+    "huggingFaceTriage": {
+      "observations": {
+        "nominalInferenceFallbackLiteral": "Inferencia procesada nominalmente por el enrutador Hugging Face.",
+        "malformedSuccessPayloadLiteral": "El enrutador Hugging Face respondió con éxito HTTP, pero el cuerpo JSON está corrupto.",
+        "coldStartLoadingLiteral": "El modelo cognitivo está cargando en memoria del enrutador (Cold Start 503). Reintento sugerido.",
+        "authenticationRejectedLiteral": "Autenticación rechazada por Hugging Face Router: HUGGING_FACE_API_TOKEN inválido o sin permisos.",
+        "rateLimitExceededLiteral": "Límite de tasa de solicitudes excedido en Hugging Face Router (HTTP 429).",
+        "modelUnsupportedOrInvalidLiteral": "Modelo no soportado en el proveedor seleccionado o solicitud inválida en Hugging Face Router.",
+        "unexpectedHttpErrorLiteral": "El enrutador de Hugging Face respondió con un código de error HTTP inesperado."
+      },
+      "telemetry": {
+        "inferenceSuccessLiteral": "Inferencia cognitiva procesada con éxito a través de Hugging Face Router.",
+        "inferenceDegradedLatencyLiteral": "Inferencia cognitiva completada en Hugging Face Router con latencia elevada.",
+        "malformedPayloadWarningLiteral": "Respuesta HTTP 200 de Hugging Face Router rechazada por JSON malformado."
+      }
+    }
+  },
+  "engines/health-monitor": {
+    "healthMonitor": {
+      "telemetry": {
+        "probeNominalLiteral": "Auditoría de infraestructura completada en estado nominal (UP).",
+        "probeDegradedLiteral": "Auditoría de infraestructura completada con latencia degradada (DEGRADED).",
+        "probeDownLiteral": "La auditoría de infraestructura detectó indisponibilidad crítica del servicio (DOWN).",
+        "probeTimeoutLiteral": "La sonda de infraestructura excedió el tiempo límite configurado."
+      }
+    }
+  },
   "engines/impact-analytics-engine": {
     "metrics": {
       "WEIGHTED_TRUST_LABEL": "Nivel de Credibilidad Ponderada",

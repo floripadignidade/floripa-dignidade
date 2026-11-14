@@ -1,13 +1,13 @@
 {
-  "generationTimestampISO": "2026-11-14T17:31:43.509Z",
-  "correlationIdentifier": "149afc90-d8e5-41e8-8088-64f950797604",
+  "generationTimestampISO": "2026-11-14T19:56:19.757Z",
+  "correlationIdentifier": "c9327f13-6626-4c95-a171-941b5b8b6622",
   "sourceLocaleIdentifier": "pt-BR",
   "activeLocalesCollection": [
     "pt-BR",
     "es-ES",
     "en-US"
   ],
-  "totalModulesProcessedQuantity": 22,
+  "totalModulesProcessedQuantity": 24,
   "isParityVerifiedBoolean": true,
   "parityViolationsCollection": [],
   "auditTrailCollection": [
@@ -80,6 +80,30 @@
         "en-US"
       ],
       "siloFormatLiteral": "LEGACY_FLAT_FILE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
+    },
+    {
+      "moduleIdentifierLiteral": "engines/health-analysis",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\engines\\health-analysis\\src\\lib\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "FOLDER_PER_LOCALE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
+    },
+    {
+      "moduleIdentifierLiteral": "engines/health-monitor",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\libs\\engines\\health-monitor\\src\\lib\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "FOLDER_PER_LOCALE",
       "missingLocalesCollection": [],
       "parityViolationsCountQuantity": 0
     },

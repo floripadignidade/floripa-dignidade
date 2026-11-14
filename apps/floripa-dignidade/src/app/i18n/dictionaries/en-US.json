@@ -173,6 +173,67 @@
       "noVulnerabilitiesFoundLiteral": "The security swarm detected no breaches in the audited DNA contracts."
     }
   },
+  "engines/health-analysis": {
+    "geminiDriver": {
+      "observations": {
+        "nominalInferenceFallbackLiteral": "Inference processed nominally by Google Gemini.",
+        "missingCredentialsLiteral": "The GOOGLE_GEMINI_API_KEY is not configured in the environment.",
+        "invalidKeyFormatLiteral": "The GOOGLE_GEMINI_API_KEY does not match a valid key format (AIza or AQ.).",
+        "malformedResponseLiteral": "Google Gemini API returned HTTP 200, but the JSON payload is corrupted.",
+        "authenticationRejectedLiteral": "Authentication or permissions rejected by the Google Gemini API.",
+        "rateLimitExceededLiteral": "Request rate limit or free tier quota exceeded on Google Gemini API (HTTP 429).",
+        "modelUnavailableLiteral": "The requested Gemini model was not found or has been retired (HTTP 404).",
+        "unexpectedHttpErrorLiteral": "Google Gemini API responded with an unexpected HTTP error.",
+        "networkTimeoutLiteral": "Google Gemini API exceeded the configured request timeout.",
+        "networkFailureLiteral": "Network communication failure while contacting Google Gemini API."
+      },
+      "telemetry": {
+        "credentialsRejectedLiteral": "Google Gemini inference aborted due to missing or invalid API key.",
+        "inferenceSuccessLiteral": "Cognitive inference processed successfully through Google Gemini.",
+        "inferenceFailureLiteral": "HTTP error returned by the Google Gemini API.",
+        "networkCollapseLiteral": "Critical network or timeout failure while contacting Google Gemini API."
+      }
+    },
+    "huggingFaceDriver": {
+      "observations": {
+        "missingCredentialsLiteral": "The HUGGING_FACE_API_TOKEN access token is not configured in the environment.",
+        "invalidTokenFormatLiteral": "The HUGGING_FACE_API_TOKEN does not match the valid institutional token format.",
+        "invalidEndpointProtocolLiteral": "The configured Hugging Face router endpoint must enforce secure HTTPS transport.",
+        "networkTimeoutLiteral": "The Hugging Face inference router exceeded the configured request timeout.",
+        "networkFailureLiteral": "Network communication failure while contacting the Hugging Face inference router."
+      },
+      "telemetry": {
+        "credentialsRejectedLiteral": "Hugging Face router request aborted due to missing or invalid configuration.",
+        "networkCollapseLiteral": "Critical network or timeout failure while querying the Hugging Face router."
+      }
+    },
+    "huggingFaceTriage": {
+      "observations": {
+        "nominalInferenceFallbackLiteral": "Inference processed nominally by the Hugging Face router.",
+        "malformedSuccessPayloadLiteral": "The Hugging Face router returned HTTP success, but the JSON body is corrupted.",
+        "coldStartLoadingLiteral": "The cognitive model is loading in router memory (Cold Start 503). Retry recommended.",
+        "authenticationRejectedLiteral": "Authentication rejected by Hugging Face Router: invalid or unauthorized HUGGING_FACE_API_TOKEN.",
+        "rateLimitExceededLiteral": "Request rate limit exceeded on Hugging Face Router (HTTP 429).",
+        "modelUnsupportedOrInvalidLiteral": "Model not supported by the selected provider or invalid request on Hugging Face Router.",
+        "unexpectedHttpErrorLiteral": "The Hugging Face router responded with an unexpected HTTP error status."
+      },
+      "telemetry": {
+        "inferenceSuccessLiteral": "Cognitive inference processed successfully through Hugging Face Router.",
+        "inferenceDegradedLatencyLiteral": "Cognitive inference completed on Hugging Face Router with elevated latency.",
+        "malformedPayloadWarningLiteral": "Hugging Face Router HTTP 200 response rejected due to malformed JSON body."
+      }
+    }
+  },
+  "engines/health-monitor": {
+    "healthMonitor": {
+      "telemetry": {
+        "probeNominalLiteral": "Infrastructure audit completed in nominal operational state (UP).",
+        "probeDegradedLiteral": "Infrastructure audit completed with degraded response latency (DEGRADED).",
+        "probeDownLiteral": "Infrastructure audit detected critical service unavailability (DOWN).",
+        "probeTimeoutLiteral": "The infrastructure health probe exceeded the configured timeout threshold."
+      }
+    }
+  },
   "engines/impact-analytics-engine": {
     "metrics": {
       "WEIGHTED_TRUST_LABEL": "Weighted Credibility Level",
