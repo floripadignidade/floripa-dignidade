@@ -1,44 +1,38 @@
 /**
- * @section Analytics Logic - User Interaction Capture
- * @description Captura, purifica y programa el despacho de eventos de comportamiento.
- * Implementa una estrategia de ejecución no bloqueante utilizando 'requestIdleCallback'
- * para proteger los 60/120 FPS de la interfaz ciudadana.
+ * @section Analytics Logic - User Interaction Capture Orchestrator
+ * @description Punto de entrada soberano para la captura, purificación Zod y programación
+ * asíncrona de eventos de comportamiento y Core Web Vitals. Delega el despacho en CPU
+ * ocioso a `ScheduleBackgroundIdleTask`, el transporte de red a `TransmitAnalyticsBeacon`
+ * y la trazabilidad SRE a `EmitAnalyticsSignal`, protegiendo los 120 FPS de la interfaz.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & ISO Technical Naming.
- * SANEADO Zenith: Corrección de nomenclatura booleana (Fix naming-convention)
- * y normalización de rastro forense.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Rendimiento y Mantenibilidad).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
+import { GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
-/* 1. ADN Estructural y Esquemas (Verbatim Module Syntax) */
-import { AnalyticsEventSchema } from './schemas/AnalyticsEvent.schema';
-import type { IAnalyticsEvent } from './schemas/AnalyticsEvent.schema';
-
-/** Identificador técnico del búnker para el Neural Sentinel. */
-const ANALYTICS_MODULE_IDENTIFIER = 'CORE_ANALYTICS_SERVICE';
+import { EmitAnalyticsSignal } from './logic/atoms/EmitAnalyticsSignal';
+import { ScheduleBackgroundIdleTask } from './logic/atoms/ScheduleBackgroundIdleTask';
+import { TransmitAnalyticsBeacon } from './logic/atoms/TransmitAnalyticsBeacon';
+import { AnalyticsEventSchema, type IAnalyticsEvent } from './schemas/AnalyticsEvent.schema';
 
 /**
- * Captura un pulso de interacción, valida su integridad estructural y
- * delega su despacho asíncrono al bus de eventos.
+ * Captura un evento de interacción o métrica de rendimiento y programa su despacho no bloqueante.
  *
- * @param rawInteractionPayload - Datos crudos capturados por los sensores de la UI.
- * @returns {void} Operación de tipo "Fire-and-Forget".
+ * @param rawInteractionPayload - Datos crudos del evento capturados por los sensores de UI o Web Vitals.
  */
 export const CaptureAnalyticsEvent = (rawInteractionPayload: unknown): void => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
-  // 1. ADUANA DE ADN (Safe Parsing)
+  // 1. ADUANA DE ADN (Validación perimetral Zod)
   const validationResult = AnalyticsEventSchema.safeParse(rawInteractionPayload);
 
   if (!validationResult.success) {
-    void EmitTelemetrySignal({
-      severityLevelLiteral: 'WARNING',
-      moduleIdentifierLiteral: ANALYTICS_MODULE_IDENTIFIER,
-      operationCodeLiteral: 'INVALID_ANALYTICS_SCHEMA_DETECTION',
+    EmitAnalyticsSignal({
+      stageLiteral: 'REJECTED',
       correlationIdentifier,
       messageContentLiteral: 'Un evento analítico fue rechazado por fallo de integridad técnica.',
       contextMetadataSnapshot: {
@@ -50,56 +44,36 @@ export const CaptureAnalyticsEvent = (rawInteractionPayload: unknown): void => {
 
   const validatedEventSnapshot: IAnalyticsEvent = validationResult.data;
 
-  /**
-   * @section Lógica de Despacho Asíncrono
-   * Encapsula la transmisión física para ser ejecutada en periodos de inactividad del CPU.
-   */
-  const executeAsynchronousDispatchAction = (): void => {
+  // 2. PROGRAMACIÓN ASÍNCRONA FUERA DEL MAIN THREAD (Delegación Atómica)
+  ScheduleBackgroundIdleTask((): void => {
     try {
-      /**
-       * 🛡️ SANEADO Zenith: Sufijo 'Boolean' inyectado para cumplimiento de la Constitución Técnica.
-       */
-      const isBeaconTransportAvailableBoolean =
-        typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function';
+      // 3. TRANSPORTE DE BALIZA NO BLOQUEANTE (Delegación Atómica)
+      TransmitAnalyticsBeacon(validatedEventSnapshot, correlationIdentifier);
 
-      if (isBeaconTransportAvailableBoolean) {
-        /**
-         * @future_implementation
-         * Integración con el Gateway de Analítica Forense (Fase 9).
-         */
-      }
-
-      void EmitTelemetrySignal({
-        severityLevelLiteral: 'INFO',
-        moduleIdentifierLiteral: ANALYTICS_MODULE_IDENTIFIER,
-        operationCodeLiteral: 'ANALYTICS_EVENT_DISPATCHED',
+      // 4. REPORTE TELEMÉTRICO NOMINAL SRE
+      EmitAnalyticsSignal({
+        stageLiteral: 'DISPATCHED',
         correlationIdentifier,
         messageContentLiteral: `Evento capturado exitosamente: ${validatedEventSnapshot.eventName}`,
-        contextMetadataSnapshot: { eventNameLiteral: validatedEventSnapshot.eventName },
+        contextMetadataSnapshot: {
+          eventNameLiteral: validatedEventSnapshot.eventName,
+          capturedAtMilliseconds: validatedEventSnapshot.capturedAtMilliseconds,
+        },
       });
-    } catch (caughtError: unknown) {
+    } catch (caughtExecutionError: unknown) {
       const errorDescriptionLiteral =
-        caughtError instanceof Error ? caughtError.message : String(caughtError);
+        caughtExecutionError instanceof Error
+          ? caughtExecutionError.message
+          : String(caughtExecutionError);
 
-      void EmitTelemetrySignal({
-        severityLevelLiteral: 'ERROR',
-        moduleIdentifierLiteral: ANALYTICS_MODULE_IDENTIFIER,
-        operationCodeLiteral: 'ANALYTICS_DISPATCH_FAILURE',
+      EmitAnalyticsSignal({
+        stageLiteral: 'FAILED',
         correlationIdentifier,
         messageContentLiteral: 'Fallo crítico al intentar despachar evento analítico.',
-        contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
+        contextMetadataSnapshot: {
+          errorTraceLiteral: errorDescriptionLiteral,
+        },
       });
     }
-  };
-
-  /**
-   * @section Planificación de Ejecución (SRE Optimization)
-   * Priorizamos el uso de requestIdleCallback para no competir con el renderizado de React 19.
-   */
-  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-    window.requestIdleCallback(() => executeAsynchronousDispatchAction(), { timeout: 2000 });
-  } else {
-    // Fallback para entornos sin soporte de Idle o Server-side
-    setTimeout(() => executeAsynchronousDispatchAction(), 1);
-  }
+  });
 };

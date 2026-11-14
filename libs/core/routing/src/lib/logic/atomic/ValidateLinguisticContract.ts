@@ -1,69 +1,96 @@
 /**
- * @section Routing Logic - Linguistic Contract Guardian Apparatus
- * @description Aparato de auditoría estructural que garantiza que los diccionarios
- * JSON cumplan estrictamente con el ADN (Zod Schema) definido en el búnker.
+ * @section Routing Logic - Linguistic Contract Validator (Atom)
+ * @description Validador atómico encargado de certificar que un payload de traducción
+ * cumpla estrictamente con el contrato estructural Zod definido para el módulo.
+ * Emite telemetría forense SRE conforme a `TelemetrySignalSchema` y aborta la ejecución
+ * mediante `InternalSystemException` ante cualquier corrupción estructural en runtime.
  *
- * Protocolo OEDP-V15.0 - Structural Integrity, Type Resilience & Standard Exceptions.
- * @author Dirección de Ingeniería - Floripa Dignidade
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Confiabilidad) y ADR 0030.
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
-import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
+import type { ZodType } from 'zod';
 
+/* 1. Infraestructura Core de Excepciones y Telemetría */
 import { InternalSystemException } from '@floripa-dignidade/exceptions';
+import {
+  EmitTelemetrySignal,
+  GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+} from '@floripa-dignidade/telemetry';
 
-/** 🛡️ SANEAMIENTO Zenith: Importación exclusiva de ADN estructural */
-import type { ZodTypeAny } from 'zod';
+const GUARDIAN_MODULE_IDENTIFIER = ModuleIdentifierSchema.parse(
+  'LINGUISTIC_CONTRACT_GUARDIAN',
+) as ModuleIdentifier;
 
 /**
- * Valida la integridad de un aparato lingüístico contra su esquema soberano.
+ * Valida la integridad de un diccionario de traducción contra su contrato estructural Zod.
  *
- * @param apparatusIdentifierLiteral - Nombre técnico del búnker auditado.
- * @param contractSovereignSchema - Esquema de Zod (ZodTypeAny para soportar Readonly/Object).
- * @param jsonDictionaryPayload - Contenido crudo del archivo JSON de traducción.
- * @param targetLocaleIdentifier - Idioma que se está auditando.
- * @throws {InternalSystemException} Si el contrato JSON no coincide con el ADN esperado.
+ * @template TDictionary - Tipo inferido esperado para el contenido del diccionario.
+ * @param moduleIdentifierLiteral - Nombre técnico o ruta del módulo bajo auditoría.
+ * @param linguisticContractSchema - Esquema Zod de validación estructural.
+ * @param jsonDictionaryPayload - Contenido crudo del archivo o módulo JSON de traducción.
+ * @param targetLocaleIdentifier - Código BCP 47 del idioma auditado.
+ * @returns {TDictionary} Diccionario purificado y sellado contra mutaciones.
+ * @throws {InternalSystemException} Si el payload viola el contrato de datos esperado.
  */
-export const ValidateLinguisticContract = (
-  apparatusIdentifierLiteral: string,
-  contractSovereignSchema: ZodTypeAny, // SANEADO: Uso directo del tipo sin instanciar 'z'
+export const ValidateLinguisticContract = <TDictionary = unknown>(
+  moduleIdentifierLiteral: string,
+  linguisticContractSchema: ZodType<TDictionary>,
   jsonDictionaryPayload: unknown,
   targetLocaleIdentifier: string,
-): void => {
+): TDictionary => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
 
-  // 1. Auditoría de ADN (Safe Parsing)
-  const validationResult = contractSovereignSchema.safeParse(jsonDictionaryPayload);
+  // 1. AUDITORÍA ESTRUCTURAL DE ADN (Safe Parsing)
+  const validationResult = linguisticContractSchema.safeParse(jsonDictionaryPayload);
 
   if (!validationResult.success) {
-    const errorMetadata = validationResult.error.format();
+    const structuralIssuesCollection = validationResult.error.format();
+    const occurrenceTimestampISO = new Date().toISOString();
 
-    EmitTelemetrySignal({
-      severityLevel: 'CRITICAL',
-      moduleIdentifier: 'INTEGRITY_GUARDIAN',
-      operationCode: 'LINGUISTIC_CONTRACT_VIOLATION',
+    void EmitTelemetrySignal({
+      occurrenceTimestampISO,
+      severityLevelLiteral: 'CRITICAL',
+      moduleIdentifierLiteral: GUARDIAN_MODULE_IDENTIFIER,
+      operationCodeLiteral: 'LINGUISTIC_CONTRACT_VIOLATION' as OperationCode,
       correlationIdentifier,
-      message: `Integridad de Aparato Fallida: [${apparatusIdentifierLiteral}] en [${targetLocaleIdentifier}]`,
-      contextMetadata: {
-        apparatus: apparatusIdentifierLiteral,
-        locale: targetLocaleIdentifier,
-        missingFields: errorMetadata,
-      },
+      messageContentLiteral: `Violación de contrato lingüístico: [${moduleIdentifierLiteral}] en [${targetLocaleIdentifier}].`,
+      semanticIntentTag: 'I18N_CONTRACT_VIOLATION',
+      contextMetadataSnapshot: Object.freeze({
+        moduleIdentifierLiteral,
+        targetLocaleIdentifier,
+        missingFieldsSnapshot: structuralIssuesCollection,
+      }),
     });
 
-    // 2. Colapso Controlado (Standard Exception Engine)
     throw new InternalSystemException('VIOLACION_DE_CONTRATO_LINGUISTICO', {
-      apparatusIdentifierLiteral,
+      moduleIdentifierLiteral,
       targetLocaleIdentifier,
-      validationIssues: errorMetadata,
+      validationIssuesCollection: structuralIssuesCollection,
+      correlationIdentifier,
     });
   }
 
-  // 3. Reporte de Salud Estructural
-  EmitTelemetrySignal({
-    severityLevel: 'INFO',
-    moduleIdentifier: 'INTEGRITY_GUARDIAN',
-    operationCode: 'APPARATUS_CONTRACT_VERIFIED',
+  // 2. REPORTE TELEMÉTRICO DE ESTADO NOMINAL
+  void EmitTelemetrySignal({
+    occurrenceTimestampISO: new Date().toISOString(),
+    severityLevelLiteral: 'INFO',
+    moduleIdentifierLiteral: GUARDIAN_MODULE_IDENTIFIER,
+    operationCodeLiteral: 'APPARATUS_CONTRACT_VERIFIED' as OperationCode,
     correlationIdentifier,
-    message: `Aparato íntegro: ${apparatusIdentifierLiteral} (${targetLocaleIdentifier})`,
+    messageContentLiteral: `Contrato lingüístico certificado: [${moduleIdentifierLiteral}] (${targetLocaleIdentifier}).`,
+    semanticIntentTag: 'I18N_CONTRACT_VERIFIED',
+    contextMetadataSnapshot: Object.freeze({
+      moduleIdentifierLiteral,
+      targetLocaleIdentifier,
+    }),
   });
+
+  return Object.freeze(validationResult.data);
 };

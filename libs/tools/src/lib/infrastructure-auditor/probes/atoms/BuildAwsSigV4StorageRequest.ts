@@ -1,8 +1,9 @@
 /**
- * @section Infrastructure Auditor - AWS SigV4 Storage Request Builder (Atom)
- * @description Átomo de lógica pura encargado de validar la URI del endpoint S3,
- * derivar la clave criptográfica AWS Signature Version 4 (SigV4) mediante 'node:crypto'
- * y ensamblar las cabeceras autenticadas para la sonda de Supabase Storage.
+ * @section Infrastructure Auditor - AWS SigV4 Storage Request Builder (Orchestrator)
+ * @description Orquestador de firma AWS Signature Version 4 (SigV4) para la sonda
+ * física de Supabase Storage S3. Valida parámetros con Zod, resuelve coordenadas URI
+ * preservando el `pathname` base del proveedor, delega el cálculo HMAC-SHA256 en átomos
+ * puros y emite telemetría SRE ante entradas malformadas manteniendo compatibilidad total.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Mantenibilidad) e ISO/IEC 27001.
@@ -11,132 +12,115 @@
  * @license UNLICENSED
  */
 
-import { createHash, createHmac } from 'node:crypto';
-import { URL } from 'node:url';
+import {
+  EmitTelemetrySignal,
+  GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  type OperationCode,
+} from '@floripa-dignidade/telemetry';
 
-/**
- * @constant EMPTY_PAYLOAD_SHA256_HASH_HEX_LITERAL
- * Hash SHA-256 de un cuerpo vacío, constante canónica exigida por AWS SigV4.
- */
-const EMPTY_PAYLOAD_SHA256_HASH_HEX_LITERAL =
-  'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+import { ComputeAwsSigV4AuthorizationHeader } from './sigv4/ComputeAwsSigV4AuthorizationHeader';
+import { ResolveAwsSigV4EndpointCoordinates } from './sigv4/ResolveAwsSigV4EndpointCoordinates';
+import {
+  AwsSigV4RequestDescriptorSchema,
+  BuildAwsSigV4RequestParametersSchema,
+  EMPTY_PAYLOAD_SHA256_HASH_HEX_LITERAL,
+  type IAwsSigV4RequestDescriptor,
+  type IBuildAwsSigV4RequestParameters,
+} from './sigv4/schemas/AwsSigV4StorageRequest.schema';
 
-/**
- * @interface IBuildAwsSigV4RequestParameters
- * @description Contrato inmutable con las credenciales y coordenadas requeridas para firmar.
- */
-export interface IBuildAwsSigV4RequestParameters {
-  readonly s3EndpointLiteral: string;
-  readonly accessKeyIdentifierSecret: string;
-  readonly secretAccessKeySecret: string;
-  readonly bucketNameLiteral: string;
-  readonly regionNameLiteral: string;
-}
+export {
+  AwsSigV4RequestDescriptorSchema,
+  BuildAwsSigV4RequestParametersSchema,
+  type IAwsSigV4RequestDescriptor,
+  type IBuildAwsSigV4RequestParameters,
+};
 
-/**
- * @interface IAwsSigV4RequestDescriptor
- * @description Snapshot inmutable con el resultado de validación de URI y cabeceras firmadas.
- */
-export interface IAwsSigV4RequestDescriptor {
-  readonly isEndpointValidBoolean: boolean;
-  readonly targetRequestUrlLiteral: string;
-  readonly signedHeadersSnapshot: Readonly<Record<string, string>>;
-  readonly diagnosticErrorLiteral?: string;
-}
+const SIGV4_BUILDER_MODULE_IDENTIFIER = 'AWS_SIGV4_STORAGE_REQUEST_BUILDER' as ModuleIdentifier;
 
-/**
- * Deriva la clave binaria de firma siguiendo la jerarquía HMAC-SHA256 de AWS SigV4.
- */
-const deriveAwsSignatureKeyBuffer = (
-  secretAccessKeySecret: string,
-  dateStampLiteral: string,
-  regionNameLiteral: string,
-  serviceNameLiteral: string,
-): Buffer => {
-  const initialKeyBuffer = createHmac('sha256', `AWS4${secretAccessKeySecret}`)
-    .update(dateStampLiteral)
-    .digest();
-
-  const regionKeyBuffer = createHmac('sha256', initialKeyBuffer).update(regionNameLiteral).digest();
-
-  const serviceKeyBuffer = createHmac('sha256', regionKeyBuffer)
-    .update(serviceNameLiteral)
-    .digest();
-
-  return createHmac('sha256', serviceKeyBuffer).update('aws4_request').digest();
+const emitInvalidSigV4InputSignalAction = (
+  diagnosticErrorLiteral: string,
+  contextMetadataSnapshot: Readonly<Record<string, unknown>>,
+): void => {
+  void EmitTelemetrySignal({
+    occurrenceTimestampISO: new Date().toISOString(),
+    severityLevelLiteral: 'WARNING',
+    moduleIdentifierLiteral: SIGV4_BUILDER_MODULE_IDENTIFIER,
+    operationCodeLiteral: 'SIGV4_REQUEST_BUILD_REJECTED' as OperationCode,
+    correlationIdentifier: GenerateCorrelationIdentifier(),
+    messageContentLiteral: `Construcción de petición AWS SigV4 rechazada: [${diagnosticErrorLiteral}].`,
+    semanticIntentTag: 'INFRASTRUCTURE_SIGNATURE_VALIDATION_WARNING',
+    contextMetadataSnapshot,
+  });
 };
 
 /**
- * Construye una petición GET autenticada mediante AWS SigV4 para verificar el bucket S3.
+ * Construye una petición GET autenticada mediante AWS SigV4 preservando el `pathname` del endpoint S3.
  *
  * @param parametersSnapshot - Credenciales S3 normalizadas y coordenadas de bucket/región.
- * @returns {IAwsSigV4RequestDescriptor} Descriptor sellado con URL objetivo y cabeceras HMAC.
+ * @returns {IAwsSigV4RequestDescriptor} Descriptor sellado e inmutable con URL y cabeceras HMAC.
  */
 export const BuildAwsSigV4StorageRequest = (
   parametersSnapshot: IBuildAwsSigV4RequestParameters,
 ): IAwsSigV4RequestDescriptor => {
-  let parsedEndpointUrl: URL;
+  const parametersValidationResult =
+    BuildAwsSigV4RequestParametersSchema.safeParse(parametersSnapshot);
 
-  try {
-    parsedEndpointUrl = new URL(parametersSnapshot.s3EndpointLiteral);
-  } catch {
-    return Object.freeze({
+  if (!parametersValidationResult.success) {
+    const diagnosticErrorLiteral = 'INVALID_SIGV4_PARAMETERS_CONTRACT';
+    emitInvalidSigV4InputSignalAction(diagnosticErrorLiteral, {
+      validationIssuesCollection: parametersValidationResult.error.flatten(),
+    });
+
+    return AwsSigV4RequestDescriptorSchema.parse({
       isEndpointValidBoolean: false,
-      targetRequestUrlLiteral: parametersSnapshot.s3EndpointLiteral,
+      targetRequestUrlLiteral: parametersSnapshot.s3EndpointLiteral ?? '',
       signedHeadersSnapshot: Object.freeze({}),
-      diagnosticErrorLiteral: 'MALFORMED_S3_ENDPOINT_URI',
+      diagnosticErrorLiteral,
+    });
+  }
+
+  const validatedParameters = parametersValidationResult.data;
+  const endpointCoordinates = ResolveAwsSigV4EndpointCoordinates(
+    validatedParameters.s3EndpointLiteral,
+    validatedParameters.bucketNameLiteral,
+  );
+
+  if (!endpointCoordinates.isEndpointValidBoolean) {
+    const diagnosticErrorLiteral =
+      endpointCoordinates.diagnosticErrorLiteral ?? 'MALFORMED_S3_ENDPOINT_URI';
+    emitInvalidSigV4InputSignalAction(diagnosticErrorLiteral, {
+      diagnosticErrorLiteral,
+      bucketNameLiteral: validatedParameters.bucketNameLiteral,
+    });
+
+    return AwsSigV4RequestDescriptorSchema.parse({
+      isEndpointValidBoolean: false,
+      targetRequestUrlLiteral: endpointCoordinates.targetRequestUrlLiteral,
+      signedHeadersSnapshot: Object.freeze({}),
+      diagnosticErrorLiteral,
     });
   }
 
   const amzDateTimestampLiteral = new Date().toISOString().replace(/[:-]|\.\d{3}/g, '');
   const dateStampLiteral = amzDateTimestampLiteral.substring(0, 8);
-  const canonicalPathLiteral = `/${parametersSnapshot.bucketNameLiteral}`;
-  const canonicalQueryStringLiteral = 'max-keys=0';
-  const targetHostLiteral = parsedEndpointUrl.host;
-  const targetRequestUrlLiteral = `${parsedEndpointUrl.protocol}//${targetHostLiteral}${canonicalPathLiteral}?${canonicalQueryStringLiteral}`;
 
-  const canonicalHeadersLiteral = `host:${targetHostLiteral}\nx-amz-content-sha256:${EMPTY_PAYLOAD_SHA256_HASH_HEX_LITERAL}\nx-amz-date:${amzDateTimestampLiteral}\n`;
-  const signedHeadersLiteral = 'host;x-amz-content-sha256;x-amz-date';
-
-  const canonicalRequestLiteral = [
-    'GET',
-    canonicalPathLiteral,
-    canonicalQueryStringLiteral,
-    canonicalHeadersLiteral,
-    signedHeadersLiteral,
-    EMPTY_PAYLOAD_SHA256_HASH_HEX_LITERAL,
-  ].join('\n');
-
-  const canonicalRequestHashLiteral = createHash('sha256')
-    .update(canonicalRequestLiteral)
-    .digest('hex');
-
-  const credentialScopeLiteral = `${dateStampLiteral}/${parametersSnapshot.regionNameLiteral}/s3/aws4_request`;
-  const stringToSignLiteral = [
-    'AWS4-HMAC-SHA256',
+  const authorizationHeaderLiteral = ComputeAwsSigV4AuthorizationHeader({
+    accessKeyIdentifierSecret: validatedParameters.accessKeyIdentifierSecret,
+    secretAccessKeySecret: validatedParameters.secretAccessKeySecret,
+    regionNameLiteral: validatedParameters.regionNameLiteral,
+    targetHostLiteral: endpointCoordinates.targetHostLiteral,
+    canonicalPathLiteral: endpointCoordinates.canonicalPathLiteral,
+    canonicalQueryStringLiteral: endpointCoordinates.canonicalQueryStringLiteral,
     amzDateTimestampLiteral,
-    credentialScopeLiteral,
-    canonicalRequestHashLiteral,
-  ].join('\n');
-
-  const signingKeyBuffer = deriveAwsSignatureKeyBuffer(
-    parametersSnapshot.secretAccessKeySecret,
     dateStampLiteral,
-    parametersSnapshot.regionNameLiteral,
-    's3',
-  );
+  });
 
-  const calculatedSignatureHexLiteral = createHmac('sha256', signingKeyBuffer)
-    .update(stringToSignLiteral)
-    .digest('hex');
-
-  const authorizationHeaderLiteral = `AWS4-HMAC-SHA256 Credential=${parametersSnapshot.accessKeyIdentifierSecret}/${credentialScopeLiteral}, SignedHeaders=${signedHeadersLiteral}, Signature=${calculatedSignatureHexLiteral}`;
-
-  return Object.freeze({
+  return AwsSigV4RequestDescriptorSchema.parse({
     isEndpointValidBoolean: true,
-    targetRequestUrlLiteral,
+    targetRequestUrlLiteral: endpointCoordinates.targetRequestUrlLiteral,
     signedHeadersSnapshot: Object.freeze({
-      Host: targetHostLiteral,
+      Host: endpointCoordinates.targetHostLiteral,
       'x-amz-date': amzDateTimestampLiteral,
       'x-amz-content-sha256': EMPTY_PAYLOAD_SHA256_HASH_HEX_LITERAL,
       Authorization: authorizationHeaderLiteral,

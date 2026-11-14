@@ -1,76 +1,130 @@
 /**
- * @section Newsletter Logic - Subscription Confirmation Apparatus
- * @description Valida el token de desafío de identidad (Double Opt-In) y consolida
- * la suscripción en el sistema. Actúa como la Autoridad Final de validación.
+ * @section Newsletter Logic - Token Format Confirmation Validator (Compatibility)
+ * @description Valida estructuralmente el formato del token Double Opt-In y la
+ * correlación de trazabilidad, midiendo latencia mediante `TraceExecutionTime` y
+ * emitiendo señales SRE conformes a `TelemetrySignalSchema` sin exponer fragmentos
+ * del token secreto.
  *
- * Protocolo OEDP-V13.0 - Final Authority & Forensic Traceability.
- * Saneamiento: Integración de 'TraceExecutionTime' y enriquecimiento de metadatos.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 y LGPD (Lei 13.709/2018).
  *
- * @author Raz  Podestá - MetaShark Tech
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
-import { EmitTelemetrySignal, TraceExecutionTime } from '@floripa-dignidade/telemetry';
+import { z } from 'zod';
 
-/** Identificador soberano del búnker de ruteo para el Neural Sentinel. */
-const NEWSLETTER_ENGINE_IDENTIFIER = 'NEWSLETTER_SUBSCRIPTION_ENGINE';
+import {
+  type CorrelationIdentifier,
+  CorrelationIdentifierSchema,
+  EmitTelemetrySignal,
+  GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+  OperationCodeSchema,
+  TraceExecutionTime,
+} from '@floripa-dignidade/telemetry';
+
+const NEWSLETTER_MODULE_IDENTIFIER: ModuleIdentifier = ModuleIdentifierSchema.parse(
+  'NEWSLETTER_SUBSCRIPTION_ENGINE',
+);
+
+const CONFIRM_TRACE_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'CONFIRM_SUBSCRIPTION_OPERATION',
+);
+
+const INVALID_TOKEN_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'INVALID_CONFIRMATION_TOKEN_ATTEMPT',
+);
+
+const CONSOLIDATED_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'SUBSCRIPTION_AUTHORITY_CONSOLIDATED',
+);
+
+const CONFIRMATION_TOKEN_FORMAT_REGEX = /^[A-Za-z0-9_-]{32,128}$/;
 
 /**
- * Confirma la suscripción de una identidad tras validar su token de seguridad.
- * Implementa medición de latencia para detectar anomalías en la capa de persistencia.
+ * @name ConfirmNewsletterSubscriptionParametersSchema
+ * @description Aduana Zod inmutable para validar el token de confirmación y su correlación.
+ */
+export const ConfirmNewsletterSubscriptionParametersSchema = z
+  .object({
+    verificationSecurityTokenLiteral: z
+      .string()
+      .trim()
+      .regex(CONFIRMATION_TOKEN_FORMAT_REGEX, {
+        message: 'INVALID_CONFIRMATION_TOKEN_FORMAT',
+      })
+      .describe(
+        'Token criptográfico de verificación Double Opt-In (mínimo 32 caracteres válidos).',
+      ),
+    correlationIdentifier: CorrelationIdentifierSchema,
+  })
+  .readonly();
+
+/**
+ * Valida estructuralmente el token de confirmación ciudadana preservando la firma
+ * retrocompatible `Promise<boolean>`.
  *
- * @param verificationSecurityTokenLiteral - El código secreto recibido por el ciudadano.
- * @param correlationIdentifier - ID de seguimiento generado en la solicitud inicial.
- * @returns {Promise<boolean>} Verdadero si la soberanía de la identidad fue confirmada.
+ * @deprecated Utilizar `ActivateCloudSubscription` para ejecutar la transición transaccional real en Supabase.
+ * @param verificationSecurityTokenLiteral - Token secreto recibido desde el enlace de verificación.
+ * @param correlationIdentifier - Identificador UUID v4 de correlación distribuida.
+ * @returns {Promise<boolean>} Verdadero si el token cumple el formato criptográfico mínimo exigido.
  */
 export const ConfirmNewsletterSubscription = async (
   verificationSecurityTokenLiteral: string,
   correlationIdentifier: string,
 ): Promise<boolean> => {
-  return await TraceExecutionTime(
-    NEWSLETTER_ENGINE_IDENTIFIER,
-    'CONFIRM_SUBSCRIPTION_OPERATION',
-    correlationIdentifier,
-    async () => {
-      /**
-       * 1. VALIDACIÓN DE INTEGRIDAD DE TOKEN (Security Guard)
-       * @todo En la fase de persistencia, aquí se realizará el 'Find & Destroy'
-       * del token en el búnker de datos (Redis/Postgres).
-       */
-      const isSecurityTokenNominalBoolean = verificationSecurityTokenLiteral.length >= 32;
+  const correlationValidationResult = CorrelationIdentifierSchema.safeParse(correlationIdentifier);
+  const resolvedCorrelationIdentifier: CorrelationIdentifier = correlationValidationResult.success
+    ? correlationValidationResult.data
+    : GenerateCorrelationIdentifier();
 
-      if (!isSecurityTokenNominalBoolean) {
-        EmitTelemetrySignal({
-          severityLevel: 'WARNING',
-          moduleIdentifier: NEWSLETTER_ENGINE_IDENTIFIER,
-          operationCode: 'INVALID_CONFIRMATION_TOKEN_ATTEMPT',
-          correlationIdentifier,
-          message: 'Intento de confirmación rechazado: Token malformado o inexistente.',
-          contextMetadata: {
-            tokenLengthQuantity: verificationSecurityTokenLiteral.length,
-            // Registramos solo el inicio del token por seguridad forense (PII Protection)
-            tokenPrefixSnapshot: verificationSecurityTokenLiteral.substring(0, 4),
-          },
+  return await TraceExecutionTime(
+    NEWSLETTER_MODULE_IDENTIFIER,
+    CONFIRM_TRACE_OPERATION_CODE,
+    resolvedCorrelationIdentifier,
+    async (): Promise<boolean> => {
+      const validationResultSnapshot = ConfirmNewsletterSubscriptionParametersSchema.safeParse({
+        verificationSecurityTokenLiteral,
+        correlationIdentifier: resolvedCorrelationIdentifier,
+      });
+
+      if (!validationResultSnapshot.success) {
+        const sanitizedTokenLengthQuantity =
+          typeof verificationSecurityTokenLiteral === 'string'
+            ? verificationSecurityTokenLiteral.trim().length
+            : 0;
+
+        void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
+          severityLevelLiteral: 'WARNING',
+          moduleIdentifierLiteral: NEWSLETTER_MODULE_IDENTIFIER,
+          operationCodeLiteral: INVALID_TOKEN_OPERATION_CODE,
+          correlationIdentifier: resolvedCorrelationIdentifier,
+          messageContentLiteral: 'Intento de confirmación rechazado: token malformado o ausente.',
+          semanticIntentTag: 'SECURITY_TOKEN_VALIDATION_WARNING',
+          contextMetadataSnapshot: Object.freeze({
+            tokenLengthQuantity: sanitizedTokenLengthQuantity,
+          }),
         });
 
         return false;
       }
 
-      /**
-       * 2. CONSOLIDACIÓN DE SOBERANÍA (Commit Phase)
-       * @todo Invocar 'SovereignRepository.updateIdentityStatus' para activar
-       * formalmente la suscripción.
-       */
-
-      // 3. REPORTE DE ÉXITO (Audit Trail)
-      EmitTelemetrySignal({
-        severityLevel: 'INFO',
-        moduleIdentifier: NEWSLETTER_ENGINE_IDENTIFIER,
-        operationCode: 'SUBSCRIPTION_AUTHORITY_CONSOLIDATED',
-        correlationIdentifier,
-        message: 'Suscripción finalizada con éxito. Ciudadano verificado y activo.',
-        contextMetadata: {
-          confirmationTimestamp: new Date().toISOString(),
-        },
+      void EmitTelemetrySignal({
+        occurrenceTimestampISO: new Date().toISOString(),
+        severityLevelLiteral: 'INFO',
+        moduleIdentifierLiteral: NEWSLETTER_MODULE_IDENTIFIER,
+        operationCodeLiteral: CONSOLIDATED_OPERATION_CODE,
+        correlationIdentifier: resolvedCorrelationIdentifier,
+        messageContentLiteral:
+          'Validación estructural de token de suscripción completada nominalmente.',
+        semanticIntentTag: 'NEWSLETTER_TOKEN_FORMAT_VERIFIED',
+        contextMetadataSnapshot: Object.freeze({
+          confirmationTimestampISO: new Date().toISOString(),
+        }),
       });
 
       return true;

@@ -1,107 +1,100 @@
 /**
  * @section API Route Handler - Newsletter Confirmation Gateway
- * @description Orquestador soberano para la transición de ciudadanos de estado
- * PENDING a ACTIVE. Implementa el patrón Swarm Orchestration.
+ * @description Orquestador Edge para la confirmación Double Opt-In y transición de
+ * suscripciones ciudadanas de estado pendiente a activo. Extrae el token, ejecuta la
+ * activación en la nube mediante `@floripa-dignidade/newsletter`, resuelve la ruta de
+ * destino localizada y emite señales SRE conformes a `TelemetrySignalSchema`.
  *
- * Protocolo OEDP-V17.0 - High Performance Edge & PascalCase Sync.
- * SANEADO Zenith: Sincronización de Identidad (Fix TS2724) y Atomización SRP.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Edge Runtime).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Rendimiento).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
-/* 1. Infraestructura Core (Atmos PascalCase) */
-import { MapHttpErrorToException, ValidationException } from '@floripa-dignidade/exceptions';
-import { DetermineDeviceLocale } from '@floripa-dignidade/routing';
+/* 1. Infraestructura Core de Telemetría */
 import {
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
-  ReportForensicException,
+  type ModuleIdentifier,
+  type OperationCode,
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-/* 2. Lógica de Dominio (Modular Lego) */
+/* 2. Lógica de Dominio */
 import { ActivateCloudSubscription } from '@floripa-dignidade/newsletter';
 
-/* 3. Enjambre Atómico Local (UI/Logic Bridge) */
-import { ExtractConfirmationToken } from './logic/ExtractConfirmationToken';
+/* 3. Enjambre Atómico Local (Clean Paths) */
 import { CalculateConfirmationRedirect } from './logic/CalculateConfirmationRedirect';
+import { ExtractConfirmationToken } from './logic/ExtractConfirmationToken';
+import { HandleConfirmationGatewayError } from './logic/HandleConfirmationGatewayError';
+import { ResolveConfirmationLocale } from './logic/ResolveConfirmationLocale';
 
-/**
- * @section Gobernanza de Ejecución
- * ADR 0015: Ejecución Stateless en el Edge de Vercel (Latencia < 50ms).
- */
+/** Ejecución Stateless en el Edge Runtime de Vercel para latencia mínima. */
 export const runtime = 'edge';
 
-/** Identificador técnico del sensor de frontera. */
-const GATEWAY_IDENTIFIER = 'API_NEWSLETTER_CONFIRM_GATEWAY';
+const GATEWAY_MODULE_IDENTIFIER = 'API_NEWSLETTER_CONFIRM_GATEWAY' as ModuleIdentifier;
 
 /**
- * Manejador GET: Consolidación de Identidad Ciudadana.
+ * Manejador GET: Valida el token de confirmación, activa la suscripción y redirige al ciudadano.
+ *
+ * @param incomingRequest - Solicitud HTTP GET entrante desde el enlace de verificación.
+ * @returns {Promise<NextResponse>} Redirección localizada con cabecera de correlación forense.
  */
 export const GET = async (incomingRequest: NextRequest): Promise<NextResponse> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
-
-  // 1. INFERENCIA SENSORIAL (UX Detection)
-  const acceptLanguageHeaderLiteral = incomingRequest.headers.get('accept-language');
-  const detectedLocaleIdentifier = DetermineDeviceLocale(acceptLanguageHeaderLiteral);
+  const { searchParams } = new URL(incomingRequest.url);
+  const resolvedLocaleIdentifier = ResolveConfirmationLocale(searchParams, incomingRequest.headers);
 
   return await TraceExecutionTime(
-    GATEWAY_IDENTIFIER,
-    'GATEWAY_CONFIRMATION_ORCHESTRATION',
+    GATEWAY_MODULE_IDENTIFIER,
+    'GATEWAY_CONFIRMATION_ORCHESTRATION' as OperationCode,
     correlationIdentifier,
-    async () => {
+    async (): Promise<NextResponse> => {
       try {
-        // 2. EXTRACCIÓN DE ADN (Delegación Atómica)
-        const { searchParams } = new URL(incomingRequest.url);
         const verificationTokenLiteral = ExtractConfirmationToken(searchParams);
-
-        // 3. ACTIVACIÓN SOBERANA (Cloud Domain)
         const activationResult = await ActivateCloudSubscription(verificationTokenLiteral);
 
-        // 4. CÁLCULO DE NAVEGACIÓN (Delegación Atómica)
-        const targetUrl = CalculateConfirmationRedirect(
+        const targetRedirectUrl = CalculateConfirmationRedirect(
           activationResult,
-          detectedLocaleIdentifier,
+          resolvedLocaleIdentifier,
           incomingRequest.url,
         );
 
-        // 5. REPORTE SRE (Visibility)
+        const isActivationSuccessfulBoolean = activationResult.isActivationSuccessfulBoolean;
+
         void EmitTelemetrySignal({
-          severityLevel: activationResult.isActivationSuccessfulBoolean ? 'INFO' : 'WARNING',
-          moduleIdentifier: GATEWAY_IDENTIFIER,
-          operationCode: activationResult.isActivationSuccessfulBoolean
+          occurrenceTimestampISO: new Date().toISOString(),
+          severityLevelLiteral: isActivationSuccessfulBoolean ? 'INFO' : 'WARNING',
+          moduleIdentifierLiteral: GATEWAY_MODULE_IDENTIFIER,
+          operationCodeLiteral: (isActivationSuccessfulBoolean
             ? 'ACTIVATION_SUCCESS'
-            : 'ACTIVATION_FAILED',
+            : 'ACTIVATION_FAILED') as OperationCode,
           correlationIdentifier,
-          message: `Resultado de activación procesado para [${detectedLocaleIdentifier}].`,
+          messageContentLiteral: `Resultado de activación procesado para [${resolvedLocaleIdentifier}].`,
+          semanticIntentTag: isActivationSuccessfulBoolean
+            ? 'NEWSLETTER_ACTIVATION_CONFIRMED'
+            : 'NEWSLETTER_ACTIVATION_REJECTED',
+          contextMetadataSnapshot: Object.freeze({
+            resolvedLocaleIdentifier,
+            isActivationSuccessfulBoolean,
+          }),
         });
 
-        return NextResponse.redirect(targetUrl);
-      } catch (caughtError: unknown) {
-        // 6. GESTIÓN FORENSE DE FALLO (Resilience Layer)
+        const redirectResponse = NextResponse.redirect(targetRedirectUrl);
+        redirectResponse.headers.set('X-Floripa-Correlation-ID', correlationIdentifier);
 
-        const normalizedException =
-          caughtError instanceof ValidationException
-            ? caughtError
-            : MapHttpErrorToException(500, 'UNEXPECTED_CONFIRMATION_FAULT', {
-                originalErrorLiteral:
-                  caughtError instanceof Error ? caughtError.message : String(caughtError),
-              });
-
-        // Alerta automática al Neural Sentinel
-        ReportForensicException(normalizedException, correlationIdentifier);
-
-        // Redirección de seguridad a página de fallo localizada
-        const targetErrorUrl = new URL(
-          `/${detectedLocaleIdentifier}/error?code=CONFIRMATION_FAULT&trace=${correlationIdentifier}`,
-          incomingRequest.url,
-        );
-
-        return NextResponse.redirect(targetErrorUrl);
+        return redirectResponse;
+      } catch (caughtExecutionError: unknown) {
+        return HandleConfirmationGatewayError({
+          caughtExecutionError,
+          resolvedLocaleIdentifier,
+          requestUrlLiteral: incomingRequest.url,
+          gatewayModuleIdentifier: GATEWAY_MODULE_IDENTIFIER,
+          correlationIdentifier,
+        });
       }
     },
   );

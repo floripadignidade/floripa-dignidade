@@ -1,151 +1,176 @@
 /**
- * @section Newsletter Logic - Cloud Persistence Atom
- * @description Ejecuta la inserción física de una suscripción pendiente en el
- * Ledger institucional de Supabase. Implementa un patrón de ejecución
- * stateless con blindaje de red y validación de ADN en frontera.
+ * @section Newsletter Logic - Pending Subscription Persistence Orchestrator
+ * @description Orquesta la validación de contrato de entrada, protección de privacidad
+ * LGPD (enmascaramiento de correo en telemetría), resolución segura de credenciales
+ * mediante `@floripa-dignidade/environment-validator`, inserción en Supabase PostgREST
+ * y emisión de trazas conformes a `TelemetrySignalSchema`.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Cloud Sovereign.
- * SANEADO Zenith: Inyección de Aduana Zod interna, protección de timeout
- * mediante AbortSignal y resiliencia 'keepalive' para el Edge Runtime.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 y LGPD (Lei 13.709/2018).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import { z } from 'zod';
-import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
-import { MapHttpErrorToException } from '@floripa-dignidade/exceptions';
+import { ValidateEnvironmentContract } from '@floripa-dignidade/environment-validator';
 import {
+  GlobalBaseException,
+  MapHttpErrorToException,
+  ValidationException,
+} from '@floripa-dignidade/exceptions';
+import { MaskCitizenIdentity } from '@floripa-dignidade/shared-utility';
+import {
+  type CorrelationIdentifier,
+  CorrelationIdentifierSchema,
   EmitTelemetrySignal,
-  // GenerateCorrelationIdentifier,
+  GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+  OperationCodeSchema,
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
+import { InsertPendingSubscriberRecord } from './InsertPendingSubscriberRecord';
+import {
+  type ISavePendingSubscriptionParameters,
+  SavePendingSubscriptionParametersSchema,
+} from './schemas/SavePendingSubscription.schema';
+
+export type { ISavePendingSubscriptionParameters };
+
+const PERSISTENCE_MODULE_IDENTIFIER: ModuleIdentifier = ModuleIdentifierSchema.parse(
+  'NEWSLETTER_CLOUD_PERSISTENCE_ATOM',
+);
+
+const INSERTION_TRACE_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'EXECUTE_CLOUD_LEDGER_INSERTION',
+);
+
+const INSERTION_SUCCESS_OPERATION_CODE: OperationCode =
+  OperationCodeSchema.parse('CLOUD_INSERTION_NOMINAL');
+
+const INSERTION_FAULT_OPERATION_CODE: OperationCode =
+  OperationCodeSchema.parse('CLOUD_PERSISTENCE_FAULT');
+
+const VALIDATION_FAILURE_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'PENDING_SUBSCRIPTION_CONTRACT_VIOLATION',
+);
+
 /**
- * @section Aduana de ADN (Internal Schema)
- * Garantiza que el átomo no procese basura técnica.
- */
-const SavePendingSubscriptionParametersSchema = z
-  .object({
-    emailAddressLiteral: z.string().email(),
-    verificationTokenLiteral: z.string().uuid(),
-    localeIdentifier: z.string().min(2),
-    correlationIdentifier: z.string().uuid(),
-  })
-  .readonly();
-
-export type ISavePendingSubscriptionParameters = z.infer<
-  typeof SavePendingSubscriptionParametersSchema
->;
-
-/** Identificador técnico del aparato para el Neural Sentinel. */
-const PERSISTENCE_ATOM_IDENTIFIER = 'NEWSLETTER_CLOUD_PERSISTENCE_ATOM';
-
-/**
- * Persiste un registro de ciudadano en estado 'PENDING_VERIFICATION' en la nube.
- * Realiza una auditoría de secretos previa para garantizar la integridad de la red.
+ * Valida, protege bajo LGPD y persiste un registro de suscripción en estado `PENDING_VERIFICATION`.
  *
- * @param parameters - Objeto con los datos del ciudadano y metadatos de rastreo.
- * @throws {InternalSystemException} Si la conexión con el Tier de Datos colapsa.
- * @returns {Promise<void>} Promesa de finalización de la transacción cloud.
+ * @param parametersSnapshot - Correo del ciudadano, token de verificación, idioma BCP 47 y correlación.
+ * @returns {Promise<void>} Resuelve cuando el registro ha sido persistido en Supabase.
+ * @throws {ValidationException} Si los parámetros incumplen el esquema de entrada.
+ * @throws {GlobalBaseException} Si falla la resolución de entorno o la inserción remota.
  */
 export const SavePendingSubscriptionToSupabase = async (
-  parameters: ISavePendingSubscriptionParameters,
+  parametersSnapshot: ISavePendingSubscriptionParameters,
 ): Promise<void> => {
+  const parametersValidationResult =
+    SavePendingSubscriptionParametersSchema.safeParse(parametersSnapshot);
+
+  if (!parametersValidationResult.success) {
+    const fallbackCorrelationResult = CorrelationIdentifierSchema.safeParse(
+      parametersSnapshot?.correlationIdentifier,
+    );
+    const safeCorrelationIdentifier: CorrelationIdentifier = fallbackCorrelationResult.success
+      ? fallbackCorrelationResult.data
+      : GenerateCorrelationIdentifier();
+
+    void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
+      severityLevelLiteral: 'WARNING',
+      moduleIdentifierLiteral: PERSISTENCE_MODULE_IDENTIFIER,
+      operationCodeLiteral: VALIDATION_FAILURE_OPERATION_CODE,
+      correlationIdentifier: safeCorrelationIdentifier,
+      messageContentLiteral:
+        'Solicitud de persistencia de suscripción rechazada por violación de contrato.',
+      semanticIntentTag: 'NEWSLETTER_PERSISTENCE_CONTRACT_VIOLATION',
+      contextMetadataSnapshot: Object.freeze({
+        validationIssuesCollection: parametersValidationResult.error.flatten(),
+      }),
+    });
+
+    throw new ValidationException('CONTRATO_PERSISTENCIA_SUSCRIPCION_INVALIDO', {
+      validationIssuesCollection: parametersValidationResult.error.flatten(),
+      correlationIdentifier: safeCorrelationIdentifier,
+    });
+  }
+
+  const validatedParameters = parametersValidationResult.data;
+  const correlationIdentifier: CorrelationIdentifier = CorrelationIdentifierSchema.parse(
+    validatedParameters.correlationIdentifier,
+  );
+
   return await TraceExecutionTime(
-    PERSISTENCE_ATOM_IDENTIFIER,
-    'EXECUTE_CLOUD_LEDGER_INSERTION',
-    parameters.correlationIdentifier,
-    async () => {
-      // 1. ADUANA DE ADN: Validación de frontera atómica
-      const validationResultSnapshot =
-        SavePendingSubscriptionParametersSchema.safeParse(parameters);
-
-      if (!validationResultSnapshot.success) {
-        throw MapHttpErrorToException(400, 'ADN_DE_PERSISTENCIA_CORRUPTO', {
-          issuesCollection: validationResultSnapshot.error.flatten(),
-        });
-      }
-
-      /**
-       * 2. CAPTURA SEGURA DE INFRAESTRUCTURA (Aduana de Entorno)
-       * 🛡️ SANEADO Zenith: El búnker environment-validator garantiza Branded Types.
-       */
-      const { SUPABASE_URL: cloudUrlLiteral, SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret } =
-        await ValidateEnvironmentAduana();
+    PERSISTENCE_MODULE_IDENTIFIER,
+    INSERTION_TRACE_OPERATION_CODE,
+    correlationIdentifier,
+    async (): Promise<void> => {
+      const maskedCitizenIdentityLiteral = await MaskCitizenIdentity({
+        rawIdentityLiteral: validatedParameters.emailAddressLiteral,
+        maskingStrategyLiteral: 'ELECTRONIC_MAIL',
+      });
 
       try {
-        /**
-         * @section Comunicación Física (Cloud Native Layer)
-         * Uso de fetch nativo con señal de tiempo de espera (SRE Compliance).
-         */
-        const targetEndpointLiteral = `${cloudUrlLiteral}/rest/v1/newsletter_subscribers`;
+        const {
+          SUPABASE_URL: supabaseBaseUrlLiteral,
+          SUPABASE_SERVICE_ROLE_KEY: serviceRoleKeySecret,
+        } = await ValidateEnvironmentContract();
 
-        const outgoingResponse = await fetch(targetEndpointLiteral, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            apikey: cloudSecurityKeySecret,
-            Authorization: `Bearer ${cloudSecurityKeySecret}`,
-            Prefer: 'return=minimal',
-          },
-          body: JSON.stringify({
-            email_address: parameters.emailAddressLiteral,
-            verification_token: parameters.verificationTokenLiteral,
-            preferred_locale: parameters.localeIdentifier,
-            correlation_id: parameters.correlationIdentifier,
-            status: 'PENDING_VERIFICATION',
-            created_at: new Date().toISOString(),
-          }),
-          /** 🛡️ SANEADO Zenith: Garantiza que la petición termine incluso si el contexto se cierra. */
-          keepalive: true,
-          /** 🛡️ SANEADO Zenith: Prevención de peticiones zombis (Timeout 8s). */
-          signal: AbortSignal.timeout(8000),
+        await InsertPendingSubscriberRecord({
+          supabaseBaseUrlLiteral,
+          serviceRoleKeySecret,
+          emailAddressLiteral: validatedParameters.emailAddressLiteral,
+          verificationTokenLiteral: validatedParameters.verificationTokenLiteral,
+          localeIdentifierLiteral: validatedParameters.localeIdentifier,
+          correlationIdentifier,
         });
 
-        if (!outgoingResponse.ok) {
-          throw MapHttpErrorToException(outgoingResponse.status, 'SUPABASE_PROVIDER_REJECTION', {
-            httpStatusNumeric: outgoingResponse.status,
-            endpoint: targetEndpointLiteral,
-          });
-        }
-
-        // 3. REPORTE DE ÉXITO (Audit Trail)
         void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
           severityLevelLiteral: 'INFO',
-          moduleIdentifierLiteral: PERSISTENCE_ATOM_IDENTIFIER,
-          operationCodeLiteral: 'CLOUD_INSERTION_NOMINAL',
-          correlationIdentifier: parameters.correlationIdentifier,
+          moduleIdentifierLiteral: PERSISTENCE_MODULE_IDENTIFIER,
+          operationCodeLiteral: INSERTION_SUCCESS_OPERATION_CODE,
+          correlationIdentifier,
           messageContentLiteral: 'TELEMETRY.SIGNALS.END_PROCESS',
-          contextMetadataSnapshot: {
+          semanticIntentTag: 'NEWSLETTER_PENDING_SUBSCRIPTION_PERSISTED',
+          contextMetadataSnapshot: Object.freeze({
             targetTableLiteral: 'newsletter_subscribers',
-            recordIdentityLiteral: parameters.emailAddressLiteral,
-          },
+            localeIdentifierLiteral: validatedParameters.localeIdentifier,
+            maskedCitizenIdentityLiteral,
+          }),
         });
-      } catch (caughtError: unknown) {
-        /**
-         * @section Gestión Forense de Colapso
-         * Si el fallo es de red o rechazo del proveedor, lo elevamos con rastro forense.
-         */
+      } catch (caughtExecutionError: unknown) {
         const errorDescriptionLiteral =
-          caughtError instanceof Error ? caughtError.message : String(caughtError);
+          caughtExecutionError instanceof Error
+            ? caughtExecutionError.message
+            : String(caughtExecutionError);
 
         void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
           severityLevelLiteral: 'CRITICAL',
-          moduleIdentifierLiteral: PERSISTENCE_ATOM_IDENTIFIER,
-          operationCodeLiteral: 'CLOUD_PERSISTENCE_FAULT',
-          correlationIdentifier: parameters.correlationIdentifier,
-          messageContentLiteral: 'Fallo crítico al persistir suscripción en el Ledger Cloud.',
-          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
+          moduleIdentifierLiteral: PERSISTENCE_MODULE_IDENTIFIER,
+          operationCodeLiteral: INSERTION_FAULT_OPERATION_CODE,
+          correlationIdentifier,
+          messageContentLiteral: 'Fallo crítico al persistir suscripción pendiente en Supabase.',
+          semanticIntentTag: 'INFRASTRUCTURE_IO_FAULT',
+          contextMetadataSnapshot: Object.freeze({
+            targetTableLiteral: 'newsletter_subscribers',
+            maskedCitizenIdentityLiteral,
+            errorTraceLiteral: errorDescriptionLiteral,
+          }),
         });
 
-        if (errorDescriptionLiteral.includes('Exception')) {
-          throw caughtError;
+        if (caughtExecutionError instanceof GlobalBaseException) {
+          throw caughtExecutionError;
         }
 
         throw MapHttpErrorToException(500, 'FALLO_FISICO_PERSISTENCIA_NEWSLETTER', {
           originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier: parameters.correlationIdentifier,
+          correlationIdentifier,
         });
       }
     },

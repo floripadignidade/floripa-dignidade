@@ -1,50 +1,38 @@
 /**
- * @section Health Analysis Engine - Package Entry Point (Barrel Master)
- * @description Único punto de exportación autorizado para el cerebro de
- * Inteligencia Artificial (Neural Sentinel). Orquesta la visibilidad de los
- * contratos de inferencia y el acceso al motor de razonamiento predictivo.
+ * @section Cognitive Health Analysis - Master Entry Point (Barrel)
+ * @description Único punto de exportación autorizado para el motor de inferencia
+ * cognitiva y análisis de salud algorítmica. Orquesta la visibilidad de los contratos
+ * Zod de entrada y salida, el orquestador cerebral de razonamiento y el validador
+ * de consistencia estructural bajo arquitectura Source-First.
  *
- * Protocolo OEDP-V17.0 - Single Source Resolution & ESM Strict Syntax.
- * SANEADO Zenith: Resolución de TS2305 (Sincronización de Identidad Funcional),
- * inyección de extensiones '.js' y exposición de contratos de solicitud.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Rendimiento).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-/**
- * @version 1.5.0
- * Estatus: Nivelación Zenith completada. Grafo de tipos sincronizado con
- * el orquestador cerebral nivelado.
- */
-export const MODULE_HEALTH_ANALYSIS_ENGINE_VERSION = '1.5.0';
+/** Versión técnica sincronizada tras la purga de extensiones sintéticas para Turbopack. */
+export const MODULE_HEALTH_ANALYSIS_ENGINE_VERSION = '1.5.1';
 
 /**
- * @section Capa 1: ADN Estructural (Schemas & Types)
- * @description Exportación de contratos inmutables para la validación de
- * solicitudes y respuestas del motor de IA.
+ * @section 1. Contratos Estructurales de Inferencia (SSOT)
  */
-/** 🛡️ SANEADO Zenith: Inyección de extensiones obligatorias para resolución ESM. */
-export { InferenceResponseSchema, AIProviderSchema } from './lib/schemas/Inference.schema.js';
+export { AIProviderSchema, InferenceResponseSchema } from './lib/schemas/Inference.schema';
 
-export type { IInferenceResponse, TAIProvider } from './lib/schemas/Inference.schema.js';
+export type { IInferenceResponse, TAIProvider } from './lib/schemas/Inference.schema';
 
-export { InferenceRequestSchema } from './lib/schemas/InferenceRequest.schema.js';
+export { InferenceRequestSchema } from './lib/schemas/InferenceRequest.schema';
 
-export type { IInferenceRequest } from './lib/schemas/InferenceRequest.schema.js';
+export type { IInferenceRequest } from './lib/schemas/InferenceRequest.schema';
 
 /**
- * @section Capa 2: Motores de Lógica y Orquestación (AI Brain)
- * @description Punto de entrada al orquestador supremo de razonamiento.
+ * @section 2. Orquestadores Cognitivos y Motores de Razonamiento
  */
+export { BrainOrchestrator } from './lib/logic/BrainOrchestrator';
+export { AnalyzeSystemHealthInference } from './lib/logic/AnalyzeSystemHealthInference';
 
 /**
- * 🛡️ SANEADO Zenith (Fix TS2305):
- * Exportación nominal del orquestador nivelado bajo la nueva identidad.
+ * @section 3. Átomos de Verificación de Integridad
  */
-export { BrainOrchestrator } from './lib/logic/BrainOrchestrator.js';
-
-/**
- * @section Capa 3: Átomos de Verificación (Integrity Atoms)
- */
-export { ValidateCognitiveAdn } from './lib/logic/atomic/ValidateCognitiveAdn.js';
+export { ValidateCognitiveAdn } from './lib/logic/atomic/ValidateCognitiveAdn';

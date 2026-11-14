@@ -1,18 +1,12 @@
-// apps/content-manager-system/src/collections/identity/CitizenUsers.collection.ts
-
 /**
- * @section CMS Architecture - Identity & Civil Governance Axis
- * @description Define la colección de Ciudadanos, Gestores e Interventores institucionales
- * en el panel administrativo de Payload CMS. Implementa el control de acceso basado en roles (RBAC)
- * consumiendo el contrato global de autoridad institucional.
+ * @section CMS Architecture - Identity & Civil Governance Orchestrator
+ * @description Orquestador declarativo de la colección de Ciudadanos y Operadores
+ * institucionales en Payload CMS 3.84. Ensambla los átomos de política RBAC, campos
+ * de identidad/consentimiento LGPD y hooks de trazabilidad forense sin PII,
+ * manteniendo simetría estructural con `OrganizationsCollection` y `MediaVaultCollection`.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Seguridad y Mantenibilidad).
- *
- * SANEADO Zenith:
- * 1. Compactación estructural para cumplimiento estricto de max-lines (118/150).
- * 2. Evaluación funcional de privilegios de acceso (read/delete/update).
- * 3. Trazabilidad forense completa en hooks mediante 'EmitTelemetrySignal'.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Seguridad) y LGPD (Lei 13.709/2018).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -20,42 +14,10 @@
 
 import type { CollectionConfig } from 'payload';
 
-/* 1. Infraestructura Core de Telemetría */
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-  type ModuleIdentifier,
-  type OperationCode,
-} from '@floripa-dignidade/telemetry';
-
-/* 2. Contratos Centralizados de Dominio (Single Source of Truth) */
-import {
-  IDENTITY_ACCESS_ROLES_COLLECTION,
-  type UserAccessRole,
-} from '@floripa-dignidade/contracts';
-
-/** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
-const COLLECTION_MODULE_IDENTIFIER = 'CITIZEN_USERS_COLLECTION' as ModuleIdentifier;
-
-/**
- * @name INSTITUTIONAL_ROLE_LABELS_MAPPING
- * @description Mapeo tipado y estricto de roles técnicos hacia sus denominaciones en la interfaz de gestión.
- */
-const INSTITUTIONAL_ROLE_LABELS_MAPPING: Record<UserAccessRole, string> = {
-  INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR: 'Auditor de Infraestrutura (SRE)',
-  PLATFORM_GLOBAL_MANAGER: 'Gestor Global da Plataforma',
-  ORGANIZATION_ADMINISTRATOR: 'Administrador de Organização',
-  ORGANIZATION_OPERATOR: 'Operador de Impacto Social',
-  IDENTITY_REGISTERED: 'Cidadão Verificado',
-  IDENTITY_ANONYMOUS: 'Cidadão Anônimo (Sistema/Temporário)',
-};
-
-/**
- * Encapsula la lógica de seguridad administrativa para proteger el principio de privilegio mínimo.
- */
-const hasAdministrativeOrManagerAuthorityBoolean = (userRole?: string): boolean =>
-  userRole === IDENTITY_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR ||
-  userRole === IDENTITY_ACCESS_ROLES_COLLECTION.PLATFORM_GLOBAL_MANAGER;
+/* 1. Enjambre Atómico Local (Clean Paths - Extensionless) */
+import { CITIZEN_USERS_ACCESS_POLICY } from './citizen-users/CitizenUsersAccessPolicy';
+import { CITIZEN_USERS_FIELDS_COLLECTION } from './citizen-users/CitizenUsersFields';
+import { CITIZEN_USERS_FORENSIC_HOOKS } from './citizen-users/CitizenUsersForensicHooks';
 
 /**
  * @name CitizenUsersCollection
@@ -76,23 +38,6 @@ export const CitizenUsersCollection: CollectionConfig = {
     listSearchableFields: ['fullLegalNameLiteral', 'email'],
   },
 
-  /**
-   * @section Gobernanza de Acceso (RBAC Institucional)
-   */
-  access: {
-    read: ({ req: { user } }) =>
-      user?.['assignedAuthorityRoleLiteral'] ===
-        IDENTITY_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR || {
-        id: { equals: user?.id },
-      },
-
-    delete: ({ req: { user } }) =>
-      user?.['assignedAuthorityRoleLiteral'] ===
-      IDENTITY_ACCESS_ROLES_COLLECTION.INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR,
-
-    create: () => true,
-  },
-
   auth: {
     tokenExpiration: 7200,
     verify: false,
@@ -100,93 +45,7 @@ export const CitizenUsersCollection: CollectionConfig = {
     lockTime: 600000,
   },
 
-  fields: [
-    {
-      name: 'fullLegalNameLiteral',
-      type: 'text',
-      required: true,
-      label: 'Nome Completo (Registro Civil)',
-      admin: { placeholder: 'Ex: João da Silva Sauro' },
-    },
-    {
-      name: 'assignedAuthorityRoleLiteral',
-      type: 'select',
-      required: true,
-      defaultValue: 'IDENTITY_REGISTERED',
-      label: 'Nível de Autoridade Institucional',
-      options: Object.entries(INSTITUTIONAL_ROLE_LABELS_MAPPING).map(([roleKey, roleLabel]) => ({
-        label: roleLabel,
-        value: roleKey,
-      })),
-      access: {
-        update: ({ req: { user } }) =>
-          hasAdministrativeOrManagerAuthorityBoolean(
-            user?.['assignedAuthorityRoleLiteral'] as string | undefined,
-          ),
-      },
-    },
-    {
-      name: 'tenantOrganizationIdentifier',
-      type: 'relationship',
-      relationTo: 'organizations',
-      label: 'Organização de Vínculo',
-      hasMany: false,
-      admin: {
-        description: 'Vínculo institucional para governança multi-tenancy.',
-        condition: (data) => data['assignedAuthorityRoleLiteral'] !== 'IDENTITY_REGISTERED',
-      },
-    },
-    {
-      type: 'group',
-      name: 'forensicIdentificationGroup',
-      label: 'Identificação e Privacidade',
-      fields: [
-        {
-          type: 'row',
-          fields: [
-            {
-              name: 'isIdentityLegallyVerifiedBoolean',
-              type: 'checkbox',
-              defaultValue: false,
-              label: 'Identidade Validada',
-              admin: { width: '50%' },
-            },
-            {
-              name: 'hasAcceptedPrivacyPolicyBoolean',
-              type: 'checkbox',
-              required: true,
-              defaultValue: false,
-              label: 'Consentimento LGPD Ativo',
-              admin: { width: '50%' },
-            },
-          ],
-        },
-      ],
-    },
-  ],
-
-  /**
-   * @section Trazabilidad Forense (Integrity Hooks)
-   */
-  hooks: {
-    afterChange: [
-      ({ doc, operation, req }) => {
-        if (operation === 'create' || operation === 'update') {
-          void EmitTelemetrySignal({
-            occurrenceTimestampISO: new Date().toISOString(),
-            severityLevelLiteral: 'INFO',
-            moduleIdentifierLiteral: COLLECTION_MODULE_IDENTIFIER,
-            operationCodeLiteral: `IDENTITY_${operation.toUpperCase()}` as OperationCode,
-            correlationIdentifier: GenerateCorrelationIdentifier(),
-            messageContentLiteral: `Evento de identidade processado no CMS: ${doc['email']}`,
-            semanticIntentTag: 'CMS_IDENTITY_MUTATION',
-            contextMetadataSnapshot: {
-              assignedRoleLiteral: doc['assignedAuthorityRoleLiteral'],
-              perpetratorIdentityLiteral: req.user?.email ?? 'SYSTEM_BOOTSTRAP',
-            },
-          });
-        }
-      },
-    ],
-  },
+  access: CITIZEN_USERS_ACCESS_POLICY,
+  fields: CITIZEN_USERS_FIELDS_COLLECTION,
+  hooks: CITIZEN_USERS_FORENSIC_HOOKS,
 };

@@ -734,3 +734,185 @@ batería de certificación pre-vuelo sobre el monorepo:
   "path": "./tsconfig.lib.json" }] residual, erradicando los errores TS6306 y TS6310.
 
 ---
+
+## [2026-11-13] HITO 10: Despliegue Exitoso en Producción Vercel, Nivelación Source-First en Nx y Atomización de Firma AWS SigV4 para S3
+
+### 1. Diagnóstico Forense y Desafíos Resueltos
+
+1. **Desacople de Pruebas Unitarias en Pipeline de Vercel:**  
+   Se introdujo el target `"preflight:vercel"` en `package.json` raíz, desacoplando `pnpm test:unit`
+   (`qa-mirror`) del ciclo de construcción de Vercel y concentrándolo exclusivamente en el hook
+   local `.husky/pre-push` y en auditorías manuales completas.
+2. **Erradicación del Bloqueo `ENOENT .../.swcrc` en Next.js:**  
+   Se ajustó `"@nx/next:build": { "dependsOn": [] }` en `nx.json`. Next.js 16 transpila las
+   librerías directamente desde sus fuentes TypeScript (`src/index.ts` vía `transpilePackages`),
+   eliminando la ejecución parásita de `@nx/js:swc` que buscaba archivos `.swcrc` inexistentes en
+   `libs/*`.
+3. **Certificación en Producción en Vivo (Commit `3dab970`):**  
+   Vercel compiló `@floripa-dignidade/floripa-dignidade` con Turbopack en 21.4s y desplegó en vivo
+   en `https://floripa-dignidade.vercel.app/es-ES`, validando estilos, tokens de diseño (ADR 0029) y
+   tipografía institucional (`Lexend`/`Inter`).
+4. **Resolución del Falso Negativo en Supabase Storage S3 (HTTP 404):**  
+   Se diagnosticó que el endpoint `S3_ENDPOINT` en Supabase contiene el prefijo `/storage/v1/s3`.
+   `BuildAwsSigV4StorageRequest.ts` descartaba dicho prefijo al firmar. Se atomizó la firma SigV4
+   bajo el patrón OEDP-V18.1 (`ResolveAwsSigV4EndpointCoordinates`, `DeriveAwsSigV4SigningKey`,
+   `ComputeAwsSigV4AuthorizationHeader`), alcanzando de inmediato el veredicto `NOMINAL_OPERATIONAL`
+   (HTTP 200 en `media-vault`).
+5. **Diagnóstico Granular de Credenciales Cloud:**
+   - Resend (`HTTP 401 restricted_api_key`): La clave es válida y está restringida a envío de
+     emails; se programó la adecuación de la sonda a dicho permiso.
+   - Google Gemini (`HTTP 400 API_KEY_INVALID`): Se constató que la clave configurada requiere
+     renovación en Google AI Studio.
+   - Hugging Face (`HTTP 400 Model not supported`): Modelo retirado en `hf-inference`; se acordó
+     desestimar variables heredadas y priorizar Gemini.
+
+### 2. Decisiones Arquitectónicas Inmutables
+
+- **Independencia de Compilación Next.js:** Las aplicaciones en `apps/*` no dependen de la
+  compilación previa de librerías en `dist/`; compilan directo desde código fuente (Source-First
+  puro).
+- **Atomización Implacable de Firmas:** Las firmas criptográficas multi-paso (SigV4, HMAC) deben
+  desacoplarse en átomos puros de parseo de coordenadas, derivación de clave binaria y construcción
+  de cabeceras, todos validados por esquemas Zod `.readonly()`.
+
+---
+
+## [2026-11-14] HITO 10: Blindaje LGPD en CMS, Sonda Resend Sending-Only y Atomización de Telemetría en Portal y Gateways
+
+### 1. Contexto y Diagnóstico Forense
+
+1. **Privacidad LGPD en CMS (`@floripa-dignidade/content-manager-system`):**
+   - `OrganizationsForensicHooks.ts` y `CitizenUsers.collection.ts` exponían correos electrónicos
+     (`email`) de ciudadanos y operadores en la telemetría del sistema.
+   - `CitizenUsers.collection.ts` concentraba 4 responsabilidades (RBAC, campos, hooks y colección)
+     y permitía ambigüedad anónima en `read`/`create` sobre campos sensibles
+     (`assignedAuthorityRoleLiteral`, `isIdentityLegallyVerifiedBoolean`).
+2. **Falso Negativo en Sonda SRE de Resend (`@floripa-dignidade/tools`):**
+   - `AuditResendEmailProbe.ts` clasificaba `GET /domains` con respuesta HTTP `401`
+     (`restricted_api_key` — clave válida restringida únicamente a envío de correos) como
+     `AUTHENTICATION_REJECTED`.
+3. **Contratos de Telemetría y Atomización en Portal (`@floripa-dignidade/floripa-dignidade`):**
+   - `FeatureActionCard.tsx`, `ObservatoryHeader.tsx` y los 3 Route Handlers
+     (`/api/newsletter/subscribe`, `/api/newsletter/confirm`, `/api/whatsapp/webhook`) omitían
+     `occurrenceTimestampISO` o empleaban propiedades legadas rechazadas silenciosamente por
+     `TelemetrySignalSchema`.
+   - `ObservatoryHeader.tsx` usaba `className` ignorado por `GlobalActionButton` (que requiere
+     `externalClassName`) y duplicaba `role="banner"` dentro de `<main>`.
+   - `/api/newsletter/subscribe` exponía `runtimeContextSnapshot` en errores `5xx` y
+     `/api/whatsapp/webhook` convertía errores `400`/`401` en `500`.
+
+### 2. Decisiones Arquitectónicas y Cambios Aplicados
+
+1. **Privacidad Opaca y Atomización Simétrica en CMS:**
+   - `apps/content-manager-system/src/collections/governance/organizations/OrganizationsForensicHooks.ts`:
+     Erradicado `req.user?.email` en favor de `operatorUserIdentifierLiteral` opaco (`id` o
+     `'SYSTEM_BOOTSTRAP'`).
+   - `apps/content-manager-system/src/collections/identity/CitizenUsers.collection.ts`: Pulverizado
+     en `citizen-users/CitizenUsersAccessPolicy.ts`, `CitizenUsersFields.ts`,
+     `CitizenUsersForensicHooks.ts` y orquestador limpio; bloqueo explícito de peticiones anónimas
+     en `read`/`update`, protección `create`/`update` en campos de rol y verificación legal, y
+     erradicación absoluta de `email` en hooks (`afterChange` y `afterDelete`).
+2. **Nivelación de Sonda SRE de Resend:**
+   - Creación de
+     `libs/tools/src/lib/infrastructure-auditor/probes/atoms/TriageResendProbeResponse.ts` con
+     validación Zod `ResendErrorBodySchema` para certificar claves `restricted_api_key` como
+     `NOMINAL_OPERATIONAL` (o `DEGRADED_LATENCY`), validación de formato `re_` y emisión completa de
+     telemetría SRE en `AuditResendEmailProbe.ts`.
+3. **Nivelación Visual, Accesibilidad y Gateways del Portal:**
+   - `FeatureActionCard.tsx`: Atomizado con `schemas/FeatureActionCard.schema.ts` y
+     `components/hooks/useFeatureCardExposureTelemetry.ts`; IDs ARIA únicos vía `useId()` y
+     deduplicación Strict Mode.
+   - `ObservatoryHeader.tsx`: Atomizado con `schemas/ObservatoryHeader.schema.ts` y
+     `logic/EmitObservatoryExportTelemetry.ts`; corrección de `externalClassName` en
+     `GlobalActionButton` y reemplazo de `role="banner"` por `aria-labelledby`.
+   - `/api/newsletter/subscribe/route.ts`: Atomizado con
+     `logic/ResolveSubscribeCorrelationIdentifier.ts` (propaga `x-floripa-correlation-id`) y
+     `logic/HandleSubscriptionGatewayError.ts` (omite `forensicSnapshot` en errores `>= 500`).
+   - `/api/newsletter/confirm/route.ts`: Atomizado con `logic/ResolveConfirmationLocale.ts` (soporta
+     `?locale=` BCP 47 + `Accept-Language`) y `logic/HandleConfirmationGatewayError.ts` (cabecera
+     `X-Floripa-Correlation-ID` y ruteo diferenciado `ValidationException` → `invalid-token`).
+   - `/api/whatsapp/webhook/route.ts`: Atomizado en `logic/EmitWhatsAppGatewayTelemetry.ts`,
+     `logic/HandleWhatsAppWebhookError.ts`, `logic/ExecuteWhatsAppVerificationRequest.ts` y
+     `logic/ProcessWhatsAppWebhookPostRequest.ts`, preservando códigos HTTP `400`/`401`/`403`/`500`
+     y trazabilidad completa.
+
+---
+
+## [2026-11-14] HITO 11: Nivelación Integral de Almacenamiento Multimedia (Utility) y Atomización Extrema del Motor de Búsqueda (Search Engine)
+
+### 1. Contexto y Diagnóstico Forense
+
+Tras la certificación de los gateways de red y CMS en el Hito 10, la auditoría del monorepo
+identificó fallos de resolución y riesgos operacionales en la capa de utilidades y motores de
+búsqueda:
+
+1. **Rutas e importaciones en `shared/utility`:** `GenerateSovereignStoragePath.ts` conservaba
+   importaciones sintéticas `.js` (`MultimediaEvidence.schema.js`), produciendo fricción con
+   Turbopack. Asimismo, la propiedad `institutionalContextMetadata` colapsaba a `unknown`
+   (`TS18046`) debido a la ocultación de `.shape` en esquemas sellados con `.readonly()`.
+2. **Desajuste de tipos en transferencia binaria (`ExecuteCloudStorageUpload.ts`):** `TS2322`
+   provocado por la incompatibilidad en TypeScript 5.9 entre `Uint8Array<ArrayBufferLike>`
+   (retornado por `TransformToStandardBinaryBuffer`) y `Uint8Array<ArrayBuffer>` (inferido por
+   `z.instanceof(Uint8Array)`). Además, se detectó el uso de `as any`, ausencia de validación TLS
+   obligatoria (`https://`) y falta de `occurrenceTimestampISO` en telemetría.
+3. **Defecto de direccionamiento en `PersistMultimediaEvidence.ts`:** El orquestador construía la
+   ruta física concatenando `S3_ENDPOINT` con `/storage/v1/object/...`, provocando un prefijo
+   erróneo (`/storage/v1/s3/storage/v1/object/...`). La API REST de Supabase Storage reside
+   canónicamente en `SUPABASE_URL`.
+4. **Desincronización RBAC en `search-engine`:** `SearchEngine.schema.ts` duplicaba los roles de
+   acceso con literales legados (`INFRASTRUCTURE_SOVEREIGN_AUDITOR`, `CITIZEN_ANONYMOUS`), en lugar
+   de consumir el catálogo canónico SSOT en `@floripa-dignidade/contracts`.
+5. **Monolito en `ExecuteFuzzySearch.ts`:** Concentraba validación de consulta, filtrado perimetral,
+   búsqueda difusa, telemetría y formateo de excepciones en un único archivo, con telemetría no
+   conforme a `TelemetrySignalSchema` y comparación estricta (`===`) en lugar de evaluación
+   jerárquica por rangos.
+
+### 2. Decisiones Arquitectónicas y Cambios Ejecutados
+
+1. **Cierre y Atomización de Almacenamiento Multimedia (`libs/shared/utility`):**
+   - **`EnterpriseStoragePath.schema.ts`:** Creación del contrato inmutable con
+     `InstitutionalContextMetadataContractSchema` tipado explícitamente, erradicando el error
+     `TS18046`.
+   - **`SanitizeOrganizationPathSegment.ts` y `SanitizeStorageFileName.ts`:** Extracción de lógica
+     pura para normalización Unicode NFD, protección estricta contra Path Traversal (`..`, `/`,
+     `//`) y acotado determinista de longitud.
+   - **`GenerateSovereignStoragePath.ts`:** Conversión a orquestador atómico, particionado
+     determinista en UTC (`getUTCFullYear()`, `getUTCMonth() + 1`) y alias de compatibilidad.
+   - **`CloudStorageUpload.schema.ts`:** Resuelto `TS2322` mediante `z.custom<Uint8Array>()`,
+     control de cuota (15 MiB) y requisito estricto de HTTPS (ADR 0015).
+   - **`BuildCloudStorageUploadHeaders.ts`, `ConvertUint8ArrayToExactArrayBuffer.ts` y
+     `NormalizeCloudStorageUploadError.ts`:** Pulverización de cabeceras, conversión exacta a
+     `ArrayBuffer` sin `any`, y clasificación de timeouts HTTP `504` vs colapsos `500`.
+   - **`PersistMultimediaEvidence.ts` y `BuildStorageUploadEndpointUrl.ts`:** Corrección del
+     endpoint hacia `SUPABASE_URL`, extracción del contrato `MultimediaVaultResult.schema.ts`,
+     migración canónica a `ValidateEnvironmentContract` y reporte forense.
+   - **`libs/shared/utility/src/index.ts`:** Barril maestro nivelado a v1.3.0 exponiendo todos los
+     contratos y átomos nuevos.
+
+2. **Alineamiento SSOT y Atomización de Búsqueda (`libs/engines/search-engine`):**
+   - **Declaración en `package.json`:** Incorporada la dependencia
+     `"@floripa-dignidade/contracts": "workspace:*"`.
+   - **`SearchEngine.schema.ts`:** Alineado con `IdentityAccessRoleSchema` del SSOT de contratos,
+     con unión transicional para alias legados y validación segura de rutas relativas
+     `/^\/(?!\/)[^\s]*$/`.
+   - **`ExecuteFuzzySearch.schema.ts`:** Inyección de `MAXIMUM_SEARCH_QUERY_LENGTH_QUANTITY` (160
+     caracteres) para proteger la CPU ante sobrecargas y sellado inmutable del índice.
+   - **`ResolveSearchAuthorityRank.ts` y `FilterSearchIndexByAuthority.ts`:** Extracción del cálculo
+     de rango numérico (`0` a `100`), comparación jerárquica (`actorRank >= requiredRank`) y
+     política Fail-Closed ante roles desconocidos.
+   - **`TechnicalFuzzySearch.schema.ts` y `ExecuteTechnicalFuzzySearch.ts`:** Extracción de opciones
+     de búsqueda difusa, propagación de `correlationIdentifier` y retorno temprano ante índices
+     vacíos.
+   - **`ExecuteFuzzySearch.ts`:** Reducido a flujo puro ($\le 95$ líneas, complejidad 1) mediante la
+     extracción de `ValidateSearchRequestInput.ts`, `EmitSearchSuccessTelemetry.ts` y
+     `NormalizeSearchOrchestrationError.ts`.
+
+### 3. Evidencia de Verificación
+
+- `nx lint @floripa-dignidade/shared-utility`: **0 errores**.
+- `nx typecheck @floripa-dignidade/shared-utility`: **0 errores**.
+- `nx lint @floripa-dignidade/search-engine`: **0 errores**.
+- `nx typecheck @floripa-dignidade/search-engine`: **0 errores**.
+- `pnpm audit:workspace`: **32/32 workspaces conformantes**.
+
+---

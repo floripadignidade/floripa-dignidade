@@ -1,52 +1,114 @@
 /**
- * @section Resend Provider - Atomic Transmission
- * @description Ejecuta el despacho físico de correos utilizando el SDK oficial.
+ * @section Resend Provider - Atomic Email Transmission (Atom)
+ * @description Ejecuta el despacho físico de correos electrónicos transaccionales
+ * utilizando el SDK oficial de Resend. Valida las credenciales y el payload con Zod,
+ * preserva la privacidad ciudadana bajo la LGPD ofuscando la dirección destino en telemetría
+ * y garantiza la trazabilidad forense mediante `TelemetrySignalSchema`.
  *
- * Protocolo OEDP-V14.0 - Verbatim Module Syntax.
- * @author Dirección de Ingeniería - Floripa Dignidade
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Confiabilidad) y LGPD (Lei 13.709/2018).
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-  TraceExecutionTime,
-} from '@floripa-dignidade/telemetry';
-import { InternalSystemException } from '@floripa-dignidade/exceptions';
 import { Resend } from 'resend';
 
-/** 🛡️ SANEAMIENTO Zenith: Importación de ADN estructural como tipo */
-import type { IResendConfiguration } from '../../schemas/ResendEmail.schema';
-import { TransactionalEmailPayloadSchema } from '../../schemas/ResendEmail.schema';
+/* 1. Infraestructura Core de Excepciones y Telemetría */
+import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
+import {
+  type CorrelationIdentifier,
+  EmitTelemetrySignal,
+  GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+  TraceExecutionTime,
+} from '@floripa-dignidade/telemetry';
 
-const RESEND_PROVIDER_IDENTIFIER = 'RESEND_COMMUNICATION_PROVIDER';
+/* 2. Contratos Centralizados de Resend */
+import {
+  type IResendConfiguration,
+  type ITransactionalEmailPayload,
+  ResendConfigurationSchema,
+  TransactionalEmailPayloadSchema,
+} from '../../schemas/ResendEmail.schema';
 
+const RESEND_PROVIDER_MODULE_IDENTIFIER = ModuleIdentifierSchema.parse(
+  'RESEND_COMMUNICATION_PROVIDER',
+) as ModuleIdentifier;
+
+/**
+ * Ofusca una dirección de correo electrónico para auditoría sin exponer PII (LGPD).
+ *
+ * @param emailAddressLiteral - Correo electrónico de destino original.
+ * @returns {string} Dirección ofuscada segura para telemetría (ej: j***o@dominio.com).
+ */
+const maskEmailAddressLiteral = (emailAddressLiteral: string): string => {
+  const emailSegmentsCollection = emailAddressLiteral.split('@');
+  if (emailSegmentsCollection.length !== 2) {
+    return '***@***.***';
+  }
+
+  const localPartLiteral = emailSegmentsCollection[0] ?? '';
+  const domainPartLiteral = emailSegmentsCollection[1] ?? '';
+
+  if (localPartLiteral.length <= 2) {
+    return `***@${domainPartLiteral}`;
+  }
+
+  const firstCharacterLiteral = localPartLiteral.charAt(0);
+  const lastCharacterLiteral = localPartLiteral.charAt(localPartLiteral.length - 1);
+
+  return `${firstCharacterLiteral}***${lastCharacterLiteral}@${domainPartLiteral}`;
+};
+
+/**
+ * Ejecuta el envío de un correo transaccional enlazando la traza digital institucional.
+ *
+ * @param providerConfigurationSnapshot - Configuración técnica del proveedor con clave de API y remitente.
+ * @param unvalidatedEmailPayloadSnapshot - Datos crudos del correo (destinatario, asunto, contenido HTML).
+ * @param correlationIdentifierFallback - Identificador de correlación opcional para trazabilidad forense.
+ * @returns {Promise<string>} Identificador único de mensaje generado por Resend o señal de éxito.
+ * @throws {ValidationException} Si la configuración o el payload no cumplen los esquemas Zod.
+ * @throws {InternalSystemException} Si el servicio externo Resend rechaza la transmisión.
+ */
 export const SendTransactionalEmail = async (
-  providerConfiguration: IResendConfiguration,
-  unvalidatedEmailPayload: unknown,
+  providerConfigurationSnapshot: IResendConfiguration,
+  unvalidatedEmailPayloadSnapshot: unknown,
+  correlationIdentifierFallback: CorrelationIdentifier = GenerateCorrelationIdentifier(),
 ): Promise<string> => {
-  const correlationIdentifier = GenerateCorrelationIdentifier();
+  const correlationIdentifier = correlationIdentifierFallback;
+  const validatedConfiguration = ResendConfigurationSchema.parse(providerConfigurationSnapshot);
 
   return await TraceExecutionTime(
-    RESEND_PROVIDER_IDENTIFIER,
-    'EMAIL_TRANSMISSION_OPERATION',
+    RESEND_PROVIDER_MODULE_IDENTIFIER,
+    'EMAIL_TRANSMISSION_OPERATION' as OperationCode,
     correlationIdentifier,
-    async () => {
-      const validationResult = TransactionalEmailPayloadSchema.safeParse(unvalidatedEmailPayload);
+    async (): Promise<string> => {
+      // 1. ADUANA DE ADN DEL CORREO (Validación Zod)
+      const payloadValidationResult = TransactionalEmailPayloadSchema.safeParse(
+        unvalidatedEmailPayloadSnapshot,
+      );
 
-      if (!validationResult.success) {
-        throw new InternalSystemException('ADN_CORREO_CORRUPTO', {
-          validationIssues: validationResult.error.flatten(),
-          receivedPayloadSnapshot: unvalidatedEmailPayload,
+      if (!payloadValidationResult.success) {
+        throw new ValidationException('CONTRATO_CARGA_UTIL_CORREO_INVALIDO', {
+          validationIssuesCollection: payloadValidationResult.error.flatten(),
+          correlationIdentifier,
         });
       }
 
-      const validatedPayload = validationResult.data;
-      const resendClientInstance = new Resend(providerConfiguration.securityApiKeySecret);
+      const validatedPayload: ITransactionalEmailPayload = payloadValidationResult.data;
+      const maskedRecipientLiteral = maskEmailAddressLiteral(
+        validatedPayload.targetRecipientAddressLiteral,
+      );
+      const resendClientInstance = new Resend(validatedConfiguration.securityApiKeySecret);
 
       try {
-        const { data: transmissionData, error: transmissionErrorSignal } =
+        // 2. TRANSMISIÓN FÍSICA HACIA RESEND API
+        const { data: transmissionDataSnapshot, error: transmissionErrorSignalSnapshot } =
           await resendClientInstance.emails.send({
-            from: providerConfiguration.defaultFromAddressLiteral,
+            from: validatedConfiguration.defaultFromAddressLiteral,
             to: validatedPayload.targetRecipientAddressLiteral,
             subject: validatedPayload.emailSubjectLiteral,
             html: validatedPayload.emailHtmlContentLiteral,
@@ -56,39 +118,52 @@ export const SendTransactionalEmail = async (
             ],
           });
 
-        if (transmissionErrorSignal) {
-          throw new Error(transmissionErrorSignal.message);
+        if (transmissionErrorSignalSnapshot) {
+          throw new Error(transmissionErrorSignalSnapshot.message);
         }
 
-        EmitTelemetrySignal({
-          severityLevel: 'INFO',
-          moduleIdentifier: RESEND_PROVIDER_IDENTIFIER,
-          operationCode: 'EMAIL_DISPATCH_SUCCESS',
+        const generatedMessageIdentifier = transmissionDataSnapshot?.id || 'SUCCESS_SIGNAL';
+
+        // 3. REPORTE TELEMÉTRICO NOMINAL SIN PII
+        void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
+          severityLevelLiteral: 'INFO',
+          moduleIdentifierLiteral: RESEND_PROVIDER_MODULE_IDENTIFIER,
+          operationCodeLiteral: 'EMAIL_DISPATCH_SUCCESS' as OperationCode,
           correlationIdentifier,
-          message: `Correo despachado con éxito a: [${validatedPayload.targetRecipientAddressLiteral}]`,
-          contextMetadata: {
-            resendMessageIdentifier: transmissionData?.id,
-          },
+          messageContentLiteral:
+            'Correo transaccional despachado exitosamente hacia el destinatario.',
+          semanticIntentTag: 'EMAIL_TRANSMISSION_SUCCESS',
+          contextMetadataSnapshot: Object.freeze({
+            resendMessageIdentifier: generatedMessageIdentifier,
+            recipientMaskLiteral: maskedRecipientLiteral,
+            trackingCategoryIdentifier: validatedPayload.trackingCategoryIdentifier,
+          }),
         });
 
-        return transmissionData?.id || 'SUCCESS_SIGNAL';
-      } catch (caughtError) {
-        const errorMessageLiteral =
-          caughtError instanceof Error ? caughtError.message : String(caughtError);
+        return generatedMessageIdentifier;
+      } catch (caughtExecutionError: unknown) {
+        const errorDescriptionLiteral =
+          caughtExecutionError instanceof Error
+            ? caughtExecutionError.message
+            : String(caughtExecutionError);
 
-        EmitTelemetrySignal({
-          severityLevel: 'CRITICAL',
-          moduleIdentifier: RESEND_PROVIDER_IDENTIFIER,
-          operationCode: 'RESEND_API_COMMUNICATION_FAILURE',
+        void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: RESEND_PROVIDER_MODULE_IDENTIFIER,
+          operationCodeLiteral: 'RESEND_API_COMMUNICATION_FAILURE' as OperationCode,
           correlationIdentifier,
-          message: `Fallo crítico en el enlace con el proveedor: ${errorMessageLiteral}`,
-          contextMetadata: {
-            correlationIdentifier,
-          },
+          messageContentLiteral: `Fallo crítico en el enlace con el proveedor Resend: ${errorDescriptionLiteral}`,
+          semanticIntentTag: 'EMAIL_TRANSMISSION_FAILURE',
+          contextMetadataSnapshot: Object.freeze({
+            recipientMaskLiteral: maskedRecipientLiteral,
+            errorTraceLiteral: errorDescriptionLiteral,
+          }),
         });
 
         throw new InternalSystemException('FALLO_DE_TRANSMISION_EXTERNA', {
-          originalProviderErrorLiteral: errorMessageLiteral,
+          originalProviderErrorLiteral: errorDescriptionLiteral,
           correlationIdentifier,
         });
       }

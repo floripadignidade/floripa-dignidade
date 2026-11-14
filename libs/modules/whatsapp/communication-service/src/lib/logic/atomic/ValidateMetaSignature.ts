@@ -1,114 +1,232 @@
+// libs/modules/whatsapp/communication-service/src/lib/logic/atomic/ValidateMetaSignature.ts
+
 /**
- * @section WhatsApp Logic - Meta Cryptographic Validator
- * @description Valida la autenticidad de los paquetes entrantes mediante el
- * algoritmo SHA256 HMAC provisto por Meta. Implementa comparación de tiempo
- * constante (timingSafeEqual) para prevenir ataques de temporización.
+ * @section WhatsApp Logic - Meta Cryptographic Signature Orchestrator
+ * @description Orquestador isomórfico encargado de autenticar la cabecera
+ * `X-Hub-Signature-256` de Meta mediante validación Zod, parseo estricto de
+ * digest SHA-256 y verificación criptográfica HMAC-SHA256 sobre bytes crudos con
+ * Web Crypto API, emitiendo trazabilidad SRE conforme a `TelemetrySignalSchema`.
  *
- * Protocolo OEDP-V17.0 - Security First & Functional Atomicity.
- * SANEADO Zenith: Resolución de Paradoja Asíncrona (await) e inyección de TraceExecutionTime.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Isomorphic).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 e ISO/IEC 27001.
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
-import { createHmac, timingSafeEqual } from 'node:crypto';
-import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
-import { ValidationException } from '@floripa-dignidade/exceptions';
+import { ValidateEnvironmentContract } from '@floripa-dignidade/environment-validator';
+import { MapHttpErrorToException, ValidationException } from '@floripa-dignidade/exceptions';
 import {
+  type CorrelationIdentifier,
+  CorrelationIdentifierSchema,
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+  OperationCodeSchema,
+  ReportForensicException,
+  type SeverityLevel,
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-/* 1. ADN Estructural (Internal Contract) */
-import { ValidateMetaSignatureSchema } from './schemas/ValidateMetaSignature.schema';
-import type { IValidateMetaSignatureParameters } from './schemas/ValidateMetaSignature.schema';
+import { ParseMetaSignatureHeader } from './ParseMetaSignatureHeader';
+import {
+  type IValidatedMetaSignatureData,
+  type IValidateMetaSignatureParameters,
+  ValidateMetaSignatureSchema,
+} from './schemas/ValidateMetaSignature.schema';
+import { type TRawHmacPayloadSource, VerifyHmacSha256Signature } from './VerifyHmacSha256Signature';
 
-/** Identificador técnico del aparato para el Neural Sentinel. */
-const SECURITY_ATOM_IDENTIFIER = 'WHATSAPP_SECURITY_ADUANA';
+const SECURITY_MODULE_IDENTIFIER: ModuleIdentifier = ModuleIdentifierSchema.parse(
+  'WHATSAPP_SIGNATURE_VALIDATOR',
+);
+
+const VALIDATION_TRACE_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'EXECUTE_META_SIGNATURE_VALIDATION',
+);
+
+type TSignatureAuditEventKey = 'MALFORMED' | 'MISMATCH' | 'VERIFIED' | 'FAULT';
+
+interface ISignatureAuditSpecification {
+  readonly severityLevelLiteral: SeverityLevel;
+  readonly operationCodeLiteral: OperationCode;
+  readonly messageContentLiteral: string;
+  readonly semanticIntentTag: string;
+}
+
+const SIGNATURE_AUDIT_SPECIFICATIONS: Readonly<
+  Record<TSignatureAuditEventKey, ISignatureAuditSpecification>
+> = Object.freeze({
+  MALFORMED: {
+    severityLevelLiteral: 'WARNING',
+    operationCodeLiteral: OperationCodeSchema.parse('META_SIGNATURE_HEADER_MALFORMED'),
+    messageContentLiteral:
+      'Cabecera X-Hub-Signature-256 rechazada por formato hexadecimal SHA-256 inválido.',
+    semanticIntentTag: 'SECURITY_CRYPTOGRAPHIC_HEADER_MALFORMED',
+  },
+  MISMATCH: {
+    severityLevelLiteral: 'CRITICAL',
+    operationCodeLiteral: OperationCodeSchema.parse('META_SIGNATURE_MISMATCH_DETECTED'),
+    messageContentLiteral:
+      'ALERTA DE SEGURIDAD: Discrepancia criptográfica detectada en Webhook de Meta.',
+    semanticIntentTag: 'SECURITY_CRYPTOGRAPHIC_SIGNATURE_MISMATCH',
+  },
+  VERIFIED: {
+    severityLevelLiteral: 'DEBUG',
+    operationCodeLiteral: OperationCodeSchema.parse('META_SIGNATURE_VERIFIED'),
+    messageContentLiteral: 'Firma HMAC-SHA256 de webhook Meta verificada nominalmente.',
+    semanticIntentTag: 'SECURITY_CRYPTOGRAPHIC_SIGNATURE_VERIFIED',
+  },
+  FAULT: {
+    severityLevelLiteral: 'ERROR',
+    operationCodeLiteral: OperationCodeSchema.parse('SIGNATURE_VERIFICATION_FAULT'),
+    messageContentLiteral:
+      'Fallo técnico inesperado al verificar la integridad criptográfica del webhook.',
+    semanticIntentTag: 'SECURITY_CRYPTOGRAPHIC_PROCESS_FAULT',
+  },
+});
+
+const resolveSafeCorrelationIdentifier = (
+  candidateParameters: IValidateMetaSignatureParameters | undefined,
+): CorrelationIdentifier => {
+  if (
+    candidateParameters &&
+    'correlationIdentifier' in candidateParameters &&
+    typeof candidateParameters.correlationIdentifier === 'string'
+  ) {
+    const validationResult = CorrelationIdentifierSchema.safeParse(
+      candidateParameters.correlationIdentifier,
+    );
+    if (validationResult.success) {
+      return validationResult.data;
+    }
+  }
+
+  return GenerateCorrelationIdentifier();
+};
+
+const emitSignatureAuditSignalAction = (
+  eventKeyLiteral: TSignatureAuditEventKey,
+  correlationIdentifier: CorrelationIdentifier,
+  contextMetadataSnapshot?: Readonly<Record<string, unknown>>,
+): void => {
+  const auditSpecification = SIGNATURE_AUDIT_SPECIFICATIONS[eventKeyLiteral];
+
+  void EmitTelemetrySignal({
+    occurrenceTimestampISO: new Date().toISOString(),
+    severityLevelLiteral: auditSpecification.severityLevelLiteral,
+    moduleIdentifierLiteral: SECURITY_MODULE_IDENTIFIER,
+    operationCodeLiteral: auditSpecification.operationCodeLiteral,
+    correlationIdentifier,
+    messageContentLiteral: auditSpecification.messageContentLiteral,
+    semanticIntentTag: auditSpecification.semanticIntentTag,
+    ...(contextMetadataSnapshot !== undefined && {
+      contextMetadataSnapshot: Object.freeze({ ...contextMetadataSnapshot }),
+    }),
+  });
+};
+
+const resolveRawPayloadSource = (
+  validatedData: IValidatedMetaSignatureData,
+): TRawHmacPayloadSource => {
+  return validatedData.rawRequestBodyBytes !== undefined
+    ? validatedData.rawRequestBodyBytes
+    : (validatedData.rawRequestBodyLiteral as string);
+};
+
+const verifySignatureAgainstSecretAction = async (
+  validatedData: IValidatedMetaSignatureData,
+  digestBytes: Uint8Array,
+  correlationIdentifier: CorrelationIdentifier,
+): Promise<boolean> => {
+  const rawPayloadSource = resolveRawPayloadSource(validatedData);
+  const resolvedAppSecretLiteral =
+    validatedData.appSecretOverride ?? (await ValidateEnvironmentContract()).WHATSAPP_APP_SECRET;
+
+  const isIdentityMatchBoolean = await VerifyHmacSha256Signature(
+    rawPayloadSource,
+    resolvedAppSecretLiteral,
+    digestBytes,
+  );
+
+  if (!isIdentityMatchBoolean) {
+    emitSignatureAuditSignalAction('MISMATCH', correlationIdentifier, {
+      threatLevelLiteral: 'HIGH',
+      isUsingSecretOverrideBoolean: validatedData.appSecretOverride !== undefined,
+    });
+    return false;
+  }
+
+  emitSignatureAuditSignalAction('VERIFIED', correlationIdentifier);
+  return true;
+};
 
 /**
- * Compara la firma recibida con la firma calculada utilizando el secreto soberano.
+ * Verifica la autenticidad criptográfica de un webhook entrante de Meta (`X-Hub-Signature-256`).
+ * Compatible con WhatsApp Business, Facebook, Instagram y Threads en Edge y Node.js.
  *
- * @param parameters - Objeto conteniendo el cuerpo de la petición y la firma de Meta.
- * @returns {Promise<boolean>} Verdadero si la identidad de Meta es legítima y comprobada.
- * @throws {ValidationException} Si los parámetros de entrada violan el contrato Zod.
+ * @param parametersSnapshot - Payload crudo (texto o binario), cabecera de firma y opciones multi-app.
+ * @returns {Promise<boolean>} Verdadero si la firma HMAC-SHA256 coincide en tiempo constante.
+ * @throws {ValidationException} Si el payload o el formato base de los parámetros son inválidos.
  */
 export const ValidateMetaSignature = async (
-  parameters: IValidateMetaSignatureParameters,
+  parametersSnapshot: IValidateMetaSignatureParameters,
 ): Promise<boolean> => {
-  const correlationIdentifier = GenerateCorrelationIdentifier();
+  const correlationIdentifier = resolveSafeCorrelationIdentifier(parametersSnapshot);
 
   return await TraceExecutionTime(
-    SECURITY_ATOM_IDENTIFIER,
-    'EXECUTE_META_SIGNATURE_VALIDATION',
+    SECURITY_MODULE_IDENTIFIER,
+    VALIDATION_TRACE_OPERATION_CODE,
     correlationIdentifier,
-    async () => {
-      /**
-       * 1. CAPTURA DE INFRAESTRUCTURA (Sovereign Secret Capture)
-       * 🛡️ SANEADO Zenith: El secreto se recupera de manera asíncrona a través de la aduana
-       * validada en el arranque, garantizando que el token sea un Branded Type.
-       */
-      const { WHATSAPP_APP_SECRET } = await ValidateEnvironmentAduana();
-
-      // 2. ADUANA DE ADN (Input Validation)
-      const validationResult = ValidateMetaSignatureSchema.safeParse(parameters);
+    async (): Promise<boolean> => {
+      const validationResult = ValidateMetaSignatureSchema.safeParse(parametersSnapshot);
 
       if (!validationResult.success) {
-        throw new ValidationException('CONTRATO_DE_FIRMA_WHATSAPP_VIOLADO', {
+        const validationException = new ValidationException('CONTRATO_DE_FIRMA_WHATSAPP_VIOLADO', {
           issuesCollection: validationResult.error.flatten(),
+          correlationIdentifier,
         });
+        ReportForensicException(validationException, correlationIdentifier);
+        throw validationException;
       }
 
-      const { rawRequestBodyLiteral, xHubSignatureHeaderLiteral } = validationResult.data;
+      const validatedData: IValidatedMetaSignatureData = validationResult.data;
+      const parsedHeaderSnapshot = ParseMetaSignatureHeader(
+        validatedData.xHubSignatureHeaderLiteral,
+      );
+
+      if (!parsedHeaderSnapshot.isHeaderFormatValidBoolean || !parsedHeaderSnapshot.digestBytes) {
+        emitSignatureAuditSignalAction('MALFORMED', correlationIdentifier, {
+          headerLengthQuantity: validatedData.xHubSignatureHeaderLiteral.length,
+        });
+        return false;
+      }
 
       try {
-        /**
-         * 3. NORMALIZACIÓN DE FIRMA (Protocol Cleaning)
-         * Meta envía la firma con el prefijo "sha256=".
-         */
-        const signaturePrefixLiteral = 'sha256=';
-        const receivedHashLiteral = xHubSignatureHeaderLiteral.replace(signaturePrefixLiteral, '');
+        return await verifySignatureAgainstSecretAction(
+          validatedData,
+          parsedHeaderSnapshot.digestBytes,
+          correlationIdentifier,
+        );
+      } catch (caughtExecutionError: unknown) {
+        const errorDescriptionLiteral =
+          caughtExecutionError instanceof Error
+            ? caughtExecutionError.message
+            : String(caughtExecutionError);
 
-        /**
-         * 4. CÁLCULO DE FIRMA LOCAL (HMAC SHA256)
-         */
-        const calculatedHashLiteral = createHmac('sha256', WHATSAPP_APP_SECRET)
-          .update(rawRequestBodyLiteral)
-          .digest('hex');
-
-        /**
-         * 5. COMPARACIÓN SEGURA (Constant-time Comparison)
-         * Protege contra ataques de análisis de tiempo de respuesta (Timing Attacks).
-         */
-        const isIdentityMatchBoolean = timingSafeEqual(
-          Buffer.from(receivedHashLiteral, 'hex'),
-          Buffer.from(calculatedHashLiteral, 'hex'),
+        const normalizedException = MapHttpErrorToException(
+          500,
+          'META_SIGNATURE_VERIFICATION_FAULT',
+          {
+            originalErrorLiteral: errorDescriptionLiteral,
+            correlationIdentifier,
+          },
         );
 
-        // 6. REPORTE DE TELEMETRÍA DE ALTA PRIORIDAD
-        if (!isIdentityMatchBoolean) {
-          void EmitTelemetrySignal({
-            severityLevel: 'CRITICAL',
-            moduleIdentifier: SECURITY_ATOM_IDENTIFIER,
-            operationCode: 'META_SIGNATURE_MISMATCH_DETECTED',
-            correlationIdentifier,
-            message: 'ALERTA DE SEGURIDAD: Intento de suplantación de Webhook de Meta.',
-            contextMetadata: { threatLevel: 'HIGH' },
-          });
-        }
-
-        return isIdentityMatchBoolean;
-      } catch (caughtError: unknown) {
-        const errorDescriptionLiteral =
-          caughtError instanceof Error ? caughtError.message : String(caughtError);
-
-        void EmitTelemetrySignal({
-          severityLevel: 'ERROR',
-          moduleIdentifier: SECURITY_ATOM_IDENTIFIER,
-          operationCode: 'SIGNATURE_VERIFICATION_FAULT',
-          correlationIdentifier,
-          message: 'Fallo técnico al verificar la integridad criptográfica.',
-          contextMetadata: { errorTrace: errorDescriptionLiteral },
+        ReportForensicException(normalizedException, correlationIdentifier);
+        emitSignatureAuditSignalAction('FAULT', correlationIdentifier, {
+          errorTraceLiteral: errorDescriptionLiteral,
         });
 
         return false;

@@ -2,10 +2,11 @@
  * @section CMS Governance - Organizations Forensic Hooks (Atom)
  * @description Encapsula la observabilidad y trazabilidad forense de mutaciones sobre
  * organizaciones institucionales en Payload CMS. Emite señales telemétricas inmutables
- * conforme a TelemetrySignalSchema ante creación, actualización y eliminación.
+ * conformes a `TelemetrySignalSchema` ante creación, actualización y eliminación,
+ * preservando la privacidad LGPD mediante identificadores opacos de operador.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Trazabilidad).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Confiabilidad) y LGPD (Lei 13.709/2018).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -23,6 +24,40 @@ import {
 
 /** Identificador técnico del módulo para el monitor de salud y telemetría forense. */
 const COLLECTION_MODULE_IDENTIFIER = 'ORGANIZATIONS_GOVERNANCE_COLLECTION' as ModuleIdentifier;
+
+/**
+ * Extrae de forma segura un identificador opaco del usuario operador sin exponer PII (correo electrónico).
+ *
+ * @param rawUserSnapshot - Referencia al usuario autenticado en la petición de Payload CMS.
+ * @returns {string} Identificador único del operador o `'SYSTEM_BOOTSTRAP'` en operaciones de sistema.
+ */
+const resolveOperatorIdentifierLiteral = (rawUserSnapshot: unknown): string => {
+  if (
+    typeof rawUserSnapshot === 'object' &&
+    rawUserSnapshot !== null &&
+    'id' in rawUserSnapshot &&
+    rawUserSnapshot.id !== undefined &&
+    rawUserSnapshot.id !== null
+  ) {
+    return String(rawUserSnapshot.id);
+  }
+
+  return 'SYSTEM_BOOTSTRAP';
+};
+
+/**
+ * Normaliza un literal textual opcional proveniente de documentos dinámicos de Payload CMS.
+ *
+ * @param rawFieldCandidate - Valor crudo extraído del documento persistido.
+ * @returns {string} Cadena purificada o `'UNKNOWN'` si está ausente.
+ */
+const resolveSafeTextFieldLiteral = (rawFieldCandidate: unknown): string => {
+  if (typeof rawFieldCandidate === 'string' && rawFieldCandidate.trim().length > 0) {
+    return rawFieldCandidate.trim();
+  }
+
+  return 'UNKNOWN';
+};
 
 /**
  * Emite una señal telemétrica estandarizada sobre el ciclo de vida de una organización.
@@ -48,36 +83,43 @@ const emitOrganizationLifecycleSignalAction = (
     correlationIdentifier: GenerateCorrelationIdentifier(),
     messageContentLiteral,
     semanticIntentTag,
-    contextMetadataSnapshot,
+    contextMetadataSnapshot: Object.freeze({ ...contextMetadataSnapshot }),
   });
 };
 
 /**
  * @name ORGANIZATIONS_FORENSIC_HOOKS
- * @description Hooks de ciclo de vida para auditar cambios de gobernanza multi-tenant.
+ * @description Hooks inmutables de ciclo de vida para auditar cambios de gobernanza multi-tenant.
  */
 export const ORGANIZATIONS_FORENSIC_HOOKS: NonNullable<CollectionConfig['hooks']> = Object.freeze({
   afterChange: [
-    ({ doc, operation, req }) => {
-      const organizationNameLiteral = String(doc['institutionalNameLiteral'] ?? 'UNKNOWN');
-      const operationalStatusLiteral = String(doc['operationalStatusLiteral'] ?? 'UNKNOWN');
+    (hookContextSnapshot) => {
+      const { doc, operation, req } = hookContextSnapshot;
+      const organizationNameLiteral = resolveSafeTextFieldLiteral(doc['institutionalNameLiteral']);
+      const operationalStatusLiteral = resolveSafeTextFieldLiteral(doc['operationalStatusLiteral']);
+      const institutionalSlugLiteral = resolveSafeTextFieldLiteral(doc['institutionalSlugLiteral']);
+      const organizationDocumentIdentifier =
+        doc['id'] !== undefined && doc['id'] !== null ? String(doc['id']) : 'UNKNOWN';
 
       emitOrganizationLifecycleSignalAction(
         'INFO',
         `ORGANIZATION_${operation.toUpperCase()}` as OperationCode,
-        `Evento institucional processado: ${organizationNameLiteral} [${operationalStatusLiteral}]`,
+        `Evento institucional processado (${operation}): ${organizationNameLiteral} [${operationalStatusLiteral}]`,
         'CMS_ORGANIZATION_MUTATION',
         {
-          institutionalSlugLiteral: doc['institutionalSlugLiteral'],
+          organizationDocumentIdentifier,
+          institutionalSlugLiteral,
           operationalStatusLiteral,
-          perpetratorIdentityLiteral: req.user?.email ?? 'SYSTEM_BOOTSTRAP',
+          operatorUserIdentifierLiteral: resolveOperatorIdentifierLiteral(req.user),
         },
       );
     },
   ],
   afterDelete: [
-    ({ doc, id, req }) => {
-      const organizationNameLiteral = String(doc['institutionalNameLiteral'] ?? 'UNKNOWN');
+    (hookContextSnapshot) => {
+      const { doc, id, req } = hookContextSnapshot;
+      const organizationNameLiteral = resolveSafeTextFieldLiteral(doc['institutionalNameLiteral']);
+      const institutionalSlugLiteral = resolveSafeTextFieldLiteral(doc['institutionalSlugLiteral']);
 
       emitOrganizationLifecycleSignalAction(
         'WARNING',
@@ -85,9 +127,9 @@ export const ORGANIZATIONS_FORENSIC_HOOKS: NonNullable<CollectionConfig['hooks']
         `Organização removida do ecossistema: ${organizationNameLiteral}`,
         'CMS_ORGANIZATION_DELETED',
         {
-          deletedDocumentIdentifier: id,
-          institutionalSlugLiteral: doc['institutionalSlugLiteral'],
-          perpetratorIdentityLiteral: req.user?.email ?? 'SYSTEM_BOOTSTRAP',
+          deletedDocumentIdentifier: String(id),
+          institutionalSlugLiteral,
+          operatorUserIdentifierLiteral: resolveOperatorIdentifierLiteral(req.user),
         },
       );
     },

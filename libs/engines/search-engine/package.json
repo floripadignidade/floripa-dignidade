@@ -15,6 +15,7 @@
     }
   },
   "dependencies": {
+    "@floripa-dignidade/contracts": "workspace:*",
     "@floripa-dignidade/exceptions": "workspace:*",
     "@floripa-dignidade/telemetry": "workspace:*",
     "@swc/helpers": "~0.5.18",

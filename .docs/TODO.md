@@ -132,3 +132,130 @@
 - [ ] **Paso 4.4 (Evolución TanStack Query - ADR 0026):**
   - [ ] Implementar pre-fetching de gastos públicos en segundo plano y mutaciones resilientes
         offline.
+
+---
+
+# 📋 CHECKLIST PRE-VUELO & HOJA DE RUTA: FLORIPA DIGNIDADE (OEDP-V18.1)
+
+> **Instrucción de Hidratación:** Este documento contiene **únicamente las tareas estrictamente
+> pendientes y certificadas en vivo**. Todo ítem marcado con `[x]` fue validado por
+> `pnpm audit:workspace` (32/32), `pnpm weaver:build` (21 módulos, paridad 100%), `pnpm typecheck`
+> (32/32), `pnpm format:check` y despliegue en Vercel (Commit `3dab970` en producción).
+
+---
+
+## [ ] FASE 1: Monitoreo, Certificación en Vivo y Secretos Cloud
+
+- [x] **Despliegue del Portal en Vercel:** Portal `@floripa-dignidade/floripa-dignidade` compilado
+      exitosamente con Turbopack en 21.4s y desplegado en
+      `https://floripa-dignidade.vercel.app/es-ES` (Commit `3dab970`).
+- [ ] **Despliegue del CMS en Vercel:** Monitorear compilación y arranque de
+      `@floripa-dignidade/content-manager-system` en Vercel.
+- [ ] **Certificación de Servicios en Sonda Cloud (`pnpm audit:infrastructure`):**
+  - [x] `DATABASE_POSTGRES_RELATIONAL`: Nominal (`aws-0-sa-east-1.pooler.supabase.com:6543`).
+  - [x] `SUPABASE_REST_DATA_LAKE`: Nominal (PostgREST HTTP 200).
+  - [x] `SUPABASE_STORAGE_S3_GATEWAY`: Nominal (`media-vault` autenticado vía AWS SigV4 atomizado).
+  - [x] `META_WHATSAPP_COMMUNICATION_GATEWAY`: Nominal (HMAC-SHA256 en tiempo constante).
+  - [ ] `RESEND_TRANSACTIONAL_EMAIL`: Nivelar `AuditResendEmailProbe.ts` para reconocer respuesta
+        legítima `restricted_api_key` como nominal o proveer clave con permiso `Full Access`.
+  - [ ] `GOOGLE_GEMINI_API_KEY`: Generar clave válida en Google AI Studio
+        (`aistudio.google.com/apikey`) y actualizar en `.env` / Vercel.
+  - [ ] `HUGGING_FACE_ROUTER`: Retirar variables obsoletas en `.env` y Vercel (o migrar a modelo
+        activo) para que la cola elástica ejecute solo Gemini.
+- [ ] **Smoke Testing en Producción:**
+  - [x] `/es-ES`: Frontpage, menús localizados, tipografía `Lexend`/`Inter` y paletas
+        institucionales operativas.
+  - [ ] `/pt-BR` y `/en-US`: Certificar respuesta en el Edge.
+  - [ ] `/pt-BR/observatorio/gastos-publicos`: Validar carga y fallback en vivo.
+  - [ ] `/admin`: Validar login de Payload CMS.
+
+---
+
+## [ ] FASE 2: Saneamiento de Deuda Técnica y Privacidad (Fase 5.5)
+
+### 2.1. Privacidad LGPD en el CMS
+
+- [ ] **`apps/content-manager-system/src/collections/identity/CitizenUsers.collection.ts`:**
+  - Reemplazar PII (`doc['email']` y `req.user?.email`) en hooks por identificadores opacos
+    (`req.user?.id`).
+  - Atomizar en `CitizenUsersAccessPolicy`, `CitizenUsersFields`, `CitizenUsersForensicHooks`.
+- [ ] **`apps/content-manager-system/src/collections/governance/organizations/OrganizationsForensicHooks.ts`:**
+  - Reemplazar `req.user?.email` por `resolveOperatorIdentifierLiteral(req.user)`.
+
+### 2.2. Páginas Destino y Rutas de Contingencia (Cero 404)
+
+- [ ] Crear `apps/floripa-dignidade/src/app/[locale]/newsletter/invalid-token/page.tsx` (+ silo i18n
+      ADR 0030).
+- [ ] Crear `apps/floripa-dignidade/src/app/[locale]/error/page.tsx` (+ silo i18n ADR 0030).
+- [x] **Navegación móvil nivelada:** `MobileNavigationLink.tsx` y `MobileEmergencyAction.tsx`
+      sincronizados con `UrlObject` y `occurrenceTimestampISO`.
+
+### 2.3. Cumplimiento Estricto de Telemetría SRE (`TelemetrySignalSchema`)
+
+- [x] `instrumentation.ts` y `useHeaderMountTelemetry.ts` nivelados.
+- [ ] Inyectar `occurrenceTimestampISO` y propiedades `*Literal` en:
+  - `apps/floripa-dignidade`: `FeatureActionCard.tsx`, `ObservatoryHeader.tsx`,
+    `/api/newsletter/subscribe/route.ts`, `/api/newsletter/confirm/route.ts`,
+    `/api/whatsapp/webhook/route.ts`.
+  - `libs/core`: `captureAnalyticsEvent.ts`, `AuditResendHealthProbe.ts`,
+    `SendTransactionalEmail.ts`, `GlobalRequestOrchestrator.ts`, `ValidateLinguisticContract.ts`,
+    `ValidateRouteAuthority.ts` (y alinear `RouteAuthorityManifesto.ts` al SSOT
+    `@floripa-dignidade/contracts`), `FilterAutomatedInterference.ts`.
+  - `libs/modules/newsletter`: `ConfirmNewsletterSubscription.ts`,
+    `DispatchNewsletterVerification.ts`, `ProcessNewsletterSubscriptionRequest.ts`,
+    `SavePendingSubscriptionToSupabase.ts`.
+  - `libs/modules/whatsapp`: `HandleIndividualWhatsAppMessage.ts`, `UpdateMessageTraceStatus.ts`,
+    `ValidateMetaSignature.ts`, `ProcessIncomingWhatsAppEvent.ts`.
+
+### 2.4. Rutas Limpias (Extensionless) para Turbopack
+
+- [ ] Purgar sufijos `.js` en importaciones relativas de:
+  - `libs/modules/identity` (`src/index.ts`, `CalculateIdentityAuthority.ts`,
+    `EvaluateIdentityAuthorityHierarchy.ts`, `MapAuthorityToLedgerRecord.ts`).
+  - `libs/modules/territorial-engine` (`src/index.ts`, `AssembleTerritorialEntity.ts`,
+    `MapIbgeToTerritorialEntity.ts`).
+  - `libs/modules/reputation-engine` (`AnalyzeEvaluationVeracity.ts`, schemas asociados).
+  - `libs/modules/messaging-engine` (`CalculatePresenceStateSignature.ts`,
+    `ManageSovereignMembership.ts`).
+  - `libs/modules/newsletter` (`ParseSubscriberActivationResult.ts`).
+  - `libs/engines/impact-analytics-engine` (`AssemblePopularAcceptanceIndicator.ts`).
+  - `libs/engines/search-engine` (`SearchEngineConfiguration.ts`, `ExecuteFuzzySearch.schema.ts`).
+  - `libs/engines/health-analysis` (`src/index.ts`).
+  - `libs/shared/utility` (`GenerateSovereignStoragePath.ts`, `TransformToSovereignBinary.ts`).
+
+### 2.5. Nomenclatura en Observatorio
+
+- [x] Migrado `ExpenditureTableRow.tsx` a `MaskCitizenIdentity`.
+
+---
+
+## [ ] FASE 3: Persistencia Relacional y Migración Cloud (Supabase)
+
+- [ ] **Ejecución en Supabase SQL Editor (Proyecto `sa-east-1`):**
+  - Ejecutar `database/00_migration_master_schema.sql` y certificar
+    `public.citizen_identities_ledger`, índices y RLS.
+  - Crear y ejecutar `database/02_ecosystem_operational_ledgers.sql` con las 9 tablas operacionales
+    (`newsletter_subscribers`, `system_telemetry_logs`, `system_notifications_ledger`,
+    `direct_messages_ledger`, `user_presence_ledger`, `communication_groups_ledger`,
+    `group_memberships_ledger`, `territorial_master_data`, `project_financial_ledger`).
+  - Deprecar y archivar `database/01_identity_identities_ledger.sql`.
+
+---
+
+## [ ] FASE 4: Activos Gráficos, Frontend Cívico y Ecosistema (ADR 0028 / ADR 0030)
+
+- [ ] **Paso 4.1 (Activos Gráficos ADR 0028 en `apps/floripa-dignidade/public/`):**
+  - Resolver el icono de imagen rota en header proveyendo `/brand/floripa-dignidade-logo-color.png`,
+    `/brand/floripa-dignidade-logo-white.png`, `/brand/favicon.ico`, `/brand/favicon/favicon.svg`,
+    `/brand/pwa/apple-touch-icon.png`, `/brand/pwa/icon-192x192.png`, `/brand/pwa/icon-512x512.png`
+    y `/manifest.webmanifest`.
+- [ ] **Paso 4.2 (Language Switcher Dinámico):**
+  - Integrar selector de idioma en `GlobalMainNavigationHeader.tsx` consumiendo
+    `ACTIVE_LOCALES_ENTRIES_COLLECTION` (`@floripa-dignidade/contracts`).
+- [ ] **Paso 4.3 (Rutas Institucionales de Impacto):**
+  - Construir `/identidad`, `/transparencia`, `/prensa`, `/denuncia` y `/unauthorized`.
+  - Reemplazar el rol simulado en `ValidateObservatoryAccess.ts` por sesión real de usuario.
+- [ ] **Paso 4.4 (Evolución TanStack Query - ADR 0026):**
+  - Implementar pre-fetching de gastos públicos en segundo plano y mutaciones offline resilientes.
+
+  ***

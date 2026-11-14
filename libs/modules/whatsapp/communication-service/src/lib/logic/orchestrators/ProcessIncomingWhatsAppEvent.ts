@@ -1,75 +1,95 @@
 /**
  * @section WhatsApp Logic - Incoming Event Orchestrator
- * @description Orquestador superior de frontera. Valida la integridad del paquete
- * de datos de Meta y dirige el triaje mediante un enjambre de átomos funcionales.
+ * @description Orquestador perimetral de entrada para webhooks de Meta WhatsApp Cloud API.
+ * Valida la integridad estructural del sobre completo (`whatsapp_business_account`),
+ * mide la latencia física de ejecución con `TraceExecutionTime`, delega el triaje
+ * concurrente de mensajes y estados en `ProcessWhatsAppChangeValue` y emite
+ * telemetría forense consolidada conforme a `TelemetrySignalSchema`.
  *
- * Protocolo OEDP-V16.0 - Swarm Intelligence & High Performance.
- * SANEADO Zenith: Erradicación total de 'any' y alineación de contratos de tipos.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Isomorphic).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Confiabilidad y Rendimiento).
  *
- * @author Engineering Department - Floripa Dignidade
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import { ValidationException } from '@floripa-dignidade/exceptions';
 import {
+  type CorrelationIdentifier,
+  CorrelationIdentifierSchema,
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+  OperationCodeSchema,
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-/* 1. ADN Estructural (Zod Schemas & Types) */
-import { WhatsAppWebhookPayloadSchema } from '../../schemas/WhatsAppWebhook.schema';
-import type { IWhatsAppWebhookPayload } from '../../schemas/WhatsAppWebhook.schema';
+import {
+  type IWhatsAppWebhookPayload,
+  WhatsAppWebhookPayloadSchema,
+} from '../../schemas/WhatsAppWebhook.schema';
+import { ProcessWhatsAppChangeValue } from './ProcessWhatsAppChangeValue';
 
-/* 2. Enjambre de Átomos Funcionales */
-import { HandleIndividualWhatsAppMessage } from '../atomic/HandleIndividualWhatsAppMessage';
-import { UpdateMessageTraceStatus } from '../atomic/UpdateMessageTraceStatus';
+const WHATSAPP_ORCHESTRATOR_MODULE_IDENTIFIER: ModuleIdentifier = ModuleIdentifierSchema.parse(
+  'WHATSAPP_EVENT_ORCHESTRATOR',
+);
+
+const ORCHESTRATION_TRACE_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'EXECUTE_WEBHOOK_SWARM_ORCHESTRATION',
+);
+
+const CONTRACT_VIOLATION_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'INVALID_WEBHOOK_PAYLOAD_STRUCTURE',
+);
+
+const ORCHESTRATION_COMPLETED_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'WEBHOOK_ORCHESTRATION_COMPLETED',
+);
+
+const resolveSafeCorrelationIdentifier = (
+  candidateIdentifier: string | undefined,
+): CorrelationIdentifier => {
+  const validationResult = CorrelationIdentifierSchema.safeParse(candidateIdentifier);
+  return validationResult.success ? validationResult.data : GenerateCorrelationIdentifier();
+};
 
 /**
- * @interface IWhatsAppStatusSignal
- * @description Reflejo técnico del contrato de estados de entrega de Meta.
- */
-interface IWhatsAppStatusSignal {
-  readonly id: string;
-  readonly status: 'sent' | 'delivered' | 'read' | 'failed' | 'deleted';
-  readonly recipient_id: string;
-  readonly timestamp: string;
-}
-
-/** Identificador técnico para el Neural Sentinel. */
-const WHATSAPP_ORCHESTRATOR_IDENTIFIER = 'WHATSAPP_EVENT_ORCHESTRATOR';
-
-/**
- * Recibe señales físicas de Meta, valida su ADN y orquesta el triaje del enjambre.
+ * Valida la estructura del webhook de Meta y orquesta el procesamiento concurrente de eventos.
  *
- * @param rawWebhookEventPayload - Objeto JSON recibido en el Gateway de la App.
- * @throws {ValidationException} Si el contrato de datos es ilegítimo.
- * @returns {Promise<void>}
+ * @param rawWebhookEventPayload - Objeto JSON entrante capturado por el Route Handler.
+ * @param correlationIdentifierFallback - Identificador UUID v4 opcional para propagar la traza HTTP.
+ * @returns {Promise<void>} Resuelve una vez concluido el triaje de todos los eventos del lote.
+ * @throws {ValidationException} Si la estructura del paquete no cumple con `WhatsAppWebhookPayloadSchema`.
  */
 export const ProcessIncomingWhatsAppEvent = async (
   rawWebhookEventPayload: unknown,
+  correlationIdentifierFallback?: string,
 ): Promise<void> => {
-  const correlationIdentifier = GenerateCorrelationIdentifier();
+  const correlationIdentifier = resolveSafeCorrelationIdentifier(correlationIdentifierFallback);
 
   return await TraceExecutionTime(
-    WHATSAPP_ORCHESTRATOR_IDENTIFIER,
-    'EXECUTE_WEBHOOK_SWARM_ORCHESTRATION',
+    WHATSAPP_ORCHESTRATOR_MODULE_IDENTIFIER,
+    ORCHESTRATION_TRACE_OPERATION_CODE,
     correlationIdentifier,
-    async () => {
-      // 1. ADUANA DE ADN (Safe Parsing)
+    async (): Promise<void> => {
       const payloadValidationResult =
         WhatsAppWebhookPayloadSchema.safeParse(rawWebhookEventPayload);
 
       if (!payloadValidationResult.success) {
-        /** Reporte inmediato de violación de integridad estructural */
-        EmitTelemetrySignal({
-          severityLevel: 'CRITICAL',
-          moduleIdentifier: WHATSAPP_ORCHESTRATOR_IDENTIFIER,
-          operationCode: 'INVALID_WEBHOOK_PAYLOAD_STRUCTURE',
+        void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: WHATSAPP_ORCHESTRATOR_MODULE_IDENTIFIER,
+          operationCodeLiteral: CONTRACT_VIOLATION_OPERATION_CODE,
           correlationIdentifier,
-          message: 'El paquete de Meta no cumple con el esquema soberano.',
-          contextMetadata: {
-            issuesCollection: payloadValidationResult.error.flatten(),
-          },
+          messageContentLiteral:
+            'La estructura del paquete de webhook de Meta no cumple el contrato de datos.',
+          semanticIntentTag: 'WHATSAPP_WEBHOOK_CONTRACT_VIOLATION',
+          contextMetadataSnapshot: Object.freeze({
+            validationIssuesCollection: payloadValidationResult.error.flatten(),
+          }),
         });
 
         throw new ValidationException('ADN_WEBHOOK_WHATSAPP_CORRUPTO', {
@@ -80,41 +100,38 @@ export const ProcessIncomingWhatsAppEvent = async (
 
       const validatedPayload: IWhatsAppWebhookPayload = payloadValidationResult.data;
 
-      // 2. DESCOMPOSICIÓN Y TRIAJE (Swarm Iteration)
+      let totalMessagesCountQuantity = 0;
+      let totalStatusesCountQuantity = 0;
+      let totalFailedItemsCountQuantity = 0;
+
       for (const entrySnapshot of validatedPayload.entry) {
         for (const changeSnapshot of entrySnapshot.changes) {
-          const incomingChangeValue = changeSnapshot.value;
+          const metricsSnapshot = await ProcessWhatsAppChangeValue(
+            changeSnapshot.value,
+            correlationIdentifier,
+          );
 
-          // A. PROCESAMIENTO DE MENSAJES (Señales Ciudadanas)
-          const messagesCollection = incomingChangeValue.messages ?? [];
-
-          for (const messageItem of messagesCollection) {
-            /** Delegación al átomo de procesamiento individual */
-            await HandleIndividualWhatsAppMessage(messageItem, correlationIdentifier);
-          }
-
-          // B. PROCESAMIENTO DE ESTADOS (Rastro de Entrega)
-          /**
-           * SANEADO Zenith: Erradicación de 'any'.
-           * Se utiliza un casteo hacia la interfaz técnica 'IWhatsAppStatusSignal'
-           * para garantizar la integridad del flujo hacia el átomo de rastro.
-           */
-          const statusesCollection =
-            (incomingChangeValue.statuses as unknown as IWhatsAppStatusSignal[]) ?? [];
-
-          for (const statusItem of statusesCollection) {
-            await UpdateMessageTraceStatus(statusItem, correlationIdentifier);
-          }
+          totalMessagesCountQuantity += metricsSnapshot.processedMessagesQuantity;
+          totalStatusesCountQuantity += metricsSnapshot.processedStatusesQuantity;
+          totalFailedItemsCountQuantity += metricsSnapshot.failedItemsQuantity;
         }
       }
 
-      // 3. SEÑAL DE FINALIZACIÓN NOMINAL
-      EmitTelemetrySignal({
-        severityLevel: 'INFO',
-        moduleIdentifier: WHATSAPP_ORCHESTRATOR_IDENTIFIER,
-        operationCode: 'WEBHOOK_ORCHESTRATION_COMPLETED',
+      const isPartiallyFailedBoolean = totalFailedItemsCountQuantity > 0;
+
+      void EmitTelemetrySignal({
+        occurrenceTimestampISO: new Date().toISOString(),
+        severityLevelLiteral: isPartiallyFailedBoolean ? 'WARNING' : 'INFO',
+        moduleIdentifierLiteral: WHATSAPP_ORCHESTRATOR_MODULE_IDENTIFIER,
+        operationCodeLiteral: ORCHESTRATION_COMPLETED_OPERATION_CODE,
         correlationIdentifier,
-        message: 'Triaje de señales de WhatsApp finalizado con éxito.',
+        messageContentLiteral: `Triaje de eventos de WhatsApp finalizado: [${totalMessagesCountQuantity}] mensajes, [${totalStatusesCountQuantity}] estados.`,
+        semanticIntentTag: 'WHATSAPP_WEBHOOK_BATCH_PROCESSED',
+        contextMetadataSnapshot: Object.freeze({
+          totalMessagesCountQuantity,
+          totalStatusesCountQuantity,
+          totalFailedItemsCountQuantity,
+        }),
       });
     },
   );

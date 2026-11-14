@@ -1,49 +1,66 @@
 /**
  * @section Territorial Logic - Territorial Entity Assembler (Atom)
- * @description Átomo de lógica pura encargado de la construcción, validación
- * y sellado de la entidad territorial soberana. Garantiza la inmutabilidad
- * absoluta del rastro geográfico mediante sellado de memoria (Object.freeze).
+ * @description Átomo de lógica pura encargado de validar parámetros, construir y
+ * sellar inmutablemente una entidad territorial (`ITerritorialEntity`) conforme al
+ * contrato `TerritorialEntitySchema`, con trazabilidad forense SRE y excepciones
+ * estandarizadas bajo arquitectura Source-First.
  *
- * Protocolo OEDP-V17.0 - Functional Atomicity & Sovereign Data.
- * SANEADO Zenith: Corrección de 'sort-imports', inyección de Aduana de ADN,
- * telemetría forense y cumplimiento de Prosa ISO (Zero Abbreviations).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Confiabilidad).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import { z } from 'zod';
-import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
 
-/* 1. ADN Estructural y Esquemas (Verbatim Module Syntax) */
-/**
- * 🛡️ SANEADO Zenith: Ordenamiento alfabético estricto de miembros.
- * I (Entity) < T (Hierarchy) < T (Identifier).
- */
+import { ValidationException } from '@floripa-dignidade/exceptions';
 import {
+  type CorrelationIdentifier,
+  CorrelationIdentifierSchema,
+  EmitTelemetrySignal,
+  GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+  OperationCodeSchema,
+  ReportForensicException,
+} from '@floripa-dignidade/telemetry';
+
+import {
+  AdministrativeHierarchySchema,
   type ITerritorialEntity,
   type TAdministrativeHierarchy,
-  type TTerritorialTechnicalIdentifier,
-} from '../../schemas/TerritorialEntity.schema.js';
+  TerritorialEntitySchema,
+  TerritorialTechnicalIdentifierSchema,
+} from '../../schemas/TerritorialEntity.schema';
 
-/**
- * @name AssembleTerritorialEntityParametersSchema
- * @description Aduana de ADN local para los parámetros de ensamblaje.
- * Protege al átomo contra ruidos de memoria o parámetros nulos.
- */
+const ASSEMBLER_MODULE_IDENTIFIER: ModuleIdentifier = ModuleIdentifierSchema.parse(
+  'TERRITORIAL_ENTITY_ASSEMBLER_ATOM',
+);
+
+const CONTRACT_VIOLATION_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'ASSEMBLER_CONTRACT_VIOLATION',
+);
+
+const ASSEMBLY_NOMINAL_OPERATION_CODE: OperationCode =
+  OperationCodeSchema.parse('ENTITY_ASSEMBLY_NOMINAL');
+
 const AssembleTerritorialEntityParametersSchema = z
   .object({
-    technicalIdentifierLiteral: z.string().min(1),
-    parentTerritoryIdentifierLiteral: z.string().nullable(),
-    officialTerritoryNameLiteral: z.string().min(2),
-    administrativeHierarchyLevelLiteral: z.string(), // Validado por el casting de tipo
+    technicalIdentifierLiteral: TerritorialTechnicalIdentifierSchema,
+    parentTerritoryIdentifierLiteral: TerritorialTechnicalIdentifierSchema.nullable(),
+    officialTerritoryNameLiteral: z
+      .string()
+      .trim()
+      .min(2, { message: 'INVALID_OFFICIAL_TERRITORY_NAME_LENGTH' }),
+    administrativeHierarchyLevelLiteral: AdministrativeHierarchySchema,
   })
   .readonly();
 
 /**
  * @interface ITerritorialAssemblerParameters
- * @description Contrato inmutable para la generación del nodo territorial.
- * Sigue la norma ISO 11179 de Objeto + Propiedad + Representación.
+ * @description Contrato inmutable de entrada para la construcción de una entidad territorial.
  */
 export interface ITerritorialAssemblerParameters {
   readonly technicalIdentifierLiteral: string;
@@ -52,38 +69,50 @@ export interface ITerritorialAssemblerParameters {
   readonly administrativeHierarchyLevelLiteral: TAdministrativeHierarchy;
 }
 
-/** Identificador técnico del aparato para el Neural Sentinel. */
-const ATOM_IDENTIFIER = 'TERRITORIAL_ENTITY_ASSEMBLER_ATOM';
+const resolveSafeCorrelationIdentifier = (
+  candidateIdentifier: string | undefined,
+): CorrelationIdentifier => {
+  const validationResult = CorrelationIdentifierSchema.safeParse(candidateIdentifier);
+  return validationResult.success ? validationResult.data : GenerateCorrelationIdentifier();
+};
 
 /**
- * Construye un snapshot inmutable de territorio bajo el estándar de Floripa Dignidade.
- * Implementa el patrón "Lost Artifact": el objeto devuelto es inalterable.
+ * Valida parámetros territoriales, ensambla la entidad certificada y sella su inmutabilidad.
  *
- * @param parametersSnapshot - Diccionario de datos purificados y normalizados.
- * @returns {ITerritorialEntity} Entidad sellada y lista para el Ledger geográfico.
+ * @param parametersSnapshot - Datos normalizados de identificador, jerarquía y toponimia.
+ * @param correlationIdentifierFallback - Identificador UUID v4 opcional para enlazar trazabilidad.
+ * @returns {ITerritorialEntity} Entidad territorial certificada e inmutable (`Object.freeze`).
+ * @throws {ValidationException} Si los parámetros incumplen los contratos Zod de territorio.
  */
 export const AssembleTerritorialEntity = (
   parametersSnapshot: ITerritorialAssemblerParameters,
+  correlationIdentifierFallback?: string,
 ): ITerritorialEntity => {
-  // 1. ADUANA DE ADN (Input Validation)
+  const correlationIdentifier = resolveSafeCorrelationIdentifier(correlationIdentifierFallback);
   const validationResult = AssembleTerritorialEntityParametersSchema.safeParse(parametersSnapshot);
 
   if (!validationResult.success) {
-    /**
-     * @section Gestión de Fallo Crítico de ADN
-     * Al ser un átomo de ensamblaje síncrono, un error aquí indica corrupción
-     * en la lógica del enjambre superior.
-     */
+    const validationIssuesCollection = validationResult.error.flatten();
+
     void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'CRITICAL',
-      moduleIdentifierLiteral: ATOM_IDENTIFIER,
-      operationCodeLiteral: 'ASSEMBLER_CONTRACT_VIOLATION',
-      correlationIdentifier: GenerateCorrelationIdentifier(),
-      messageContentLiteral: 'Se intentó ensamblar un territorio con ADN incompleto o corrupto.',
-      contextMetadataSnapshot: { issuesCollection: validationResult.error.flatten() },
+      moduleIdentifierLiteral: ASSEMBLER_MODULE_IDENTIFIER,
+      operationCodeLiteral: CONTRACT_VIOLATION_OPERATION_CODE,
+      correlationIdentifier,
+      messageContentLiteral:
+        'Se intentó ensamblar una entidad territorial con contrato estructural inválido.',
+      semanticIntentTag: 'TERRITORIAL_CONTRACT_VIOLATION',
+      contextMetadataSnapshot: Object.freeze({ validationIssuesCollection }),
     });
 
-    throw new Error(`[${ATOM_IDENTIFIER}]: ADN_CORRUPTO_DETECTADO`);
+    const validationException = new ValidationException('TERRITORIAL_ENTITY_ASSEMBLY_INVALID', {
+      validationIssuesCollection,
+      correlationIdentifier,
+    });
+
+    ReportForensicException(validationException, correlationIdentifier);
+    throw validationException;
   }
 
   const {
@@ -93,39 +122,29 @@ export const AssembleTerritorialEntity = (
     administrativeHierarchyLevelLiteral,
   } = validationResult.data;
 
-  /**
-   * @section Construcción del Lost Artifact
-   * 🛡️ SOVEREIGN CASTING: Elevamos los literales a tipos bridados nominales.
-   * Aplicamos Object.freeze para asegurar la inalterabilidad en el bus de datos.
-   */
-  const finalTerritorialEntity: ITerritorialEntity = Object.freeze({
-    territorialTechnicalIdentifier: technicalIdentifierLiteral as TTerritorialTechnicalIdentifier,
+  const occurrenceTimestampISO = new Date().toISOString();
 
-    parentTerritoryIdentifier: parentTerritoryIdentifierLiteral
-      ? (parentTerritoryIdentifierLiteral as TTerritorialTechnicalIdentifier)
-      : null,
-
-    officialTerritoryNameLiteral: officialTerritoryNameLiteral,
-
-    administrativeHierarchyLevel: administrativeHierarchyLevelLiteral as TAdministrativeHierarchy,
-
-    /** Sincronización de rastro temporal ISO 8601 en el momento exacto del ensamble. */
-    lastSovereignSyncTimestampISO: new Date().toISOString(),
+  const certifiedTerritorialEntity = TerritorialEntitySchema.parse({
+    territorialTechnicalIdentifier: technicalIdentifierLiteral,
+    parentTerritoryIdentifier: parentTerritoryIdentifierLiteral,
+    officialTerritoryNameLiteral,
+    administrativeHierarchyLevel: administrativeHierarchyLevelLiteral,
+    lastSovereignSyncTimestampISO: occurrenceTimestampISO,
   });
 
-  // 2. REPORTE SRE (Visibility)
   void EmitTelemetrySignal({
+    occurrenceTimestampISO,
     severityLevelLiteral: 'DEBUG',
-    moduleIdentifierLiteral: ATOM_IDENTIFIER,
-    operationCodeLiteral: 'ENTITY_ASSEMBLY_NOMINAL',
-    correlationIdentifier: GenerateCorrelationIdentifier(),
-    messageContentLiteral: 'Ensamblaje inmutable de territorio finalizado exitosamente.',
+    moduleIdentifierLiteral: ASSEMBLER_MODULE_IDENTIFIER,
+    operationCodeLiteral: ASSEMBLY_NOMINAL_OPERATION_CODE,
+    correlationIdentifier,
+    messageContentLiteral: 'Ensamblaje inmutable de entidad territorial finalizado con éxito.',
     semanticIntentTag: 'TERRITORIAL_DATA_NORMALIZATION',
-    contextMetadataSnapshot: {
+    contextMetadataSnapshot: Object.freeze({
       technicalIdentifierLiteral,
       hierarchyLiteral: administrativeHierarchyLevelLiteral,
-    },
+    }),
   });
 
-  return finalTerritorialEntity;
+  return Object.freeze(certifiedTerritorialEntity);
 };

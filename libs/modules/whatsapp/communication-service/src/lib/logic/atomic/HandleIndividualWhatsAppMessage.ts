@@ -1,94 +1,109 @@
 /**
  * @section WhatsApp Logic - Individual Message Processor (Orchestrator)
- * @description Clasifica el contenido de una señal ciudadana entrante, garantiza
- * la privacidad de la identidad y dirige el despacho hacia los motores de
- * análisis de Derechos Humanos o bóvedas de evidencia.
+ * @description Orquestador de triaje encargado de procesar un mensaje ciudadano entrante,
+ * aplicar anonimización de identidad bajo la LGPD mediante `MaskCitizenIdentity`,
+ * clasificar el medio y propósito funcional mediante `ClassifyWhatsAppMessagePayload`,
+ * medir la latencia con `TraceExecutionTime` y emitir telemetría conforme a `TelemetrySignalSchema`.
  *
- * Protocolo OEDP-V16.0 - Swarm Intelligence & ISO Standard Naming.
- * SANEADO Zenith: Atomización de privacidad completada. Responsabilidad Única.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Isomorphic).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 y LGPD (Lei 13.709/2018).
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
-import { EmitTelemetrySignal } from '@floripa-dignidade/telemetry';
-import { MaskSensitivePhoneIdentifier } from './MaskSensitivePhoneIdentifier';
+import { MaskCitizenIdentity } from '@floripa-dignidade/shared-utility';
+import {
+  type CorrelationIdentifier,
+  CorrelationIdentifierSchema,
+  EmitTelemetrySignal,
+  GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+  OperationCodeSchema,
+  TraceExecutionTime,
+} from '@floripa-dignidade/telemetry';
 
-/* 1. ADN Estructural (Verbatim Module Syntax) */
 import type { IWhatsAppMessage } from '../../schemas/WhatsAppWebhook.schema';
+import { ClassifyWhatsAppMessagePayload } from './ClassifyWhatsAppMessagePayload';
+import type { IWhatsAppMessageClassification } from './schemas/WhatsAppMessageClassification.schema';
 
-/** Identificador técnico del procesador para el Neural Sentinel. */
-const MESSAGE_PROCESSOR_IDENTIFIER = 'WHATSAPP_INDIVIDUAL_PROCESSOR';
+const MESSAGE_PROCESSOR_MODULE_IDENTIFIER: ModuleIdentifier = ModuleIdentifierSchema.parse(
+  'WHATSAPP_INDIVIDUAL_PROCESSOR',
+);
+
+const PROCESS_MESSAGE_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'PROCESS_INDIVIDUAL_WHATSAPP_MESSAGE',
+);
+
+const SIGNAL_CLASSIFIED_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'SIGNAL_RECEIVED_FOR_CLASSIFICATION',
+);
+
+const UNKNOWN_SIGNAL_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'UNKNOWN_SIGNAL_TYPE_IGNORED',
+);
+
+const resolveSafeCorrelationIdentifier = (
+  candidateIdentifier: string | undefined,
+): CorrelationIdentifier => {
+  const validationResult = CorrelationIdentifierSchema.safeParse(candidateIdentifier);
+  return validationResult.success ? validationResult.data : GenerateCorrelationIdentifier();
+};
 
 /**
- * Procesa una señal individual, delegando la privacidad y el triaje.
+ * Procesa individualmente un mensaje de WhatsApp, anonimiza el remitente y emite el triaje SRE.
  *
- * @param incomingWhatsAppMessageSnapshot - ADN del mensaje detectado por el enjambre.
- * @param correlationIdentifier - Identificador único de trazabilidad cross-module.
- * @returns {Promise<void>}
+ * @param incomingWhatsAppMessageSnapshot - Mensaje entrante validado por `WhatsAppMessageSchema`.
+ * @param correlationIdentifierFallback - Identificador de correlación para la trazabilidad distribuida.
+ * @returns {Promise<IWhatsAppMessageClassification>} Descriptor clasificado e inmutable del mensaje.
  */
 export const HandleIndividualWhatsAppMessage = async (
   incomingWhatsAppMessageSnapshot: IWhatsAppMessage,
-  correlationIdentifier: string,
-): Promise<void> => {
-  // 1. PROTECCIÓN DE IDENTIDAD CIUDADANA (Delegación Atómica)
-  const maskedSenderIdentifierLiteral = MaskSensitivePhoneIdentifier(
-    incomingWhatsAppMessageSnapshot.from,
-  );
+  correlationIdentifierFallback?: string,
+): Promise<IWhatsAppMessageClassification> => {
+  const correlationIdentifier = resolveSafeCorrelationIdentifier(correlationIdentifierFallback);
 
-  // 2. REPORTE DE RECEPCIÓN (Forensic Trace)
-  EmitTelemetrySignal({
-    severityLevel: 'INFO',
-    moduleIdentifier: MESSAGE_PROCESSOR_IDENTIFIER,
-    operationCode: 'SIGNAL_RECEIVED_FOR_CLASSIFICATION',
+  return await TraceExecutionTime(
+    MESSAGE_PROCESSOR_MODULE_IDENTIFIER,
+    PROCESS_MESSAGE_OPERATION_CODE,
     correlationIdentifier,
-    /** Uso de clave soberana internacionalizada */
-    message: 'WHATSAPP.LOGS.CLASSIFYING_SIGNAL_TYPE',
-    contextMetadata: {
-      messageTypeLiteral: incomingWhatsAppMessageSnapshot.type,
-      senderIdentityMask: maskedSenderIdentifierLiteral,
-      metaMessageIdentifier: incomingWhatsAppMessageSnapshot.id,
-    },
-  });
-
-  /**
-   * 3. TRIAJE POR TIPO DE MEDIO (Functional Strategy)
-   * SANEADO: Se prepara el enjambre para los átomos cognitivos.
-   */
-  switch (incomingWhatsAppMessageSnapshot.type) {
-    case 'text':
-      /**
-       * @step_brain: Inferencia Cognitiva de Derechos Humanos
-       * TODO: Invocar AnalyzeHumanRightsIntent.ts (Fase 5.2)
-       */
-      break;
-
-    case 'image':
-    case 'video':
-    case 'audio':
-    case 'voice':
-      /**
-       * @step_vault: Bóveda de Evidencia Cloud-Sovereign (ADR 0015)
-       * TODO: Invocar PersistMultimediaEvidence.ts (Fase 5.3)
-       */
-      break;
-
-    case 'location':
-      /**
-       * @step_geo: Mapeo de Vulnerabilidad Territorial
-       * TODO: Invocar MapSocialVulnerabilityPoint.ts (Fase 5.4)
-       */
-      break;
-
-    default:
-      EmitTelemetrySignal({
-        severityLevel: 'WARNING',
-        moduleIdentifier: MESSAGE_PROCESSOR_IDENTIFIER,
-        operationCode: 'UNKNOWN_SIGNAL_TYPE_IGNORED',
-        correlationIdentifier,
-        message: 'WHATSAPP.LOGS.UNKNOWN_SIGNAL_TYPE_IGNORED',
-        contextMetadata: {
-          unhandledTypeLiteral: incomingWhatsAppMessageSnapshot.type,
-        },
+    async (): Promise<IWhatsAppMessageClassification> => {
+      const maskedSenderIdentifierLiteral = await MaskCitizenIdentity({
+        rawIdentityLiteral: incomingWhatsAppMessageSnapshot.from,
+        maskingStrategyLiteral: 'BRAZILIAN_DOCUMENT',
       });
-  }
+
+      const classificationSnapshot = ClassifyWhatsAppMessagePayload(
+        incomingWhatsAppMessageSnapshot,
+      );
+
+      const isUnhandledSignalBoolean =
+        classificationSnapshot.targetSubsystemLiteral === 'UNHANDLED_SIGNAL_TYPE';
+
+      void EmitTelemetrySignal({
+        occurrenceTimestampISO: new Date().toISOString(),
+        severityLevelLiteral: isUnhandledSignalBoolean ? 'WARNING' : 'INFO',
+        moduleIdentifierLiteral: MESSAGE_PROCESSOR_MODULE_IDENTIFIER,
+        operationCodeLiteral: isUnhandledSignalBoolean
+          ? UNKNOWN_SIGNAL_OPERATION_CODE
+          : SIGNAL_CLASSIFIED_OPERATION_CODE,
+        correlationIdentifier,
+        messageContentLiteral: classificationSnapshot.summaryDescriptionLiteral,
+        semanticIntentTag: isUnhandledSignalBoolean
+          ? 'WHATSAPP_UNHANDLED_SIGNAL_TYPE'
+          : 'WHATSAPP_INCOMING_MESSAGE_CLASSIFIED',
+        contextMetadataSnapshot: Object.freeze({
+          metaMessageIdentifier: classificationSnapshot.metaMessageIdentifier,
+          messageTypeLiteral: classificationSnapshot.messageTypeLiteral,
+          targetSubsystemLiteral: classificationSnapshot.targetSubsystemLiteral,
+          senderIdentityMask: maskedSenderIdentifierLiteral,
+          ...classificationSnapshot.classificationMetadata,
+        }),
+      });
+
+      return classificationSnapshot;
+    },
+  );
 };

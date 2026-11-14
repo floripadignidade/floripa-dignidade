@@ -5,10 +5,8 @@
  * Provee un mecanismo de idempotencia en memoria volátil para prevenir el despacho
  * de transacciones redundantes hacia el Ledger Cloud de persistencia.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Robustez).
- * SANEADO: Purga definitiva de metáforas informales ("Sovereign"), erradicación de inyección
- * de tuberías mediante serialización determinista y tipado nominal sellado con Zod.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -16,8 +14,10 @@
 
 import { z } from 'zod';
 
-/* 1. ADN Estructural de Presencia (Importación Canónica Relativa) */
-import type { TAvailabilityStatus } from '../../schemas/UserPresence.schema.js';
+import {
+  AvailabilityStatusSchema,
+  type TAvailabilityStatus,
+} from '../../schemas/UserPresence.schema';
 
 /**
  * @name PresenceStateSignatureSchema
@@ -25,6 +25,7 @@ import type { TAvailabilityStatus } from '../../schemas/UserPresence.schema.js';
  */
 export const PresenceStateSignatureSchema = z
   .string()
+  .trim()
   .min(1, { message: 'LA_FIRMA_DE_ESTADO_DE_PRESENCIA_NO_PUEDE_ESTAR_VACIA' })
   .brand<'PresenceStateSignature'>();
 
@@ -38,7 +39,7 @@ export type TPresenceStateSignature = z.infer<typeof PresenceStateSignatureSchem
 export const PresenceStateSnapshotSchema = z
   .object({
     /** Estado ontológico de disponibilidad técnica. */
-    availabilityStatusLiteral: z.enum(['ONLINE', 'AWAY', 'DO_NOT_DISTURB', 'OFFLINE']).optional(),
+    availabilityStatusLiteral: AvailabilityStatusSchema.optional(),
 
     /** Mensaje de contexto lingüístico o estado visible. */
     customStatusMessageLiteral: z.string().optional(),
@@ -47,7 +48,7 @@ export const PresenceStateSnapshotSchema = z
     pushSubscriptionTokenSecret: z.string().optional(),
 
     /** @deprecated Alias heredado para disponibilidad ontológica */
-    status: z.enum(['ONLINE', 'AWAY', 'DO_NOT_DISTURB', 'OFFLINE']).optional(),
+    status: AvailabilityStatusSchema.optional(),
 
     /** @deprecated Alias heredado para mensaje de estado */
     customMessage: z.string().optional(),
@@ -94,20 +95,25 @@ export type IPresenceSovereignSnapshot = IPresenceStateSnapshot;
 export const CalculatePresenceStateSignature = (
   presenceSnapshot: IPresenceStateSnapshot,
 ): TPresenceStateSignature => {
+  const validationResultSnapshot = PresenceStateSnapshotSchema.safeParse(presenceSnapshot);
+  const sanitizedSnapshot = validationResultSnapshot.success
+    ? validationResultSnapshot.data
+    : presenceSnapshot;
+
   /**
    * @section Resolución Polimórfica de Propiedades
    * Prioriza la nomenclatura formal ISO 11179 sobre los alias históricos heredados.
    */
   const resolvedStatusLiteral: TAvailabilityStatus =
-    presenceSnapshot.availabilityStatusLiteral ?? presenceSnapshot.status ?? 'OFFLINE';
+    sanitizedSnapshot.availabilityStatusLiteral ?? sanitizedSnapshot.status ?? 'OFFLINE';
 
   const rawMessageLiteral: string =
-    presenceSnapshot.customStatusMessageLiteral ?? presenceSnapshot.customMessage ?? '';
+    sanitizedSnapshot.customStatusMessageLiteral ?? sanitizedSnapshot.customMessage ?? '';
 
   const resolvedMessageLiteral: string = rawMessageLiteral.trim();
 
   const resolvedTokenLiteral: string =
-    presenceSnapshot.pushSubscriptionTokenSecret ?? presenceSnapshot.pushToken ?? 'NONE';
+    sanitizedSnapshot.pushSubscriptionTokenSecret ?? sanitizedSnapshot.pushToken ?? 'NONE';
 
   /**
    * @section Serialización Determinista Normalizada
@@ -121,7 +127,7 @@ export const CalculatePresenceStateSignature = (
 
   const serializedSignatureLiteral = JSON.stringify(deterministicPayloadSnapshot);
 
-  return serializedSignatureLiteral as TPresenceStateSignature;
+  return PresenceStateSignatureSchema.parse(serializedSignatureLiteral);
 };
 
 /**

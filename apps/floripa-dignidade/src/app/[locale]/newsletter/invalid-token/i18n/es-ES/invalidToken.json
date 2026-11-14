@@ -1,0 +1,19 @@
+{
+  "hero": {
+    "badgeLabelLiteral": "Verificación de Seguridad",
+    "headlineLiteral": "Enlace de confirmación inválido o expirado",
+    "descriptionLiteral": "No pudimos validar tu código de confirmación. Esto ocurre cuando el enlace ya fue utilizado anteriormente, caducó o se copió de forma incompleta.",
+    "guidanceHintLiteral": "Puedes solicitar un nuevo enlace de confirmación ingresando nuevamente tu correo electrónico en la página de inicio."
+  },
+  "actions": {
+    "primaryActionLabelLiteral": "Solicitar Nuevo Enlace",
+    "secondaryActionLabelLiteral": "Volver al Inicio"
+  },
+  "diagnostics": {
+    "traceReferenceLabelLiteral": "Código de seguimiento"
+  },
+  "metadata": {
+    "pageTitleLiteral": "Enlace de Confirmación Inválido",
+    "pageDescriptionLiteral": "El token de verificación de tu suscripción en la red Floripa Dignidade es inválido o ha expirado."
+  }
+}

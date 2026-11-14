@@ -1,45 +1,70 @@
 /**
- * @section Routing Logic - Route Authority Guardian Apparatus
- * @description Aparato de vigilancia que valida la simetría entre la ruta solicitada
- * y el rango de autoridad institucional de la identidad (RBAC).
+ * @section Routing Logic - Route Authority Validator (Atom)
+ * @description Validador perimetral de control de acceso basado en roles (RBAC).
+ * Evalúa si el rol institucional de la identidad posee autoridad suficiente para
+ * transitar por la ruta solicitada, soportando rutas normalizadas y prefijadas por
+ * código BCP 47 (ADR 0030), con trazabilidad SRE conforme a `TelemetrySignalSchema`.
  *
- * Protocolo OEDP-V13.0 - Atomic Architecture & Zero Abbreviations.
- * Saneamiento: Resolución de error '@typescript-eslint/no-inferrable-types'.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Seguridad) y ADR 0030.
  *
- * @author Raz  Podestá - MetaShark Tech
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import { ValidationException } from '@floripa-dignidade/exceptions';
-import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
+import {
+  type CorrelationIdentifier,
+  EmitTelemetrySignal,
+  GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+} from '@floripa-dignidade/telemetry';
+
 import { ROUTE_PROTECTION_MANIFESTO } from '../../constants/RouteAuthorityManifesto';
 
-/** Identificador técnico del guardián para trazabilidad forense. */
-const ROUTE_AUTHORITY_SENTINEL_IDENTIFIER = 'ROUTE_AUTHORITY_SENTINEL';
+const ROUTE_AUTHORITY_MODULE_IDENTIFIER = ModuleIdentifierSchema.parse(
+  'ROUTE_AUTHORITY_SENTINEL',
+) as ModuleIdentifier;
+
+const BCP47_LOCALE_PREFIX_REGEX = /^\/[a-z]{2,3}(?:-[A-Za-z0-9]+)?(?=\/|$)/i;
 
 /**
- * Evalúa si la identidad posee el rango de autoridad necesario para transitar
- * por la ruta solicitada basándose en el manifiesto soberano.
+ * Normaliza la ruta solicitada eliminando el prefijo de idioma BCP 47 si está presente.
  *
- * @param requestedPathnameLiteral - Ruta de destino capturada en la intercepción de frontera.
- * @param activeCitizenAuthorityRoleLiteral - Rango de autoridad (Inferencia automática del valor por defecto).
- * @returns {boolean} Verdadero si la autoridad es suficiente para el acceso.
- * @throws {ValidationException} Si se detecta un intento de acceso no autorizado.
+ * @param rawPathnameLiteral - Ruta solicitada (ej: `/pt-BR/auditoria` o `/auditoria`).
+ * @returns {string} Ruta base sin prefijo lingüístico (ej: `/auditoria`).
+ */
+const stripLocalePrefixAction = (rawPathnameLiteral: string): string => {
+  const normalizedPathLiteral = rawPathnameLiteral.replace(BCP47_LOCALE_PREFIX_REGEX, '');
+  return normalizedPathLiteral.startsWith('/')
+    ? normalizedPathLiteral
+    : `/${normalizedPathLiteral}`;
+};
+
+/**
+ * Evalúa si el rol del usuario posee autoridad suficiente para acceder a la ruta solicitada.
+ *
+ * @param requestedPathnameLiteral - Ruta destino solicitada en la petición HTTP.
+ * @param activeCitizenAuthorityRoleLiteral - Rol institucional asignado a la identidad (por defecto anónimo).
+ * @returns {boolean} Verdadero si la ruta es pública o el rol satisface la política de acceso.
+ * @throws {ValidationException} Si el rol institucional no cumple el requisito mínimo de la ruta.
  */
 export const ValidateRouteAuthority = (
   requestedPathnameLiteral: string,
-  activeCitizenAuthorityRoleLiteral = 'CITIZEN_ANONYMOUS', // SANEADO: Eliminada anotación redundante ': string'
+  activeCitizenAuthorityRoleLiteral = 'IDENTITY_ANONYMOUS',
 ): boolean => {
-  const correlationIdentifier = GenerateCorrelationIdentifier();
+  const correlationIdentifier: CorrelationIdentifier = GenerateCorrelationIdentifier();
+  const normalizedPathnameLiteral = stripLocalePrefixAction(requestedPathnameLiteral);
 
-  /**
-   * 1. IDENTIFICACIÓN DE REGLAS APLICABLES
-   * Buscamos en el manifiesto externo si existe una restricción para el prefijo de la ruta.
-   */
-  const matchingManifestoPathLiteral = Object.keys(ROUTE_PROTECTION_MANIFESTO).find((pathPrefix) =>
-    requestedPathnameLiteral.startsWith(pathPrefix),
+  // 1. IDENTIFICACIÓN DE REGLA APLICABLE (Evaluación dual: ruta cruda y normalizada)
+  const matchingManifestoPathLiteral = Object.keys(ROUTE_PROTECTION_MANIFESTO).find(
+    (pathPrefixLiteral) =>
+      normalizedPathnameLiteral.startsWith(pathPrefixLiteral) ||
+      requestedPathnameLiteral.startsWith(pathPrefixLiteral),
   );
 
-  // Si la ruta no está en el manifiesto, se clasifica como 'Acceso Público Nominal'.
   if (!matchingManifestoPathLiteral) {
     return true;
   }
@@ -47,44 +72,56 @@ export const ValidateRouteAuthority = (
   const minimumRequiredAuthorityRoleLiteral =
     ROUTE_PROTECTION_MANIFESTO[matchingManifestoPathLiteral];
 
-  /**
-   * 2. EVALUACIÓN DE JERARQUÍA TÉCNICA (Authority Enforcement)
-   * Los roles de nivel 'Auditor' y 'Manager Global' poseen bypass automático sobre niveles inferiores.
-   */
-  const isAuthoritySufficientBoolean =
+  // 2. EVALUACIÓN DE JERARQUÍA INSTITUCIONAL Y BYPASS ADMINISTRATIVO
+  const isAdministrativeBypassAuthorizedBoolean =
+    activeCitizenAuthorityRoleLiteral === 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR' ||
     activeCitizenAuthorityRoleLiteral === 'INFRASTRUCTURE_SOVEREIGN_AUDITOR' ||
-    activeCitizenAuthorityRoleLiteral === 'PLATFORM_GLOBAL_MANAGER' ||
+    activeCitizenAuthorityRoleLiteral === 'PLATFORM_GLOBAL_MANAGER';
+
+  const isAuthoritySufficientBoolean =
+    isAdministrativeBypassAuthorizedBoolean ||
     activeCitizenAuthorityRoleLiteral === minimumRequiredAuthorityRoleLiteral;
 
   if (!isAuthoritySufficientBoolean) {
     const authorityViolationErrorCodeLiteral = 'AUTORIDAD_INSUFICIENTE_PARA_RUTA';
+    const occurrenceTimestampISO = new Date().toISOString();
 
-    EmitTelemetrySignal({
-      severityLevel: 'WARNING',
-      moduleIdentifier: ROUTE_AUTHORITY_SENTINEL_IDENTIFIER,
-      operationCode: 'UNAUTHORIZED_ACCESS_ATTEMPT_DETECTED',
+    void EmitTelemetrySignal({
+      occurrenceTimestampISO,
+      severityLevelLiteral: 'WARNING',
+      moduleIdentifierLiteral: ROUTE_AUTHORITY_MODULE_IDENTIFIER,
+      operationCodeLiteral: 'UNAUTHORIZED_ACCESS_ATTEMPT_DETECTED' as OperationCode,
       correlationIdentifier,
-      message: `Bloqueo de seguridad en ruteo: La identidad [${activeCitizenAuthorityRoleLiteral}] intentó acceder a [${requestedPathnameLiteral}].`,
-      contextMetadata: {
+      messageContentLiteral: `Bloqueo de seguridad perimetral: La identidad [${activeCitizenAuthorityRoleLiteral}] intentó acceder a [${requestedPathnameLiteral}].`,
+      semanticIntentTag: 'SECURITY_ROUTE_AUTHORITY_VIOLATION',
+      contextMetadataSnapshot: Object.freeze({
         requestedPathLiteral: requestedPathnameLiteral,
+        normalizedPathnameLiteral,
         requiredAuthorityRoleLiteral: minimumRequiredAuthorityRoleLiteral,
         activeAuthorityRoleLiteral: activeCitizenAuthorityRoleLiteral,
-      },
+      }),
     });
 
     throw new ValidationException(authorityViolationErrorCodeLiteral, {
       requiredAuthorityRoleLiteral: minimumRequiredAuthorityRoleLiteral,
       activeCitizenAuthorityRoleLiteral: activeCitizenAuthorityRoleLiteral,
+      correlationIdentifier,
     });
   }
 
-  // 3. REPORTE DE TRÁNSITO LEGÍTIMO (SRE Visibility)
-  EmitTelemetrySignal({
-    severityLevel: 'INFO',
-    moduleIdentifier: ROUTE_AUTHORITY_SENTINEL_IDENTIFIER,
-    operationCode: 'ROUTE_ACCESS_AUTHORIZED',
+  // 3. REPORTE TELEMÉTRICO DE ACCESO AUTORIZADO
+  void EmitTelemetrySignal({
+    occurrenceTimestampISO: new Date().toISOString(),
+    severityLevelLiteral: 'INFO',
+    moduleIdentifierLiteral: ROUTE_AUTHORITY_MODULE_IDENTIFIER,
+    operationCodeLiteral: 'ROUTE_ACCESS_AUTHORIZED' as OperationCode,
     correlationIdentifier,
-    message: `Acceso autorizado para ruta protegida: [${requestedPathnameLiteral}]`,
+    messageContentLiteral: `Acceso autorizado para ruta protegida: [${requestedPathnameLiteral}].`,
+    semanticIntentTag: 'SECURITY_ROUTE_AUTHORITY_CONFIRMED',
+    contextMetadataSnapshot: Object.freeze({
+      requestedPathLiteral: requestedPathnameLiteral,
+      activeAuthorityRoleLiteral: activeCitizenAuthorityRoleLiteral,
+    }),
   });
 
   return true;

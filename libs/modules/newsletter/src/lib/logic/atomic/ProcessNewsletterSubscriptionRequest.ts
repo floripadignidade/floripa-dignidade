@@ -1,74 +1,97 @@
 /**
  * @section Newsletter Logic - Subscription Request Orchestrator
- * @description Orquestador soberano de negocio. Coordina la secuencia de
- * validación, persistencia en nube y despacho de desafío de identidad.
+ * @description Orquestador de negocio encargado de procesar una solicitud de
+ * suscripción ciudadana al boletín. Valida el payload entrante y el canal soportado,
+ * enmascara la identidad para cumplir la LGPD, persiste la suscripción pendiente en
+ * Supabase, carga el diccionario localizado (ADR 0030) y despacha el desafío Double Opt-In.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Swarm Intelligence.
- * SANEADO Zenith: Erradicación de entropía visual (Fix sort-imports), inyección
- * de PII Masking para cumplimiento LGPD y normalización de Prosa ISO.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 y LGPD (Lei 13.709/2018).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
+import { z } from 'zod';
 
-/**
- * 🛡️ LEY ZENITH (Fix sort-imports):
- * Ordenamiento alfabético estricto de miembros (M < V).
- */
-import { MapHttpErrorToException, ValidationException } from '@floripa-dignidade/exceptions';
-
-import { MaskSovereignIdentity } from '@floripa-dignidade/shared-utility';
-
+import { ValidateEnvironmentContract } from '@floripa-dignidade/environment-validator';
 import {
+  GlobalBaseException,
+  MapHttpErrorToException,
+  ValidationException,
+} from '@floripa-dignidade/exceptions';
+import { MaskCitizenIdentity } from '@floripa-dignidade/shared-utility';
+import {
+  type CorrelationIdentifier,
+  CorrelationIdentifierSchema,
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+  OperationCodeSchema,
   ReportForensicException,
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-/* 1. ADN Estructural (Verbatim Module Syntax) */
-import { NewsletterSubscriptionRequestSchema } from '../../schemas/NewsletterSubscriptionRequest.schema';
-import type { INewsletterSubscriptionRequest } from '../../schemas/NewsletterSubscriptionRequest.schema';
-
-/* 2. Enjambre Atómico de Soporte (Internal Swarm) */
+import {
+  type INewsletterSubscriptionRequest,
+  NewsletterSubscriptionRequestSchema,
+} from '../../schemas/NewsletterSubscriptionRequest.schema';
 import { DispatchNewsletterVerification } from './DispatchNewsletterVerification';
 import { LoadNewsletterLinguisticDictionary } from './LoadNewsletterLinguisticDictionary';
 import { SavePendingSubscriptionToSupabase } from './SavePendingSubscriptionToSupabase';
 
-/** Identificador técnico del orquestador para el Neural Sentinel. */
-const ORCHESTRATOR_IDENTIFIER = 'NEWSLETTER_SUBSCRIPTION_ORCHESTRATOR';
+const ORCHESTRATOR_MODULE_IDENTIFIER: ModuleIdentifier = ModuleIdentifierSchema.parse(
+  'NEWSLETTER_SUBSCRIPTION_ORCHESTRATOR',
+);
+
+const ORCHESTRATION_TRACE_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'EXECUTE_SUBSCRIPTION_FLOW',
+);
+
+const SUBSCRIPTION_REQUESTED_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'CITIZEN_SUBSCRIPTION_REQUESTED',
+);
+
+const SUBSCRIPTION_FAULT_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'NEWSLETTER_SUBSCRIPTION_ORCHESTRATION_FAULT',
+);
+
+const ElectronicMailAddressSchema = z
+  .string()
+  .trim()
+  .email({ message: 'INVALID_ELECTRONIC_MAIL_FORMAT' })
+  .transform((emailInputLiteral: string) => emailInputLiteral.toLowerCase());
 
 /**
- * Procesa integralmente una solicitud de suscripción ciudadana.
- * Implementa el patrón "Sovereign Ingestion" garantizando la integridad de
- * cada fase de la transacción mediante telemetría forense.
+ * Valida, persiste en estado pendiente y despacha la verificación de una suscripción ciudadana.
  *
- * @param rawSubscriptionPayloadSnapshot - Datos crudos del formulario.
- * @returns {Promise<string>} Correlation ID de la transacción exitosa.
- * @throws {ValidationException} Si el contrato de datos es violado.
- * @throws {InternalSystemException} Si la infraestructura Cloud colapsa.
+ * @param rawSubscriptionPayloadSnapshot - Carga útil cruda recibida desde el gateway o interfaz.
+ * @param correlationIdentifierFallback - Identificador UUID v4 opcional para propagar trazabilidad.
+ * @returns {Promise<CorrelationIdentifier>} Identificador nominal de correlación de la transacción.
+ * @throws {ValidationException} Si el payload incumple el contrato o el canal no es soportado.
+ * @throws {GlobalBaseException} Si ocurre un fallo en infraestructura de persistencia o correo.
  */
 export const ProcessNewsletterSubscriptionRequest = async (
   rawSubscriptionPayloadSnapshot: unknown,
-): Promise<string> => {
-  const correlationIdentifier = GenerateCorrelationIdentifier();
+  correlationIdentifierFallback?: string,
+): Promise<CorrelationIdentifier> => {
+  const correlationValidationResult = CorrelationIdentifierSchema.safeParse(
+    correlationIdentifierFallback,
+  );
+  const correlationIdentifier: CorrelationIdentifier = correlationValidationResult.success
+    ? correlationValidationResult.data
+    : GenerateCorrelationIdentifier();
 
   return await TraceExecutionTime(
-    ORCHESTRATOR_IDENTIFIER,
-    'EXECUTE_SUBSCRIPTION_FLOW',
+    ORCHESTRATOR_MODULE_IDENTIFIER,
+    ORCHESTRATION_TRACE_OPERATION_CODE,
     correlationIdentifier,
-    async () => {
-      try {
-        /**
-         * 1. CAPTURA DE INFRAESTRUCTURA (Sovereign Secrets)
-         * 🛡️ LEY ZENITH: La infraestructura debe estar plenamente resuelta
-         * para acceder a los secretos (Resend/Supabase).
-         */
-        const infrastructureSnapshot = await ValidateEnvironmentAduana();
+    async (): Promise<CorrelationIdentifier> => {
+      let maskedCommunicationIdentifierLiteral = '***@***.***';
 
-        // 2. ADUANA DE ADN: Validación de entrada (Safe Parsing)
+      try {
         const validationResultSnapshot = NewsletterSubscriptionRequestSchema.safeParse(
           rawSubscriptionPayloadSnapshot,
         );
@@ -81,34 +104,51 @@ export const ProcessNewsletterSubscriptionRequest = async (
         }
 
         const validatedRequest: INewsletterSubscriptionRequest = validationResultSnapshot.data;
+
+        if (validatedRequest.verificationChannelPreference !== 'ELECTRONIC_MAIL') {
+          throw new ValidationException('NEWSLETTER_VERIFICATION_CHANNEL_NOT_SUPPORTED', {
+            attemptedChannelLiteral: validatedRequest.verificationChannelPreference,
+            correlationIdentifier,
+          });
+        }
+
+        const emailValidationResult = ElectronicMailAddressSchema.safeParse(
+          validatedRequest.communicationIdentifierLiteral,
+        );
+
+        if (!emailValidationResult.success) {
+          throw new ValidationException('NEWSLETTER.ERRORS.INVALID_EMAIL_FORMAT', {
+            validationIssuesCollection: emailValidationResult.error.flatten(),
+            correlationIdentifier,
+          });
+        }
+
+        const normalizedEmailAddressLiteral = emailValidationResult.data;
         const securityVerificationTokenLiteral = crypto.randomUUID();
 
-        /**
-         * 🛡️ PROTECCIÓN DE PRIVACIDAD (PII Masking - LGPD Compliance)
-         * Enmascaramos el identificador para que el rastro de telemetría no exponga
-         * el correo real del ciudadano en los logs institucionales.
-         */
-        const maskedCommunicationIdentifierLiteral = await MaskSovereignIdentity({
-          rawIdentityLiteral: validatedRequest.communicationIdentifierLiteral,
-          maskingStrategyLiteral: 'ELECTRONIC_MAIL',
-        });
+        const [infrastructureSnapshot, resolvedMaskedIdentityLiteral] = await Promise.all([
+          ValidateEnvironmentContract(),
+          MaskCitizenIdentity({
+            rawIdentityLiteral: normalizedEmailAddressLiteral,
+            maskingStrategyLiteral: 'ELECTRONIC_MAIL',
+          }),
+        ]);
 
-        // 3. PERSISTENCIA STATELESS (Supabase Cloud)
+        maskedCommunicationIdentifierLiteral = resolvedMaskedIdentityLiteral;
+
         await SavePendingSubscriptionToSupabase({
-          emailAddressLiteral: validatedRequest.communicationIdentifierLiteral,
+          emailAddressLiteral: normalizedEmailAddressLiteral,
           verificationTokenLiteral: securityVerificationTokenLiteral,
           localeIdentifier: validatedRequest.preferredLinguisticLocaleIdentifier,
           correlationIdentifier,
         });
 
-        // 4. CARGA DE ALMA LINGÜÍSTICA
         const linguisticDictionarySnapshot = await LoadNewsletterLinguisticDictionary(
           validatedRequest.preferredLinguisticLocaleIdentifier,
         );
 
-        // 5. DESPACHO DE NOTIFICACIÓN (Delegación Atómica)
         await DispatchNewsletterVerification({
-          targetIdentifierLiteral: validatedRequest.communicationIdentifierLiteral,
+          targetIdentifierLiteral: normalizedEmailAddressLiteral,
           targetChannelLiteral: validatedRequest.verificationChannelPreference,
           securityTokenLiteral: securityVerificationTokenLiteral,
           linguisticDictionary: linguisticDictionarySnapshot,
@@ -119,36 +159,52 @@ export const ProcessNewsletterSubscriptionRequest = async (
           },
         });
 
-        // 6. CIERRE DE CICLO NOMINAL (SRE Visibility)
         void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
           severityLevelLiteral: 'INFO',
-          moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
-          operationCodeLiteral: 'CITIZEN_SUBSCRIPTION_REQUESTED',
+          moduleIdentifierLiteral: ORCHESTRATOR_MODULE_IDENTIFIER,
+          operationCodeLiteral: SUBSCRIPTION_REQUESTED_OPERATION_CODE,
           correlationIdentifier,
-          /** 🛡️ SANEADO: Uso de clave semántica internacionalizada. */
           messageContentLiteral: 'NEWSLETTER.LOGS.SUBSCRIPTION_REQUESTED',
           semanticIntentTag: 'NEWSLETTER_CONVERSION_START',
-          contextMetadataSnapshot: {
+          contextMetadataSnapshot: Object.freeze({
             preferredLocaleIdentifier: validatedRequest.preferredLinguisticLocaleIdentifier,
             citizenMaskLiteral: maskedCommunicationIdentifierLiteral,
-          },
+          }),
         });
 
         return correlationIdentifier;
-      } catch (caughtError: unknown) {
-        /**
-         * 7. GESTIÓN FORENSE DE FALLO (Resilience Layer)
-         */
+      } catch (caughtExecutionError: unknown) {
         const normalizedException =
-          caughtError instanceof ValidationException
-            ? caughtError
+          caughtExecutionError instanceof GlobalBaseException
+            ? caughtExecutionError
             : MapHttpErrorToException(500, 'NEWSLETTER.ERRORS.ORCHESTRATION_FAULT', {
                 originalErrorLiteral:
-                  caughtError instanceof Error ? caughtError.message : String(caughtError),
+                  caughtExecutionError instanceof Error
+                    ? caughtExecutionError.message
+                    : String(caughtExecutionError),
                 correlationIdentifier,
               });
 
-        // Reporte forense detallado al Neural Sentinel
+        const isClientFaultBoolean = normalizedException.httpStatusCodeNumeric < 500;
+
+        void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
+          severityLevelLiteral: isClientFaultBoolean ? 'WARNING' : 'CRITICAL',
+          moduleIdentifierLiteral: ORCHESTRATOR_MODULE_IDENTIFIER,
+          operationCodeLiteral: SUBSCRIPTION_FAULT_OPERATION_CODE,
+          correlationIdentifier,
+          messageContentLiteral: 'Fallo durante el procesamiento de suscripción al boletín.',
+          semanticIntentTag: isClientFaultBoolean
+            ? 'NEWSLETTER_VALIDATION_WARNING'
+            : 'NEWSLETTER_ORCHESTRATION_FAILURE',
+          contextMetadataSnapshot: Object.freeze({
+            httpStatusCodeNumeric: normalizedException.httpStatusCodeNumeric,
+            operationalErrorCodeLiteral: normalizedException.operationalErrorCodeLiteral,
+            citizenMaskLiteral: maskedCommunicationIdentifierLiteral,
+          }),
+        });
+
         ReportForensicException(normalizedException, correlationIdentifier);
 
         throw normalizedException;

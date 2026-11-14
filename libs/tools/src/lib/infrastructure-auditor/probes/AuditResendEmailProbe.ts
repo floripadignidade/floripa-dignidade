@@ -1,17 +1,21 @@
 /**
- * @section Tools & Infrastructure - Resend Transactional Email Probe (Atom)
- * @description Sonda de conectividad y autenticación de red encargada de verificar
- * activamente la clave de API oficial de Resend ('RESEND_API_KEY') y la dirección remitente.
- * Realiza una consulta GET autenticada a la API de dominios ('https://api.resend.com/domains').
+ * @section Tools & Infrastructure - Resend Transactional Email Probe (Orchestrator)
+ * @description Sonda de conectividad y autenticación de red encargada de auditar
+ * activamente la clave de API oficial de Resend (`RESEND_API_KEY`) y verificar el
+ * formato de la dirección remitente (`RESEND_FROM_EMAIL`). Realiza una consulta GET
+ * autenticada a `/domains` y delega en `TriageResendProbeResponse` la clasificación
+ * SRE, incluyendo el reconocimiento nominal de claves de solo envío (`restricted_api_key`).
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Rendimiento).
- * SANEADO: Complejidad ciclomática reducida a 3 mediante resolución atómica de estatus.
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Confiabilidad) e ISO/IEC 27001.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
+import { z } from 'zod';
+
+/* 1. Infraestructura Core de Entorno y Telemetría */
 import { GatherEnvironmentMetadata } from '@floripa-dignidade/environment-validator';
 import {
   EmitTelemetrySignal,
@@ -20,75 +24,22 @@ import {
   type OperationCode,
 } from '@floripa-dignidade/telemetry';
 
-import type {
-  IIndividualProviderAuditSnapshot,
-  TProbeExecutionStatus,
-} from '../schemas/CloudInfrastructureAuditReport.schema';
+/* 2. Contratos Centralizados de Auditoría (Clean Paths) */
+import type { IIndividualProviderAuditSnapshot } from '../schemas/CloudInfrastructureAuditReport.schema';
+
+/* 3. Átomo Local de Triaje HTTP */
+import { TriageResendProbeResponse } from './atoms/TriageResendProbeResponse';
 
 const PROBE_MODULE_IDENTIFIER = 'RESEND_EMAIL_NETWORK_PROBE_ATOM' as ModuleIdentifier;
-
 const MAXIMUM_GATEWAY_TIMEOUT_IN_MILLISECONDS_QUANTITY = 5000;
 const RESEND_API_DOMAINS_ENDPOINT_URL_LITERAL = 'https://api.resend.com/domains';
 
-/**
- * Resuelve el estatus operacional ante respuestas HTTP exitosas evaluando la latencia SRE.
- */
-const resolveResendNominalOutcome = (
-  executionLatencyInMillisecondsQuantity: number,
-): {
-  readonly probeStatusLiteral: TProbeExecutionStatus;
-  readonly statusDescriptionLiteral: string;
-} => {
-  const isLatencyDegradedBoolean = executionLatencyInMillisecondsQuantity > 800;
-
-  if (isLatencyDegradedBoolean) {
-    return {
-      probeStatusLiteral: 'DEGRADED_LATENCY',
-      statusDescriptionLiteral: `Resend API operativa con latencia elevada (${executionLatencyInMillisecondsQuantity}ms).`,
-    };
-  }
-
-  return {
-    probeStatusLiteral: 'NOMINAL_OPERATIONAL',
-    statusDescriptionLiteral: 'Resend Transactional Email plenamente operativo y autenticado.',
-  };
-};
+const ResendApiKeyPresenceSchema = z.string().trim().min(1);
+const ResendApiKeyFormatSchema = z.string().trim().startsWith('re_');
+const ResendSenderEmailSchema = z.string().trim().email();
 
 /**
- * Resuelve el estatus categórico ante códigos HTTP de error de Resend.
- */
-const resolveResendErrorStatus = (
-  statusCodeNumeric: number,
-): {
-  readonly probeStatusLiteral: TProbeExecutionStatus;
-  readonly statusDescriptionLiteral: string;
-} => {
-  const isAuthenticationFailureBoolean = statusCodeNumeric === 401 || statusCodeNumeric === 403;
-
-  if (isAuthenticationFailureBoolean) {
-    return {
-      probeStatusLiteral: 'AUTHENTICATION_REJECTED',
-      statusDescriptionLiteral: `Resend API rechazó la autenticación (HTTP ${statusCodeNumeric}): RESEND_API_KEY inválida.`,
-    };
-  }
-
-  return {
-    probeStatusLiteral: 'UNREACHABLE_FAILURE',
-    statusDescriptionLiteral: `Resend API respondió con código de error HTTP ${statusCodeNumeric}.`,
-  };
-};
-
-/**
- * Extrae la descripción legible de una excepción capturada.
- */
-const extractExecutionErrorMessageLiteral = (caughtExecutionError: unknown): string => {
-  return caughtExecutionError instanceof Error
-    ? caughtExecutionError.message
-    : String(caughtExecutionError);
-};
-
-/**
- * Audita activamente las credenciales y conectividad con el servicio de correo Resend.
+ * Audita activamente las credenciales y conectividad con el servicio transaccional Resend.
  *
  * @param correlationIdentifierFallback - Identificador de correlación opcional para trazabilidad forense.
  * @returns {Promise<IIndividualProviderAuditSnapshot>} Snapshot inmutable con el diagnóstico de la sonda.
@@ -98,9 +49,12 @@ export const AuditResendEmailProbe = async (
 ): Promise<IIndividualProviderAuditSnapshot> => {
   const correlationIdentifier = correlationIdentifierFallback;
   const environmentMetadataSnapshot = GatherEnvironmentMetadata();
-  const rawApiKeySecret = environmentMetadataSnapshot['RESEND_API_KEY'];
 
-  if (!rawApiKeySecret || rawApiKeySecret.trim() === '') {
+  const apiKeyPresenceValidation = ResendApiKeyPresenceSchema.safeParse(
+    environmentMetadataSnapshot['RESEND_API_KEY'],
+  );
+
+  if (!apiKeyPresenceValidation.success) {
     void EmitTelemetrySignal({
       occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'WARNING',
@@ -123,13 +77,20 @@ export const AuditResendEmailProbe = async (
     });
   }
 
+  const sanitizedApiKeySecret = apiKeyPresenceValidation.data;
+  const hasValidSecretFormatBoolean =
+    ResendApiKeyFormatSchema.safeParse(sanitizedApiKeySecret).success;
+  const isSenderEmailConfiguredBoolean = ResendSenderEmailSchema.safeParse(
+    environmentMetadataSnapshot['RESEND_FROM_EMAIL'],
+  ).success;
+
   const executionStartTimestampNumeric = performance.now();
 
   try {
     const incomingNetworkResponse = await fetch(RESEND_API_DOMAINS_ENDPOINT_URL_LITERAL, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${rawApiKeySecret.trim()}`,
+        Authorization: `Bearer ${sanitizedApiKeySecret}`,
         Accept: 'application/json',
       },
       signal: AbortSignal.timeout(MAXIMUM_GATEWAY_TIMEOUT_IN_MILLISECONDS_QUANTITY),
@@ -139,39 +100,37 @@ export const AuditResendEmailProbe = async (
       performance.now() - executionStartTimestampNumeric,
     );
 
-    if (incomingNetworkResponse.ok) {
-      const { probeStatusLiteral, statusDescriptionLiteral } = resolveResendNominalOutcome(
-        executionLatencyInMillisecondsQuantity,
-      );
-
-      return Object.freeze({
-        providerIdentifier: 'RESEND_TRANSACTIONAL_EMAIL',
-        probeStatusLiteral,
-        executionLatencyInMillisecondsQuantity,
-        statusDescriptionLiteral,
-        endpointTargetLiteral: RESEND_API_DOMAINS_ENDPOINT_URL_LITERAL,
-        hasValidSecretFormatBoolean: true,
-      });
-    }
-
-    const { probeStatusLiteral, statusDescriptionLiteral } = resolveResendErrorStatus(
-      incomingNetworkResponse.status,
-    );
-
-    return Object.freeze({
-      providerIdentifier: 'RESEND_TRANSACTIONAL_EMAIL',
-      probeStatusLiteral,
+    return await TriageResendProbeResponse(
+      incomingNetworkResponse,
       executionLatencyInMillisecondsQuantity,
-      statusDescriptionLiteral,
-      endpointTargetLiteral: RESEND_API_DOMAINS_ENDPOINT_URL_LITERAL,
-      hasValidSecretFormatBoolean: true,
-      diagnosticErrorLiteral: `HTTP_STATUS_${incomingNetworkResponse.status}`,
-    });
+      RESEND_API_DOMAINS_ENDPOINT_URL_LITERAL,
+      hasValidSecretFormatBoolean,
+      isSenderEmailConfiguredBoolean,
+      correlationIdentifier,
+    );
   } catch (caughtExecutionError: unknown) {
     const executionLatencyInMillisecondsQuantity = Math.round(
       performance.now() - executionStartTimestampNumeric,
     );
-    const errorDescriptionLiteral = extractExecutionErrorMessageLiteral(caughtExecutionError);
+    const errorDescriptionLiteral =
+      caughtExecutionError instanceof Error
+        ? caughtExecutionError.message
+        : String(caughtExecutionError);
+
+    void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
+      severityLevelLiteral: 'CRITICAL',
+      moduleIdentifierLiteral: PROBE_MODULE_IDENTIFIER,
+      operationCodeLiteral: 'RESEND_PROBE_NETWORK_COLLAPSE' as OperationCode,
+      correlationIdentifier,
+      messageContentLiteral: `Fallo de red al conectar con Resend API: ${errorDescriptionLiteral}`,
+      executionLatencyInMillisecondsQuantity,
+      semanticIntentTag: 'INFRASTRUCTURE_NETWORK_COLLAPSE',
+      contextMetadataSnapshot: {
+        errorDescriptionLiteral,
+        targetEndpointLiteral: RESEND_API_DOMAINS_ENDPOINT_URL_LITERAL,
+      },
+    });
 
     return Object.freeze({
       providerIdentifier: 'RESEND_TRANSACTIONAL_EMAIL',
@@ -179,7 +138,7 @@ export const AuditResendEmailProbe = async (
       executionLatencyInMillisecondsQuantity,
       statusDescriptionLiteral: `Incapaz de conectar con Resend API: ${errorDescriptionLiteral}`,
       endpointTargetLiteral: RESEND_API_DOMAINS_ENDPOINT_URL_LITERAL,
-      hasValidSecretFormatBoolean: true,
+      hasValidSecretFormatBoolean,
       diagnosticErrorLiteral: errorDescriptionLiteral,
     });
   }

@@ -1,68 +1,161 @@
 /**
- * @section Resend Provider - Infrastructure Health Probe
- * @description Evalúa la disponibilidad y el rendimiento del servicio externo Resend.
+ * @section Resend Provider - Infrastructure Health Probe (Atom)
+ * @description Evalúa la disponibilidad, autenticación y latencia física del servicio
+ * transaccional Resend mediante una consulta a la API de dominios. Reconoce de forma
+ * nominal las claves de alcance restringido (`restricted_api_key`) para evitar falsos
+ * negativos y emite telemetría SRE estandarizada conforme a `TelemetrySignalSchema`.
  *
- * Protocolo OEDP-V14.0 - Verbatim Module Syntax.
- * @author Dirección de Ingeniería - Floripa Dignidade
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Confiabilidad) e ISO/IEC 27001.
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
-import {
-  EmitTelemetrySignal,
-  GenerateCorrelationIdentifier,
-  TraceExecutionTime,
-} from '@floripa-dignidade/telemetry';
 import { Resend } from 'resend';
 
-/** 🛡️ SANEAMIENTO Zenith: Importación de ADN como tipo puro */
-import type { IResendConfiguration } from '../../schemas/ResendEmail.schema';
+/* 1. Infraestructura Core de Telemetría */
+import {
+  type CorrelationIdentifier,
+  EmitTelemetrySignal,
+  GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+  TraceExecutionTime,
+} from '@floripa-dignidade/telemetry';
 
-const RESEND_PROVIDER_IDENTIFIER = 'RESEND_COMMUNICATION_PROVIDER';
+/* 2. Contratos Centralizados de Resend */
+import {
+  type IResendConfiguration,
+  ResendConfigurationSchema,
+} from '../../schemas/ResendEmail.schema';
 
+const RESEND_PROVIDER_MODULE_IDENTIFIER = ModuleIdentifierSchema.parse(
+  'RESEND_COMMUNICATION_PROVIDER',
+) as ModuleIdentifier;
+
+const RESTRICTED_API_KEY_ERROR_NAME_LITERAL = 'restricted_api_key';
+
+interface IResendProbeEvaluationVerdict {
+  readonly isServiceHealthyBoolean: boolean;
+  readonly isRestrictedSendingKeyBoolean: boolean;
+  readonly statusDescriptionLiteral: string;
+}
+
+/**
+ * Evalúa el resultado de la consulta SDK de Resend reconociendo claves con alcance exclusivo de envío.
+ *
+ * @param hasDomainDataBoolean - Indica si el endpoint devolvió la lista de dominios autorizados.
+ * @param rawErrorSignalSnapshot - Objeto de error devuelto por el SDK de Resend si la llamada falló.
+ * @returns {IResendProbeEvaluationVerdict} Veredicto técnico sellado e inmutable.
+ */
+const evaluateResendProbeOutcomeAction = (
+  hasDomainDataBoolean: boolean,
+  rawErrorSignalSnapshot: { readonly name?: string; readonly message?: string } | null,
+): IResendProbeEvaluationVerdict => {
+  if (hasDomainDataBoolean) {
+    return Object.freeze({
+      isServiceHealthyBoolean: true,
+      isRestrictedSendingKeyBoolean: false,
+      statusDescriptionLiteral:
+        'Sonda de salud exitosa: Resend API responde correctamente con acceso pleno.',
+    });
+  }
+
+  const isRestrictedKeyBoolean =
+    rawErrorSignalSnapshot?.name === RESTRICTED_API_KEY_ERROR_NAME_LITERAL ||
+    rawErrorSignalSnapshot?.message?.includes('restricted to only send emails') === true;
+
+  if (isRestrictedKeyBoolean) {
+    return Object.freeze({
+      isServiceHealthyBoolean: true,
+      isRestrictedSendingKeyBoolean: true,
+      statusDescriptionLiteral:
+        'Sonda de salud exitosa: Resend API autenticada y operativa con clave restringida de solo envío (restricted_api_key).',
+    });
+  }
+
+  const errorDescriptionLiteral =
+    rawErrorSignalSnapshot?.message ?? 'El proveedor Resend devolvió un estado no disponible.';
+
+  return Object.freeze({
+    isServiceHealthyBoolean: false,
+    isRestrictedSendingKeyBoolean: false,
+    statusDescriptionLiteral: `Sonda de salud fallida: ${errorDescriptionLiteral}`,
+  });
+};
+
+/**
+ * Audita activamente las credenciales y disponibilidad física del proveedor transaccional Resend.
+ *
+ * @param providerConfigurationSnapshot - Configuración técnica del proveedor con clave de API y remitente.
+ * @param correlationIdentifierFallback - Identificador único de correlación opcional para trazabilidad forense.
+ * @returns {Promise<boolean>} Promesa que resuelve en verdadero si el servicio está disponible para emitir correos.
+ */
 export const AuditResendHealthProbe = async (
-  providerConfiguration: IResendConfiguration,
+  providerConfigurationSnapshot: IResendConfiguration,
+  correlationIdentifierFallback: CorrelationIdentifier = GenerateCorrelationIdentifier(),
 ): Promise<boolean> => {
-  const correlationIdentifier = GenerateCorrelationIdentifier();
+  const correlationIdentifier = correlationIdentifierFallback;
+  const validatedConfiguration = ResendConfigurationSchema.parse(providerConfigurationSnapshot);
 
   return await TraceExecutionTime(
-    RESEND_PROVIDER_IDENTIFIER,
-    'HEALTH_CHECK_PROBE_OPERATION',
+    RESEND_PROVIDER_MODULE_IDENTIFIER,
+    'HEALTH_CHECK_PROBE_OPERATION' as OperationCode,
     correlationIdentifier,
-    async () => {
-      const resendClientInstance = new Resend(providerConfiguration.securityApiKeySecret);
+    async (): Promise<boolean> => {
+      const resendClientInstance = new Resend(validatedConfiguration.securityApiKeySecret);
 
       try {
-        const { data: domainsData, error: probeErrorSignal } =
+        const { data: domainsDataSnapshot, error: probeErrorSignalSnapshot } =
           await resendClientInstance.domains.list();
 
-        if (probeErrorSignal) {
-          throw new Error(probeErrorSignal.message);
+        const evaluationVerdict = evaluateResendProbeOutcomeAction(
+          domainsDataSnapshot !== null,
+          probeErrorSignalSnapshot,
+        );
+
+        if (!evaluationVerdict.isServiceHealthyBoolean) {
+          throw new Error(evaluationVerdict.statusDescriptionLiteral);
         }
 
-        const isServiceAvailableBoolean = domainsData !== null;
-
-        EmitTelemetrySignal({
-          severityLevel: 'INFO',
-          moduleIdentifier: RESEND_PROVIDER_IDENTIFIER,
-          operationCode: 'EXTERNAL_PROVIDER_HEALTH_NOMINAL',
+        void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
+          severityLevelLiteral: 'INFO',
+          moduleIdentifierLiteral: RESEND_PROVIDER_MODULE_IDENTIFIER,
+          operationCodeLiteral: (evaluationVerdict.isRestrictedSendingKeyBoolean
+            ? 'EXTERNAL_PROVIDER_RESTRICTED_KEY_NOMINAL'
+            : 'EXTERNAL_PROVIDER_HEALTH_NOMINAL') as OperationCode,
           correlationIdentifier,
-          message: 'Sonda de salud exitosa: Resend API responde correctamente.',
-          contextMetadata: {
-            isAvailable: isServiceAvailableBoolean,
-            timestamp: new Date().toISOString(),
-          },
+          messageContentLiteral: evaluationVerdict.statusDescriptionLiteral,
+          semanticIntentTag: 'INFRASTRUCTURE_HEALTH_PROBE_SUCCESS',
+          contextMetadataSnapshot: Object.freeze({
+            isServiceAvailableBoolean: true,
+            isRestrictedSendingKeyBoolean: evaluationVerdict.isRestrictedSendingKeyBoolean,
+            defaultFromAddressLiteral: validatedConfiguration.defaultFromAddressLiteral,
+          }),
         });
 
-        return isServiceAvailableBoolean;
-      } catch (caughtError) {
-        EmitTelemetrySignal({
-          severityLevel: 'CRITICAL',
-          moduleIdentifier: RESEND_PROVIDER_IDENTIFIER,
-          operationCode: 'EXTERNAL_PROVIDER_HEALTH_DOWN',
+        return true;
+      } catch (caughtExecutionError: unknown) {
+        const errorDescriptionLiteral =
+          caughtExecutionError instanceof Error
+            ? caughtExecutionError.message
+            : String(caughtExecutionError);
+
+        void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: RESEND_PROVIDER_MODULE_IDENTIFIER,
+          operationCodeLiteral: 'EXTERNAL_PROVIDER_HEALTH_DOWN' as OperationCode,
           correlationIdentifier,
-          message: 'Sonda de salud fallida: El proveedor Resend no responde.',
-          contextMetadata: {
-            errorTrace: caughtError instanceof Error ? caughtError.message : String(caughtError),
-          },
+          messageContentLiteral: `Sonda de salud fallida: El proveedor Resend no responde nominalmente (${errorDescriptionLiteral}).`,
+          semanticIntentTag: 'INFRASTRUCTURE_HEALTH_PROBE_FAILURE',
+          contextMetadataSnapshot: Object.freeze({
+            errorTraceLiteral: errorDescriptionLiteral,
+            defaultFromAddressLiteral: validatedConfiguration.defaultFromAddressLiteral,
+          }),
         });
 
         return false;

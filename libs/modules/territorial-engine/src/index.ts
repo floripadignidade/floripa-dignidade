@@ -1,44 +1,59 @@
 /**
- * @section Territorial Engine - Package Entry Point
- * @description Puerta de enlace soberana para el búnker de inteligencia territorial.
- * Expone contratos de ADN, utilidades de saneamiento y orquestadores de sincronización.
+ * @section Territorial Module - Master Entry Point (Barrel)
+ * @description Único punto de exportación autorizado para el módulo de inteligencia
+ * territorial. Centraliza contratos de entidades geográficas, protocolos del IBGE,
+ * contratos lingüísticos, utilidades de normalización toponímica y el orquestador
+ * de sincronización bajo arquitectura Source-First.
  *
- * Protocolo OEDP-V17.0 - Single Source Resolution & Zenith Standard.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Modularidad).
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
+/** Versión técnica sincronizada tras la nivelación de rutas limpias para Turbopack. */
+export const TERRITORIAL_ENGINE_VERSION = '1.2.1';
+
 /**
- * @section ADN ESTRUCTURAL (Contracts)
- * Exportación explícita para garantizar la visibilidad de tipos bridados (Brands).
+ * @section 1. Contratos de Entidad Territorial (SSOT)
  */
 export {
-  TerritorialEntitySchema,
-  TerritorialTechnicalIdentifierSchema,
   AdministrativeHierarchySchema,
   GeographicCoordinatesSchema,
-} from './lib/schemas/TerritorialEntity.schema.js';
+  TerritorialEntitySchema,
+  TerritorialTechnicalIdentifierSchema,
+} from './lib/schemas/TerritorialEntity.schema';
 
-/** 🛡️ EXPORTACIONES NOMINALES: Resolución de TS2305 en motores externos */
 export type {
   ITerritorialEntity,
-  TTerritorialTechnicalIdentifier, // Sello de identidad para Open Data
   TAdministrativeHierarchy,
   TGeographicCoordinates,
-} from './lib/schemas/TerritorialEntity.schema.js';
-
-export * from './lib/schemas/IbgeTerritorialProtocols.schema.js';
-export * from './lib/i18n/TerritorialEngineI18n.schema.js';
+  TTerritorialTechnicalIdentifier,
+} from './lib/schemas/TerritorialEntity.schema';
 
 /**
- * @section UTILIDADES ATÓMICAS (Shared Logic)
+ * @section 2. Protocolos Externos IBGE
  */
-export { SanitizeTerritoryName } from './lib/logic/atomic/SanitizeTerritoryName.js';
+export {
+  IbgeDistrictCollectionSchema,
+  IbgeDistrictRawResponseSchema,
+} from './lib/schemas/IbgeTerritorialProtocols.schema';
+
+export type {
+  IIbgeDistrictCollection,
+  IIbgeDistrictRawResponse,
+} from './lib/schemas/IbgeTerritorialProtocols.schema';
 
 /**
- * @section MOTORES DE LÓGICA (Orchestrators)
+ * @section 3. Contratos Lingüísticos (i18n)
  */
-export { SyncFlorianopolisTerritorialData } from './lib/logic/SyncFlorianopolisTerritorialData.js';
+export { TerritorialEngineI18nSchema } from './lib/i18n/TerritorialEngineI18n.schema';
+
+export type { ITerritorialEngineI18n } from './lib/i18n/TerritorialEngineI18n.schema';
 
 /**
- * Versión de búnker alineada con la arquitectura Zenith.
+ * @section 4. Utilidades Atómicas y Orquestadores
  */
-export const TERRITORIAL_ENGINE_VERSION = '1.2.0';
+export { SanitizeTerritoryName } from './lib/logic/atomic/SanitizeTerritoryName';
+export { SyncFlorianopolisTerritorialData } from './lib/logic/SyncFlorianopolisTerritorialData';

@@ -1,139 +1,194 @@
 /**
- * @section User Management & Identity - Identity Logic Atoms
- * @description Orquestador encargado de computar la autoridad institucional mediante
- * el cruzamiento de bonificaciones, antigüedad y estatus legal. Implementa la
- * metodología de ponderación responsable (Bayesian Weighting) para el motor de impacto.
+ * @section User Management and Identity - Authority Calculator Orchestrator
+ * @description Orquestador encargado de computar el coeficiente bayesiano de autoridad
+ * institucional cruzando proveedor de origen, verificación documental y antigüedad.
+ * Aplica validación Zod en entrada y salida, normalización decimal determinista y
+ * trazabilidad forense SRE bajo arquitectura Source-First.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Calidad: ISO/IEC 25010 (Mantenibilidad, Estabilidad y Performance).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Precisión).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import {
+  IdentityAuthorityAuditSchema,
+  IdentityAuthorityResultSchema,
+  type IIdentityAuthorityAuditParameters,
+  type IIdentityAuthorityResult,
+} from '@floripa-dignidade/contracts';
+import {
+  GlobalBaseException,
+  InternalSystemException,
+  ValidationException,
+} from '@floripa-dignidade/exceptions';
+import {
+  type CorrelationIdentifier,
+  CorrelationIdentifierSchema,
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+  OperationCodeSchema,
+  ReportForensicException,
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
+import { AUTHORITY_WEIGHT_GROUND_TRUTH } from '../../constants/AuthorityWeightGroundTruth';
+import { CalculateIdentitySeniorityBonus } from './CalculateIdentitySeniorityBonus';
+import { MapIdentityAuthorityBonuses } from './MapIdentityAuthorityBonuses';
 
-/* 1. ADN ESTRUCTURAL (Consumo desde SSOT Contracts) */
-import {
-  IdentityAuthorityAuditSchema,
-  IdentityAuthorityResultSchema,
-} from '@floripa-dignidade/contracts';
+const ORCHESTRATOR_MODULE_IDENTIFIER: ModuleIdentifier = ModuleIdentifierSchema.parse(
+  'IDENTITY_AUTHORITY_CALCULATOR_ORCHESTRATOR',
+);
 
-import type {
-  IIdentityAuthorityAuditParameters,
-  IIdentityAuthorityResult,
-} from '@floripa-dignidade/contracts';
+const COMPUTATION_TRACE_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'EXECUTE_AUTHORITY_WEIGHT_COMPUTATION',
+);
 
-/* 2. INFRAESTRUCTURA Y ENJAMBRE ATÓMICO (Internal Swarm - Clean Paths) */
-import { AUTHORITY_WEIGHT_GROUND_TRUTH } from '../../constants/AuthorityWeightGroundTruth.js';
-import { CalculateIdentitySeniorityBonus } from './CalculateIdentitySeniorityBonus.js';
-import { MapIdentityAuthorityBonuses } from './MapIdentityAuthorityBonuses.js';
+const COMPUTATION_SUCCESS_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'AUTHORITY_COMPUTATION_SUCCESS',
+);
 
-/** Identificador técnico del aparato para el Health Monitor (IA). */
-const ENGINE_IDENTIFIER = 'IDENTITY_AUTHORITY_CALCULATOR_ORCHESTRATOR';
+const COMPUTATION_FAULT_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'AUTHORITY_ENGINE_CRITICAL_FAULT',
+);
+
+const PRECISION_ROUNDING_FACTOR_NUMERIC = 10000;
+
+const resolveSafeCorrelationIdentifier = (
+  candidateIdentifier: string | undefined,
+): CorrelationIdentifier => {
+  const validationResult = CorrelationIdentifierSchema.safeParse(candidateIdentifier);
+  return validationResult.success ? validationResult.data : GenerateCorrelationIdentifier();
+};
+
+const computeNormalizedAuthorityCoefficientNumeric = (
+  rawAccumulatedScoreNumeric: number,
+): number => {
+  const roundedScoreNumeric =
+    Math.round(rawAccumulatedScoreNumeric * PRECISION_ROUNDING_FACTOR_NUMERIC) /
+    PRECISION_ROUNDING_FACTOR_NUMERIC;
+
+  return Math.min(
+    Math.max(
+      roundedScoreNumeric,
+      AUTHORITY_WEIGHT_GROUND_TRUTH.BASE_ANONYMOUS_TRUST_WEIGHT_NUMERIC,
+    ),
+    AUTHORITY_WEIGHT_GROUND_TRUTH.MAXIMUM_AUTHORITY_THRESHOLD_NUMERIC,
+  );
+};
 
 /**
- * Ejecuta el cálculo integral de la autoridad del usuario.
- * Coordina el enjambre de átomos de cálculo para generar un coeficiente inmutable.
+ * Ejecuta el cálculo integral del coeficiente de autoridad institucional de una identidad.
  *
- * @param parametersSnapshot - Snapshot de datos de identidad para auditar.
- * @returns {Promise<IIdentityAuthorityResult>} Coeficiente de autoridad validado.
- *
- * @prompt_ia: "Verifica que el 'authorityCoefficientNumeric' resultante sea siempre
- * un valor normalizado entre 0.1 y 1.0 para prevenir sesgos en el motor de impacto."
+ * @param parametersSnapshot - Datos validados de origen, verificación legal y activación.
+ * @param correlationIdentifierFallback - Identificador UUID v4 opcional para propagar correlación.
+ * @returns {Promise<IIdentityAuthorityResult>} Resultado certificado e inmutable entre `0.1` y `1.0`.
+ * @throws {ValidationException} Si los parámetros de entrada incumplen `IdentityAuthorityAuditSchema`.
+ * @throws {InternalSystemException} Si ocurre un fallo inesperado durante el cálculo o sellado.
  */
 export const CalculateIdentityAuthority = async (
   parametersSnapshot: IIdentityAuthorityAuditParameters,
+  correlationIdentifierFallback?: string,
 ): Promise<IIdentityAuthorityResult> => {
-  const correlationIdentifier = GenerateCorrelationIdentifier();
+  const correlationIdentifier = resolveSafeCorrelationIdentifier(correlationIdentifierFallback);
 
   return await TraceExecutionTime(
-    ENGINE_IDENTIFIER,
-    'EXECUTE_AUTHORITY_WEIGHT_COMPUTATION',
+    ORCHESTRATOR_MODULE_IDENTIFIER,
+    COMPUTATION_TRACE_OPERATION_CODE,
     correlationIdentifier,
-    async () => {
+    async (): Promise<IIdentityAuthorityResult> => {
       try {
-        // --- FASE 1: INTEGRITY GUARD (Validación de ADN de entrada) ---
-        const aduanaValidationResult = IdentityAuthorityAuditSchema.safeParse(parametersSnapshot);
+        const parametersValidationResult =
+          IdentityAuthorityAuditSchema.safeParse(parametersSnapshot);
 
-        if (!aduanaValidationResult.success) {
+        if (!parametersValidationResult.success) {
           throw new ValidationException('AUTHORITY_AUDIT_DNA_CORRUPTED', {
-            validationIssuesCollection: aduanaValidationResult.error.flatten(),
+            validationIssuesCollection: parametersValidationResult.error.flatten(),
             correlationIdentifier,
           });
         }
 
-        const validatedIdentitySnapshot = aduanaValidationResult.data;
+        const validatedIdentitySnapshot = parametersValidationResult.data;
 
-        // --- FASE 2: CÁLCULO DE BONIFICACIONES (Swarm Delegation) ---
-        let currentAuthorityScoreNumeric =
-          AUTHORITY_WEIGHT_GROUND_TRUTH.BASE_ANONYMOUS_TRUST_WEIGHT_NUMERIC;
-
-        currentAuthorityScoreNumeric += MapIdentityAuthorityBonuses({
+        const providerAndLegalBonusNumeric = MapIdentityAuthorityBonuses({
           socialProviderIdentifier: validatedIdentitySnapshot.socialProviderIdentifier,
           isIdentityLegallyVerifiedBoolean:
             validatedIdentitySnapshot.isIdentityLegallyVerifiedBoolean,
         });
 
-        // --- FASE 3: CÁLCULO DE ANTIGÜEDAD (Hardware Context) ---
         const { seniorityBonusNumeric, daysSinceActivationQuantity } =
           CalculateIdentitySeniorityBonus(validatedIdentitySnapshot.occurrenceTimestampISO);
 
-        currentAuthorityScoreNumeric += seniorityBonusNumeric;
+        const rawAccumulatedScoreNumeric =
+          AUTHORITY_WEIGHT_GROUND_TRUTH.BASE_ANONYMOUS_TRUST_WEIGHT_NUMERIC +
+          providerAndLegalBonusNumeric +
+          seniorityBonusNumeric;
 
-        // --- FASE 4: NORMALIZACIÓN Y SELLADO ---
-        /** 🛡️ LEY ZENITH: El coeficiente nunca debe superar el teto de 1.0 (100%). */
-        const finalCoefficientNumeric = Math.min(
-          currentAuthorityScoreNumeric,
-          AUTHORITY_WEIGHT_GROUND_TRUTH.MAXIMUM_AUTHORITY_THRESHOLD_NUMERIC,
+        const authorityCoefficientNumeric = computeNormalizedAuthorityCoefficientNumeric(
+          rawAccumulatedScoreNumeric,
         );
 
-        const internalCalculationResultSnapshot = Object.freeze({
-          authorityCoefficientNumeric: finalCoefficientNumeric,
+        const purifiedAuthorityResultSnapshot = IdentityAuthorityResultSchema.parse({
+          authorityCoefficientNumeric,
           daysSinceActivationQuantity,
           isVerifiedHumanBoolean: validatedIdentitySnapshot.isIdentityLegallyVerifiedBoolean,
         });
 
-        // --- FASE 5: POST-COMPUTATION CONTRACT CHECK ---
-        const purifiedAuthorityResultSnapshot = IdentityAuthorityResultSchema.parse(
-          internalCalculationResultSnapshot,
-        );
-
-        // --- FASE 6: REPORTE SRE (Visibility) ---
         void EmitTelemetrySignal({
           occurrenceTimestampISO: new Date().toISOString(),
           severityLevelLiteral: 'INFO',
-          moduleIdentifierLiteral: ENGINE_IDENTIFIER,
-          operationCodeLiteral: 'AUTHORITY_COMPUTATION_SUCCESS',
+          moduleIdentifierLiteral: ORCHESTRATOR_MODULE_IDENTIFIER,
+          operationCodeLiteral: COMPUTATION_SUCCESS_OPERATION_CODE,
           correlationIdentifier,
           messageContentLiteral: 'Cálculo de autoridad institucional finalizado de forma nominal.',
           semanticIntentTag: 'IDENTITY_TRUST_CALCULATION',
-          contextMetadataSnapshot: {
+          contextMetadataSnapshot: Object.freeze({
             identityIdentifier: validatedIdentitySnapshot.identityIdentifier,
-            finalScoreNumeric: finalCoefficientNumeric,
+            finalScoreNumeric: authorityCoefficientNumeric,
             daysActiveQuantity: daysSinceActivationQuantity,
-          },
+          }),
         });
 
-        return purifiedAuthorityResultSnapshot;
-      } catch (caughtError: unknown) {
-        // --- FASE 7: GESTIÓN FORENSE DE COLAPSO ---
-        if (caughtError instanceof ValidationException) throw caughtError;
+        return Object.freeze(purifiedAuthorityResultSnapshot);
+      } catch (caughtExecutionError: unknown) {
+        if (caughtExecutionError instanceof ValidationException) {
+          ReportForensicException(caughtExecutionError, correlationIdentifier);
+          throw caughtExecutionError;
+        }
 
-        const errorDescriptionLiteral =
-          caughtError instanceof Error ? caughtError.message : String(caughtError);
+        const normalizedException =
+          caughtExecutionError instanceof GlobalBaseException
+            ? caughtExecutionError
+            : new InternalSystemException('AUTHORITY_ENGINE_CRITICAL_FAULT', {
+                originalErrorLiteral:
+                  caughtExecutionError instanceof Error
+                    ? caughtExecutionError.message
+                    : String(caughtExecutionError),
+                correlationIdentifier,
+                targetIdentityIdentifier:
+                  parametersSnapshot?.identityIdentifier ?? 'UNKNOWN_IDENTITY',
+              });
 
-        throw new InternalSystemException('AUTHORITY_ENGINE_CRITICAL_FAULT', {
-          originalErrorLiteral: errorDescriptionLiteral,
+        void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: ORCHESTRATOR_MODULE_IDENTIFIER,
+          operationCodeLiteral: COMPUTATION_FAULT_OPERATION_CODE,
           correlationIdentifier,
-          targetIdentityIdentifier: parametersSnapshot.identityIdentifier,
+          messageContentLiteral:
+            'Fallo crítico durante el cálculo de autoridad institucional de identidad.',
+          semanticIntentTag: 'IDENTITY_AUTHORITY_CALCULATION_FAULT',
+          contextMetadataSnapshot: Object.freeze({
+            ...normalizedException.runtimeContextSnapshot,
+          }),
         });
+
+        ReportForensicException(normalizedException, correlationIdentifier);
+        throw normalizedException;
       }
     },
   );

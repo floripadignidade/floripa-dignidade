@@ -5,68 +5,55 @@
  * el protocolo de moderación y preservación forense de registros en el Ledger
  * relacional, asegurando la trazabilidad y la integridad de la gobernanza institucional.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Seguridad y Mantenibilidad).
- * SANEADO: Purga definitiva de metáforas informales ("Sovereign"), incorporación de validación
- * de parámetros con Zod, resolución asíncrona de entorno y alias retroactivos para cero roturas.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import { z } from 'zod';
-
-/* 1. Infraestructura Core de Entorno, Excepciones y Telemetría */
-import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
-import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
-
+import { ValidateEnvironmentContract } from '@floripa-dignidade/environment-validator';
 import {
+  GlobalBaseException,
+  InternalSystemException,
+  ValidationException,
+} from '@floripa-dignidade/exceptions';
+import {
+  type CorrelationIdentifier,
+  CorrelationIdentifierSchema,
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
   type ModuleIdentifier,
+  ModuleIdentifierSchema,
   type OperationCode,
+  ReportForensicException,
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-/* 2. Contratos de ADN Estructural (Importación Canónica Relativa) */
+import { CreatePrimaryDatabaseHeaders } from '../dispatchers/CreateSovereignDatabaseHeaders';
+import { PersistMembershipTransition } from '../dispatchers/PersistMembershipTransition';
 import {
-  MembershipStatusSchema,
+  type IManageGroupMembershipParameters,
+  ManageGroupMembershipParametersSchema,
   type TMembershipStatus,
-} from '../../schemas/CommunicationGroupMembership.schema.js';
+} from './atomic/schemas/ManageGroupMembership.schema';
 
-/* 3. Enjambre Atómico de Despacho y Seguridad */
-import { CreatePrimaryDatabaseHeaders } from '../dispatchers/CreateSovereignDatabaseHeaders.js';
-import { PersistMembershipTransition } from '../dispatchers/PersistMembershipTransition.js';
+export {
+  ManageGroupMembershipParametersSchema,
+  type IManageGroupMembershipParameters,
+  type TMembershipStatus,
+};
 
-/** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
-const MEMBERSHIP_ORCHESTRATOR_IDENTIFIER =
-  'ENTERPRISE_GROUP_MEMBERSHIP_ORCHESTRATOR' as ModuleIdentifier;
+const MEMBERSHIP_ORCHESTRATOR_IDENTIFIER: ModuleIdentifier = ModuleIdentifierSchema.parse(
+  'ENTERPRISE_GROUP_MEMBERSHIP_ORCHESTRATOR',
+);
 
-/**
- * @name ManageGroupMembershipParametersSchema
- * @description Contrato Zod para la validación perimetral de los parámetros de mutación de membresía.
- */
-export const ManageGroupMembershipParametersSchema = z
-  .object({
-    /** Identificador único del Círculo de Comunicación (Action Hub). */
-    groupIdentifierLiteral: z
-      .string()
-      .uuid({ message: 'EL_IDENTIFICADOR_DE_GRUPO_DEBE_SER_UUID_VALIDO' }),
-
-    /** Identificador único del ciudadano sujeto a la transición de estado. */
-    citizenIdentifierLiteral: z
-      .string()
-      .uuid({ message: 'EL_IDENTIFICADOR_DE_CIUDADANO_DEBE_SER_UUID_VALIDO' }),
-
-    /** Estado ontológico de la membresía (ACTIVE, PAUSED, LEFT_INACTIVE, BANNED_BY_MODERATION, REPRESENTED). */
-    targetStatusLiteral: MembershipStatusSchema,
-  })
-  .readonly();
-
-/** Tipo inferido inmutable para los parámetros de mutación de membresía. */
-export type IManageGroupMembershipParameters = z.infer<
-  typeof ManageGroupMembershipParametersSchema
->;
+const resolveSafeCorrelationIdentifier = (
+  candidateIdentifier: string | undefined,
+): CorrelationIdentifier => {
+  const validationResult = CorrelationIdentifierSchema.safeParse(candidateIdentifier);
+  return validationResult.success ? validationResult.data : GenerateCorrelationIdentifier();
+};
 
 /**
  * Ejecuta una transición de estado sobre la membresía de un ciudadano en un Círculo de Comunicación.
@@ -85,9 +72,9 @@ export const ManageEnterpriseGroupMembership = async (
   groupIdentifierLiteral: string,
   citizenIdentifierLiteral: string,
   targetStatusLiteral: TMembershipStatus,
-  correlationIdentifierFallback: string = GenerateCorrelationIdentifier(),
+  correlationIdentifierFallback?: string,
 ): Promise<boolean> => {
-  const correlationIdentifier = correlationIdentifierFallback;
+  const correlationIdentifier = resolveSafeCorrelationIdentifier(correlationIdentifierFallback);
 
   return await TraceExecutionTime(
     MEMBERSHIP_ORCHESTRATOR_IDENTIFIER,
@@ -102,10 +89,16 @@ export const ManageEnterpriseGroupMembership = async (
       });
 
       if (!parametersValidationResultSnapshot.success) {
-        throw new ValidationException('PARAMETROS_MUTACION_MEMBRESIA_INVALIDOS', {
-          validationIssuesCollection: parametersValidationResultSnapshot.error.flatten(),
-          correlationIdentifier,
-        });
+        const validationException = new ValidationException(
+          'PARAMETROS_MUTACION_MEMBRESIA_INVALIDOS',
+          {
+            validationIssuesCollection: parametersValidationResultSnapshot.error.flatten(),
+            correlationIdentifier,
+          },
+        );
+
+        ReportForensicException(validationException, correlationIdentifier);
+        throw validationException;
       }
 
       try {
@@ -113,7 +106,7 @@ export const ManageEnterpriseGroupMembership = async (
         const {
           SUPABASE_URL: cloudProviderUrlLiteral,
           SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret,
-        } = await ValidateEnvironmentAduana();
+        } = await ValidateEnvironmentContract();
 
         // 3. SEGURIDAD Y PREPARACIÓN DE CABECERAS (Protocol Translation)
         const securityHeadersSnapshot = CreatePrimaryDatabaseHeaders(
@@ -147,17 +140,16 @@ export const ManageEnterpriseGroupMembership = async (
           correlationIdentifier,
           messageContentLiteral: `Estado de membresía institucional actualizado exitosamente: [${targetStatusLiteral}].`,
           semanticIntentTag: 'COMMUNITY_GOVERNANCE_MUTATION',
-          contextMetadataSnapshot: {
+          contextMetadataSnapshot: Object.freeze({
             groupIdentifierLiteral,
             citizenIdentifierLiteral,
             targetStatusLiteral,
-          },
+          }),
         });
 
         return true;
       } catch (caughtExecutionError: unknown) {
-        // 6. GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
-        if (caughtExecutionError instanceof ValidationException) {
+        if (caughtExecutionError instanceof GlobalBaseException) {
           throw caughtExecutionError;
         }
 
@@ -165,6 +157,15 @@ export const ManageEnterpriseGroupMembership = async (
           caughtExecutionError instanceof Error
             ? caughtExecutionError.message
             : String(caughtExecutionError);
+
+        const internalException = new InternalSystemException(
+          'FALLO_EN_TRANSICION_DE_MEMBRESIA_SRE',
+          {
+            originalErrorLiteral: errorDescriptionLiteral,
+            correlationIdentifier,
+            targetStatusLiteral,
+          },
+        );
 
         void EmitTelemetrySignal({
           occurrenceTimestampISO: new Date().toISOString(),
@@ -174,17 +175,14 @@ export const ManageEnterpriseGroupMembership = async (
           correlationIdentifier,
           messageContentLiteral: 'Error crítico al intentar transicionar el estado de membresía.',
           semanticIntentTag: 'GOVERNANCE_INFRASTRUCTURE_FAULT',
-          contextMetadataSnapshot: {
+          contextMetadataSnapshot: Object.freeze({
             errorTraceLiteral: errorDescriptionLiteral,
             targetStatusLiteral,
-          },
+          }),
         });
 
-        throw new InternalSystemException('FALLO_EN_TRANSICION_DE_MEMBRESIA_SRE', {
-          originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier,
-          targetStatusLiteral,
-        });
+        ReportForensicException(internalException, correlationIdentifier);
+        throw internalException;
       }
     },
   );

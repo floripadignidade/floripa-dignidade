@@ -1,127 +1,174 @@
 /**
- * @section Territorial Logic - IBGE Data Mapper (Orchestrator)
- * @description Átomo encargado de coordinar la transformación de protocolos
- * gubernamentales (IBGE) a identidades soberanas. Realiza la aduana de ADN,
- * delega el saneamiento toponímico y orquesta el ensamblaje inmutable.
+ * @section Territorial Logic - IBGE District Mapper (Atom)
+ * @description Transforma un registro crudo de distrito del IBGE en una entidad
+ * territorial certificada e inmutable (`ITerritorialEntity`), validando el contrato
+ * externo con Zod, normalizando su toponimia, propagando correlación hacia el ensamblador
+ * y reportando latencia y eventos SRE conforme a `TelemetrySignalSchema`.
  *
- * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Resolución de TS2353 (Sincronización de Interfaz), resolución
- * de rutas ESM (.js) y cumplimiento estricto de Prosa ISO (Zero Abbreviations).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Rendimiento).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
+import {
+  GlobalBaseException,
+  InternalSystemException,
+  ValidationException,
+} from '@floripa-dignidade/exceptions';
+import {
+  type CorrelationIdentifier,
+  CorrelationIdentifierSchema,
+  EmitTelemetrySignal,
+  GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+  OperationCodeSchema,
+  ReportForensicException,
+} from '@floripa-dignidade/telemetry';
 
-import { ValidationException } from '@floripa-dignidade/exceptions';
+import {
+  IbgeDistrictRawResponseSchema,
+  type IIbgeDistrictRawResponse,
+} from '../../schemas/IbgeTerritorialProtocols.schema';
+import type { ITerritorialEntity } from '../../schemas/TerritorialEntity.schema';
+import { AssembleTerritorialEntity } from './AssembleTerritorialEntity';
+import { SanitizeTerritoryName } from './SanitizeTerritoryName';
 
-/* 1. ADN Estructural y Protocolos (Verbatim Module Syntax) */
-/** 🛡️ SANEADO Zenith: Inyección de extensiones '.js' para resolución de Grafo. */
-import { IbgeDistrictRawResponseSchema } from '../../schemas/IbgeTerritorialProtocols.schema.js';
-import type { IIbgeDistrictRawResponse } from '../../schemas/IbgeTerritorialProtocols.schema.js';
-import type { ITerritorialEntity } from '../../schemas/TerritorialEntity.schema.js';
+const MAPPER_MODULE_IDENTIFIER: ModuleIdentifier = ModuleIdentifierSchema.parse(
+  'TERRITORIAL_IBGE_MAPPER_ORCHESTRATOR',
+);
 
-/* 2. Enjambre Atómico Local (Sub-Atoms) */
-import { SanitizeTerritoryName } from './SanitizeTerritoryName.js';
-import { AssembleTerritorialEntity } from './AssembleTerritorialEntity.js';
+const PROTOCOL_VIOLATION_OPERATION_CODE: OperationCode =
+  OperationCodeSchema.parse('IBGE_PROTOCOL_VIOLATION');
 
-/** Identificador técnico del aparato para el Neural Sentinel. */
-const MAPPER_ORCHESTRATOR_IDENTIFIER = 'TERRITORIAL_IBGE_MAPPER_ORCHESTRATOR';
+const NORMALIZATION_NOMINAL_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'IBGE_NORMALIZATION_NOMINAL',
+);
+
+const MAPPER_COLLAPSE_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'IBGE_MAPPER_INTERNAL_FAULT',
+);
+
+const resolveSafeCorrelationIdentifier = (
+  candidateIdentifier: string | undefined,
+): CorrelationIdentifier => {
+  const validationResult = CorrelationIdentifierSchema.safeParse(candidateIdentifier);
+  return validationResult.success ? validationResult.data : GenerateCorrelationIdentifier();
+};
 
 /**
- * Transforma un registro de distrito del IBGE en una entidad purificada y jerarquizada.
- * Implementa el patrón "Sovereign Translation": valida el ADN en frontera y
- * reconstruye el objeto bajo el estándar institucional.
+ * Mapea y certifica un registro de distrito obtenido de la API de Localidades del IBGE.
  *
- * @param rawDistrictSnapshotSource - Snapshot crudo del proveedor gubernamental.
- * @param correlationIdentifier - Identificador para la cadena de custodia digital.
- * @returns {ITerritorialEntity} Entidad con identidad brindada e inmutable.
- * @throws {ValidationException} Si el rastro de entrada viola el contrato de la API del IBGE.
+ * @param rawDistrictSnapshotSource - Registro crudo sin validar recibido desde el proveedor externo.
+ * @param correlationIdentifierFallback - Identificador UUID v4 opcional para enlazar la traza.
+ * @returns {ITerritorialEntity} Entidad territorial normalizada, validada e inmutable.
+ * @throws {ValidationException} Si el registro del IBGE incumple `IbgeDistrictRawResponseSchema` o la entidad resultante es inválida.
+ * @throws {InternalSystemException} Si ocurre un fallo inesperado durante la transformación.
  */
 export const MapIbgeToTerritorialEntity = (
   rawDistrictSnapshotSource: unknown,
-  correlationIdentifier: string = GenerateCorrelationIdentifier(),
+  correlationIdentifierFallback?: string,
 ): ITerritorialEntity => {
-  /**
-   * @section Ejecución con Rastro de Rendimiento (Sync Trace)
-   * Aunque la operación es síncrona, medimos su latencia para detectar
-   * degradaciones en procesos de ingesta masiva.
-   */
-  const executionStartTimestampNumeric = performance.now();
+  const correlationIdentifier = resolveSafeCorrelationIdentifier(correlationIdentifierFallback);
+  const executionStartTimestampNumeric = globalThis.performance.now();
 
   try {
-    // --- 1. ADUANA DE ADN: Purificación del protocolo gubernamental ---
     const protocolValidationResult =
       IbgeDistrictRawResponseSchema.safeParse(rawDistrictSnapshotSource);
 
     if (!protocolValidationResult.success) {
+      const validationIssuesCollection = protocolValidationResult.error.flatten();
+
       void EmitTelemetrySignal({
+        occurrenceTimestampISO: new Date().toISOString(),
         severityLevelLiteral: 'CRITICAL',
-        moduleIdentifierLiteral: MAPPER_ORCHESTRATOR_IDENTIFIER,
-        operationCodeLiteral: 'IBGE_PROTOCOL_VIOLATION',
+        moduleIdentifierLiteral: MAPPER_MODULE_IDENTIFIER,
+        operationCodeLiteral: PROTOCOL_VIOLATION_OPERATION_CODE,
         correlationIdentifier,
         messageContentLiteral: 'TERRITORIAL.ERRORS.ADN_CORRUPTION',
-        contextMetadataSnapshot: {
-          issuesCollection: protocolValidationResult.error.flatten(),
-          sourceSnapshot: rawDistrictSnapshotSource,
-        },
+        semanticIntentTag: 'IBGE_CONTRACT_VIOLATION',
+        contextMetadataSnapshot: Object.freeze({
+          validationIssuesCollection,
+          rawInputTypeLiteral: typeof rawDistrictSnapshotSource,
+        }),
       });
 
-      throw new ValidationException('CONTRATO_IBGE_INVALIDO', {
-        structuralIssuesCollection: protocolValidationResult.error.flatten(),
+      const validationException = new ValidationException('CONTRATO_IBGE_INVALIDO', {
+        structuralIssuesCollection: validationIssuesCollection,
+        correlationIdentifier,
       });
+
+      ReportForensicException(validationException, correlationIdentifier);
+      throw validationException;
     }
 
     const validatedRawDistrictSnapshot: IIbgeDistrictRawResponse = protocolValidationResult.data;
-
-    // --- 2. SANEAMIENTO TOPONÍMICO (Delegación Atómica) ---
-    /** Normalizamos el nombre oficial eliminando ruidos y acentos (ISO Standard). */
     const officialTerritoryNameLiteral = SanitizeTerritoryName(validatedRawDistrictSnapshot.nome);
 
-    // --- 3. ENSAMBLAJE SOBERANO (Delegación Atómica) ---
-    /**
-     * 🛡️ SANEADO Zenith (Fix TS2353): Sincronización con 'ITerritorialAssemblerParameters'.
-     * Se utilizan las nuevas llaves nominales con sufijos de magnitud.
-     */
-    const territorialEntitySnapshot = AssembleTerritorialEntity({
-      technicalIdentifierLiteral: validatedRawDistrictSnapshot.id.toString(),
-      parentTerritoryIdentifierLiteral: validatedRawDistrictSnapshot.municipio.id.toString(),
-      officialTerritoryNameLiteral: officialTerritoryNameLiteral,
-      administrativeHierarchyLevelLiteral: 'DISTRICT',
-    });
+    const territorialEntitySnapshot = AssembleTerritorialEntity(
+      {
+        technicalIdentifierLiteral: validatedRawDistrictSnapshot.id.toString(),
+        parentTerritoryIdentifierLiteral: validatedRawDistrictSnapshot.municipio.id.toString(),
+        officialTerritoryNameLiteral,
+        administrativeHierarchyLevelLiteral: 'DISTRICT',
+      },
+      correlationIdentifier,
+    );
 
-    // --- 4. REPORTE SRE (Visibility) ---
-    const executionLatencyInMillisecondsQuantity =
-      performance.now() - executionStartTimestampNumeric;
+    const executionLatencyInMillisecondsQuantity = Math.max(
+      0,
+      globalThis.performance.now() - executionStartTimestampNumeric,
+    );
 
     void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'DEBUG',
-      moduleIdentifierLiteral: MAPPER_ORCHESTRATOR_IDENTIFIER,
-      operationCodeLiteral: 'IBGE_NORMALIZATION_NOMINAL',
+      moduleIdentifierLiteral: MAPPER_MODULE_IDENTIFIER,
+      operationCodeLiteral: NORMALIZATION_NOMINAL_OPERATION_CODE,
       correlationIdentifier,
       messageContentLiteral: 'TERRITORIAL.LOGS.DATA_NORMALIZED',
       executionLatencyInMillisecondsQuantity,
       semanticIntentTag: 'TERRITORIAL_DATA_INGESTION',
-      contextMetadataSnapshot: {
+      contextMetadataSnapshot: Object.freeze({
         territoryIdentifier: territorialEntitySnapshot.territorialTechnicalIdentifier,
-        officialName: officialTerritoryNameLiteral,
-      },
+        officialNameLiteral: officialTerritoryNameLiteral,
+      }),
     });
 
     return territorialEntitySnapshot;
-  } catch (caughtError: unknown) {
-    /** 🛡️ LEY DE RESILIENCIA: Las excepciones de validación se propagan intactas. */
-    if (caughtError instanceof ValidationException) {
-      throw caughtError;
+  } catch (caughtExecutionError: unknown) {
+    if (caughtExecutionError instanceof GlobalBaseException) {
+      throw caughtExecutionError;
     }
 
     const errorDescriptionLiteral =
-      caughtError instanceof Error ? caughtError.message : String(caughtError);
+      caughtExecutionError instanceof Error
+        ? caughtExecutionError.message
+        : String(caughtExecutionError);
 
-    throw new ValidationException('FALLO_EN_MAPEO_TERRITORIAL_COGNITIVO', {
+    const internalException = new InternalSystemException('FALLO_EN_MAPEO_TERRITORIAL', {
       originalErrorLiteral: errorDescriptionLiteral,
       correlationIdentifier,
     });
+
+    void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
+      severityLevelLiteral: 'CRITICAL',
+      moduleIdentifierLiteral: MAPPER_MODULE_IDENTIFIER,
+      operationCodeLiteral: MAPPER_COLLAPSE_OPERATION_CODE,
+      correlationIdentifier,
+      messageContentLiteral:
+        'Fallo inesperado al normalizar un registro territorial procedente del IBGE.',
+      semanticIntentTag: 'TERRITORIAL_MAPPING_FAULT',
+      contextMetadataSnapshot: Object.freeze({
+        ...internalException.runtimeContextSnapshot,
+      }),
+    });
+
+    ReportForensicException(internalException, correlationIdentifier);
+    throw internalException;
   }
 };
