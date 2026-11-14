@@ -32,6 +32,27 @@
       }
     }
   },
+  "apps/floripa-dignidade/newsletter/invalid-token": {
+    "invalidToken": {
+      "hero": {
+        "badgeLabelLiteral": "Security Verification",
+        "headlineLiteral": "Invalid or expired confirmation link",
+        "descriptionLiteral": "We could not validate your confirmation code. This happens when the link has already been used, expired, or was copied incompletely.",
+        "guidanceHintLiteral": "You can request a fresh confirmation link by submitting your email address again on the home page."
+      },
+      "actions": {
+        "primaryActionLabelLiteral": "Request New Link",
+        "secondaryActionLabelLiteral": "Back to Home"
+      },
+      "diagnostics": {
+        "traceReferenceLabelLiteral": "Tracking reference"
+      },
+      "metadata": {
+        "pageTitleLiteral": "Invalid Confirmation Link",
+        "pageDescriptionLiteral": "Your Floripa Dignidade network verification token is invalid or has expired."
+      }
+    }
+  },
   "apps/floripa-dignidade/newsletter/welcome": {
     "hero": {
       "headlineLiteral": "Welcome to our transparency network!",

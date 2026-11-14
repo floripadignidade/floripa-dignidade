@@ -1,0 +1,13 @@
+{
+  "observations": {
+    "missingCredentialsLiteral": "The HUGGING_FACE_API_TOKEN access token is not configured in the environment.",
+    "invalidTokenFormatLiteral": "The HUGGING_FACE_API_TOKEN does not match the valid institutional token format.",
+    "invalidEndpointProtocolLiteral": "The configured Hugging Face router endpoint must enforce secure HTTPS transport.",
+    "networkTimeoutLiteral": "The Hugging Face inference router exceeded the configured request timeout.",
+    "networkFailureLiteral": "Network communication failure while contacting the Hugging Face inference router."
+  },
+  "telemetry": {
+    "credentialsRejectedLiteral": "Hugging Face router request aborted due to missing or invalid configuration.",
+    "networkCollapseLiteral": "Critical network or timeout failure while querying the Hugging Face router."
+  }
+}

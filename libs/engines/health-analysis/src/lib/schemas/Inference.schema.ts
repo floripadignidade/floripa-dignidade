@@ -1,34 +1,35 @@
+// libs/engines/health-analysis/src/lib/schemas/Inference.schema.ts
+
 /**
  * @section Health Analysis DNA - Cognitive Inference Schema
  * @description Define el contrato soberano para la comunicación con modelos de IA
  * y la estructura de las directivas de auto-sanación.
  *
- * Protocolo OEDP-V15.0 - Sovereign Data & ReadOnly Integrity.
- * Saneamiento: Exportación de tipos nominales para soporte de Verbatim Syntax (TS2305 Fix).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Multi-Cloud).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Portabilidad).
+ * SANEADO: Incorporación formal de GOOGLE_GEMINI al catálogo oficial de proveedores.
  *
- * @author Dirección de Ingeniería - Floripa Dignidade
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import { z } from 'zod';
 
 /**
  * @section Esquema de Proveedores
- * Define el ecosistema multi-modelo soportado por el motor de análisis.
+ * Define el ecosistema multi-modelo autorizado por el motor de análisis cognitivo.
  */
 export const AIProviderSchema = z
-  .enum(['OPENAI', 'ANTHROPIC', 'HUGGING_FACE', 'LOCAL_SLM'])
+  .enum(['OPENAI', 'ANTHROPIC', 'HUGGING_FACE', 'LOCAL_SLM', 'GOOGLE_GEMINI'])
   .describe('Identificadores de proveedores de inferencia cognitiva autorizados.');
 
-/**
- * 🛡️ ADN Tipado: Representación literal del proveedor.
- * Utilizado por el orquestador para garantizar el desacoplamiento de tipos.
- */
+/** Representación literal del proveedor autorizado. */
 export type TAIProvider = z.infer<typeof AIProviderSchema>;
 
 /**
  * @name InferenceResponseSchema
- * @description Contrato maestro de respuesta cognitiva.
- * Transforma datos crudos de IA en directivas de acción para el sistema.
+ * @description Contrato maestro de respuesta cognitiva inmutable.
+ * Transforma respuestas crudas de IA en directivas de acción estructuradas.
  */
 export const InferenceResponseSchema = z
   .object({
@@ -61,5 +62,4 @@ export const InferenceResponseSchema = z
   })
   .readonly();
 
-/** 🛡️ ADN Tipado: Interfaz inmutable de la respuesta de inferencia. */
 export type IInferenceResponse = z.infer<typeof InferenceResponseSchema>;

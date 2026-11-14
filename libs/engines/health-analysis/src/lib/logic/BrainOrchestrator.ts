@@ -1,148 +1,154 @@
+// libs/engines/health-analysis/src/lib/logic/BrainOrchestrator.ts
+
 /**
- * @section Cognitive Logic - Neural Sentinel Brain Orchestrator
- * @description Orquestador supremo encargado de la inferencia predictiva y preventiva.
- * Coordina la validación de entrada, la selección de modelos de IA y la auditoría
- * de resultados para generar directivas de auto-sanación inmutables.
+ * @section Cognitive Logic - Cognitive Reasoning Orchestrator
+ * @description Orquestador central encargado de coordinar la inferencia predictiva
+ * y preventiva de salud del sistema. Valida el contrato de entrada con Zod, resuelve
+ * el driver del proveedor de IA correspondiente, certifica la estructura de salida
+ * con `ValidateCognitiveAdn` y emite trazabilidad SRE conforme a `TelemetrySignalSchema`.
  *
- * Protocolo OEDP-V17.0 - Swarm Intelligence & High Performance SRE.
- * SANEADO Zenith: Implementación de validación dual (Input/Output), telemetría
- * de razonamiento y erradicación de ceguera estructural.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Mantenibilidad).
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
+import { ValidationException } from '@floripa-dignidade/exceptions';
 import {
-  EmitTelemetrySignal,
+  type CorrelationIdentifier,
+  CorrelationIdentifierSchema,
   GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+  OperationCodeSchema,
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
-
-/* 1. ADN Estructural y Contratos (Verbatim Module Syntax) */
-import { InferenceRequestSchema } from '../schemas/InferenceRequest.schema';
-// import { InferenceResponseSchema } from '../schemas/Inference.schema';
-import type { IInferenceResponse, TAIProvider } from '../schemas/Inference.schema';
-
-/* 2. Enjambre Atómico de Soporte (Internal Swarm) */
-import { DetermineIntelligenceDriver } from './IntelligenceProviderFactory';
+import {
+  AIProviderSchema,
+  type IInferenceResponse,
+  type TAIProvider,
+} from '../schemas/Inference.schema';
+import { type IInferenceRequest, InferenceRequestSchema } from '../schemas/InferenceRequest.schema';
+import { EmitBrainReasoningTelemetry } from './atomic/EmitBrainReasoningTelemetry';
+import { NormalizeBrainOrchestrationError } from './atomic/NormalizeBrainOrchestrationError';
 import { ValidateCognitiveAdn } from './atomic/ValidateCognitiveAdn';
+import { DetermineIntelligenceDriver } from './IntelligenceProviderFactory';
 
-/** Identificador técnico del motor para el Neural Sentinel. */
-const BRAIN_ORCHESTRATOR_IDENTIFIER = 'NEURAL_SENTINEL_BRAIN_ORCHESTRATOR';
+const REASONING_MODULE_IDENTIFIER: ModuleIdentifier = ModuleIdentifierSchema.parse(
+  'COGNITIVE_REASONING_ORCHESTRATOR',
+);
+
+const resolveSafeCorrelationIdentifier = (
+  candidateIdentifier: string | undefined,
+): CorrelationIdentifier => {
+  const validationResult = CorrelationIdentifierSchema.safeParse(candidateIdentifier);
+  return validationResult.success ? validationResult.data : GenerateCorrelationIdentifier();
+};
+
+const validateRequestContract = (
+  unvalidatedRequestSnapshot: unknown,
+  correlationIdentifier: CorrelationIdentifier,
+): IInferenceRequest => {
+  const requestValidationResult = InferenceRequestSchema.safeParse(unvalidatedRequestSnapshot);
+
+  if (!requestValidationResult.success) {
+    throw new ValidationException('ADN_DE_SOLICITUD_COGNITIVA_CORRUPTO', {
+      structuralIssuesCollection: requestValidationResult.error.flatten(),
+      correlationIdentifier,
+    });
+  }
+
+  return requestValidationResult.data;
+};
+
+const validateProviderContract = (
+  targetAiProviderLiteral: unknown,
+  correlationIdentifier: CorrelationIdentifier,
+): TAIProvider => {
+  const providerValidationResult = AIProviderSchema.safeParse(targetAiProviderLiteral);
+
+  if (!providerValidationResult.success) {
+    throw new ValidationException('PROVEEDOR_COGNITIVO_NO_AUTORIZADO', {
+      attemptedProviderLiteral: targetAiProviderLiteral,
+      correlationIdentifier,
+    });
+  }
+
+  return providerValidationResult.data;
+};
 
 /**
- * Ejecuta una sesión de razonamiento cognitivo orquestando proveedores de IA.
- * Implementa el patrón "Sovereign Intelligence": valida el ADN antes y después
- * de la computación, asegurando la integridad de la directiva de salud.
+ * Ejecuta una sesión de razonamiento cognitivo orquestando proveedores de IA autorizados.
  *
- * @param unvalidatedRequestSnapshot - Datos crudos de la solicitud (Contexto + Tags).
- * @param targetAiProviderLiteral - Identificador del proveedor (Default: HUGGING_FACE).
- * @returns {Promise<IInferenceResponse>} Directiva de sanación validada y sellada.
- * @throws {ValidationException} Si la solicitud es impura.
- * @throws {InternalSystemException} Si el modelo alucina o la infraestructura colapsa.
+ * @param unvalidatedRequestSnapshot - Solicitud estructurada (`healthContextSnapshot`, `analysisScopeTagsCollection`).
+ * @param targetAiProviderLiteral - Proveedor de inteligencia artificial (por defecto `'HUGGING_FACE'`).
+ * @param correlationIdentifierFallback - Identificador UUID v4 opcional para trazabilidad distribuida.
+ * @returns {Promise<IInferenceResponse>} Directiva de salud validada, sellada e inmutable.
+ * @throws {ValidationException} Si los parámetros o la solicitud incumplen los contratos Zod.
+ * @throws {InternalSystemException} Si el modelo externo falla o produce una respuesta corrupta.
  */
 export const BrainOrchestrator = async (
   unvalidatedRequestSnapshot: unknown,
   targetAiProviderLiteral: TAIProvider = 'HUGGING_FACE',
+  correlationIdentifierFallback?: string,
 ): Promise<IInferenceResponse> => {
-  const correlationIdentifier = GenerateCorrelationIdentifier();
+  const correlationIdentifier = resolveSafeCorrelationIdentifier(correlationIdentifierFallback);
+
+  const validatedProviderLiteral = validateProviderContract(
+    targetAiProviderLiteral,
+    correlationIdentifier,
+  );
+
+  const executionOperationCode: OperationCode = OperationCodeSchema.parse(
+    `EXECUTE_COGNITIVE_REASONING_VIA_${validatedProviderLiteral}`,
+  );
 
   return await TraceExecutionTime(
-    BRAIN_ORCHESTRATOR_IDENTIFIER,
-    `EXECUTE_COGNITIVE_REASONING_VIA_${targetAiProviderLiteral}`,
+    REASONING_MODULE_IDENTIFIER,
+    executionOperationCode,
     correlationIdentifier,
-    async () => {
+    async (): Promise<IInferenceResponse> => {
       try {
-        // 1. ADUANA DE ENTRADA (Pre-inference DNA Check)
-        /**
-         * 🛡️ LEY ZENITH: No procesamos datos que no cumplan el contrato.
-         * Esto ahorra latencia y costes en proveedores de IA externos.
-         */
-        const requestValidationResult = InferenceRequestSchema.safeParse(
+        const validatedRequestSnapshot = validateRequestContract(
           unvalidatedRequestSnapshot,
+          correlationIdentifier,
         );
 
-        if (!requestValidationResult.success) {
-          throw new ValidationException('ADN_DE_SOLICITUD_COGNITIVA_CORRUPTO', {
-            structuralIssuesCollection: requestValidationResult.error.flatten(),
-            correlationIdentifier,
-          });
-        }
+        const executeInferenceAction = DetermineIntelligenceDriver(validatedProviderLiteral);
+        const unvalidatedIntelligenceResponse =
+          await executeInferenceAction(validatedRequestSnapshot);
 
-        const validatedRequest = requestValidationResult.data;
-
-        // 2. RESOLUCIÓN DE INTELIGENCIA (Driver Factory)
-        const executeInferenceAction = DetermineIntelligenceDriver(targetAiProviderLiteral);
-
-        // 3. EJECUCIÓN DE INFERENCIA (Hardware/Cloud I/O)
-        /**
-         * Despachamos el snapshot validado hacia el driver específico.
-         */
-        const unvalidatedIntelligenceResponse = await executeInferenceAction(validatedRequest);
-
-        // 4. ADUANA DE SALIDA (Post-inference DNA Check)
-        /**
-         * Delegamos en el átomo de validación de respuesta para capturar alucinaciones.
-         * Transforma el resultado crudo en el tipo nominal IInferenceResponse.
-         */
         const validatedInferenceResult = ValidateCognitiveAdn(
           unvalidatedIntelligenceResponse,
           correlationIdentifier,
         );
 
-        // 5. ANÁLISIS DE UMBRAL DE CERTEZA (SRE Decision)
-        const isConfidenceCriticalBoolean = validatedInferenceResult.confidenceScore < 0.7;
-
-        // 6. REPORTE DE SINFONÍA COGNITIVA (Visibility)
-        void EmitTelemetrySignal({
-          severityLevelLiteral: isConfidenceCriticalBoolean ? 'WARNING' : 'INFO',
-          moduleIdentifierLiteral: BRAIN_ORCHESTRATOR_IDENTIFIER,
-          operationCodeLiteral: 'COGNITIVE_REASONING_NOMINAL',
+        EmitBrainReasoningTelemetry({
+          moduleIdentifierLiteral: REASONING_MODULE_IDENTIFIER,
+          validatedInferenceResult,
+          validatedRequestSnapshot,
+          targetAiProviderLiteral: validatedProviderLiteral,
           correlationIdentifier,
-          messageContentLiteral: 'Inferencia de salud finalizada con veredicto estructurado.',
-          semanticIntentTag: 'AI_REASONING_COMPLETE',
-          contextMetadataSnapshot: {
-            analysisId: validatedInferenceResult.analysisId,
-            suggestedActionLiteral: validatedInferenceResult.suggestedAction,
-            confidenceScoreNumeric: validatedInferenceResult.confidenceScore,
-            providerLiteral: targetAiProviderLiteral,
-            priorityLiteral: validatedRequest.inferencePriorityLevel,
-          },
         });
 
         return validatedInferenceResult;
-      } catch (caughtError: unknown) {
-        // 7. GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
-
-        // Propagación de excepciones de validación ya tipadas (400)
-        if (caughtError instanceof ValidationException) throw caughtError;
-
-        // Propagación de fallos de ADN (500) ya gestionados por átomos
-        if (caughtError instanceof InternalSystemException) throw caughtError;
-
-        const errorDescriptionLiteral =
-          caughtError instanceof Error ? caughtError.message : 'UNKNOWN_BRAIN_FAULT';
-
-        void EmitTelemetrySignal({
-          severityLevelLiteral: 'CRITICAL',
-          moduleIdentifierLiteral: BRAIN_ORCHESTRATOR_IDENTIFIER,
-          operationCodeLiteral: 'COGNITIVE_PIPELINE_FAILURE',
-          correlationIdentifier,
-          messageContentLiteral: 'Fallo catastrófico en el orquestador cerebral.',
-          semanticIntentTag: 'COGNITIVE_ENGINE_COLLAPSE',
-          contextMetadataSnapshot: {
-            errorTraceLiteral: errorDescriptionLiteral,
-            providerLiteral: targetAiProviderLiteral,
-          },
-        });
-
-        throw new InternalSystemException('COLAPSO_EN_SISTEMA_DE_RAZONAMIENTO_SRE', {
-          originalErrorLiteral: errorDescriptionLiteral,
+      } catch (caughtExecutionError: unknown) {
+        throw NormalizeBrainOrchestrationError({
+          caughtExecutionError,
+          moduleIdentifierLiteral: REASONING_MODULE_IDENTIFIER,
+          targetAiProviderLiteral: validatedProviderLiteral,
           correlationIdentifier,
         });
       }
     },
   );
 };
+
+/**
+ * @name CognitiveReasoningOrchestrator
+ * @description Alias institucional bajo norma ISO/IEC 11179 sin metáforas.
+ */
+export const CognitiveReasoningOrchestrator = BrainOrchestrator;

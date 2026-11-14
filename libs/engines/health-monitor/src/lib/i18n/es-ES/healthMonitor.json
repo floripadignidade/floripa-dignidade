@@ -1,0 +1,8 @@
+{
+  "telemetry": {
+    "probeNominalLiteral": "Auditoría de infraestructura completada en estado nominal (UP).",
+    "probeDegradedLiteral": "Auditoría de infraestructura completada con latencia degradada (DEGRADED).",
+    "probeDownLiteral": "La auditoría de infraestructura detectó indisponibilidad crítica del servicio (DOWN).",
+    "probeTimeoutLiteral": "La sonda de infraestructura excedió el tiempo límite configurado."
+  }
+}

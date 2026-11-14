@@ -1,0 +1,16 @@
+{
+  "observations": {
+    "nominalInferenceFallbackLiteral": "Inferencia procesada nominalmente por el enrutador Hugging Face.",
+    "malformedSuccessPayloadLiteral": "El enrutador Hugging Face respondió con éxito HTTP, pero el cuerpo JSON está corrupto.",
+    "coldStartLoadingLiteral": "El modelo cognitivo está cargando en memoria del enrutador (Cold Start 503). Reintento sugerido.",
+    "authenticationRejectedLiteral": "Autenticación rechazada por Hugging Face Router: HUGGING_FACE_API_TOKEN inválido o sin permisos.",
+    "rateLimitExceededLiteral": "Límite de tasa de solicitudes excedido en Hugging Face Router (HTTP 429).",
+    "modelUnsupportedOrInvalidLiteral": "Modelo no soportado en el proveedor seleccionado o solicitud inválida en Hugging Face Router.",
+    "unexpectedHttpErrorLiteral": "El enrutador de Hugging Face respondió con un código de error HTTP inesperado."
+  },
+  "telemetry": {
+    "inferenceSuccessLiteral": "Inferencia cognitiva procesada con éxito a través de Hugging Face Router.",
+    "inferenceDegradedLatencyLiteral": "Inferencia cognitiva completada en Hugging Face Router con latencia elevada.",
+    "malformedPayloadWarningLiteral": "Respuesta HTTP 200 de Hugging Face Router rechazada por JSON malformado."
+  }
+}

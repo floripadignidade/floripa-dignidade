@@ -1,0 +1,8 @@
+{
+  "telemetry": {
+    "probeNominalLiteral": "Infrastructure audit completed in nominal operational state (UP).",
+    "probeDegradedLiteral": "Infrastructure audit completed with degraded response latency (DEGRADED).",
+    "probeDownLiteral": "Infrastructure audit detected critical service unavailability (DOWN).",
+    "probeTimeoutLiteral": "The infrastructure health probe exceeded the configured timeout threshold."
+  }
+}

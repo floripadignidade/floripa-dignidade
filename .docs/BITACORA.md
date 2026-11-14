@@ -916,3 +916,91 @@ búsqueda:
 - `pnpm audit:workspace`: **32/32 workspaces conformantes**.
 
 ---
+
+## [2026-11-14] HITO 12: Desbloqueo Global de Linter (31/31), Nivelación de Inferencia Cognitiva Multi-Cloud (Gemini 1.5 Flash) y Desacoplamiento de Complejidad Ciclomática
+
+### 1. Contexto y Diagnóstico Forense
+
+Tras la consolidación de `libs/shared/utility` y `libs/engines/search-engine` en el Hito 11, la
+ejecución de `pnpm lint` arrojó que 28 de 31 proyectos superaron nominalmente la auditoría,
+identificándose 4 puntos bloqueantes específicos en el `lint-staged` y el pipeline global:
+
+1. **`@floripa-dignidade/routing`:** Variable no utilizada `InternalSystemException` en
+   `GlobalRequestOrchestrator.ts`, bloqueando el hook `pre-commit` de Husky.
+2. **`@floripa-dignidade/whatsapp-communication-service`:** Complejidad ciclomática excesiva (13/10)
+   e import no utilizado en `NormalizeWhatsAppDeliveryStatus.ts`, además de una infracción de
+   ordenamiento en `sort-imports` dentro de `ValidateMetaSignature.ts`.
+3. **`@floripa-dignidade/newsletter`:** Complejidad ciclomática crítica (16/10) en la función
+   asíncrona de `ActivateCloudSubscription.ts` por acumulación de I/O de red, parseo de respuesta y
+   bifurcaciones de telemetría.
+4. **`@floripa-dignidade/impact-analytics-engine`:** Infracción de `sort-imports` en
+   `AssemblePopularAcceptanceIndicator.ts` y falta de aislamiento entre el contrato Zod y la lógica
+   aritmética de ensamblaje.
+5. **`@floripa-dignidade/health-analysis-engine`:** El orquestador de inferencia cognitiva carecía
+   de integración con Google Gemini 1.5 Flash (comprometido en el Hito 05), duplicaba la validación
+   de ADN en lugar de reusar `ValidateCognitiveAdn.ts`, emitía telemetría con propiedades obsoletas
+   sin `occurrenceTimestampISO` ni `semanticIntentTag`, y carecía de un silo i18n estructurado bajo
+   el estándar ADR 0030.
+
+### 2. Decisiones Arquitectónicas y Cambios Ejecutados
+
+1. **Saneamiento Perimetral en Enrutador Edge (`libs/core/routing`):**
+   - Se purgó el import huérfano de `InternalSystemException` en `GlobalRequestOrchestrator.ts`.
+   - Se tiparon nominalmente los identificadores mediante `ModuleIdentifierSchema.parse` y
+     `OperationCodeSchema.parse`.
+   - Se inyectó la cabecera `Cache-Control: no-store` en respuestas HTTP 500 para evitar que proxies
+     o CDNs almacenen en caché fallos transitorios de red en el Edge.
+
+2. **Resolución de Complejidad y Rigor en WhatsApp
+   (`libs/modules/whatsapp/communication-service`):**
+   - `NormalizeWhatsAppDeliveryStatus.ts`: Complejidad ciclomática reducida de 13 a $\le 5$ mediante
+     la tabla inmutable `DELIVERY_STATUS_TO_SEVERITY_MAPPING` y la extracción de sub-átomos puros
+     (`convertUnixTimestampToIso8601Literal`, `resolveRecipientIdentifierLiteral`,
+     `extractFirstErrorMetadata`, `extractConversationCategoryMetadata`). Se integró validación Zod
+     `.safeParse()`, emisión SRE y reporte forense.
+   - `ValidateMetaSignature.ts`: Corregido `sort-imports`, centralizada la emisión telemétrica con
+     el catálogo inmutable `SIGNATURE_AUDIT_SPECIFICATIONS` y enlazado `ReportForensicException`.
+
+3. **Atomización del Ciclo de Activación en Newsletter (`libs/modules/newsletter`):**
+   - `ActivateCloudSubscription.ts`: Complejidad ciclomática reducida de 16 a $\le 4$ mediante
+     pulverización funcional:
+     - `EmitActivationOutcomeTelemetry.ts`: Despacho SRE para activación exitosa y token no
+       coincidente.
+     - `NormalizeCloudActivationError.ts`: Normalización con clasificación de timeout HTTP 504,
+       contención tipada y reporte forense.
+     - `ActivateCloudSubscription.ts`: Orquestador purificado a flujo lineal estricto sin
+       anidaciones.
+
+4. **Desacoplamiento en Indicadores de Impacto (`libs/engines/impact-analytics-engine`):**
+   - `AssemblePopularAcceptanceIndicator.ts`: Corregido `sort-imports`, extraído
+     `schemas/AssemblePopularAcceptanceIndicator.schema.ts`, e inyectada validación `.safeParse()`
+     con trazabilidad forense completa.
+
+5. **Nivelación Integral de Salud Cognitiva (`libs/engines/health-analysis`):**
+   - `AnalyzeSystemHealthInference.ts`: Atomizado en
+     `schemas/AnalyzeSystemHealthInference.schema.ts`, `EmitCognitiveInferenceTelemetry.ts`,
+     `NormalizeCognitiveOrchestrationError.ts` y orquestador lineal $\le 4$ de complejidad.
+   - `ValidateCognitiveAdn.ts`: Blindado contra alucinaciones con `TelemetrySignalSchema`,
+     acotamiento de previsualizaciones diagnósticas a 512 caracteres
+     (`MAXIMUM_DIAGNOSTIC_PREVIEW_LENGTH_QUANTITY`) para proteger cuota de almacenamiento, sellado
+     inmutable y reporte forense.
+   - `BrainOrchestrator.ts`: Atomizado con `EmitBrainReasoningTelemetry.ts`,
+     `NormalizeBrainOrchestrationError.ts`, validación de proveedor con `AIProviderSchema` y alias
+     nominal `CognitiveReasoningOrchestrator`.
+   - `Inference.schema.ts` e `IntelligenceProviderFactory.ts`: Incorporado formalmente
+     `'GOOGLE_GEMINI'` en `AIProviderSchema`, construida la factoría con resolución Fail-Closed y
+     creado `GoogleGeminiInferenceDriver.ts` para inferencia directa con Gemini 1.5 Flash (< 400ms).
+   - Silo i18n ADR 0030: Creado `i18n/schemas/HealthAnalysisI18n.schema.ts` y diccionarios completos
+     en `i18n/pt-BR/healthAnalysis.json`, `i18n/es-ES/healthAnalysis.json` y
+     `i18n/en-US/healthAnalysis.json`.
+
+### 3. Evidencia de Verificación y Estado del Grafo
+
+- `libs/core/routing`: **LINT OK** / **TYPECHECK OK**.
+- `libs/modules/whatsapp/communication-service`: **LINT OK** / **TYPECHECK OK**.
+- `libs/modules/newsletter`: **LINT OK** / **TYPECHECK OK**.
+- `libs/engines/impact-analytics-engine`: **LINT OK** / **TYPECHECK OK**.
+- `libs/engines/health-analysis`: **LINT OK** / **TYPECHECK OK**.
+- `pnpm weaver:build`: **22 MÓDULOS CONSOLIDADOS** (`pt-BR`, `es-ES`, `en-US`), 100% paridad.
+
+---

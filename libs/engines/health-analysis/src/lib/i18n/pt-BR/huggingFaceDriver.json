@@ -1,0 +1,13 @@
+{
+  "observations": {
+    "missingCredentialsLiteral": "O token de acesso HUGGING_FACE_API_TOKEN não está configurado no ambiente.",
+    "invalidTokenFormatLiteral": "O token HUGGING_FACE_API_TOKEN não possui o formato institucional válido.",
+    "invalidEndpointProtocolLiteral": "O endpoint configurado para o roteador Hugging Face deve utilizar protocolo seguro HTTPS.",
+    "networkTimeoutLiteral": "O roteador de inferência Hugging Face excedeu o limite de tempo configurado.",
+    "networkFailureLiteral": "Falha de comunicação de rede com o roteador de inferência Hugging Face."
+  },
+  "telemetry": {
+    "credentialsRejectedLiteral": "Consulta ao roteador Hugging Face cancelada por ausência ou inconsistência de configuração.",
+    "networkCollapseLiteral": "Falha crítica de rede ou tempo limite ao consultar o roteador Hugging Face."
+  }
+}

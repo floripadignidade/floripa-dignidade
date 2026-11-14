@@ -1,0 +1,16 @@
+{
+  "observations": {
+    "nominalInferenceFallbackLiteral": "Inference processed nominally by the Hugging Face router.",
+    "malformedSuccessPayloadLiteral": "The Hugging Face router returned HTTP success, but the JSON body is corrupted.",
+    "coldStartLoadingLiteral": "The cognitive model is loading in router memory (Cold Start 503). Retry recommended.",
+    "authenticationRejectedLiteral": "Authentication rejected by Hugging Face Router: invalid or unauthorized HUGGING_FACE_API_TOKEN.",
+    "rateLimitExceededLiteral": "Request rate limit exceeded on Hugging Face Router (HTTP 429).",
+    "modelUnsupportedOrInvalidLiteral": "Model not supported by the selected provider or invalid request on Hugging Face Router.",
+    "unexpectedHttpErrorLiteral": "The Hugging Face router responded with an unexpected HTTP error status."
+  },
+  "telemetry": {
+    "inferenceSuccessLiteral": "Cognitive inference processed successfully through Hugging Face Router.",
+    "inferenceDegradedLatencyLiteral": "Cognitive inference completed on Hugging Face Router with elevated latency.",
+    "malformedPayloadWarningLiteral": "Hugging Face Router HTTP 200 response rejected due to malformed JSON body."
+  }
+}

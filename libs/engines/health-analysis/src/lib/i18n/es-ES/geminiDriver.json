@@ -1,0 +1,20 @@
+{
+  "observations": {
+    "nominalInferenceFallbackLiteral": "Inferencia procesada nominalmente por Google Gemini.",
+    "missingCredentialsLiteral": "La clave GOOGLE_GEMINI_API_KEY no está configurada en el entorno.",
+    "invalidKeyFormatLiteral": "La clave GOOGLE_GEMINI_API_KEY no tiene un formato compatible (AIza o AQ.).",
+    "malformedResponseLiteral": "La API de Google Gemini respondió HTTP 200, pero el JSON está corrupto.",
+    "authenticationRejectedLiteral": "Autenticación o permisos rechazados por la API de Google Gemini.",
+    "rateLimitExceededLiteral": "Límite de solicitudes o cuota gratuita excedida en Google Gemini API (HTTP 429).",
+    "modelUnavailableLiteral": "El modelo Gemini solicitado no existe o fue retirado (HTTP 404).",
+    "unexpectedHttpErrorLiteral": "La API de Google Gemini respondió con un error HTTP inesperado.",
+    "networkTimeoutLiteral": "La API de Google Gemini excedió el tiempo límite configurado.",
+    "networkFailureLiteral": "Fallo de comunicación de red con la API de Google Gemini."
+  },
+  "telemetry": {
+    "credentialsRejectedLiteral": "Inferencia con Google Gemini cancelada por ausencia o formato inválido de clave.",
+    "inferenceSuccessLiteral": "Inferencia cognitiva procesada exitosamente mediante Google Gemini.",
+    "inferenceFailureLiteral": "Fallo HTTP devuelto por la API de Google Gemini.",
+    "networkCollapseLiteral": "Fallo crítico de red o timeout al conectar con Google Gemini API."
+  }
+}
