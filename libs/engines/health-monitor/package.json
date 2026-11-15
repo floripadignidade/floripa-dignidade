@@ -1,8 +1,8 @@
 {
   "name": "@floripa-dignidade/health-monitor",
-  "version": "1.1.1",
+  "version": "1.3.1",
   "private": true,
-  "description": "ISO-Standard: Bunker de vigilancia logica y monitoreo de pulso vital de la infraestructura (SRE).",
+  "description": "Motor de vigilancia lógica y sondeo de pulso vital de infraestructura para confiabilidad de sistemas (SRE).",
   "type": "module",
   "sideEffects": false,
   "author": "Raz Podesta - MetaShark Tech",
@@ -15,6 +15,7 @@
     }
   },
   "dependencies": {
+    "@floripa-dignidade/contracts": "workspace:*",
     "@floripa-dignidade/exceptions": "workspace:*",
     "@floripa-dignidade/telemetry": "workspace:*",
     "@swc/helpers": "~0.5.18",

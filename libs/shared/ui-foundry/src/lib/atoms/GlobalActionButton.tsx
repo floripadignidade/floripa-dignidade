@@ -1,14 +1,16 @@
 'use client';
 
 /**
- * @section Shared UI Foundry - Global Action Button (Orchestrator)
- * @description Elemento de interacción primaria y conversión ciudadana.
- * Implementa el patrón "Hardware Barrier" con telemetría forense integrada
- * y soporte polimórfico (Slot) para delegación semántica.
+ * @file libs/shared/ui-foundry/src/lib/atoms/GlobalActionButton.tsx
+ * @section Shared UI Foundry - Global Action Button (Atom)
+ * @description Elemento de interacción primaria y conversión ciudadana accesible (WCAG 2.2 AAA).
+ * Implementa soporte polimórfico mediante Radix UI Slot, fusión determinista de clases CSS
+ * (`className` nativo y `externalClassName`), mapeo completo del contrato `IUiPrimitives`
+ * (`technicalIdentifier` y `IAriaAttributes`), protección de clics durante estados de carga
+ * y telemetría SRE delegada en átomos dedicados.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Polymorphic UI.
- * SANEADO Zenith: Erradicación de directivas de supresión obsoletas (Fix TS2578),
- * cumplimiento de Prosa ISO 11179 y sellado de integridad de tipos.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 y W3C WCAG 2.2 AAA.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -17,145 +19,148 @@
 import React, { useCallback, useMemo } from 'react';
 import { Slot } from '@radix-ui/react-slot';
 
-/* 1. Infraestructura Core y Utilidades (Sovereign Swarm - Clean Paths) */
-import { EmitTelemetrySignal, GenerateCorrelationIdentifier } from '@floripa-dignidade/telemetry';
-
-import { GlobalStyleClassMerger } from '@floripa-dignidade/shared-utility';
-
-/* 2. Planos y Contratos (Blueprints Layer - Redirección de ADN) */
-/** 🛡️ SANEADO Zenith: El Santuario de Tipos ya autoriza esta importación nominal. */
+/* 1. Contratos de Primitivos de UI */
 import type { IUiPrimitives } from '@floripa-dignidade/shared-ui-contracts';
 
-/* 3. ADN Visual Local (Swiss-Watch Swarm) */
-import {
-  ACTION_BUTTON_BASE_STRUCTURAL_STYLES_LITERAL,
-  ACTION_BUTTON_VARIANT_STYLES_MAPPING,
-  type TVisualIntentConfigurationLiteral,
-} from './global-action-button/constants/ActionButtonStyles.mapping';
-
+/* 2. Átomos, Constantes y Lógica Local */
 import { ButtonLoadingOverlay } from './global-action-button/atoms/ButtonLoadingOverlay';
+import type { TVisualIntentConfigurationLiteral } from './global-action-button/constants/ActionButtonStyles.mapping';
+import { EmitActionButtonTelemetry } from './global-action-button/logic/EmitActionButtonTelemetry';
+import { ResolveActionButtonPresentation } from './global-action-button/logic/ResolveActionButtonPresentation';
+
+export type { TVisualIntentConfigurationLiteral };
 
 /**
  * @interface IGlobalActionButtonProperties
  * @description Contrato inmutable para la parametrización de botones de acción.
- * Fusiona los atributos nativos de HTML con el ADN de primitivos institucionales.
+ * Fusiona los atributos nativos de `HTMLButtonElement` con el contrato institucional `IUiPrimitives`.
  */
 export interface IGlobalActionButtonProperties
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     IUiPrimitives {
   /** Variante cromática que define la intención y jerarquía de la acción. */
   readonly visualIntentConfigurationLiteral?: TVisualIntentConfigurationLiteral;
-  /** Indica si la transacción asociada está en progreso (Deshabilita el hardware). */
+  /** Indica si la transacción asociada está en progreso (deshabilita la interacción). */
   readonly isExecutionLoadingBoolean?: boolean;
   /** Identificador técnico de la acción para el rastro telemétrico forense. */
   readonly actionIdentifierLiteral?: string;
 }
 
-/** Identificador técnico del aparato para el Neural Sentinel. */
-const ORCHESTRATOR_IDENTIFIER = 'GLOBAL_ACTION_BUTTON_ORCHESTRATOR';
-
 /**
- * Aparato encargado de la conversión y confirmación ciudadana.
- * Protege contra ráfagas de clics accidentales y audita cada intención.
+ * Componente atómico de acción interactiva y conversión cívica.
  *
- * @param propertiesSnapshot - Snapshot de propiedades y estado de interacción.
- * @returns {React.ReactElement} Nodo interactivo blindado y auditado.
+ * @param propertiesSnapshot - Propiedades de estilo, estado de carga, polimorfismo y accesibilidad.
+ * @returns {React.ReactElement} Elemento interactivo accesible, estilizado y auditado.
  */
-export const GlobalActionButton: React.FC<IGlobalActionButtonProperties> = ({
-  children,
-  visualIntentConfigurationLiteral = 'STANDARD',
-  isExecutionLoadingBoolean = false,
-  actionIdentifierLiteral = 'UNNAMED_ACTION',
-  isPolymorphicBoolean = false,
-  externalClassName,
-  forensicTestIdentifier,
-  accessibilityConfiguration,
-  disabled,
-  onClick,
-  ...nativeProperties
-}) => {
-  /**
-   * @section Gestión de Telemetría de Interacción (Audit Trail)
-   * Registramos la intención física del ciudadano antes de delegar la ejecución.
-   */
-  const handleInteractionAction = useCallback(
-    (mouseEvent: React.MouseEvent<HTMLButtonElement>) => {
-      const correlationIdentifier = GenerateCorrelationIdentifier();
+export const GlobalActionButton: React.FC<IGlobalActionButtonProperties> = (propertiesSnapshot) => {
+  const {
+    children,
+    visualIntentConfigurationLiteral,
+    isExecutionLoadingBoolean,
+    actionIdentifierLiteral,
+    isPolymorphicBoolean,
+    technicalIdentifier,
+    id: nativeElementIdentifier,
+    className: nativeClassName,
+    externalClassName,
+    forensicTestIdentifier,
+    accessibilityConfiguration,
+    disabled: isNativeDisabledBoolean,
+    type: nativeButtonType,
+    role: nativeRoleLiteral,
+    'aria-label': nativeAriaLabelLiteral,
+    onClick,
+    ...nativeProperties
+  } = propertiesSnapshot;
 
-      void EmitTelemetrySignal({
-        occurrenceTimestampISO: new Date().toISOString(),
-        severityLevelLiteral: 'INFO',
-        moduleIdentifierLiteral: ORCHESTRATOR_IDENTIFIER,
-        operationCodeLiteral: 'UI_INTERACTION_TRIGGERED',
-        correlationIdentifier,
-        messageContentLiteral: `Interacción física detectada en: [${actionIdentifierLiteral}]`,
-        semanticIntentTag: 'UI_ACTION_TRIGGER',
-        contextMetadataSnapshot: { actionIdentifier: actionIdentifierLiteral },
-      });
-
-      if (onClick) {
-        onClick(mouseEvent);
-      }
-    },
-    [onClick, actionIdentifierLiteral],
+  const presentationSnapshot = useMemo(
+    () =>
+      ResolveActionButtonPresentation({
+        visualIntentConfigurationLiteral,
+        isExecutionLoadingBoolean,
+        isNativeDisabledBoolean,
+        isPolymorphicBoolean,
+        actionIdentifierLiteral,
+        technicalIdentifier,
+        nativeElementIdentifier,
+        externalClassName,
+        nativeClassName,
+        nativeButtonType,
+        nativeRoleLiteral,
+        nativeAriaLabelLiteral,
+        accessibilityConfiguration,
+      }),
+    [
+      visualIntentConfigurationLiteral,
+      isExecutionLoadingBoolean,
+      isNativeDisabledBoolean,
+      isPolymorphicBoolean,
+      actionIdentifierLiteral,
+      technicalIdentifier,
+      nativeElementIdentifier,
+      externalClassName,
+      nativeClassName,
+      nativeButtonType,
+      nativeRoleLiteral,
+      nativeAriaLabelLiteral,
+      accessibilityConfiguration,
+    ],
   );
 
-  /**
-   * @section Saneamiento de Complejidad (Pilar DRY & SRE)
-   * 🛡️ LEY SRE: Memoizamos la configuración visual para proteger los 120 FPS
-   * ante ráfagas de re-renderizado en la interfaz.
-   */
-  const derivedConfigurationSnapshot = useMemo(() => {
-    return {
-      mergedStylesLiteral: GlobalStyleClassMerger(
-        ACTION_BUTTON_BASE_STRUCTURAL_STYLES_LITERAL,
-        ACTION_BUTTON_VARIANT_STYLES_MAPPING[visualIntentConfigurationLiteral],
-        externalClassName,
-      ),
-      computedAriaLabelLiteral:
-        accessibilityConfiguration?.accessibilityLabelLiteral ?? actionIdentifierLiteral,
-      contentOpacityStylesLiteral: isExecutionLoadingBoolean ? 'opacity-0' : 'opacity-100',
-    };
-  }, [
-    visualIntentConfigurationLiteral,
-    externalClassName,
-    accessibilityConfiguration,
-    actionIdentifierLiteral,
-    isExecutionLoadingBoolean,
-  ]);
+  const handleInteractionAction = useCallback(
+    (mouseEvent: React.MouseEvent<HTMLButtonElement>): void => {
+      if (presentationSnapshot.isInteractionDisabledBoolean) {
+        mouseEvent.preventDefault();
+        return;
+      }
 
-  /**
-   * @section Transmutación Semántica (Polymorphism)
-   * 🛡️ LEY ZENITH: Si 'isPolymorphicBoolean' es verdadero, el botón cede
-   * su elemento contenedor (button) al nodo hijo directo para preservar el SEO.
-   */
-  const SovereignContainerComponent = isPolymorphicBoolean ? Slot : 'button';
+      EmitActionButtonTelemetry({
+        actionIdentifierLiteral: presentationSnapshot.actionIdentifierLiteral,
+        visualIntentConfigurationLiteral: presentationSnapshot.visualIntentConfigurationLiteral,
+        isPolymorphicBoolean: presentationSnapshot.isPolymorphicBoolean,
+      });
+
+      onClick?.(mouseEvent);
+    },
+    [
+      presentationSnapshot.isInteractionDisabledBoolean,
+      presentationSnapshot.actionIdentifierLiteral,
+      presentationSnapshot.visualIntentConfigurationLiteral,
+      presentationSnapshot.isPolymorphicBoolean,
+      onClick,
+    ],
+  );
+
+  const PolymorphicInteractiveContainer = presentationSnapshot.isPolymorphicBoolean
+    ? Slot
+    : 'button';
 
   return (
-    <SovereignContainerComponent
+    <PolymorphicInteractiveContainer
       {...nativeProperties}
-      className={derivedConfigurationSnapshot.mergedStylesLiteral}
-      disabled={isExecutionLoadingBoolean || disabled}
+      id={presentationSnapshot.resolvedElementIdentifier}
+      type={presentationSnapshot.buttonType}
+      role={presentationSnapshot.resolvedRoleLiteral}
+      className={presentationSnapshot.mergedStylesLiteral}
+      disabled={presentationSnapshot.buttonDisabledBoolean}
       onClick={handleInteractionAction}
-      aria-label={derivedConfigurationSnapshot.computedAriaLabelLiteral}
-      aria-busy={isExecutionLoadingBoolean}
+      aria-label={presentationSnapshot.ariaBindingsSnapshot['aria-label']}
+      aria-describedby={presentationSnapshot.ariaBindingsSnapshot['aria-describedby']}
+      aria-hidden={presentationSnapshot.ariaBindingsSnapshot['aria-hidden']}
+      aria-controls={presentationSnapshot.ariaBindingsSnapshot['aria-controls']}
+      aria-expanded={presentationSnapshot.ariaBindingsSnapshot['aria-expanded']}
+      aria-disabled={presentationSnapshot.ariaDisabledBoolean}
+      aria-busy={presentationSnapshot.isLoadingBoolean}
       data-testid={forensicTestIdentifier}
     >
-      {isPolymorphicBoolean ? (
+      {presentationSnapshot.isPolymorphicBoolean ? (
         children
       ) : (
         <>
-          <ButtonLoadingOverlay isVisibleBoolean={isExecutionLoadingBoolean} />
-          <span
-            className={GlobalStyleClassMerger(
-              'flex items-center justify-center gap-2 transition-opacity duration-300 w-full',
-              derivedConfigurationSnapshot.contentOpacityStylesLiteral,
-            )}
-          >
-            {children}
-          </span>
+          <ButtonLoadingOverlay isVisibleBoolean={presentationSnapshot.isLoadingBoolean} />
+          <span className={presentationSnapshot.contentWrapperStylesLiteral}>{children}</span>
         </>
       )}
-    </SovereignContainerComponent>
+    </PolymorphicInteractiveContainer>
   );
 };

@@ -1,11 +1,11 @@
 {
   "name": "@floripa-dignidade/health-analysis-engine",
-  "version": "1.4.0",
+  "version": "1.5.1",
   "private": true,
-  "description": "ISO-Standard: Bunker de Inteligencia Artificial (Neural Sentinel) encargado de la inferencia predictiva y protocolos de auto-saneamiento.",
+  "description": "Motor de análisis cognitivo e inferencia predictiva para diagnóstico de salud y recuperación automatizada del ecosistema.",
   "type": "module",
   "sideEffects": false,
-  "author": "Raz Podesta - MetaShark Tech",
+  "author": "Raz Podestá - MetaShark Tech",
   "license": "UNLICENSED",
   "exports": {
     ".": {
@@ -15,6 +15,8 @@
     }
   },
   "dependencies": {
+    "@floripa-dignidade/contracts": "workspace:*",
+    "@floripa-dignidade/environment-validator": "workspace:*",
     "@floripa-dignidade/exceptions": "workspace:*",
     "@floripa-dignidade/telemetry": "workspace:*",
     "@swc/helpers": "~0.5.18",

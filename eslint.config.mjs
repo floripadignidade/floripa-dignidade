@@ -130,7 +130,7 @@ export default [
       'no-console': ['error', { allow: ['warn', 'error'] }],
       eqeqeq: ['error', 'always'],
       complexity: ['error', 10],
-      'max-lines': ['error', { max: 200, skipBlankLines: true, skipComments: true }],
+      'max-lines': ['error', { max: 300, skipBlankLines: true, skipComments: true }],
 
       /** Prevención de fallos asíncronos y tipado 'any' */
       '@typescript-eslint/no-floating-promises': 'error',

@@ -2,7 +2,7 @@
   "name": "@floripa-dignidade/whatsapp-communication-service",
   "version": "1.3.0",
   "private": true,
-  "description": "ISO-Standard: Bunker de Integracion con Meta y Gateway de Direitos Humanos. Orquestra la recepcion criptografica de Webhooks.",
+  "description": "Módulo de integración con Meta WhatsApp Cloud API y gateway de derechos humanos para recepción criptográfica de webhooks.",
   "type": "module",
   "sideEffects": false,
   "author": "Raz Podesta - MetaShark Tech",
@@ -17,6 +17,7 @@
   "dependencies": {
     "@floripa-dignidade/environment-validator": "workspace:*",
     "@floripa-dignidade/exceptions": "workspace:*",
+    "@floripa-dignidade/shared-utility": "workspace:*",
     "@floripa-dignidade/telemetry": "workspace:*",
     "@swc/helpers": "~0.5.18",
     "zod": "^3.25.76"

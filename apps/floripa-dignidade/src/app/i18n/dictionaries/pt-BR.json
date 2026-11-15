@@ -32,6 +32,33 @@
       }
     }
   },
+  "apps/floripa-dignidade/error": {
+    "error": {
+      "hero": {
+        "badgeLabelLiteral": "Contingência Operacional",
+        "headlineLiteral": "Não foi possível concluir esta operação agora",
+        "defaultDescriptionLiteral": "Ocorreu uma instabilidade temporária ao processar sua solicitação. Nossa equipe técnica já recebeu o registro automático do incidente.",
+        "guidanceHintLiteral": "Você pode retornar à página inicial e tentar novamente em alguns instantes. Caso o problema persista, informe o código de rastreamento abaixo."
+      },
+      "errors": {
+        "CONFIRMATION_FAULT": "Ocorreu uma falha interna ao validar ou ativar sua confirmação de inscrição. Nenhuma informação pessoal foi perdida; você pode solicitar um novo link ou tentar novamente.",
+        "GATEWAY_FAULT": "Um dos nossos serviços de comunicação apresentou instabilidade momentânea ao responder à sua solicitação.",
+        "UNKNOWN_FAULT": "Detectamos uma interrupção inesperada ao processar sua solicitação nesta rota."
+      },
+      "actions": {
+        "primaryActionLabelLiteral": "Voltar para o Início",
+        "secondaryActionLabelLiteral": "Acessar Observatório"
+      },
+      "diagnostics": {
+        "errorCodeLabelLiteral": "Código do incidente",
+        "traceReferenceLabelLiteral": "Código de rastreamento"
+      },
+      "metadata": {
+        "pageTitleLiteral": "Ocorrência Temporária",
+        "pageDescriptionLiteral": "Página de contingência operacional e recuperação segura do portal Floripa Dignidade."
+      }
+    }
+  },
   "apps/floripa-dignidade/newsletter/invalid-token": {
     "invalidToken": {
       "hero": {
@@ -93,6 +120,33 @@
       "exportCsvLabel": "Exportar Relatório",
       "printReportLabel": "Imprimir Certificado",
       "restrictAccessToggle": "Filtrar por Gravidade"
+    }
+  },
+  "apps/floripa-dignidade/unauthorized": {
+    "unauthorized": {
+      "hero": {
+        "badgeLabelLiteral": "Controle de Acesso Institucional",
+        "headlineLiteral": "Acesso restrito a perfis autorizados",
+        "descriptionLiteral": "Esta área contém dados fiscais ou operacionais que exigem credenciais institucionais verificadas para proteção da integridade cívica.",
+        "guidanceHintLiteral": "Você pode retornar à página inicial ou inscrever-se nos boletins para receber relatórios públicos auditados por e-mail."
+      },
+      "systemAlert": {
+        "titleLiteral": "Alerta de Segurança Registrado",
+        "descriptionLiteral": "Este bloqueio gerou um registro anônimo de auditoria (em conformidade com a LGPD) e foi enfileirado para futura notificação ao painel de governança.",
+        "roadmapNoteLiteral": "Em breve: verificação de identidade cívica via gov.br (níveis Prata e Ouro) e solicitação direta de habilitação institucional."
+      },
+      "actions": {
+        "primaryActionLabelLiteral": "Voltar para o Início",
+        "secondaryActionLabelLiteral": "Receber Alertas Públicos"
+      },
+      "diagnostics": {
+        "originRouteLabelLiteral": "Rota protegida",
+        "traceReferenceLabelLiteral": "Código de rastreamento"
+      },
+      "metadata": {
+        "pageTitleLiteral": "Acesso Restrito",
+        "pageDescriptionLiteral": "Aviso de controle de acesso institucional e proteção de dados do portal Floripa Dignidade."
+      }
     }
   },
   "contracts/identity": {

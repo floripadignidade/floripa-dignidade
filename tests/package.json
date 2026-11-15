@@ -2,7 +2,7 @@
   "name": "@floripa-dignidade/qa-mirror",
   "version": "1.1.0",
   "private": true,
-  "description": "ISO-Standard: Bunker Espejo de Calidad y Aserción de Lógica. Implementa la Doctrina de Mirror Testing para el desacoplamiento físico de pruebas.",
+  "description": "Módulo espejo de aseguramiento de calidad y aserción de lógica institucional mediante la doctrina de Mirror Testing.",
   "type": "module",
   "sideEffects": false,
   "author": "Raz Podesta - MetaShark Tech",
@@ -32,13 +32,15 @@
     }
   },
   "devDependencies": {
-    "@testing-library/react": "16.3.0",
+    "@floripa-dignidade/exceptions": "workspace:*",
+    "@swc/jest": "~0.2.38",
     "@testing-library/dom": "10.4.0",
     "@testing-library/jest-dom": "6.6.3",
+    "@testing-library/react": "16.3.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "20.19.9",
     "jest": "^30.0.2",
-    "jest-environment-jsdom": "^30.0.2",
-    "@swc/jest": "~0.2.38",
-    "@types/node": "22.13.1"
+    "jest-environment-jsdom": "^30.0.2"
   },
   "nx": {
     "name": "@floripa-dignidade/qa-mirror",

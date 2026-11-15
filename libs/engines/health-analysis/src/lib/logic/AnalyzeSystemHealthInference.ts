@@ -1,146 +1,190 @@
 /**
  * @section Cognitive Logic - System Health Inference Orchestrator
- * @description Punto de entrada soberano para la auditoría cognitiva.
- * Transforma telemetría en directivas de acción mediante el enjambre de IA.
+ * @description Orquestador soberano encargado de canalizar el análisis cognitivo
+ * de salud del sistema a través de los proveedores de IA autorizados (Google Gemini,
+ * Hugging Face Router o SLMs locales). Delega la resolución del driver en
+ * `DetermineIntelligenceDriver`, la certificación estructural en `ValidateCognitiveAdn`,
+ * la medición en `TraceExecutionTime` y la emisión telemétrica bajo `TelemetrySignalSchema`.
  *
- * Protocolo OEDP-V17.0 - Swarm Intelligence & ISO Technical Naming.
- * SANEADO Zenith: Promesas flotantes resueltas (void) y atomización forense del ADN Zod.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Confiabilidad y Rendimiento).
  *
  * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import {
+  GlobalBaseException,
+  InternalSystemException,
+  ValidationException,
+} from '@floripa-dignidade/exceptions';
+import {
+  type CorrelationIdentifier,
+  CorrelationIdentifierSchema,
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+  OperationCodeSchema,
+  ReportForensicException,
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
-import { InternalSystemException } from '@floripa-dignidade/exceptions';
 
-/* 1. ADN Estructural (Verbatim Module Syntax) */
-import { InferenceResponseSchema } from '../schemas/Inference.schema';
-import type { IInferenceResponse, TAIProvider } from '../schemas/Inference.schema';
-
-/* 2. Enjambre Atómico */
+import {
+  AIProviderSchema,
+  type IInferenceResponse,
+  type TAIProvider,
+} from '../schemas/Inference.schema';
+import { ValidateCognitiveAdn } from './atomic/ValidateCognitiveAdn';
 import { DetermineIntelligenceDriver } from './IntelligenceProviderFactory';
 
-/** Identificador técnico del motor para el Neural Sentinel. */
-const COGNITIVE_ENGINE_IDENTIFIER = 'HEALTH_ANALYSIS_COGNITIVE_ENGINE';
+const COGNITIVE_ENGINE_MODULE_IDENTIFIER: ModuleIdentifier = ModuleIdentifierSchema.parse(
+  'HEALTH_ANALYSIS_COGNITIVE_ENGINE',
+);
 
-/**
- * @section Átomo Interno: Aduana de ADN Cognitivo
- * @description Aísla la responsabilidad de validar la estructura devuelta por la IA externa.
- * Esto cumple con la regla de SRP, permitiendo capturar "alucinaciones" de la IA
- * sin contaminar el flujo de orquestación principal.
- */
-const validateCognitiveAdn = (
-  rawAiPayload: unknown,
-  correlationIdentifier: string,
-): IInferenceResponse => {
-  const validationResult = InferenceResponseSchema.safeParse(rawAiPayload);
+const CONFIDENCE_WARNING_THRESHOLD_NUMERIC = 0.75;
 
-  if (!validationResult.success) {
-    // Reporte inmediato de alucinación o cambio de contrato por parte de la IA
-    void EmitTelemetrySignal({
-      severityLevel: 'CRITICAL',
-      moduleIdentifier: COGNITIVE_ENGINE_IDENTIFIER,
-      operationCode: 'AI_HALLUCINATION_OR_ADN_CORRUPTION',
+const resolveSafeCorrelationIdentifier = (
+  candidateIdentifier: string | undefined,
+): CorrelationIdentifier => {
+  const validationResult = CorrelationIdentifierSchema.safeParse(candidateIdentifier);
+  return validationResult.success ? validationResult.data : GenerateCorrelationIdentifier();
+};
+
+const validateProviderContractAction = (
+  targetAiProviderLiteral: unknown,
+  correlationIdentifier: CorrelationIdentifier,
+): TAIProvider => {
+  const providerValidationResult = AIProviderSchema.safeParse(targetAiProviderLiteral);
+
+  if (!providerValidationResult.success) {
+    const validationException = new ValidationException('PROVEEDOR_COGNITIVO_NO_AUTORIZADO', {
+      attemptedProviderLiteral: targetAiProviderLiteral,
+      validationIssuesCollection: providerValidationResult.error.flatten(),
       correlationIdentifier,
-      message: 'HEALTH_ANALYSIS.ERRORS.AI_CONTRACT_VIOLATION',
-      contextMetadata: {
-        structuralIssuesCollection: validationResult.error.flatten(),
-        rawAiResponseSnapshot: rawAiPayload,
-      },
     });
 
-    throw new InternalSystemException('ALUCINACION_O_ADN_COGNITIVO_CORRUPTO', {
-      validationIssues: validationResult.error.flatten(),
-    });
+    ReportForensicException(validationException, correlationIdentifier);
+    throw validationException;
   }
 
-  return validationResult.data;
+  return providerValidationResult.data;
 };
 
 /**
- * Ejecuta un análisis cognitivo sobre señales de salud orquestando al proveedor.
+ * Ejecuta una consulta cognitiva de evaluación de salud del sistema sobre un payload dado.
  *
- * @param unvalidatedHealthPayloadSnapshot - Estado del sistema capturado para análisis.
- * @param targetAiProviderLiteral - Proveedor de inteligencia (Default: HUGGING_FACE).
- * @returns {Promise<IInferenceResponse>} Directiva de sanación validada y purificada.
- * @throws {InternalSystemException} Si la inferencia falla o viola el contrato de ADN.
+ * @param unvalidatedHealthPayloadSnapshot - Estado, métricas o contexto bajo análisis.
+ * @param targetAiProviderCandidate - Identificador del proveedor de inferencia (por defecto `'HUGGING_FACE'`).
+ * @param correlationIdentifierFallback - Identificador UUID v4 opcional para propagar la traza.
+ * @returns {Promise<IInferenceResponse>} Directiva de acción validada, sellada e inmutable.
+ * @throws {ValidationException} Si el proveedor solicitado no pertenece al catálogo SSOT.
+ * @throws {InternalSystemException} Si el proveedor externo colapsa o retorna un ADN corrupto.
  */
 export const AnalyzeSystemHealthInference = async (
   unvalidatedHealthPayloadSnapshot: unknown,
-  targetAiProviderLiteral: TAIProvider = 'HUGGING_FACE',
+  targetAiProviderCandidate: TAIProvider = 'HUGGING_FACE',
+  correlationIdentifierFallback?: string,
 ): Promise<IInferenceResponse> => {
-  const correlationIdentifier = GenerateCorrelationIdentifier();
+  const correlationIdentifier = resolveSafeCorrelationIdentifier(correlationIdentifierFallback);
+  const validatedProviderLiteral = validateProviderContractAction(
+    targetAiProviderCandidate,
+    correlationIdentifier,
+  );
+
+  const orchestrationOperationCode: OperationCode = OperationCodeSchema.parse(
+    `COGNITIVE_INFERENCE_ORCHESTRATION_${validatedProviderLiteral}`,
+  );
 
   return await TraceExecutionTime(
-    COGNITIVE_ENGINE_IDENTIFIER,
-    `COGNITIVE_INFERENCE_ORCHESTRATION_${targetAiProviderLiteral}`,
+    COGNITIVE_ENGINE_MODULE_IDENTIFIER,
+    orchestrationOperationCode,
     correlationIdentifier,
-    async () => {
+    async (): Promise<IInferenceResponse> => {
       try {
-        // 1. RESOLUCIÓN DE DRIVER (Delegación Atómica)
-        const executeInferenceAction = DetermineIntelligenceDriver(targetAiProviderLiteral);
+        const executeInferenceAction = DetermineIntelligenceDriver(validatedProviderLiteral);
 
-        // 2. EJECUCIÓN DE INFERENCIA (I/O Red Externa)
         const unvalidatedIntelligenceResponse = await executeInferenceAction(
           unvalidatedHealthPayloadSnapshot,
         );
 
-        // 3. ADUANA DE ADN (Delegación a Átomo Interno)
-        const validatedInferenceResult = validateCognitiveAdn(
+        const validatedInferenceResult = ValidateCognitiveAdn(
           unvalidatedIntelligenceResponse,
           correlationIdentifier,
         );
 
-        const isConfidenceWarningRequiredBoolean = validatedInferenceResult.confidenceScore < 0.75;
+        const isConfidenceWarningRequiredBoolean =
+          validatedInferenceResult.confidenceScore < CONFIDENCE_WARNING_THRESHOLD_NUMERIC;
 
-        // 4. REPORTE DE ESTADO COGNITIVO (Telemetry Sync)
         void EmitTelemetrySignal({
-          severityLevel: isConfidenceWarningRequiredBoolean ? 'WARNING' : 'INFO',
-          moduleIdentifier: COGNITIVE_ENGINE_IDENTIFIER,
-          operationCode: 'INFERENCE_SUCCESSFULLY_ORCHESTRATED',
+          occurrenceTimestampISO: new Date().toISOString(),
+          severityLevelLiteral: isConfidenceWarningRequiredBoolean ? 'WARNING' : 'INFO',
+          moduleIdentifierLiteral: COGNITIVE_ENGINE_MODULE_IDENTIFIER,
+          operationCodeLiteral: OperationCodeSchema.parse('INFERENCE_SUCCESSFULLY_ORCHESTRATED'),
           correlationIdentifier,
-          /** Uso de clave soberana para internacionalización de logs técnicos */
-          message: 'HEALTH_ANALYSIS.LOGS.INFERENCE_NOMINAL',
-          contextMetadata: {
+          messageContentLiteral:
+            'Inferencia cognitiva de salud procesada exitosamente por el proveedor.',
+          semanticIntentTag: 'COGNITIVE_HEALTH_ANALYSIS_SUCCESS',
+          contextMetadataSnapshot: Object.freeze({
             analysisId: validatedInferenceResult.analysisId,
             suggestedActionLiteral: validatedInferenceResult.suggestedAction,
             confidenceScoreNumeric: validatedInferenceResult.confidenceScore,
-            providerLiteral: targetAiProviderLiteral,
-          },
+            providerLiteral: validatedProviderLiteral,
+            isConfidenceWarningRequiredBoolean,
+          }),
         });
 
         return validatedInferenceResult;
-      } catch (caughtError: unknown) {
-        // 5. GESTIÓN FORENSE DE COLAPSO (Resilience Layer)
+      } catch (caughtExecutionError: unknown) {
+        if (caughtExecutionError instanceof ValidationException) {
+          ReportForensicException(caughtExecutionError, correlationIdentifier);
+          throw caughtExecutionError;
+        }
 
-        // Si la excepción ya fue generada y tipada por la Aduana Interna, se propaga.
-        if (caughtError instanceof InternalSystemException) {
-          throw caughtError;
+        if (caughtExecutionError instanceof InternalSystemException) {
+          ReportForensicException(caughtExecutionError, correlationIdentifier);
+          throw caughtExecutionError;
         }
 
         const errorDescriptionLiteral =
-          caughtError instanceof Error ? caughtError.message : String(caughtError);
+          caughtExecutionError instanceof Error
+            ? caughtExecutionError.message
+            : String(caughtExecutionError);
+
+        const normalizedException =
+          caughtExecutionError instanceof GlobalBaseException
+            ? caughtExecutionError
+            : new InternalSystemException('FALLO_EN_ORQUESTACION_COGNITIVA', {
+                originalErrorLiteral: errorDescriptionLiteral,
+                providerLiteral: validatedProviderLiteral,
+                correlationIdentifier,
+              });
 
         void EmitTelemetrySignal({
-          severityLevel: 'CRITICAL',
-          moduleIdentifier: COGNITIVE_ENGINE_IDENTIFIER,
-          operationCode: 'COGNITIVE_ORCHESTRATION_COLAPSE',
+          occurrenceTimestampISO: new Date().toISOString(),
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: COGNITIVE_ENGINE_MODULE_IDENTIFIER,
+          operationCodeLiteral: OperationCodeSchema.parse('COGNITIVE_ORCHESTRATION_COLLAPSE'),
           correlationIdentifier,
-          message: 'HEALTH_ANALYSIS.ERRORS.ORCHESTRATION_FAULT',
-          contextMetadata: {
+          messageContentLiteral: `Fallo crítico en la orquestación cognitiva con el proveedor [${validatedProviderLiteral}].`,
+          semanticIntentTag: 'COGNITIVE_PIPELINE_FAULT',
+          contextMetadataSnapshot: Object.freeze({
             errorTraceLiteral: errorDescriptionLiteral,
-            providerLiteral: targetAiProviderLiteral,
-          },
+            providerLiteral: validatedProviderLiteral,
+            operationalErrorCodeLiteral: normalizedException.operationalErrorCodeLiteral,
+          }),
         });
 
-        throw new InternalSystemException('FALLO_EN_ORQUESTACION_COGNITIVA', {
-          originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier,
-        });
+        ReportForensicException(normalizedException, correlationIdentifier);
+        throw normalizedException;
       }
     },
   );
 };
+
+/**
+ * @name analyzeSystemHealthInference
+ * @description Alias institucional en camelCase para compatibilidad de importación.
+ */
+export const analyzeSystemHealthInference = AnalyzeSystemHealthInference;

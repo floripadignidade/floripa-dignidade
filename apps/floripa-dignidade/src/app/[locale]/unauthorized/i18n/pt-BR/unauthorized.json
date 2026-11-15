@@ -1,0 +1,25 @@
+{
+  "hero": {
+    "badgeLabelLiteral": "Controle de Acesso Institucional",
+    "headlineLiteral": "Acesso restrito a perfis autorizados",
+    "descriptionLiteral": "Esta área contém dados fiscais ou operacionais que exigem credenciais institucionais verificadas para proteção da integridade cívica.",
+    "guidanceHintLiteral": "Você pode retornar à página inicial ou inscrever-se nos boletins para receber relatórios públicos auditados por e-mail."
+  },
+  "systemAlert": {
+    "titleLiteral": "Alerta de Segurança Registrado",
+    "descriptionLiteral": "Este bloqueio gerou um registro anônimo de auditoria (em conformidade com a LGPD) e foi enfileirado para futura notificação ao painel de governança.",
+    "roadmapNoteLiteral": "Em breve: verificação de identidade cívica via gov.br (níveis Prata e Ouro) e solicitação direta de habilitação institucional."
+  },
+  "actions": {
+    "primaryActionLabelLiteral": "Voltar para o Início",
+    "secondaryActionLabelLiteral": "Receber Alertas Públicos"
+  },
+  "diagnostics": {
+    "originRouteLabelLiteral": "Rota protegida",
+    "traceReferenceLabelLiteral": "Código de rastreamento"
+  },
+  "metadata": {
+    "pageTitleLiteral": "Acesso Restrito",
+    "pageDescriptionLiteral": "Aviso de controle de acesso institucional e proteção de dados do portal Floripa Dignidade."
+  }
+}

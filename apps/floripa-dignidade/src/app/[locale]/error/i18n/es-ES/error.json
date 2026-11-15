@@ -1,0 +1,25 @@
+{
+  "hero": {
+    "badgeLabelLiteral": "Contingencia Operativa",
+    "headlineLiteral": "No pudimos completar esta operación ahora",
+    "defaultDescriptionLiteral": "Ocurrió una inestabilidad temporal al procesar tu solicitud. Nuestro equipo técnico ya recibió el registro automático del incidente.",
+    "guidanceHintLiteral": "Puedes volver a la página de inicio e intentarlo nuevamente en unos instantes. Si el inconveniente persiste, comparte el código de seguimiento mostrado abajo."
+  },
+  "errors": {
+    "CONFIRMATION_FAULT": "Ocurrió un fallo interno al validar o activar la confirmación de tu suscripción. No se perdió información; puedes solicitar un nuevo enlace o intentarlo nuevamente.",
+    "GATEWAY_FAULT": "Uno de nuestros servicios de comunicación presentó una interrupción momentánea al responder tu solicitud.",
+    "UNKNOWN_FAULT": "Detectamos una interrupción inesperada al procesar tu solicitud en esta ruta."
+  },
+  "actions": {
+    "primaryActionLabelLiteral": "Volver al Inicio",
+    "secondaryActionLabelLiteral": "Ir al Observatorio"
+  },
+  "diagnostics": {
+    "errorCodeLabelLiteral": "Código de incidente",
+    "traceReferenceLabelLiteral": "Código de seguimiento"
+  },
+  "metadata": {
+    "pageTitleLiteral": "Incidencia Temporal",
+    "pageDescriptionLiteral": "Página de contingencia operativa y recuperación segura del portal Floripa Dignidade."
+  }
+}

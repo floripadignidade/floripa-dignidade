@@ -1,0 +1,25 @@
+{
+  "hero": {
+    "badgeLabelLiteral": "Institutional Access Control",
+    "headlineLiteral": "Access restricted to authorized profiles",
+    "descriptionLiteral": "This section holds fiscal or operational records that require verified institutional credentials to protect civic integrity.",
+    "guidanceHintLiteral": "You can return to the home page or subscribe to our newsletter to receive audited public reports by email."
+  },
+  "systemAlert": {
+    "titleLiteral": "Security Alert Recorded",
+    "descriptionLiteral": "This access block generated an anonymous audit record (LGPD compliant) and is flagged for future notification dispatch to the governance panel.",
+    "roadmapNoteLiteral": "Coming next: civic identity verification via gov.br (Silver and Gold tiers) and direct institutional access request workflow."
+  },
+  "actions": {
+    "primaryActionLabelLiteral": "Back to Home",
+    "secondaryActionLabelLiteral": "Receive Public Alerts"
+  },
+  "diagnostics": {
+    "originRouteLabelLiteral": "Protected route",
+    "traceReferenceLabelLiteral": "Tracking reference"
+  },
+  "metadata": {
+    "pageTitleLiteral": "Restricted Access",
+    "pageDescriptionLiteral": "Institutional access control and data protection notice for the Floripa Dignidade portal."
+  }
+}

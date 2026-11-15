@@ -1,12 +1,14 @@
 /**
- * @section Tools & Infrastructure - Hugging Face Router Cognitive Probe (Atom)
- * @description Sonda de conectividad y autenticación de red para el enrutador
- * serverless de Hugging Face ('router.huggingface.co/hf-inference'). Realiza una
- * inferencia mínima autenticada para auditar el token 'HUGGING_FACE_API_TOKEN'.
+ * @file libs/tools/src/lib/infrastructure-auditor/probes/AuditHuggingFaceCognitiveProbe.ts
+ * @section Tools & Infrastructure - Hugging Face Router Cognitive Probe (Orchestrator)
+ * @description Sonda de conectividad y autenticación de red para el enrutador unificado
+ * de Hugging Face (`https://router.huggingface.co/v1/chat/completions` multi-modelo o
+ * Task API). Valida el formato del token `HUGGING_FACE_API_TOKEN` y el transporte HTTPS,
+ * mide ejecución bajo `TraceExecutionTime`, aplica timeout SRE y delega el triaje en
+ * `TriageHuggingFaceProbeResponse`.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Rendimiento).
- * SANEADO: Complejidad ciclomática reducida a 3 mediante resolución atómica de estatus.
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 e ISO/IEC 27001.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -14,159 +16,169 @@
 
 import { GatherEnvironmentMetadata } from '@floripa-dignidade/environment-validator';
 import {
+  type CorrelationIdentifier,
+  CorrelationIdentifierSchema,
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
   type ModuleIdentifier,
+  ModuleIdentifierSchema,
   type OperationCode,
+  OperationCodeSchema,
+  TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-import type {
-  IIndividualProviderAuditSnapshot,
-  TProbeExecutionStatus,
+import {
+  type IIndividualProviderAuditSnapshot,
+  IndividualProviderAuditSnapshotSchema,
 } from '../schemas/CloudInfrastructureAuditReport.schema';
+import { ResolveHuggingFaceProbeConfiguration } from './atoms/ResolveHuggingFaceProbeConfiguration';
+import { TriageHuggingFaceProbeResponse } from './atoms/TriageHuggingFaceProbeResponse';
 
-const PROBE_MODULE_IDENTIFIER = 'HUGGING_FACE_PROBE_ATOM' as ModuleIdentifier;
+const PROBE_MODULE_IDENTIFIER: ModuleIdentifier =
+  ModuleIdentifierSchema.parse('HUGGING_FACE_PROBE_ATOM');
 
-const CANONICAL_ROUTER_MODEL_URL_LITERAL =
-  'https://router.huggingface.co/hf-inference/models/microsoft/Phi-3-mini-4k-instruct';
+const PROBE_EXECUTION_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'EXECUTE_HUGGING_FACE_INFRASTRUCTURE_PROBE',
+);
+
+const CREDENTIALS_SKIPPED_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'HF_PROBE_CREDENTIALS_INVALID_OR_MISSING',
+);
+
+const NETWORK_COLLAPSE_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'HF_PROBE_NETWORK_COLLAPSE',
+);
+
 const MAXIMUM_GATEWAY_TIMEOUT_IN_MILLISECONDS_QUANTITY = 8000;
 
-/**
- * Resuelve el estatus categórico y diagnóstico semántico a partir del código HTTP de Hugging Face.
- */
-const resolveHuggingFaceErrorStatus = (
-  statusCodeNumeric: number,
-): {
-  readonly probeStatusLiteral: TProbeExecutionStatus;
-  readonly statusDescriptionLiteral: string;
-} => {
-  if (statusCodeNumeric === 503) {
-    return {
-      probeStatusLiteral: 'DEGRADED_LATENCY',
-      statusDescriptionLiteral:
-        'El modelo cognitivo está cargando en memoria (Cold Start 503). Reintento sugerido.',
-    };
-  }
-
-  const isAuthenticationRejectedBoolean = statusCodeNumeric === 401 || statusCodeNumeric === 403;
-
-  if (isAuthenticationRejectedBoolean) {
-    return {
-      probeStatusLiteral: 'AUTHENTICATION_REJECTED',
-      statusDescriptionLiteral: `Hugging Face Router rechazó la autenticación (HTTP ${statusCodeNumeric}): HUGGING_FACE_API_TOKEN inválido.`,
-    };
-  }
-
-  return {
-    probeStatusLiteral: 'UNREACHABLE_FAILURE',
-    statusDescriptionLiteral: `Hugging Face Router respondió con código de error HTTP ${statusCodeNumeric}.`,
-  };
+const resolveSafeCorrelationIdentifier = (
+  candidateIdentifier: string | undefined,
+): CorrelationIdentifier => {
+  const validationResult = CorrelationIdentifierSchema.safeParse(candidateIdentifier);
+  return validationResult.success ? validationResult.data : GenerateCorrelationIdentifier();
 };
 
-/**
- * Extrae la descripción legible de una excepción capturada.
- */
-const extractExecutionErrorMessageLiteral = (caughtExecutionError: unknown): string => {
-  return caughtExecutionError instanceof Error
+const extractExecutionErrorMessageLiteral = (caughtExecutionError: unknown): string =>
+  caughtExecutionError instanceof Error
     ? caughtExecutionError.message
     : String(caughtExecutionError);
-};
 
 /**
- * Audita activamente el token y disponibilidad del enrutador de Hugging Face.
+ * Audita activamente el token, endpoint y disponibilidad del enrutador de Hugging Face.
  *
- * @param correlationIdentifierFallback - Identificador de correlación opcional para la traza forense.
- * @returns {Promise<IIndividualProviderAuditSnapshot>} Snapshot inmutable con el diagnóstico de la sonda.
+ * @param correlationIdentifierFallback - Identificador de correlación opcional para traza forense.
+ * @returns {Promise<IIndividualProviderAuditSnapshot>} Snapshot inmutable y validado por Zod.
  */
 export const AuditHuggingFaceCognitiveProbe = async (
   correlationIdentifierFallback: string = GenerateCorrelationIdentifier(),
 ): Promise<IIndividualProviderAuditSnapshot> => {
-  const correlationIdentifier = correlationIdentifierFallback;
-  const environmentMetadataSnapshot = GatherEnvironmentMetadata();
-  const rawApiTokenSecret = environmentMetadataSnapshot['HUGGING_FACE_API_TOKEN'];
-  const rawModelUrlLiteral =
-    environmentMetadataSnapshot['HUGGING_FACE_MODEL_URL'] ?? CANONICAL_ROUTER_MODEL_URL_LITERAL;
+  const correlationIdentifier = resolveSafeCorrelationIdentifier(correlationIdentifierFallback);
+  const configurationSnapshot = ResolveHuggingFaceProbeConfiguration(GatherEnvironmentMetadata());
 
-  if (!rawApiTokenSecret || rawApiTokenSecret.trim() === '') {
+  if (!configurationSnapshot.isProbeReadyBoolean) {
+    const failureCodeLiteral =
+      configurationSnapshot.failureCodeLiteral ?? 'MISSING_HUGGING_FACE_API_TOKEN';
+    const failureDescriptionLiteral =
+      configurationSnapshot.failureDescriptionLiteral ??
+      'Configuración inválida para la sonda de Hugging Face Router.';
+
     void EmitTelemetrySignal({
       occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'WARNING',
       moduleIdentifierLiteral: PROBE_MODULE_IDENTIFIER,
-      operationCodeLiteral: 'HF_PROBE_CREDENTIALS_MISSING' as OperationCode,
+      operationCodeLiteral: CREDENTIALS_SKIPPED_OPERATION_CODE,
       correlationIdentifier,
-      messageContentLiteral:
-        'Sonda de Hugging Face omitida: HUGGING_FACE_API_TOKEN no configurado.',
+      messageContentLiteral: failureDescriptionLiteral,
       semanticIntentTag: 'INFRASTRUCTURE_PROBE_SKIPPED',
+      contextMetadataSnapshot: Object.freeze({
+        failureCodeLiteral,
+        targetEndpointUrlLiteral: configurationSnapshot.targetEndpointUrlLiteral,
+      }),
     });
 
-    return Object.freeze({
-      providerIdentifier: 'HUGGING_FACE_COGNITIVE_INFERENCE',
-      probeStatusLiteral: 'UNCONFIGURED_CREDENTIALS',
-      executionLatencyInMillisecondsQuantity: 0,
-      statusDescriptionLiteral:
-        'La variable de entorno HUGGING_FACE_API_TOKEN no está configurada.',
-      endpointTargetLiteral: rawModelUrlLiteral,
-      hasValidSecretFormatBoolean: false,
-      diagnosticErrorLiteral: 'MISSING_HUGGING_FACE_API_TOKEN',
-    });
-  }
-
-  const executionStartTimestampNumeric = performance.now();
-
-  try {
-    const incomingNetworkResponse = await fetch(rawModelUrlLiteral.trim(), {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${rawApiTokenSecret.trim()}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({ inputs: 'ping' }),
-      signal: AbortSignal.timeout(MAXIMUM_GATEWAY_TIMEOUT_IN_MILLISECONDS_QUANTITY),
-    });
-
-    const executionLatencyInMillisecondsQuantity = Math.round(
-      performance.now() - executionStartTimestampNumeric,
-    );
-
-    if (incomingNetworkResponse.ok) {
-      return Object.freeze({
+    return Object.freeze(
+      IndividualProviderAuditSnapshotSchema.parse({
         providerIdentifier: 'HUGGING_FACE_COGNITIVE_INFERENCE',
-        probeStatusLiteral: 'NOMINAL_OPERATIONAL',
-        executionLatencyInMillisecondsQuantity,
-        statusDescriptionLiteral: 'Hugging Face Router plenamente operativo y autenticado.',
-        endpointTargetLiteral: rawModelUrlLiteral,
-        hasValidSecretFormatBoolean: true,
-      });
-    }
-
-    const { probeStatusLiteral, statusDescriptionLiteral } = resolveHuggingFaceErrorStatus(
-      incomingNetworkResponse.status,
+        probeStatusLiteral: 'UNCONFIGURED_CREDENTIALS',
+        executionLatencyInMillisecondsQuantity: 0,
+        statusDescriptionLiteral: failureDescriptionLiteral,
+        endpointTargetLiteral: configurationSnapshot.targetEndpointUrlLiteral,
+        hasValidSecretFormatBoolean: configurationSnapshot.hasValidSecretFormatBoolean,
+        diagnosticErrorLiteral: failureCodeLiteral,
+      }),
     );
-
-    return Object.freeze({
-      providerIdentifier: 'HUGGING_FACE_COGNITIVE_INFERENCE',
-      probeStatusLiteral,
-      executionLatencyInMillisecondsQuantity,
-      statusDescriptionLiteral,
-      endpointTargetLiteral: rawModelUrlLiteral,
-      hasValidSecretFormatBoolean: true,
-      diagnosticErrorLiteral: `HTTP_STATUS_${incomingNetworkResponse.status}`,
-    });
-  } catch (caughtExecutionError: unknown) {
-    const executionLatencyInMillisecondsQuantity = Math.round(
-      performance.now() - executionStartTimestampNumeric,
-    );
-    const errorDescriptionLiteral = extractExecutionErrorMessageLiteral(caughtExecutionError);
-
-    return Object.freeze({
-      providerIdentifier: 'HUGGING_FACE_COGNITIVE_INFERENCE',
-      probeStatusLiteral: 'UNREACHABLE_FAILURE',
-      executionLatencyInMillisecondsQuantity,
-      statusDescriptionLiteral: `Incapaz de conectar con Hugging Face Router: ${errorDescriptionLiteral}`,
-      endpointTargetLiteral: rawModelUrlLiteral,
-      hasValidSecretFormatBoolean: true,
-      diagnosticErrorLiteral: errorDescriptionLiteral,
-    });
   }
+
+  return await TraceExecutionTime(
+    PROBE_MODULE_IDENTIFIER,
+    PROBE_EXECUTION_OPERATION_CODE,
+    correlationIdentifier,
+    async (): Promise<IIndividualProviderAuditSnapshot> => {
+      const executionStartTimestampNumeric = globalThis.performance.now();
+
+      try {
+        const incomingNetworkResponse = await fetch(
+          configurationSnapshot.targetEndpointUrlLiteral,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${configurationSnapshot.apiTokenSecret}`,
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+              'X-Correlation-Identifier': correlationIdentifier,
+            },
+            body: configurationSnapshot.serializedProbeBodyLiteral,
+            signal: AbortSignal.timeout(MAXIMUM_GATEWAY_TIMEOUT_IN_MILLISECONDS_QUANTITY),
+          },
+        );
+
+        const executionLatencyInMillisecondsQuantity = Math.max(
+          0,
+          Math.round(globalThis.performance.now() - executionStartTimestampNumeric),
+        );
+
+        return await TriageHuggingFaceProbeResponse(
+          incomingNetworkResponse,
+          executionLatencyInMillisecondsQuantity,
+          configurationSnapshot.targetEndpointUrlLiteral,
+          configurationSnapshot.modelIdentifierLiteral,
+          correlationIdentifier,
+        );
+      } catch (caughtExecutionError: unknown) {
+        const executionLatencyInMillisecondsQuantity = Math.max(
+          0,
+          Math.round(globalThis.performance.now() - executionStartTimestampNumeric),
+        );
+        const errorDescriptionLiteral = extractExecutionErrorMessageLiteral(caughtExecutionError);
+
+        void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
+          severityLevelLiteral: 'CRITICAL',
+          moduleIdentifierLiteral: PROBE_MODULE_IDENTIFIER,
+          operationCodeLiteral: NETWORK_COLLAPSE_OPERATION_CODE,
+          correlationIdentifier,
+          messageContentLiteral: `Fallo de red al conectar con Hugging Face Router: ${errorDescriptionLiteral}`,
+          executionLatencyInMillisecondsQuantity,
+          semanticIntentTag: 'INFRASTRUCTURE_NETWORK_COLLAPSE',
+          contextMetadataSnapshot: Object.freeze({
+            errorDescriptionLiteral,
+            targetEndpointUrlLiteral: configurationSnapshot.targetEndpointUrlLiteral,
+            modelIdentifierLiteral: configurationSnapshot.modelIdentifierLiteral,
+          }),
+        });
+
+        return Object.freeze(
+          IndividualProviderAuditSnapshotSchema.parse({
+            providerIdentifier: 'HUGGING_FACE_COGNITIVE_INFERENCE',
+            probeStatusLiteral: 'UNREACHABLE_FAILURE',
+            executionLatencyInMillisecondsQuantity,
+            statusDescriptionLiteral: `Incapaz de conectar con Hugging Face Router (${configurationSnapshot.modelIdentifierLiteral}): ${errorDescriptionLiteral}`,
+            endpointTargetLiteral: configurationSnapshot.targetEndpointUrlLiteral,
+            hasValidSecretFormatBoolean: true,
+            diagnosticErrorLiteral: errorDescriptionLiteral,
+          }),
+        );
+      }
+    },
+  );
 };

@@ -1,0 +1,25 @@
+{
+  "hero": {
+    "badgeLabelLiteral": "Operational Contingency",
+    "headlineLiteral": "We could not complete this operation right now",
+    "defaultDescriptionLiteral": "A temporary instability occurred while processing your request. Our engineering team has already received an automatic incident report.",
+    "guidanceHintLiteral": "You may return to the home page and try again in a few moments. If the issue persists, please share the tracking reference below."
+  },
+  "errors": {
+    "CONFIRMATION_FAULT": "An internal error occurred while validating or activating your subscription confirmation. No personal data was lost; you may request a new link or try again.",
+    "GATEWAY_FAULT": "One of our communication gateways experienced a brief interruption while handling your request.",
+    "UNKNOWN_FAULT": "An unexpected interruption occurred while processing your request on this route."
+  },
+  "actions": {
+    "primaryActionLabelLiteral": "Back to Home",
+    "secondaryActionLabelLiteral": "Open Observatory"
+  },
+  "diagnostics": {
+    "errorCodeLabelLiteral": "Incident code",
+    "traceReferenceLabelLiteral": "Tracking reference"
+  },
+  "metadata": {
+    "pageTitleLiteral": "Temporary Interruption",
+    "pageDescriptionLiteral": "Operational contingency and safe recovery page for the Floripa Dignidade portal."
+  }
+}

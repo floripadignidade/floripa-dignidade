@@ -3,12 +3,11 @@
 /**
  * @section Next.js Configuration - Enterprise Portal Infrastructure Shell
  * @description Manifiesto de configuración institucional para el portal ciudadano.
- * Orquesta la seguridad de cabeceras HTTP, la transpilación unificada del monorepo
- * y el ruteo tipado de grado Enterprise en Next.js 16 con Turbopack.
+ * Orquesta la seguridad de cabeceras HTTP, la transpilación unificada del monorepo,
+ * optimización multimedia AVIF/WebP y el ruteo tipado nativo en Next.js 16 con Turbopack.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Rendimiento y Mantenibilidad).
- * SANEADO Turbopack: Promoción de 'typedRoutes' a nivel raíz y blindaje de transpilePackages.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -18,23 +17,22 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { composePlugins, withNx } from '@nx/next';
+
 /**
- * 🛡️ LEY DE IDENTIDAD:
- * Garantiza la tipificación estricta de NextConfig en entornos de compilación pnpm.
- * @typedef {import('next').NextConfig} NextConfig
+ * Contrato compuesto que extiende `NextConfig` con las opciones soportadas por `@nx/next`.
+ * @typedef {import('next').NextConfig & { nx?: { svgr?: boolean } }} PortalNextConfig
  */
 
-import { composePlugins, withNx } from '@nx/next';
+/**
+ * @typedef {{ key: string, value: string }} ISecurityHeader
+ */
 
 /**
  * @section Resolución de Contexto Isomórfico (ESM)
  */
 const currentFileConfigurationPathLiteral = fileURLToPath(import.meta.url);
 const currentConfigurationDirectoryLiteral = dirname(currentFileConfigurationPathLiteral);
-
-/**
- * @typedef {{ key: string, value: string }} ISecurityHeader
- */
 
 /**
  * @section Ingesta de Cabeceras de Seguridad ISO (Silo JSON)
@@ -51,13 +49,13 @@ const globalSecurityHeadersCollection = JSON.parse(
 
 /**
  * @name portalNextConfigurationFoundation
- * @description ADN base del portal con soporte para ruteo tipado nativo y seguridad perimetral.
- * @type {NextConfig}
+ * @description Configuración base del portal con soporte para ruteo tipado nativo y seguridad perimetral.
+ * @type {PortalNextConfig}
  */
 const portalNextConfigurationFoundation = {
   /**
-   * @section Búnkeres del Monorepo Autorizados para Transpilación
-   * Turbopack requiere la declaración explícita de librerías del workspace.
+   * @section Módulos del Monorepo Autorizados para Transpilación Source-First
+   * Turbopack compila directamente las fuentes TypeScript de las librerías internas declaradas.
    */
   transpilePackages: [
     '@floripa-dignidade/contracts',
@@ -85,9 +83,16 @@ const portalNextConfigurationFoundation = {
 
   /**
    * @section Ruteo Tipado Nativo Next.js 16 (Estándar Turbopack)
-   * Promovido fuera del bloque 'experimental' conforme a las especificaciones v16+.
+   * Configurado a nivel raíz conforme a las especificaciones Next.js 16+.
    */
   typedRoutes: true,
+
+  /**
+   * @section Optimización Multimedia (Core Web Vitals - LCP)
+   */
+  images: {
+    formats: /** @type {const} */ (['image/avif', 'image/webp']),
+  },
 
   /**
    * @section Inyección de Seguridad ISO (Headers Perimetrales)
@@ -111,13 +116,13 @@ const portalNextConfigurationFoundation = {
 
 /**
  * @name applicationPluginsCollection
- * @description Swarm de plugins para la composición final del entorno de compilación.
+ * @description Colección ordenada de plugins para la composición final del entorno de compilación.
  */
 const applicationPluginsCollection = [withNx];
 
 /**
- * Exportación del ensamble procesado para el despliegue en Vercel.
- * @type {NextConfig}
+ * Exportación del ensamble procesado (`NextConfigFn`) generado por `composePlugins`
+ * para el despliegue en Vercel y ejecución en Nx.
  */
 const exportedConfigurationSnapshot = composePlugins(...applicationPluginsCollection)(
   portalNextConfigurationFoundation,

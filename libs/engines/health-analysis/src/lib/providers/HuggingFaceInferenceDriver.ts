@@ -1,13 +1,15 @@
 /**
+ * @file libs/engines/health-analysis/src/lib/providers/HuggingFaceInferenceDriver.ts
  * @section AI Providers - Hugging Face Router Multi-Model Inference Driver (Orchestrator)
  * @description Adaptador de red y transporte encargado de la comunicación física con los
  * modelos de inteligencia artificial alojados en el enrutador unificado de Hugging Face
  * (protocolo multi-modelo Chat Completions OpenAI-Compatible y Task API). Delega validación
- * de entorno/TLS, serialización segura, timeout con `AbortController`, triaje HTTP y
- * normalización forense de fallos en átomos dedicados bajo `TraceExecutionTime`.
+ * de entorno/TLS, serialización segura, timeout con `AbortController`, triaje HTTP localizado
+ * con contexto de modelo/protocolo y normalización forense de fallos en átomos dedicados bajo
+ * `TraceExecutionTime`.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 e ISO/IEC 27001.
+ * Normas: BCP 47 (RFC 5646), ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 e ISO/IEC 27001.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -34,7 +36,9 @@ import { ResolveHuggingFaceDriverDictionary } from './atoms/ResolveHuggingFaceDr
 import { TriageHuggingFaceResponse } from './atoms/TriageHuggingFaceResponse';
 import {
   HuggingFaceDriverOptionsSchema,
+  type IHuggingFaceDriverOptions,
   type IHuggingFaceDriverOptionsInput,
+  type IHuggingFaceUnconfiguredState,
   type THuggingFaceConfigurationErrorCode,
 } from './schemas/HuggingFaceInferenceDriver.schema';
 
@@ -48,6 +52,10 @@ const INFERENCE_TRACE_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
 
 const CREDENTIALS_MISSING_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
   'HUGGING_FACE_ROUTER_CREDENTIALS_MISSING',
+);
+
+const INVALID_OPTIONS_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'HUGGING_FACE_DRIVER_OPTIONS_FALLBACK',
 );
 
 const resolveSafeCorrelationIdentifier = (
@@ -70,27 +78,95 @@ const selectConfigurationObservationLiteral = (
   return observationsDictionary.missingCredentialsLiteral;
 };
 
+const resolveValidatedDriverOptions = (
+  rawOptionsSnapshot: IHuggingFaceDriverOptionsInput,
+): {
+  readonly validatedOptions: IHuggingFaceDriverOptions;
+  readonly correlationIdentifier: CorrelationIdentifier;
+} => {
+  const correlationIdentifier = resolveSafeCorrelationIdentifier(
+    rawOptionsSnapshot.correlationIdentifier,
+  );
+  const optionsValidationResult = HuggingFaceDriverOptionsSchema.safeParse(rawOptionsSnapshot);
+
+  if (optionsValidationResult.success) {
+    return Object.freeze({
+      validatedOptions: optionsValidationResult.data,
+      correlationIdentifier,
+    });
+  }
+
+  void EmitTelemetrySignal({
+    occurrenceTimestampISO: new Date().toISOString(),
+    severityLevelLiteral: 'WARNING',
+    moduleIdentifierLiteral: DRIVER_MODULE_IDENTIFIER,
+    operationCodeLiteral: INVALID_OPTIONS_OPERATION_CODE,
+    correlationIdentifier,
+    messageContentLiteral:
+      'Opciones de invocación inválidas en Hugging Face Driver; aplicando valores por defecto.',
+    semanticIntentTag: 'AI_DRIVER_OPTIONS_VALIDATION_WARNING',
+    contextMetadataSnapshot: Object.freeze({
+      validationIssuesCollection: optionsValidationResult.error.flatten(),
+    }),
+  });
+
+  return Object.freeze({
+    validatedOptions: HuggingFaceDriverOptionsSchema.parse({}),
+    correlationIdentifier,
+  });
+};
+
+const handleUnconfiguredDriverState = (
+  unconfiguredState: IHuggingFaceUnconfiguredState,
+  dictionarySnapshot: ReturnType<typeof ResolveHuggingFaceDriverDictionary>,
+  correlationIdentifier: CorrelationIdentifier,
+): IInferenceResponse => {
+  void EmitTelemetrySignal({
+    occurrenceTimestampISO: new Date().toISOString(),
+    severityLevelLiteral: 'WARNING',
+    moduleIdentifierLiteral: DRIVER_MODULE_IDENTIFIER,
+    operationCodeLiteral: CREDENTIALS_MISSING_OPERATION_CODE,
+    correlationIdentifier,
+    messageContentLiteral: dictionarySnapshot.telemetry.credentialsRejectedLiteral,
+    semanticIntentTag: 'AI_INFERENCE_ABORTED',
+    contextMetadataSnapshot: Object.freeze({
+      errorCodeLiteral: unconfiguredState.errorCodeLiteral,
+      targetEndpointUrlLiteral: unconfiguredState.targetEndpointUrlLiteral,
+      modelIdentifierLiteral: unconfiguredState.modelIdentifierLiteral,
+    }),
+  });
+
+  return BuildHuggingFaceFallbackResponse({
+    correlationIdentifier,
+    observationLiteral: selectConfigurationObservationLiteral(
+      unconfiguredState.errorCodeLiteral,
+      dictionarySnapshot.observations,
+    ),
+    suggestedActionLiteral: 'NONE',
+    detectedAnomaliesCollection: [unconfiguredState.errorCodeLiteral],
+    metadataSnapshot: {
+      statusLiteral: 'UNCONFIGURED_CREDENTIALS',
+      errorCodeLiteral: unconfiguredState.errorCodeLiteral,
+      modelIdentifierLiteral: unconfiguredState.modelIdentifierLiteral,
+    },
+  });
+};
+
 /**
  * Ejecuta una consulta física de inferencia cognitiva contra Hugging Face Router.
- * Compatible de forma retroactiva con la firma `TInferenceDriverAction` y extensible mediante
+ * Compatible de forma retroactiva con `TInferenceDriverAction` y extensible mediante
  * opciones multi-modelo (`preferredModelIdentifier`, `inferenceProtocolLiteral`, `localeIdentifier`).
  *
  * @param unvalidatedIntelligencePayloadSnapshot - Prompt o snapshot de contexto a analizar.
- * @param rawOptionsSnapshot - Opciones opcionales de selección de modelo, protocolo y timeouts.
+ * @param rawOptionsSnapshot - Opciones opcionales de selección de modelo, protocolo, idioma y timeout.
  * @returns {Promise<IInferenceResponse>} Respuesta estructurada y sellada contra `InferenceResponseSchema`.
  */
 export const ExecuteHuggingFaceInference = async (
   unvalidatedIntelligencePayloadSnapshot: unknown,
   rawOptionsSnapshot: IHuggingFaceDriverOptionsInput = {},
 ): Promise<IInferenceResponse> => {
-  const optionsValidationResult = HuggingFaceDriverOptionsSchema.safeParse(rawOptionsSnapshot);
-  const validatedOptions = optionsValidationResult.success
-    ? optionsValidationResult.data
-    : HuggingFaceDriverOptionsSchema.parse({});
-
-  const correlationIdentifier = resolveSafeCorrelationIdentifier(
-    validatedOptions.correlationIdentifier,
-  );
+  const { validatedOptions, correlationIdentifier } =
+    resolveValidatedDriverOptions(rawOptionsSnapshot);
   const dictionarySnapshot = ResolveHuggingFaceDriverDictionary(validatedOptions.localeIdentifier);
 
   return await TraceExecutionTime(
@@ -101,35 +177,11 @@ export const ExecuteHuggingFaceInference = async (
       const configurationResolution = ResolveHuggingFaceDriverConfiguration(validatedOptions);
 
       if (!configurationResolution.isConfiguredBoolean) {
-        void EmitTelemetrySignal({
-          occurrenceTimestampISO: new Date().toISOString(),
-          severityLevelLiteral: 'WARNING',
-          moduleIdentifierLiteral: DRIVER_MODULE_IDENTIFIER,
-          operationCodeLiteral: CREDENTIALS_MISSING_OPERATION_CODE,
+        return handleUnconfiguredDriverState(
+          configurationResolution,
+          dictionarySnapshot,
           correlationIdentifier,
-          messageContentLiteral: dictionarySnapshot.telemetry.credentialsRejectedLiteral,
-          semanticIntentTag: 'AI_INFERENCE_ABORTED',
-          contextMetadataSnapshot: Object.freeze({
-            errorCodeLiteral: configurationResolution.errorCodeLiteral,
-            targetEndpointUrlLiteral: configurationResolution.targetEndpointUrlLiteral,
-            modelIdentifierLiteral: configurationResolution.modelIdentifierLiteral,
-          }),
-        });
-
-        return BuildHuggingFaceFallbackResponse({
-          correlationIdentifier,
-          observationLiteral: selectConfigurationObservationLiteral(
-            configurationResolution.errorCodeLiteral,
-            dictionarySnapshot.observations,
-          ),
-          suggestedActionLiteral: 'NONE',
-          detectedAnomaliesCollection: [configurationResolution.errorCodeLiteral],
-          metadataSnapshot: {
-            statusLiteral: 'UNCONFIGURED_CREDENTIALS',
-            errorCodeLiteral: configurationResolution.errorCodeLiteral,
-            modelIdentifierLiteral: configurationResolution.modelIdentifierLiteral,
-          },
-        });
+        );
       }
 
       const executionStartTimestampNumeric = globalThis.performance.now();
@@ -172,6 +224,11 @@ export const ExecuteHuggingFaceInference = async (
           executionLatencyInMillisecondsQuantity,
           configurationResolution.targetEndpointUrlLiteral,
           correlationIdentifier,
+          {
+            localeIdentifier: validatedOptions.localeIdentifier,
+            modelIdentifierLiteral: configurationResolution.modelIdentifierLiteral,
+            inferenceProtocolLiteral: configurationResolution.inferenceProtocolLiteral,
+          },
         );
       } catch (caughtExecutionError: unknown) {
         const executionLatencyInMillisecondsQuantity = Math.max(

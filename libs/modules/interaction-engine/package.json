@@ -2,7 +2,7 @@
   "name": "@floripa-dignidade/interaction-engine",
   "version": "1.2.0",
   "private": true,
-  "description": "ISO-Standard: Bunker de Gestion de Reacciones y Sentimiento Social. Orquestra pulsos de apoyo popular con ponderacion bayesiana.",
+  "description": "Módulo institucional de gestión de reacciones cívicas y medición del sentimiento social mediante ponderación bayesiana.",
   "type": "module",
   "sideEffects": false,
   "author": "Raz Podesta - MetaShark Tech",
@@ -15,11 +15,11 @@
     }
   },
   "dependencies": {
+    "@floripa-dignidade/contracts": "workspace:*",
     "@floripa-dignidade/exceptions": "workspace:*",
     "@floripa-dignidade/identity": "workspace:*",
-    "@floripa-dignidade/shared-utility": "workspace:*",
     "@floripa-dignidade/shared-state-store": "workspace:*",
-    "@floripa-dignidade/shared-ui-foundry": "workspace:*",
+    "@floripa-dignidade/shared-utility": "workspace:*",
     "@floripa-dignidade/telemetry": "workspace:*",
     "@swc/helpers": "~0.5.18",
     "zod": "^3.25.76"

@@ -1,13 +1,13 @@
 {
-  "generationTimestampISO": "2026-11-14T19:56:19.757Z",
-  "correlationIdentifier": "c9327f13-6626-4c95-a171-941b5b8b6622",
+  "generationTimestampISO": "2026-11-15T14:52:03.203Z",
+  "correlationIdentifier": "80ad34b2-d777-4e99-8379-b3b7701598e1",
   "sourceLocaleIdentifier": "pt-BR",
   "activeLocalesCollection": [
     "pt-BR",
     "es-ES",
     "en-US"
   ],
-  "totalModulesProcessedQuantity": 24,
+  "totalModulesProcessedQuantity": 26,
   "isParityVerifiedBoolean": true,
   "parityViolationsCollection": [],
   "auditTrailCollection": [
@@ -252,6 +252,18 @@
       "parityViolationsCountQuantity": 0
     },
     {
+      "moduleIdentifierLiteral": "apps/floripa-dignidade/error",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\apps\\floripa-dignidade\\src\\app\\[locale]\\error\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "FOLDER_PER_LOCALE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
+    },
+    {
       "moduleIdentifierLiteral": "apps/floripa-dignidade",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\apps\\floripa-dignidade\\src\\app\\[locale]\\i18n",
       "processedLocalesCollection": [
@@ -296,6 +308,18 @@
         "en-US"
       ],
       "siloFormatLiteral": "LEGACY_FLAT_FILE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
+    },
+    {
+      "moduleIdentifierLiteral": "apps/floripa-dignidade/unauthorized",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\apps\\floripa-dignidade\\src\\app\\[locale]\\unauthorized\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "FOLDER_PER_LOCALE",
       "missingLocalesCollection": [],
       "parityViolationsCountQuantity": 0
     }

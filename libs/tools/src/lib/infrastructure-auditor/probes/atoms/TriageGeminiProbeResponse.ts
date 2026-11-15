@@ -1,32 +1,86 @@
 /**
  * @section Infrastructure Auditor - Gemini Response Triage Engine (Atom)
  * @description Átomo de lógica pura encargado de evaluar la respuesta HTTP de
- * Google Generative Language API, clasificar los códigos de estado RFC 9110,
+ * Google Generative Language API, clasificar los códigos de estado RFC 9110
+ * (`200 OK`, `400/401/403` Auth/Restricción, `404` Modelo retirado, `429` Cuota, `5xx`),
  * diagnosticar la degradación de latencia y emitir telemetría forense estandarizada.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Rendimiento).
- * SANEADO Zenith:
- * 1. Erradicación de TS18004 alineando el parámetro 'endpointTargetLiteral' con el contrato Zod.
- * 2. Purga de extensión sintética '.js' en la importación de esquemas (Turbopack Clean Paths).
- * 3. Inmutabilidad forzada mediante Object.freeze y tipado estricto sin 'any'.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-/* 1. Infraestructura Core de Telemetría */
 import {
   EmitTelemetrySignal,
   type ModuleIdentifier,
+  ModuleIdentifierSchema,
   type OperationCode,
+  OperationCodeSchema,
 } from '@floripa-dignidade/telemetry';
 
-/* 2. Contratos Centralizados de Auditoría (Clean Paths - Extensionless) */
-import type { IIndividualProviderAuditSnapshot } from '../../schemas/CloudInfrastructureAuditReport.schema';
+import type {
+  IIndividualProviderAuditSnapshot,
+  TProbeExecutionStatus,
+} from '../../schemas/CloudInfrastructureAuditReport.schema';
 
-/** Identificador técnico del aparato para el monitor de salud y telemetría forense. */
-const TRIAGE_MODULE_IDENTIFIER = 'GEMINI_RESPONSE_TRIAGE_ATOM' as ModuleIdentifier;
+const TRIAGE_MODULE_IDENTIFIER: ModuleIdentifier = ModuleIdentifierSchema.parse(
+  'GEMINI_RESPONSE_TRIAGE_ATOM',
+);
+
+const PROBE_SUCCESSFUL_OPERATION_CODE: OperationCode =
+  OperationCodeSchema.parse('GEMINI_PROBE_SUCCESSFUL');
+
+const AUTH_REJECTED_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'GEMINI_PROBE_AUTH_REJECTED',
+);
+
+const HTTP_ERROR_OPERATION_CODE: OperationCode =
+  OperationCodeSchema.parse('GEMINI_PROBE_HTTP_ERROR');
+
+const MAXIMUM_NOMINAL_LATENCY_IN_MILLISECONDS_QUANTITY = 1000;
+
+interface IGeminiErrorStatusClassification {
+  readonly probeStatusLiteral: TProbeExecutionStatus;
+  readonly statusDescriptionLiteral: string;
+}
+
+const classifyGeminiErrorStatusAction = (
+  httpStatusCodeNumeric: number,
+): IGeminiErrorStatusClassification => {
+  if (
+    httpStatusCodeNumeric === 400 ||
+    httpStatusCodeNumeric === 401 ||
+    httpStatusCodeNumeric === 403
+  ) {
+    return {
+      probeStatusLiteral: 'AUTHENTICATION_REJECTED',
+      statusDescriptionLiteral: `Autenticación o permisos rechazados por Google AI Studio (HTTP ${httpStatusCodeNumeric}): GOOGLE_GEMINI_API_KEY inválida o sin alcance sobre Generative Language API.`,
+    };
+  }
+
+  if (httpStatusCodeNumeric === 404) {
+    return {
+      probeStatusLiteral: 'UNREACHABLE_FAILURE',
+      statusDescriptionLiteral:
+        'El modelo solicitado en Google AI Studio no existe o fue retirado (HTTP 404). Se recomienda usar gemini-3.8-flash.',
+    };
+  }
+
+  if (httpStatusCodeNumeric === 429) {
+    return {
+      probeStatusLiteral: 'DEGRADED_LATENCY',
+      statusDescriptionLiteral:
+        'Límite de tasa excedido en Google AI Studio (HTTP 429). Cuota temporal saturada.',
+    };
+  }
+
+  return {
+    probeStatusLiteral: 'UNREACHABLE_FAILURE',
+    statusDescriptionLiteral: `Google Gemini API respondió con código de error inesperado (HTTP ${httpStatusCodeNumeric}).`,
+  };
+};
 
 /**
  * Procesa la respuesta HTTP recibida y construye el diagnóstico inmutable del proveedor.
@@ -43,31 +97,31 @@ export const TriageGeminiProbeResponse = (
   endpointTargetLiteral: string,
   correlationIdentifier: string,
 ): IIndividualProviderAuditSnapshot => {
-  // 1. TRIAJE DE RESPUESTA EXITOSA (HTTP 200 OK)
   if (incomingNetworkResponse.ok) {
-    const isLatencyDegradedBoolean = executionLatencyInMillisecondsQuantity > 1000;
+    const isLatencyDegradedBoolean =
+      executionLatencyInMillisecondsQuantity > MAXIMUM_NOMINAL_LATENCY_IN_MILLISECONDS_QUANTITY;
 
-    const finalStatusLiteral = isLatencyDegradedBoolean
+    const finalStatusLiteral: TProbeExecutionStatus = isLatencyDegradedBoolean
       ? 'DEGRADED_LATENCY'
       : 'NOMINAL_OPERATIONAL';
 
     const statusDescriptionLiteral = isLatencyDegradedBoolean
-      ? `Google Gemini 1.5 Flash operativo con latencia elevada (${executionLatencyInMillisecondsQuantity}ms).`
-      : `Google Gemini 1.5 Flash plenamente operativo y autenticado (${executionLatencyInMillisecondsQuantity}ms).`;
+      ? `Google Gemini API operativa con latencia elevada (${executionLatencyInMillisecondsQuantity}ms).`
+      : `Google Gemini API plenamente operativa y autenticada (${executionLatencyInMillisecondsQuantity}ms).`;
 
     void EmitTelemetrySignal({
       occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: isLatencyDegradedBoolean ? 'WARNING' : 'INFO',
       moduleIdentifierLiteral: TRIAGE_MODULE_IDENTIFIER,
-      operationCodeLiteral: 'GEMINI_PROBE_SUCCESSFUL' as OperationCode,
+      operationCodeLiteral: PROBE_SUCCESSFUL_OPERATION_CODE,
       correlationIdentifier,
       messageContentLiteral: statusDescriptionLiteral,
       executionLatencyInMillisecondsQuantity,
       semanticIntentTag: 'INFRASTRUCTURE_PROBE_RESULT',
-      contextMetadataSnapshot: {
+      contextMetadataSnapshot: Object.freeze({
         executionLatencyInMillisecondsQuantity,
         httpStatusCodeNumeric: incomingNetworkResponse.status,
-      },
+      }),
     });
 
     return Object.freeze({
@@ -80,41 +134,34 @@ export const TriageGeminiProbeResponse = (
     });
   }
 
-  // 2. TRIAJE DE ERRORES DE AUTORIZACIÓN, CUOTA O SERVIDOR (400 / 403 / 429 / 5xx)
-  const isAuthenticationFailureBoolean =
-    incomingNetworkResponse.status === 400 || incomingNetworkResponse.status === 403;
+  const { probeStatusLiteral, statusDescriptionLiteral } = classifyGeminiErrorStatusAction(
+    incomingNetworkResponse.status,
+  );
 
-  const isRateLimitExceededBoolean = incomingNetworkResponse.status === 429;
-
-  const errorStatusDescriptionLiteral = isAuthenticationFailureBoolean
-    ? `Autenticación rechazada por Google AI Studio (HTTP ${incomingNetworkResponse.status}): GOOGLE_GEMINI_API_KEY inválida o sin permisos.`
-    : isRateLimitExceededBoolean
-      ? 'Límite de tasa excedido en Google AI Studio (HTTP 429). Tier gratuito saturado temporalmente.'
-      : `Google Gemini API respondió con código de error inesperado (HTTP ${incomingNetworkResponse.status}).`;
+  const isAuthRejectedBoolean = probeStatusLiteral === 'AUTHENTICATION_REJECTED';
 
   void EmitTelemetrySignal({
     occurrenceTimestampISO: new Date().toISOString(),
     severityLevelLiteral: 'CRITICAL',
     moduleIdentifierLiteral: TRIAGE_MODULE_IDENTIFIER,
-    operationCodeLiteral: isAuthenticationFailureBoolean
-      ? ('GEMINI_PROBE_AUTH_REJECTED' as OperationCode)
-      : ('GEMINI_PROBE_HTTP_ERROR' as OperationCode),
+    operationCodeLiteral: isAuthRejectedBoolean
+      ? AUTH_REJECTED_OPERATION_CODE
+      : HTTP_ERROR_OPERATION_CODE,
     correlationIdentifier,
-    messageContentLiteral: errorStatusDescriptionLiteral,
+    messageContentLiteral: statusDescriptionLiteral,
     executionLatencyInMillisecondsQuantity,
     semanticIntentTag: 'INFRASTRUCTURE_PROBE_FAILURE',
-    contextMetadataSnapshot: {
+    contextMetadataSnapshot: Object.freeze({
       httpStatusCodeNumeric: incomingNetworkResponse.status,
-    },
+      endpointTargetLiteral,
+    }),
   });
 
   return Object.freeze({
     providerIdentifier: 'HUGGING_FACE_COGNITIVE_INFERENCE',
-    probeStatusLiteral: isAuthenticationFailureBoolean
-      ? 'AUTHENTICATION_REJECTED'
-      : 'UNREACHABLE_FAILURE',
+    probeStatusLiteral,
     executionLatencyInMillisecondsQuantity,
-    statusDescriptionLiteral: errorStatusDescriptionLiteral,
+    statusDescriptionLiteral,
     endpointTargetLiteral,
     hasValidSecretFormatBoolean: true,
     diagnosticErrorLiteral: `HTTP_STATUS_${incomingNetworkResponse.status}_${incomingNetworkResponse.statusText}`,
