@@ -1,0 +1,48 @@
+{
+  "hero": {
+    "badgeLabelLiteral": "Transparencia • Derechos Humanos • Florianópolis",
+    "headlineMainLiteral": "La dignidad ciudadana no es negociable:",
+    "headlineAccentLiteral": "es una conquista activa",
+    "descriptionLiteral": "Floripa Dignidade es una organización de la sociedad civil dedicada a la defensa intransigente de los derechos humanos, la fiscalización rigurosa del presupuesto público municipal y el amparo territorial de poblaciones vulnerables en Florianópolis."
+  },
+  "framework": {
+    "badgeLiteral": "Marco Regulatorio de las OSC",
+    "headlineLiteral": "Constitución Jurídica y Gobernanza Pública",
+    "descriptionLiteral": "Estructurada bajo los parámetros de la Ley Federal brasileña 13.019/2014 (MROSC), la organización opera con total autonomía política y partidaria para auditar contratos públicos, convenios de colaboración y servicios de acogida social.",
+    "legalFormLiteral": "Asociación Civil sin Fines de Lucro (OSC)",
+    "territorialJurisdictionLiteral": "Florianópolis y Región Metropolitana • Santa Catarina"
+  },
+  "pillarsSection": {
+    "badgeLiteral": "Tríada de Impacto",
+    "headlineLiteral": "Pan, Techo y Ley: Las Tres Semillas de Ciudadanía",
+    "descriptionLiteral": "Nuestra labor integra socorro material inmediato, vivienda digna y garantía jurídica ante la administración pública y el Poder Judicial.",
+    "pillarsCollection": [
+      {
+        "identifier": "PAO",
+        "titleLiteral": "Pan",
+        "subtitleLiteral": "Seguridad Alimentaria y Subsistencia",
+        "descriptionLiteral": "Coordinación de cocinas solidarias, fiscalización de contratos de alimentación pública y distribución de suministros vitales."
+      },
+      {
+        "identifier": "TETO",
+        "titleLiteral": "Techo",
+        "subtitleLiteral": "Acogimiento y Vivienda Digna",
+        "descriptionLiteral": "Vigilancia de centros municipales de acogida, combate a la violencia contra personas en situación de calle y defensa del hábitat."
+      },
+      {
+        "identifier": "LEI",
+        "titleLiteral": "Ley",
+        "subtitleLiteral": "Defensa Jurídica y Auditoría Fiscal",
+        "descriptionLiteral": "Litigio estratégico popular, auditoría algorítmica del gasto público y canal protegido contra abusos de autoridad."
+      }
+    ]
+  },
+  "actions": {
+    "primaryCtaLabelLiteral": "Explorar Gastos Públicos",
+    "secondaryCtaLabelLiteral": "Canal de Denuncia Cívica"
+  },
+  "metadata": {
+    "pageTitleLiteral": "Identidad Institucional y Gobernanza",
+    "pageDescriptionLiteral": "Conoce la misión, estructura jurídica (MROSC) y los tres pilares de impacto social de Floripa Dignidade."
+  }
+}

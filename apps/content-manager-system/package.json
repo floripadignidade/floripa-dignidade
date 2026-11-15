@@ -1,17 +1,23 @@
 {
   "name": "@floripa-dignidade/content-manager-system",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": true,
-  "description": "Sistema institucional de gestión de contenidos y gobernanza editorial basado en Payload 3.93.",
+  "description": "Sistema institucional de gestión de contenidos y gobernanza editorial basado en Payload 3.84+.",
   "type": "module",
-  "author": "Raz Podesta - MetaShark Tech",
+  "author": "Raz Podestá - MetaShark Tech",
   "license": "UNLICENSED",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc -p tsconfig.app.json --noEmit"
+    "typecheck": "tsc -p tsconfig.app.json --noEmit",
+    "payload": "payload",
+    "generate:types": "payload generate:types",
+    "generate:importmap": "payload generate:importmap",
+    "db:migrate:create": "payload migrate:create",
+    "db:migrate": "payload migrate",
+    "db:migrate:status": "payload migrate:status"
   },
   "engines": {
     "node": ">=20.9.0",

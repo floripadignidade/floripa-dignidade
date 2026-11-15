@@ -1,0 +1,210 @@
+{
+  "hero": {
+    "editionBadgeLiteral": "Transparência Ativa • Lei 12.527/2011 • Florianópolis",
+    "editionLabelLiteral": "Diário Cívico por Secretarias",
+    "headlineMainLiteral": "Jornal da transparência pública:",
+    "headlineAccentLiteral": "fatos auditados por secretaria",
+    "leadDescriptionLiteral": "Acompanhe sínteses jornalísticas, resumos executivos e alertas de fiscalização sobre contratos, acolhimento social e serviços municipais em Florianópolis.",
+    "primaryCtaLabelLiteral": "Abrir Observatório de Gastos",
+    "secondaryCtaLabelLiteral": "Enviar Denúncia Protegida"
+  },
+  "heroCarousel": {
+    "carouselAriaLabelLiteral": "Destaques editoriais do Diário Cívico de Transparência Ativa",
+    "carouselRoleDescriptionLiteral": "carrossel",
+    "slideRoleDescriptionLiteral": "slide",
+    "pauseRotationLabelLiteral": "Pausar rotação automática dos destaques",
+    "resumeRotationLabelLiteral": "Retomar rotação automática dos destaques",
+    "previousSlideLabelLiteral": "Slide anterior",
+    "nextSlideLabelLiteral": "Próximo slide",
+    "readMoreLabelLiteral": "Leia mais",
+    "viewInObservatoryLabelLiteral": "Conferir no Observatório",
+    "slidePositionTemplateLiteral": "Slide {current} de {total}",
+    "dotNavigationAriaLabelLiteral": "Selecionar destaque por posição",
+    "featuredSlidesCollection": [
+      {
+        "articleIdentifier": "hero-passarela-acolhimento-2026",
+        "secretariatIdentifier": "SOCIAL_ASSISTANCE",
+        "headlineLiteral": "Auditoria cidadã acompanha execução dos termos de acolhimento e segurança alimentar na capital",
+        "summaryLiteral": "Levantamento documental cruza convênios municipais da Passarela da Cidadania e cozinhas solidárias com metas de atendimento territorial, garantindo visibilidade sobre qualidade nutricional e dignidade humana.",
+        "publishedDateIsoLiteral": "2026-11-12",
+        "sourceReferenceLiteral": "Portal da Transparência PMF • Termos de Colaboração 2026",
+        "verificationStatusLiteral": "VERIFIED_AUDIT",
+        "targetActionPathLiteral": "/observatorio/gastos-publicos"
+      },
+      {
+        "articleIdentifier": "hero-consultorio-rua-2026",
+        "secretariatIdentifier": "PUBLIC_HEALTH",
+        "headlineLiteral": "Expansão de atendimentos itinerantes reduz barreiras de acesso para cidadãos sem documentação civil",
+        "summaryLiteral": "Equipes multiprofissionais do Consultório na Rua ampliaram o acompanhamento clínico e encaminhamentos de saúde mental sem exigência prévia de comprovante de residência fixa.",
+        "publishedDateIsoLiteral": "2026-11-09",
+        "sourceReferenceLiteral": "Boletim Técnico SMS • Atenção Primária",
+        "verificationStatusLiteral": "VERIFIED_AUDIT",
+        "targetActionPathLiteral": "/observatorio/gastos-publicos"
+      },
+      {
+        "articleIdentifier": "hero-agua-pontos-criticos-2026",
+        "secretariatIdentifier": "INFRASTRUCTURE_SANITATION",
+        "headlineLiteral": "Nota técnica reforça urgência de pontos públicos de água potável e banheiros acessíveis no Centro",
+        "summaryLiteral": "Indicadores territoriais recomendam instalação prioritária em corredores urbanos de alta circulação para prevenção de agravos sanitários e proteção da dignidade humana.",
+        "publishedDateIsoLiteral": "2026-11-02",
+        "sourceReferenceLiteral": "Diagnóstico Territorial • Floripa Dignidade",
+        "verificationStatusLiteral": "CRITICAL_ALERT",
+        "targetActionPathLiteral": "/denuncia"
+      }
+    ]
+  },
+  "navigation": {
+    "filterHeadingLiteral": "Filtrar edição por secretaria municipal",
+    "allSecretariatsLabelLiteral": "Todas as Secretarias",
+    "articlesCountSuffixLiteral": "boletins publicados",
+    "jumpToSecretariatPrefixLiteral": "Filtrar caderno de"
+  },
+  "featuredLead": {
+    "sectionBadgeLiteral": "Manchete de Capa • Dossiê em Destaque",
+    "readInObservatoryLabelLiteral": "Conferir dados no Observatório",
+    "article": {
+      "articleIdentifier": "lead-passarela-acolhimento-2026",
+      "secretariatIdentifier": "SOCIAL_ASSISTANCE",
+      "headlineLiteral": "Auditoria cidadã acompanha execução dos termos de acolhimento e segurança alimentar na capital",
+      "summaryLiteral": "Levantamento documental cruza convênios municipais da Passarela da Cidadania e cozinhas solidárias com metas de atendimento territorial, garantindo visibilidade sobre qualidade nutricional e dignidade humana.",
+      "publishedDateIsoLiteral": "2026-11-12",
+      "sourceReferenceLiteral": "Portal da Transparência PMF • Termos de Colaboração 2026",
+      "verificationStatusLiteral": "VERIFIED_AUDIT",
+      "targetActionPathLiteral": "/observatorio/gastos-publicos"
+    }
+  },
+  "statusLabels": {
+    "VERIFIED_AUDIT": "Fonte Oficial Verificada",
+    "MONITORING_ACTIVE": "Em Acompanhamento",
+    "CRITICAL_ALERT": "Alerta Prioritário"
+  },
+  "secretariatsSection": {
+    "sectionHeadingLiteral": "Cadernos Setoriais por Secretaria",
+    "sectionSubtitleLiteral": "Cada pasta reúne um resumo executivo do período e os boletins noticiosos vinculados a atos oficiais e contratos públicos.",
+    "summaryHeadingLiteral": "Resumo Executivo da Secretaria",
+    "sourcePrefixLiteral": "Fonte:",
+    "secretariatsCollection": [
+      {
+        "secretariatIdentifier": "SOCIAL_ASSISTANCE",
+        "secretariatNameLiteral": "Assistência Social e Direitos Humanos",
+        "executiveSummaryLiteral": "Foco no monitoramento de abrigos municipais, equipes de abordagem social e fornecimento contínuo de refeições à população em situação de rua.",
+        "keyFocusAreaLiteral": "Proteção Social Especial e Segurança Alimentar",
+        "articlesCollection": [
+          {
+            "articleIdentifier": "soc-acolhimento-inverno-2026",
+            "secretariatIdentifier": "SOCIAL_ASSISTANCE",
+            "headlineLiteral": "Relatório avalia capacidade de vagas e protocolos de acolhimento digno nos centros municipais",
+            "summaryLiteral": "A apuração consolida registros de ocupação, disponibilidade de higiene básica e cumprimento das diretrizes MROSC em unidades conveniadas no Centro e Continente.",
+            "publishedDateIsoLiteral": "2026-11-10",
+            "sourceReferenceLiteral": "Diário Oficial do Município • Convênios MROSC",
+            "verificationStatusLiteral": "VERIFIED_AUDIT",
+            "targetActionPathLiteral": "/observatorio/gastos-publicos"
+          },
+          {
+            "articleIdentifier": "soc-abordagem-direitos-2026",
+            "secretariatIdentifier": "SOCIAL_ASSISTANCE",
+            "headlineLiteral": "Canal cívico registra demandas por preservação de pertences pessoais durante abordagens urbanas",
+            "summaryLiteral": "Moradores e redes de apoio relataram recolhimentos irregulares em áreas centrais; o observatório solicitou esclarecimentos formais sobre o protocolo aplicado.",
+            "publishedDateIsoLiteral": "2026-11-08",
+            "sourceReferenceLiteral": "Rede de Denúncia Cívica • Protocolo LGPD",
+            "verificationStatusLiteral": "CRITICAL_ALERT",
+            "targetActionPathLiteral": "/denuncia"
+          }
+        ]
+      },
+      {
+        "secretariatIdentifier": "PUBLIC_HEALTH",
+        "secretariatNameLiteral": "Saúde Pública e Atenção Primária",
+        "executiveSummaryLiteral": "Acompanhamento de estoques de medicamentos essenciais, escalas de consultórios de rua e cobertura básica nas regiões insulares e continentais.",
+        "keyFocusAreaLiteral": "Consultório na Rua e Unidades Básicas (CS)",
+        "articlesCollection": [
+          {
+            "articleIdentifier": "sau-consultorio-rua-2026",
+            "secretariatIdentifier": "PUBLIC_HEALTH",
+            "headlineLiteral": "Expansão de atendimentos itinerantes reduz barreiras de acesso para cidadãos sem documentação civil",
+            "summaryLiteral": "Equipes multiprofissionais ampliaram o acompanhamento clínico e encaminhamentos de saúde mental sem exigência prévia de comprovante de residência fixa.",
+            "publishedDateIsoLiteral": "2026-11-09",
+            "sourceReferenceLiteral": "Boletim Técnico SMS • Atenção Primária",
+            "verificationStatusLiteral": "VERIFIED_AUDIT",
+            "targetActionPathLiteral": "/observatorio/gastos-publicos"
+          },
+          {
+            "articleIdentifier": "sau-insumos-basicos-2026",
+            "secretariatIdentifier": "PUBLIC_HEALTH",
+            "headlineLiteral": "Monitoramento verifica prazos de reposição de insumos em farmácias distritais do Sul e Norte da Ilha",
+            "summaryLiteral": "Contratos vigentes de compra emergencial passam por acompanhamento de entrega para evitar desabastecimento em postos com maior demanda comunitária.",
+            "publishedDateIsoLiteral": "2026-11-05",
+            "sourceReferenceLiteral": "Portal E-Pública • Contratos Saúde",
+            "verificationStatusLiteral": "MONITORING_ACTIVE",
+            "targetActionPathLiteral": "/observatorio/gastos-publicos"
+          }
+        ]
+      },
+      {
+        "secretariatIdentifier": "EDUCATION_CITIZENSHIP",
+        "secretariatNameLiteral": "Educação e Inclusão Comunitária",
+        "executiveSummaryLiteral": "Vigilância sobre alimentação escolar, vagas em creches territoriais e programas de alfabetização de jovens e adultos em áreas vulneráveis.",
+        "keyFocusAreaLiteral": "Merenda Escolar e Vagas na Educação Infantil",
+        "articlesCollection": [
+          {
+            "articleIdentifier": "edu-merenda-agricultura-2026",
+            "secretariatIdentifier": "EDUCATION_CITIZENSHIP",
+            "headlineLiteral": "Compras da agricultura familiar garantem cardápio regional em núcleos educativos municipais",
+            "summaryLiteral": "Auditoria dos editais de fornecimento confirma cumprimento do percentual legal de aquisição direta de cooperativas catarinenses.",
+            "publishedDateIsoLiteral": "2026-11-07",
+            "sourceReferenceLiteral": "Edital Alimentação Escolar • PMF",
+            "verificationStatusLiteral": "VERIFIED_AUDIT",
+            "targetActionPathLiteral": "/observatorio/gastos-publicos"
+          },
+          {
+            "articleIdentifier": "edu-vagas-territoriais-2026",
+            "secretariatIdentifier": "EDUCATION_CITIZENSHIP",
+            "headlineLiteral": "Levantamento mapeia fila de espera por educação infantil nos distritos de maior crescimento",
+            "summaryLiteral": "Dados abertos apontam concentração de demanda no Norte da Ilha e Continente, orientando recomendações cívicas de ampliação orçamentária.",
+            "publishedDateIsoLiteral": "2026-11-03",
+            "sourceReferenceLiteral": "Painel Educacional Aberto • IBGE/PMF",
+            "verificationStatusLiteral": "MONITORING_ACTIVE",
+            "targetActionPathLiteral": "/observatorio/gastos-publicos"
+          }
+        ]
+      },
+      {
+        "secretariatIdentifier": "INFRASTRUCTURE_SANITATION",
+        "secretariatNameLiteral": "Infraestrutura, Moradia e Saneamento",
+        "executiveSummaryLiteral": "Fiscalização de obras de drenagem, acesso à água potável, iluminação segura e prevenção de remoções forçadas sem alternativa habitacional.",
+        "keyFocusAreaLiteral": "Saneamento Básico e Direito à Cidade",
+        "articlesCollection": [
+          {
+            "articleIdentifier": "inf-saneamento-tapera-2026",
+            "secretariatIdentifier": "INFRASTRUCTURE_SANITATION",
+            "headlineLiteral": "Comunidades acompanham cronograma de rede de esgotamento e drenagem pluvial na Tapera",
+            "summaryLiteral": "O boletim sintetiza marcos físicos executados em campo frente ao orçamento liquidado, com participação de lideranças comunitárias locais.",
+            "publishedDateIsoLiteral": "2026-11-06",
+            "sourceReferenceLiteral": "Cronograma de Obras Públicas • PMF",
+            "verificationStatusLiteral": "MONITORING_ACTIVE",
+            "targetActionPathLiteral": "/observatorio/gastos-publicos"
+          },
+          {
+            "articleIdentifier": "inf-agua-pontos-criticos-2026",
+            "secretariatIdentifier": "INFRASTRUCTURE_SANITATION",
+            "headlineLiteral": "Nota técnica reforça urgência de pontos públicos de água potável e banheiros acessíveis",
+            "summaryLiteral": "Indicadores territoriais recomendam instalação prioritária em corredores urbanos de alta circulação para prevenção de agravos sanitários.",
+            "publishedDateIsoLiteral": "2026-11-02",
+            "sourceReferenceLiteral": "Diagnóstico Territorial • Floripa Dignidade",
+            "verificationStatusLiteral": "CRITICAL_ALERT",
+            "targetActionPathLiteral": "/denuncia"
+          }
+        ]
+      }
+    ]
+  },
+  "methodologyBanner": {
+    "headlineLiteral": "Metodologia Editorial e Independência Cívica",
+    "descriptionLiteral": "Cada resumo publicado neste diário é vinculado a documentos públicos oficiais ou relatos comunitários anonimizados conforme a LGPD, sem financiamento partidário.",
+    "legalBasisLiteral": "Lei Federal 12.527/2011 (LAI) • Lei 13.019/2014 (MROSC) • Lei 13.709/2018 (LGPD)"
+  },
+  "metadata": {
+    "pageTitleLiteral": "Transparência Ativa e Diário por Secretarias",
+    "pageDescriptionLiteral": "Periódico cívico com notícias resumidas, auditorias documentais e resumos executivos organizados por secretarias municipais de Florianópolis."
+  }
+}

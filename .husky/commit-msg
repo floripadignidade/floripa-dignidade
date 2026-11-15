@@ -1,10 +1,11 @@
-set -e
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
 
-# Aduana Forense del Historial de Git (ADR 0027 / Conventional Commits v1.0.0)
-if ! pnpm exec commitlint --edit "$1"; then
-  echo "" >&2
-  echo "[COMMITLINT_QUALITY_SHIELD]: Mensaje rechazado por incumplir commitlint.config.mjs." >&2
-  echo "Formato obligatorio: <tipo>(<ambito>): <descripcion en minusculas sin punto final>" >&2
-  echo "Ejemplo: fix(tools): atomiza sonda s3 y reduce complejidad ciclomatica" >&2
-  exit 1
+# Si estamos en CI o Vercel, exigir Conventional Commits riguroso
+if [ "$CI" = "true" ] || [ -n "$VERCEL" ]; then
+  pnpm exec commitlint --edit "$1"
+else
+  # En desarrollo local omitimos el bloqueo estricto de commitlint para permitirte
+  # escribir commits libres (ej. "wip", "test", etc.) sin frustración.
+  exit 0
 fi

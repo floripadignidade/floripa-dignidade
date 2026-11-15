@@ -1004,3 +1004,51 @@ identificándose 4 puntos bloqueantes específicos en el `lint-staged` y el pipe
 - `pnpm weaver:build`: **22 MÓDULOS CONSOLIDADOS** (`pt-BR`, `es-ES`, `en-US`), 100% paridad.
 
 ---
+
+## [2026-11-15] HITO 13: Estabilización de Despliegue en Vercel, Adaptador TLS de Supabase Pooler y Consolidación de la Página de Identidad Institucional
+
+### Contexto y Diagnóstico Forense
+
+1. **Fallo de Conexión Postgres en CMS (`self-signed certificate in certificate chain`):**
+   - El motor `pg-connection-string` (`>= 2.10.0`) integrado en Payload CMS interpretó
+     `sslmode=require` como `verify-full` y sobrescribió la configuración del Pool, provocando
+     rechazos por parte de los certificados raíz del Pooler de Supabase en Vercel.
+2. **Duplicación de Raíz en App Router (`apps/content-manager-system`):**
+   - La coexistencia de `src/app/layout.tsx` y `src/app/page.tsx` eclipsaba los grupos de ruta
+     `(app)` y `(payload)`, causando que la ruta raíz `/` compilara en modo estático (`○ /`) en
+     lugar de dinámico (`ƒ /`).
+3. **Ausencia de Ruta de Identidad Institucional:**
+   - El portal ciudadano arrojaba error 404 al acceder al primer enlace del encabezado
+     (`/identidad`), requerido para el cumplimiento de E-E-A-T de Google y la constitución MROSC
+     (Lei 13.019/2014).
+
+### Decisiones Arquitectónicas Inmutables y Acciones Ejecutadas
+
+1. **Normalización SRE del Adaptador Postgres (`PostgresDatabaseAdapter.ts`):**
+   - Se implementó la purga determinista de parámetros conflitivos de consulta `sslmode`,
+     `sslrootcert`, `sslcert`, `sslkey` y `uselibpqcompat` de la cadena de conexión.
+   - Se configuró el objeto `ssl` con soporte TLS compatible para Supabase Pooler
+     (`rejectUnauthorized: false` o CA raíz inyectada) y desactivación explícita de `push: false` en
+     producción.
+2. **Saneamiento Estructural del CMS (Grupos de Ruta):**
+   - Se eliminaron los archivos raíz legados `src/app/layout.tsx` y `src/app/page.tsx`, permitiendo
+     que el grupo `(app)/page.tsx` (`force-dynamic`) controle soberanamente la estación de
+     bienvenida y autenticación en `/`.
+3. **Materialización de la Página de Identidad Institucional
+   (`apps/floripa-dignidade/src/app/[locale]/identidad/`):**
+   - Se construyó el aparato atómico completo: esquema Zod de contratos lingüísticos, diccionarios
+     en `pt-BR`, `es-ES` y `en-US`, cargador resiliente con cascada ADR 0030, metadatos SEO
+     dinámicos y la vista orientada a la gobernanza MROSC y la tríada de impacto (_Pão, Teto e
+     Lei_), eliminando el enlace 404 del encabezado.
+4. **Flexibilización de Hooks Locales de Git:**
+   - Se adaptaron los scripts de Husky (`pre-commit` y `commit-push`) para optimizar la velocidad
+     del flujo en entornos de desarrollo (`developer`) preservando el rigor absoluto del pipeline
+     `pnpm preflight` en Vercel y CI.
+
+### Evidencia de Verificación Ejecutada
+
+- `pnpm audit:workspace`: **APROBADO** (`32/32` workspaces conformantes).
+- `pnpm weaver:build`: **APROBADO** (`26` módulos consolidados con paridad 100%).
+- `pnpm lint` & `pnpm typecheck`: **APROBADOS** (`0` errores en verde).
+
+---

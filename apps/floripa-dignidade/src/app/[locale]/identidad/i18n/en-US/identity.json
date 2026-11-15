@@ -1,0 +1,48 @@
+{
+  "hero": {
+    "badgeLabelLiteral": "Transparency • Human Rights • Florianópolis",
+    "headlineMainLiteral": "Citizen dignity is non-negotiable:",
+    "headlineAccentLiteral": "it is an active conquest",
+    "descriptionLiteral": "Floripa Dignidade is a civil society organization dedicated to the steadfast defense of human rights, independent public budget auditing, and territorial support for vulnerable communities across Florianópolis."
+  },
+  "framework": {
+    "badgeLiteral": "Civil Society Regulatory Framework",
+    "headlineLiteral": "Legal Constitution and Public Governance",
+    "descriptionLiteral": "Structured under Brazilian Federal Law 13.019/2014 (MROSC), the organization maintains full political and partisan independence to audit municipal contracts, collaboration agreements, and public shelter facilities.",
+    "legalFormLiteral": "Non-Profit Civil Association (CSO)",
+    "territorialJurisdictionLiteral": "Florianópolis Metropolitan Area • Santa Catarina, Brazil"
+  },
+  "pillarsSection": {
+    "badgeLiteral": "Impact Triad",
+    "headlineLiteral": "Bread, Shelter and Law: The Three Seeds of Citizenship",
+    "descriptionLiteral": "Our civic intervention connects immediate material relief, safe shelter, and legal defense before public authorities and judicial courts.",
+    "pillarsCollection": [
+      {
+        "identifier": "PAO",
+        "titleLiteral": "Bread",
+        "subtitleLiteral": "Food Security and Vital Support",
+        "descriptionLiteral": "Solidarity kitchen networking, municipal food program auditing, and emergency supplies dispatch."
+      },
+      {
+        "identifier": "TETO",
+        "titleLiteral": "Shelter",
+        "subtitleLiteral": "Protected Housing and Human Dignity",
+        "descriptionLiteral": "Public shelter monitoring, protection of unsheltered populations against institutional violence, and housing rights defense."
+      },
+      {
+        "identifier": "LEI",
+        "titleLiteral": "Law",
+        "subtitleLiteral": "Legal Defense and Fiscal Auditing",
+        "descriptionLiteral": "Strategic public-interest litigation, algorithmic municipal expenditure auditing, and safe reporting channels."
+      }
+    ]
+  },
+  "actions": {
+    "primaryCtaLabelLiteral": "Explore Public Expenditure",
+    "secondaryCtaLabelLiteral": "Citizen Reporting Channel"
+  },
+  "metadata": {
+    "pageTitleLiteral": "Institutional Identity and Governance",
+    "pageDescriptionLiteral": "Discover Floripa Dignidade's mission, legal constitution (MROSC), and three impact pillars."
+  }
+}

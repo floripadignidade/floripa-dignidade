@@ -1,13 +1,16 @@
 // @ts-check
 
 /**
+ * @file apps/floripa-dignidade/next.config.js
  * @section Next.js Configuration - Enterprise Portal Infrastructure Shell
  * @description Manifiesto de configuración institucional para el portal ciudadano.
- * Orquesta la seguridad de cabeceras HTTP, la transpilación unificada del monorepo,
- * optimización multimedia AVIF/WebP y el ruteo tipado nativo en Next.js 16 con Turbopack.
+ * Orquesta cabeceras de seguridad HTTP, transpilación Source-First del monorepo,
+ * optimización multimedia AVIF/WebP con lista blanca estricta de orígenes remotos
+ * (Supabase Storage y Payload CMS bajo TLS), ruteo tipado nativo en Next.js 16 e
+ * integración con Nx.
  *
- * Protocolo OEDP-V18.1 - Reference Architecture (Source-First).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Rendimiento y Mantenibilidad).
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & ADR 0034 / ADR 0035).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 e ISO/IEC 27001.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -20,23 +23,14 @@ import { fileURLToPath } from 'node:url';
 import { composePlugins, withNx } from '@nx/next';
 
 /**
- * Contrato compuesto que extiende `NextConfig` con las opciones soportadas por `@nx/next`.
  * @typedef {import('next').NextConfig & { nx?: { svgr?: boolean } }} PortalNextConfig
- */
-
-/**
  * @typedef {{ key: string, value: string }} ISecurityHeader
+ * @typedef {{ protocol: 'http' | 'https', hostname: string, port?: string, pathname: string }} IRemoteImagePattern
  */
 
-/**
- * @section Resolución de Contexto Isomórfico (ESM)
- */
 const currentFileConfigurationPathLiteral = fileURLToPath(import.meta.url);
 const currentConfigurationDirectoryLiteral = dirname(currentFileConfigurationPathLiteral);
 
-/**
- * @section Ingesta de Cabeceras de Seguridad ISO (Silo JSON)
- */
 const securityHeadersSiloPathLiteral = join(
   currentConfigurationDirectoryLiteral,
   '../../libs/shared/utility/src/headers/GlobalSecurityHeaders.json',
@@ -47,16 +41,155 @@ const globalSecurityHeadersCollection = JSON.parse(
   readFileSync(securityHeadersSiloPathLiteral, 'utf8'),
 );
 
+/** @type {ReadonlySet<string>} */
+const ALLOWED_LOCAL_DEVELOPMENT_HOSTNAMES_SET = new Set(['localhost', '127.0.0.1']);
+
+/**
+ * Parsea de forma segura una cadena de URL proveniente de entorno. Complejidad: 4.
+ *
+ * @param {string | undefined} rawUrlLiteral - Cadena cruda de URL configurada en entorno.
+ * @returns {URL | null} Instancia URL válida o null si está vacía o malformada.
+ */
+const parseSafeRemoteUrl = (rawUrlLiteral) => {
+  const trimmedUrlLiteral = typeof rawUrlLiteral === 'string' ? rawUrlLiteral.trim() : '';
+  if (trimmedUrlLiteral === '') {
+    return null;
+  }
+
+  try {
+    return new URL(trimmedUrlLiteral);
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Determina si el protocolo de la URL está autorizado según el entorno activo. Complejidad: 5.
+ *
+ * @param {URL} parsedUrl - Instancia URL previamente validada.
+ * @param {boolean} isNonProductionEnvironmentBoolean - Permite localhost HTTP solo fuera de producción.
+ * @returns {'http' | 'https' | null} Protocolo permitido o null si viola la política TLS.
+ */
+const resolveAllowedImageProtocolLiteral = (parsedUrl, isNonProductionEnvironmentBoolean) => {
+  if (parsedUrl.protocol === 'https:') {
+    return 'https';
+  }
+
+  const isDevelopmentHttpHostBoolean =
+    isNonProductionEnvironmentBoolean &&
+    parsedUrl.protocol === 'http:' &&
+    ALLOWED_LOCAL_DEVELOPMENT_HOSTNAMES_SET.has(parsedUrl.hostname);
+
+  return isDevelopmentHttpHostBoolean ? 'http' : null;
+};
+
+/**
+ * Convierte una URL de entorno en un patrón de imagen remoto seguro. Complejidad: 4.
+ *
+ * @param {string | undefined} rawUrlLiteral - URL base configurada en variables de entorno.
+ * @param {string} allowedPathnamePatternLiteral - Prefijo glob de rutas permitidas en el host.
+ * @param {boolean} isNonProductionEnvironmentBoolean - Habilita localhost HTTP solo fuera de producción.
+ * @returns {IRemoteImagePattern | null} Patrón normalizado o null si la URL no es elegible.
+ */
+const createRemoteImagePatternFromUrlLiteral = (
+  rawUrlLiteral,
+  allowedPathnamePatternLiteral,
+  isNonProductionEnvironmentBoolean,
+) => {
+  const parsedUrl = parseSafeRemoteUrl(rawUrlLiteral);
+  if (parsedUrl === null) {
+    return null;
+  }
+
+  const protocolLiteral = resolveAllowedImageProtocolLiteral(
+    parsedUrl,
+    isNonProductionEnvironmentBoolean,
+  );
+  if (protocolLiteral === null) {
+    return null;
+  }
+
+  return Object.freeze({
+    protocol: protocolLiteral,
+    hostname: parsedUrl.hostname,
+    ...(parsedUrl.port !== '' ? { port: parsedUrl.port } : {}),
+    pathname: allowedPathnamePatternLiteral,
+  });
+};
+
+/**
+ * Construye y deduplica la lista blanca inmutable de patrones remotos para `next/image`. Complejidad: 4.
+ *
+ * @returns {IRemoteImagePattern[]} Colección de patrones HTTPS permitidos para Supabase y CMS.
+ */
+const buildAuthorizedRemoteImagePatternsCollection = () => {
+  const isNonProductionEnvironmentBoolean = process.env['NODE_ENV'] !== 'production';
+
+  /** @type {(IRemoteImagePattern | null)[]} */
+  const candidatePatternsCollection = [
+    {
+      protocol: 'https',
+      hostname: '*.supabase.co',
+      pathname: '/storage/v1/**',
+    },
+    {
+      protocol: 'https',
+      hostname: '*.storage.supabase.co',
+      pathname: '/**',
+    },
+    {
+      protocol: 'https',
+      hostname: '*.vercel.app',
+      pathname: '/api/media-vault/**',
+    },
+    createRemoteImagePatternFromUrlLiteral(
+      process.env['SUPABASE_URL'],
+      '/storage/v1/**',
+      isNonProductionEnvironmentBoolean,
+    ),
+    createRemoteImagePatternFromUrlLiteral(
+      process.env['S3_ENDPOINT'],
+      '/**',
+      isNonProductionEnvironmentBoolean,
+    ),
+    createRemoteImagePatternFromUrlLiteral(
+      process.env['CMS_PUBLIC_BASE_URL'],
+      '/api/media-vault/**',
+      isNonProductionEnvironmentBoolean,
+    ),
+    createRemoteImagePatternFromUrlLiteral(
+      process.env['NEXT_PUBLIC_CMS_URL'],
+      '/api/media-vault/**',
+      isNonProductionEnvironmentBoolean,
+    ),
+    createRemoteImagePatternFromUrlLiteral(
+      process.env['PAYLOAD_PUBLIC_SERVER_URL'],
+      '/api/media-vault/**',
+      isNonProductionEnvironmentBoolean,
+    ),
+  ];
+
+  /** @type {Map<string, IRemoteImagePattern>} */
+  const deduplicatedPatternsMap = new Map();
+
+  for (const candidatePattern of candidatePatternsCollection) {
+    if (candidatePattern === null) {
+      continue;
+    }
+
+    const patternKeyLiteral = `${candidatePattern.protocol}://${candidatePattern.hostname}:${candidatePattern.port ?? ''}${candidatePattern.pathname}`;
+    deduplicatedPatternsMap.set(patternKeyLiteral, candidatePattern);
+  }
+
+  return Array.from(deduplicatedPatternsMap.values());
+};
+
 /**
  * @name portalNextConfigurationFoundation
- * @description Configuración base del portal con soporte para ruteo tipado nativo y seguridad perimetral.
+ * @description Configuración base del portal con ruteo tipado, imágenes remotas seguras y cabeceras ISO.
  * @type {PortalNextConfig}
  */
 const portalNextConfigurationFoundation = {
-  /**
-   * @section Módulos del Monorepo Autorizados para Transpilación Source-First
-   * Turbopack compila directamente las fuentes TypeScript de las librerías internas declaradas.
-   */
   transpilePackages: [
     '@floripa-dignidade/contracts',
     '@floripa-dignidade/data-ingestion-engine',
@@ -80,23 +213,16 @@ const portalNextConfigurationFoundation = {
 
   reactStrictMode: true,
   poweredByHeader: false,
-
-  /**
-   * @section Ruteo Tipado Nativo Next.js 16 (Estándar Turbopack)
-   * Configurado a nivel raíz conforme a las especificaciones Next.js 16+.
-   */
   typedRoutes: true,
 
-  /**
-   * @section Optimización Multimedia (Core Web Vitals - LCP)
-   */
   images: {
     formats: /** @type {const} */ (['image/avif', 'image/webp']),
+    qualities: [75, 85],
+    deviceSizes: [640, 768, 1024, 1280, 1536, 1920],
+    minimumCacheTTL: 3600,
+    remotePatterns: buildAuthorizedRemoteImagePatternsCollection(),
   },
 
-  /**
-   * @section Inyección de Seguridad ISO (Headers Perimetrales)
-   */
   async headers() {
     return [
       {
@@ -106,24 +232,13 @@ const portalNextConfigurationFoundation = {
     ];
   },
 
-  /**
-   * Configuración de integración específica de Nx.
-   */
   nx: {
     svgr: false,
   },
 };
 
-/**
- * @name applicationPluginsCollection
- * @description Colección ordenada de plugins para la composición final del entorno de compilación.
- */
 const applicationPluginsCollection = [withNx];
 
-/**
- * Exportación del ensamble procesado (`NextConfigFn`) generado por `composePlugins`
- * para el despliegue en Vercel y ejecución en Nx.
- */
 const exportedConfigurationSnapshot = composePlugins(...applicationPluginsCollection)(
   portalNextConfigurationFoundation,
 );

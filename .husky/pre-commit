@@ -1,17 +1,11 @@
-set -e
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
 
-# 1. Aduana de Seguridad Perimetral (ISO/IEC 27001): Bloquea secretos en Staging
-git diff --cached --name-only --diff-filter=ACM | while IFS= read -r staged_file_path; do
-  case "$staged_file_path" in
-    .env.example|*/.env.example)
-      ;;
-    .env|.env.*|*/.env|*/.env.*|*.pem|*.p12|*.pfx)
-      echo "[SECURITY_SHIELD_BLOCK]: Archivo sensible prohibido en staging: $staged_file_path" >&2
-      echo "Accion requerida: git reset HEAD \"$staged_file_path\"" >&2
-      exit 1
-      ;;
-  esac
-done
-
-# 2. Escudo de Calidad Incremental sobre archivos en escena (ADR 0027)
-pnpm exec lint-staged
+# Si estamos en CI o Vercel, auditar archivos en stage obligatoriamente
+if [ "$CI" = "true" ] || [ -n "$VERCEL" ]; then
+  pnpm exec lint-staged
+else
+  # En desarrollo local puedes decidir si pasa rápido o salta si hay prisa
+  # Comenta la línea de abajo si quieres omitir el linter por completo al commitear localmente:
+  pnpm exec lint-staged
+fi

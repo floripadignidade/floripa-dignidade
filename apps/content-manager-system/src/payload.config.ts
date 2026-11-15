@@ -1,11 +1,10 @@
 /**
  * @file apps/content-manager-system/src/payload.config.ts
- * @section CMS Infrastructure - Enterprise Administration Configuration (Payload 3.93)
+ * @section CMS Infrastructure - Enterprise Administration Configuration (Payload 3.84+)
  * @description Manifiesto central de configuración para el sistema de gestión de contenidos (CMS).
- * Orquesta la persistencia en PostgreSQL (Supabase Pooler), la integración con la bóveda
- * multimedia S3 (`media-vault`), el motor de edición de texto Lexical, la internacionalización
- * administrativa (`pt`, `es`, `en`) y la gobernanza estricta de cookies de sesión aisladas
- * conforme a RFC 6265bis, OWASP ASVS v4.0 e ISO/IEC 27001 (ADR 0031 / ADR 0032).
+ * Orquesta PostgreSQL (Supabase Pooler), bóveda multimedia S3 (`media-vault`) con `sharp`,
+ * editor Lexical, internacionalización administrativa (`pt`, `es`, `en`), lista blanca de
+ * orígenes CSRF/CORS y aislamiento estricto de cookies `__Host-` bajo RFC 6265bis (ADR 0031 / ADR 0032).
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010, ISO/IEC 27001 y RFC 6265bis.
@@ -14,15 +13,29 @@
  * @license UNLICENSED
  */
 
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { buildConfig } from 'payload';
+import sharp from 'sharp';
 
 /* 1. Internacionalización de la Interfaz Administrativa de Payload */
 import { en } from '@payloadcms/translations/languages/en';
 import { es } from '@payloadcms/translations/languages/es';
 import { pt } from '@payloadcms/translations/languages/pt';
 
-/* 2. Infraestructura Core de Entorno y Validación de Secretos */
-import { ValidateEnvironmentContract } from '@floripa-dignidade/environment-validator';
+/* 2. Infraestructura Core de Entorno y Telemetría */
+import {
+  GatherEnvironmentMetadata,
+  ValidateEnvironmentContract,
+} from '@floripa-dignidade/environment-validator';
+import {
+  EmitTelemetrySignal,
+  GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+  OperationCodeSchema,
+} from '@floripa-dignidade/telemetry';
 
 /* 3. Adaptadores y Motores de Infraestructura Locales */
 import { CreateCloudStoragePlugin } from './infrastructure/CloudStoragePlugin';
@@ -35,60 +48,116 @@ import { OrganizationsCollection } from './collections/governance/Organizations.
 import { CitizenUsersCollection } from './collections/identity/CitizenUsers.collection';
 import { MediaVaultCollection } from './collections/infrastructure/MediaVault.collection';
 
-/**
- * @section Auditoría de Entorno Pre-Arranque (Top-Level Await)
- * Certifica que todos los secretos requeridos de base de datos, almacenamiento S3
- * y claves criptográficas estén presentes antes de inicializar Payload CMS.
- */
-const validatedEnvironmentInfrastructureMetadata = await ValidateEnvironmentContract();
+const CMS_CONFIG_MODULE_IDENTIFIER: ModuleIdentifier = ModuleIdentifierSchema.parse(
+  'CMS_PAYLOAD_CONFIGURATION',
+);
 
-const isProductionEnvironmentBoolean =
-  validatedEnvironmentInfrastructureMetadata.NODE_ENV === 'production';
+const CMS_CONFIG_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'CMS_PAYLOAD_CONFIGURATION_INITIALIZED',
+);
 
-const isSecureHttpsProtocolBoolean =
-  validatedEnvironmentInfrastructureMetadata.NEXT_PUBLIC_SITE_URL.startsWith('https://');
+const normalizeOriginLiteral = (rawCandidateLiteral: string | undefined): string | null => {
+  if (!rawCandidateLiteral || rawCandidateLiteral.trim() === '') {
+    return null;
+  }
 
-/**
- * @section Gobernanza de Prefijo de Cookie (RFC 6265bis / ADR 0032)
- * En entornos de producción sobre HTTPS se inyecta el prefijo canónico '__Host-fd_cms'
- * (generando la cookie de sesión '__Host-fd_cms-token'), lo que garantiza que la cookie
- * sea exclusiva del host emisor (sin atributo Domain), requiera transporte TLS y esté
- * físicamente aislada del Portal Ciudadano para mitigar ataques de Cookie Tossing.
- */
+  const trimmedLiteral = rawCandidateLiteral.trim().replace(/\/+$/, '');
+  if (trimmedLiteral.startsWith('https://') || trimmedLiteral.startsWith('http://')) {
+    return trimmedLiteral;
+  }
+
+  return `https://${trimmedLiteral}`;
+};
+
+const resolveServerUrlLiteral = (
+  canonicalSiteUrlLiteral: string,
+  environmentMetadataSnapshot: Readonly<Record<string, string | undefined>>,
+): string => {
+  const isPreviewDeploymentBoolean = environmentMetadataSnapshot['VERCEL_ENV'] === 'preview';
+  const previewOriginLiteral = normalizeOriginLiteral(environmentMetadataSnapshot['VERCEL_URL']);
+
+  if (isPreviewDeploymentBoolean && previewOriginLiteral !== null) {
+    return previewOriginLiteral;
+  }
+
+  return canonicalSiteUrlLiteral;
+};
+
+const resolveAllowedOriginsCollection = (
+  resolvedServerUrlLiteral: string,
+  canonicalSiteUrlLiteral: string,
+  environmentMetadataSnapshot: Readonly<Record<string, string | undefined>>,
+): string[] => {
+  const rawOriginCandidatesCollection = [
+    resolvedServerUrlLiteral,
+    canonicalSiteUrlLiteral,
+    normalizeOriginLiteral(environmentMetadataSnapshot['VERCEL_URL']),
+    normalizeOriginLiteral(environmentMetadataSnapshot['VERCEL_BRANCH_URL']),
+    normalizeOriginLiteral(environmentMetadataSnapshot['VERCEL_PROJECT_PRODUCTION_URL']),
+  ];
+
+  return Array.from(
+    new Set(
+      rawOriginCandidatesCollection.filter(
+        (originLiteral): originLiteral is string => originLiteral !== null,
+      ),
+    ),
+  );
+};
+
+const validatedEnvironmentMetadata = await ValidateEnvironmentContract();
+const runtimeEnvironmentSnapshot = GatherEnvironmentMetadata();
+
+const canonicalSiteUrlLiteral = validatedEnvironmentMetadata.NEXT_PUBLIC_SITE_URL.trim().replace(
+  /\/+$/,
+  '',
+);
+const resolvedServerUrlLiteral = resolveServerUrlLiteral(
+  canonicalSiteUrlLiteral,
+  runtimeEnvironmentSnapshot,
+);
+const allowedOriginsCollection = resolveAllowedOriginsCollection(
+  resolvedServerUrlLiteral,
+  canonicalSiteUrlLiteral,
+  runtimeEnvironmentSnapshot,
+);
+
+const isProductionEnvironmentBoolean = validatedEnvironmentMetadata.NODE_ENV === 'production';
+const isSecureHttpsProtocolBoolean = resolvedServerUrlLiteral.startsWith('https://');
 const isHostPrefixedCookieEligibleBoolean =
   isProductionEnvironmentBoolean && isSecureHttpsProtocolBoolean;
 
 const cmsCookiePrefixLiteral = isHostPrefixedCookieEligibleBoolean ? '__Host-fd_cms' : 'fd_cms';
+const currentConfigDirectoryPathLiteral = dirname(fileURLToPath(import.meta.url));
+
+void EmitTelemetrySignal({
+  occurrenceTimestampISO: new Date().toISOString(),
+  severityLevelLiteral: 'INFO',
+  moduleIdentifierLiteral: CMS_CONFIG_MODULE_IDENTIFIER,
+  operationCodeLiteral: CMS_CONFIG_OPERATION_CODE,
+  correlationIdentifier: GenerateCorrelationIdentifier(),
+  messageContentLiteral: 'Configuración central de Payload CMS ensamblada nominalmente.',
+  semanticIntentTag: 'CMS_BOOTSTRAP_CONFIGURATION',
+  contextMetadataSnapshot: Object.freeze({
+    isProductionEnvironmentBoolean,
+    isHostPrefixedCookieEligibleBoolean,
+    allowedOriginsCountQuantity: allowedOriginsCollection.length,
+  }),
+});
 
 /**
  * @name payloadConfigurationMaster
  * @description Configuración exportada para el panel administrativo, API REST y GraphQL de Payload.
  */
 export default buildConfig({
-  /**
-   * @section Gobernanza de Red y Origen Canónico
-   */
-  serverURL: validatedEnvironmentInfrastructureMetadata.NEXT_PUBLIC_SITE_URL,
-
-  /**
-   * Prefijo institucional para todas las cookies emitidas por Payload CMS.
-   */
+  serverURL: resolvedServerUrlLiteral,
   cookiePrefix: cmsCookiePrefixLiteral,
-
-  /**
-   * Lista blanca de orígenes autorizados para protección contra CSRF en peticiones con cookies.
-   */
-  csrf: [validatedEnvironmentInfrastructureMetadata.NEXT_PUBLIC_SITE_URL],
-
-  /**
-   * Orígenes permitidos para peticiones CORS cross-origin institucionales.
-   */
-  cors: [validatedEnvironmentInfrastructureMetadata.NEXT_PUBLIC_SITE_URL],
+  csrf: allowedOriginsCollection,
+  cors: allowedOriginsCollection,
+  sharp,
 
   admin: {
-    /** Vinculación obligatoria con la colección de usuarios del CMS */
     user: CitizenUsersCollection.slug,
-
     meta: {
       titleSuffix: '- Floripa Dignidade CMS',
       icons: [
@@ -108,10 +177,6 @@ export default buildConfig({
     },
   },
 
-  /**
-   * @section Bóveda de Colecciones Institucionales
-   * Enriquecemos la autenticación de `CitizenUsersCollection` con los atributos de transporte seguro.
-   */
   collections: [
     {
       ...CitizenUsersCollection,
@@ -127,48 +192,26 @@ export default buildConfig({
     MediaVaultCollection,
   ],
 
-  /**
-   * @section Adaptador Relacional PostgreSQL (Supabase Pooler)
-   */
-  db: CreatePostgresDatabaseAdapter(validatedEnvironmentInfrastructureMetadata.DATABASE_URL),
-
-  /**
-   * @section Editor de Texto Enriquecido
-   */
+  db: CreatePostgresDatabaseAdapter(validatedEnvironmentMetadata.DATABASE_URL),
   editor: LexicalEditorSovereign,
 
-  /**
-   * @section Adaptador de Almacenamiento S3 (Supabase Storage)
-   */
   plugins: [
     CreateCloudStoragePlugin({
-      endpointLiteral: validatedEnvironmentInfrastructureMetadata.S3_ENDPOINT,
-      accessKeyIdSecret: validatedEnvironmentInfrastructureMetadata.S3_ACCESS_KEY_ID,
-      secretAccessKeySecret: validatedEnvironmentInfrastructureMetadata.S3_SECRET_ACCESS_KEY,
-      regionLiteral: validatedEnvironmentInfrastructureMetadata.S3_REGION,
-      bucketNameLiteral: validatedEnvironmentInfrastructureMetadata.S3_BUCKET,
+      endpointLiteral: validatedEnvironmentMetadata.S3_ENDPOINT,
+      accessKeyIdSecret: validatedEnvironmentMetadata.S3_ACCESS_KEY_ID,
+      secretAccessKeySecret: validatedEnvironmentMetadata.S3_SECRET_ACCESS_KEY,
+      regionLiteral: validatedEnvironmentMetadata.S3_REGION,
+      bucketNameLiteral: validatedEnvironmentMetadata.S3_BUCKET,
     }),
   ],
 
-  /**
-   * @section Clave Criptográfica de Sesión
-   */
-  secret: validatedEnvironmentInfrastructureMetadata.PAYLOAD_SECRET,
+  secret: validatedEnvironmentMetadata.PAYLOAD_SECRET,
 
-  /**
-   * @section Internacionalización de Interfaz
-   */
   i18n: {
     supportedLanguages: { pt, es, en },
   },
 
-  /**
-   * @section Generación Determinista de Tipos TypeScript
-   */
   typescript: {
-    outputFile: ResolveAbsoluteSovereignPath(
-      process.cwd(),
-      'apps/content-manager-system/src/payload-types.ts',
-    ),
+    outputFile: ResolveAbsoluteSovereignPath(currentConfigDirectoryPathLiteral, 'payload-types.ts'),
   },
 });
