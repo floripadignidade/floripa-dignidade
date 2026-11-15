@@ -1,30 +1,32 @@
 /**
+ * @file apps/content-manager-system/src/infrastructure/PostgresDatabaseAdapter.ts
  * @section CMS Infrastructure - Postgres Database Adapter
- * @description Configura el adaptador de persistencia oficial para Payload 3.0.
- * Implementa optimización de pooling para entornos Cloud-Sovereign (Neon/Supabase).
+ * @description Configura el adaptador de persistencia oficial para Payload CMS 3.x.
+ * Implementa pooling optimizado para entornos serverless con timeout calibrado para
+ * negociaciones TLS iniciales contra Supabase Pooler (ADR 0015 / ADR 0031).
  *
- * Protocolo OEDP-V16.0 - High Performance SRE & Infrastructure Isolation.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Cloud-Primary).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad).
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
 import { postgresAdapter } from '@payloadcms/db-postgres';
 
 /**
- * Genera la instancia del adaptador de Postgres purificada.
+ * Genera la instancia del adaptador de PostgreSQL validada para Payload CMS.
  *
- * @param databaseUrlLiteral - Cadena de conexión física validada por la aduana.
- * @returns Adaptador configurado para el motor de Payload.
+ * @param databaseUrlLiteral - Cadena de conexión física validada por `ValidateEnvironmentAduana`.
+ * @returns Adaptador configurado para el motor relacional de Payload.
  */
 export const CreatePostgresDatabaseAdapter = (databaseUrlLiteral: string) => {
   return postgresAdapter({
     pool: {
-      /**
-       * SANEADO Zenith: Inyección dentro del pool para cumplimiento de
-       * tipos de pg.PoolConfig y resolución de TS2353.
-       */
       connectionString: databaseUrlLiteral,
-      max: 10, // Límite técnico para Tier gratuito.
+      max: 10,
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
+      connectionTimeoutMillis: 10000,
     },
   });
 };

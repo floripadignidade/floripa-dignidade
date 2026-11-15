@@ -1,13 +1,14 @@
 /**
- * @section CMS Architecture - Sovereign Orchestrator (GA Stable)
- * @description Punto de ensamblaje maestro para el sistema de gestión de contenidos.
- * Orquesta la persistencia en Postgres, el almacenamiento multimedia en la nube
- * (S3-Compatible), el motor de edición Lexical y la jerarquía de seguridad
- * institucional basada en roles (RBAC).
+ * @file apps/content-manager-system/src/payload.config.ts
+ * @section CMS Infrastructure - Enterprise Administration Configuration (Payload 3.93)
+ * @description Manifiesto central de configuración para el sistema de gestión de contenidos (CMS).
+ * Orquesta la persistencia en PostgreSQL (Supabase Pooler), la integración con la bóveda
+ * multimedia S3 (`media-vault`), el motor de edición de texto Lexical, la internacionalización
+ * administrativa (`pt`, `es`, `en`) y la gobernanza estricta de cookies de sesión aisladas
+ * conforme a RFC 6265bis, OWASP ASVS v4.0 e ISO/IEC 27001 (ADR 0031 / ADR 0032).
  *
- * Protocolo OEDP-V17.0 - High Performance & Zero Abbreviations.
- * SANEADO Zenith: Resolución de Paradoja Asíncrona vía Top-Level Await,
- * normalización de rutas físicas (Sovereign Path) e inyección de ADN tipado.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010, ISO/IEC 27001 y RFC 6265bis.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -15,67 +16,129 @@
 
 import { buildConfig } from 'payload';
 
-/* 1. Almas Lingüísticas (Administrative Interface Internationalization) */
+/* 1. Internacionalización de la Interfaz Administrativa de Payload */
 import { en } from '@payloadcms/translations/languages/en';
 import { es } from '@payloadcms/translations/languages/es';
 import { pt } from '@payloadcms/translations/languages/pt';
 
-/* 2. Infraestructura Core & Guardianes de Integridad */
-import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
+/* 2. Infraestructura Core de Entorno y Validación de Secretos */
+import { ValidateEnvironmentContract } from '@floripa-dignidade/environment-validator';
 
-/* 3. Motores de Infraestructura Atomizados (Swiss-Watch Pattern) */
-import { CreatePostgresDatabaseAdapter } from './infrastructure/PostgresDatabaseAdapter';
-import { LexicalEditorSovereign } from './infrastructure/LexicalEditorSovereign';
+/* 3. Adaptadores y Motores de Infraestructura Locales */
 import { CreateCloudStoragePlugin } from './infrastructure/CloudStoragePlugin';
+import { LexicalEditorSovereign } from './infrastructure/LexicalEditorSovereign';
+import { CreatePostgresDatabaseAdapter } from './infrastructure/PostgresDatabaseAdapter';
 import { ResolveAbsoluteSovereignPath } from './utility/pathUtility';
 
-/* 4. Bóveda de Colecciones Soberanas (Domain Specific Logic) */
-import { CitizenUsersCollection } from './collections/identity/CitizenUsers.collection';
+/* 4. Colecciones de Identidad, Gobernanza y Acervo */
 import { OrganizationsCollection } from './collections/governance/Organizations.collection';
+import { CitizenUsersCollection } from './collections/identity/CitizenUsers.collection';
 import { MediaVaultCollection } from './collections/infrastructure/MediaVault.collection';
 
 /**
- * @section Pre-flight Infrastructure Audit
- * @description Extraemos y validamos los metadatos del entorno antes del arranque.
- * 🛡️ SANEADO Zenith: Inyección de Top-Level Await.
- * La aduana garantiza de forma asíncrona que el sistema no inicie en un estado de
- * corrupción técnica (Ej: Secrets faltantes en el Edge).
+ * @section Auditoría de Entorno Pre-Arranque (Top-Level Await)
+ * Certifica que todos los secretos requeridos de base de datos, almacenamiento S3
+ * y claves criptográficas estén presentes antes de inicializar Payload CMS.
  */
-const validatedEnvironmentInfrastructureMetadata = await ValidateEnvironmentAduana();
+const validatedEnvironmentInfrastructureMetadata = await ValidateEnvironmentContract();
+
+const isProductionEnvironmentBoolean =
+  validatedEnvironmentInfrastructureMetadata.NODE_ENV === 'production';
+
+const isSecureHttpsProtocolBoolean =
+  validatedEnvironmentInfrastructureMetadata.NEXT_PUBLIC_SITE_URL.startsWith('https://');
 
 /**
- * @name SovereignPayloadConfiguration
- * @description Manifiesto de configuración maestro para el búnker administrativo.
+ * @section Gobernanza de Prefijo de Cookie (RFC 6265bis / ADR 0032)
+ * En entornos de producción sobre HTTPS se inyecta el prefijo canónico '__Host-fd_cms'
+ * (generando la cookie de sesión '__Host-fd_cms-token'), lo que garantiza que la cookie
+ * sea exclusiva del host emisor (sin atributo Domain), requiera transporte TLS y esté
+ * físicamente aislada del Portal Ciudadano para mitigar ataques de Cookie Tossing.
+ */
+const isHostPrefixedCookieEligibleBoolean =
+  isProductionEnvironmentBoolean && isSecureHttpsProtocolBoolean;
+
+const cmsCookiePrefixLiteral = isHostPrefixedCookieEligibleBoolean ? '__Host-fd_cms' : 'fd_cms';
+
+/**
+ * @name payloadConfigurationMaster
+ * @description Configuración exportada para el panel administrativo, API REST y GraphQL de Payload.
  */
 export default buildConfig({
   /**
-   * @section Gobernanza de Red
+   * @section Gobernanza de Red y Origen Canónico
    */
   serverURL: validatedEnvironmentInfrastructureMetadata.NEXT_PUBLIC_SITE_URL,
 
+  /**
+   * Prefijo institucional para todas las cookies emitidas por Payload CMS.
+   */
+  cookiePrefix: cmsCookiePrefixLiteral,
+
+  /**
+   * Lista blanca de orígenes autorizados para protección contra CSRF en peticiones con cookies.
+   */
+  csrf: [validatedEnvironmentInfrastructureMetadata.NEXT_PUBLIC_SITE_URL],
+
+  /**
+   * Orígenes permitidos para peticiones CORS cross-origin institucionales.
+   */
+  cors: [validatedEnvironmentInfrastructureMetadata.NEXT_PUBLIC_SITE_URL],
+
   admin: {
-    /** 🛡️ SANEADO: Vinculación con la colección de identidad profesional */
+    /** Vinculación obligatoria con la colección de usuarios del CMS */
     user: CitizenUsersCollection.slug,
 
     meta: {
       titleSuffix: '- Floripa Dignidade CMS',
+      icons: [
+        {
+          rel: 'icon',
+          type: 'image/svg+xml',
+          url: '/brand/favicon/favicon.svg',
+        },
+      ],
+      openGraph: {
+        images: [
+          {
+            url: '/meta/opengraph-image.png',
+          },
+        ],
+      },
     },
   },
 
   /**
-   * @section Bóveda de Colecciones (Ejes de Valor Social)
+   * @section Bóveda de Colecciones Institucionales
+   * Enriquecemos la autenticación de `CitizenUsersCollection` con los atributos de transporte seguro.
    */
-  collections: [CitizenUsersCollection, OrganizationsCollection, MediaVaultCollection],
+  collections: [
+    {
+      ...CitizenUsersCollection,
+      auth: {
+        ...(typeof CitizenUsersCollection.auth === 'object' ? CitizenUsersCollection.auth : {}),
+        cookies: {
+          secure: isSecureHttpsProtocolBoolean,
+          sameSite: 'Lax' as const,
+        },
+      },
+    },
+    OrganizationsCollection,
+    MediaVaultCollection,
+  ],
 
   /**
-   * @section Capas de Persistencia y Edición (Delegación Atómica)
+   * @section Adaptador Relacional PostgreSQL (Supabase Pooler)
    */
   db: CreatePostgresDatabaseAdapter(validatedEnvironmentInfrastructureMetadata.DATABASE_URL),
+
+  /**
+   * @section Editor de Texto Enriquecido
+   */
   editor: LexicalEditorSovereign,
 
   /**
-   * @section Capa de Plugins (Sovereign Infrastructure Extensions)
-   * Implementa el túnel de almacenamiento S3-Compatible hacia Supabase Storage.
+   * @section Adaptador de Almacenamiento S3 (Supabase Storage)
    */
   plugins: [
     CreateCloudStoragePlugin({
@@ -88,21 +151,19 @@ export default buildConfig({
   ],
 
   /**
-   * @section Seguridad Criptográfica ISO
+   * @section Clave Criptográfica de Sesión
    */
   secret: validatedEnvironmentInfrastructureMetadata.PAYLOAD_SECRET,
 
   /**
-   * @section Soporte Lingüístico Administrativo
+   * @section Internacionalización de Interfaz
    */
   i18n: {
     supportedLanguages: { pt, es, en },
   },
 
   /**
-   * @section Configuración de ADN Técnico (TypeScript)
-   * 🛡️ SANEADO Zenith: Resolución de ruta absoluta para asegurar builds deterministas
-   * evitando errores de IO en el sistema de archivos virtual de Vercel/Turbopack.
+   * @section Generación Determinista de Tipos TypeScript
    */
   typescript: {
     outputFile: ResolveAbsoluteSovereignPath(
