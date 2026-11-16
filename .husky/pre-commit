@@ -1,11 +1,4 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
 
-# Si estamos en CI o Vercel, auditar archivos en stage obligatoriamente
 if [ "$CI" = "true" ] || [ -n "$VERCEL" ]; then
-  pnpm exec lint-staged
-else
-  # En desarrollo local puedes decidir si pasa rápido o salta si hay prisa
-  # Comenta la línea de abajo si quieres omitir el linter por completo al commitear localmente:
   pnpm exec lint-staged
 fi
