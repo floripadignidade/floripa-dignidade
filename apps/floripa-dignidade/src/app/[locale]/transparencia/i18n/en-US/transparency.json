@@ -8,6 +8,51 @@
     "primaryCtaLabelLiteral": "Open Expenditure Observatory",
     "secondaryCtaLabelLiteral": "Submit Protected Report"
   },
+  "heroCarousel": {
+    "carouselAriaLabelLiteral": "Editorial highlights of the Proactive Transparency Civic Gazette",
+    "carouselRoleDescriptionLiteral": "carousel",
+    "slideRoleDescriptionLiteral": "slide",
+    "pauseRotationLabelLiteral": "Pause automatic rotation of highlights",
+    "resumeRotationLabelLiteral": "Resume automatic rotation of highlights",
+    "previousSlideLabelLiteral": "Previous slide",
+    "nextSlideLabelLiteral": "Next slide",
+    "readMoreLabelLiteral": "Read more",
+    "viewInObservatoryLabelLiteral": "Inspect in Observatory",
+    "slidePositionTemplateLiteral": "Slide {current} of {total}",
+    "dotNavigationAriaLabelLiteral": "Select highlight by position",
+    "featuredSlidesCollection": [
+      {
+        "articleIdentifier": "hero-passarela-acolhimento-2026",
+        "secretariatIdentifier": "SOCIAL_ASSISTANCE",
+        "headlineLiteral": "Civic audit tracks municipal shelter agreements and food security execution across the capital",
+        "summaryLiteral": "Documentary review cross-checks municipal collaboration contracts for Passarela da Cidadania and solidarity kitchens against territorial service goals, ensuring visibility into nutritional standards and human dignity.",
+        "publishedDateIsoLiteral": "2026-11-12",
+        "sourceReferenceLiteral": "PMF Transparency Portal • Collaboration Terms 2026",
+        "verificationStatusLiteral": "VERIFIED_AUDIT",
+        "targetActionPathLiteral": "/observatorio/gastos-publicos"
+      },
+      {
+        "articleIdentifier": "hero-consultorio-rua-2026",
+        "secretariatIdentifier": "PUBLIC_HEALTH",
+        "headlineLiteral": "Expanded mobile clinical outreach lowers access barriers for citizens lacking civil documents",
+        "summaryLiteral": "Multidisciplinary Street Outreach Clinic teams broadened clinical follow-ups and mental health referrals without requiring prior proof of fixed residence.",
+        "publishedDateIsoLiteral": "2026-11-09",
+        "sourceReferenceLiteral": "SMS Technical Bulletin • Primary Care",
+        "verificationStatusLiteral": "VERIFIED_AUDIT",
+        "targetActionPathLiteral": "/observatorio/gastos-publicos"
+      },
+      {
+        "articleIdentifier": "hero-agua-pontos-criticos-2026",
+        "secretariatIdentifier": "INFRASTRUCTURE_SANITATION",
+        "headlineLiteral": "Technical note stresses urgency for public drinking water stations and accessible restrooms downtown",
+        "summaryLiteral": "Territorial indicators recommend priority installation along high-traffic urban corridors to prevent sanitation health hazards and protect human dignity.",
+        "publishedDateIsoLiteral": "2026-11-02",
+        "sourceReferenceLiteral": "Territorial Diagnosis • Floripa Dignidade",
+        "verificationStatusLiteral": "CRITICAL_ALERT",
+        "targetActionPathLiteral": "/denuncia"
+      }
+    ]
+  },
   "navigation": {
     "filterHeadingLiteral": "Filter edition by municipal secretariat",
     "allSecretariatsLabelLiteral": "All Secretariats",

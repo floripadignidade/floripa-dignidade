@@ -8,6 +8,51 @@
     "primaryCtaLabelLiteral": "Abrir Observatorio de Gastos",
     "secondaryCtaLabelLiteral": "Enviar Denuncia Protegida"
   },
+  "heroCarousel": {
+    "carouselAriaLabelLiteral": "Destacados editoriales del Diario Cívico de Transparencia Activa",
+    "carouselRoleDescriptionLiteral": "carrusel",
+    "slideRoleDescriptionLiteral": "diapositiva",
+    "pauseRotationLabelLiteral": "Pausar rotación automática de los destacados",
+    "resumeRotationLabelLiteral": "Reanudar rotación automática de los destacados",
+    "previousSlideLabelLiteral": "Diapositiva anterior",
+    "nextSlideLabelLiteral": "Siguiente diapositiva",
+    "readMoreLabelLiteral": "Leer más",
+    "viewInObservatoryLabelLiteral": "Verificar en el Observatorio",
+    "slidePositionTemplateLiteral": "Diapositiva {current} de {total}",
+    "dotNavigationAriaLabelLiteral": "Seleccionar destacado por posición",
+    "featuredSlidesCollection": [
+      {
+        "articleIdentifier": "hero-passarela-acolhimento-2026",
+        "secretariatIdentifier": "SOCIAL_ASSISTANCE",
+        "headlineLiteral": "Auditoría ciudadana sigue la ejecución de convenios de acogida y seguridad alimentaria en la capital",
+        "summaryLiteral": "Relevamiento documental cruza contratos municipales de la Passarela da Cidadania y cocinas solidarias con metas de atención territorial, garantizando visibilidad sobre calidad nutricional y dignidad humana.",
+        "publishedDateIsoLiteral": "2026-11-12",
+        "sourceReferenceLiteral": "Portal de Transparencia PMF • Convenios de Colaboración 2026",
+        "verificationStatusLiteral": "VERIFIED_AUDIT",
+        "targetActionPathLiteral": "/observatorio/gastos-publicos"
+      },
+      {
+        "articleIdentifier": "hero-consultorio-rua-2026",
+        "secretariatIdentifier": "PUBLIC_HEALTH",
+        "headlineLiteral": "Expansión de atenciones itinerantes reduce barreras de acceso para ciudadanos sin documentación civil",
+        "summaryLiteral": "Equipos multiprofesionales del Consultorio en la Calle ampliaron el seguimiento clínico y derivaciones de salud mental sin exigir comprobante previo de domicilio fijo.",
+        "publishedDateIsoLiteral": "2026-11-09",
+        "sourceReferenceLiteral": "Boletín Técnico SMS • Atención Primaria",
+        "verificationStatusLiteral": "VERIFIED_AUDIT",
+        "targetActionPathLiteral": "/observatorio/gastos-publicos"
+      },
+      {
+        "articleIdentifier": "hero-agua-pontos-criticos-2026",
+        "secretariatIdentifier": "INFRASTRUCTURE_SANITATION",
+        "headlineLiteral": "Nota técnica refuerza urgencia de puntos públicos de agua potável y sanitarios accesibles en el Centro",
+        "summaryLiteral": "Indicadores territoriales recomiendan instalación prioritaria en corredores urbanos de alta circulación para prevenir agravios sanitarios y proteger la dignidad humana.",
+        "publishedDateIsoLiteral": "2026-11-02",
+        "sourceReferenceLiteral": "Diagnóstico Territorial • Floripa Dignidade",
+        "verificationStatusLiteral": "CRITICAL_ALERT",
+        "targetActionPathLiteral": "/denuncia"
+      }
+    ]
+  },
   "navigation": {
     "filterHeadingLiteral": "Filtrar edición por secretaría municipal",
     "allSecretariatsLabelLiteral": "Todas las Secretarías",
@@ -142,7 +187,7 @@
           {
             "articleIdentifier": "inf-agua-pontos-criticos-2026",
             "secretariatIdentifier": "INFRASTRUCTURE_SANITATION",
-            "headlineLiteral": "Nota técnica refuerza urgencia de puntos públicos de agua potable y sanitarios accesibles",
+            "headlineLiteral": "Nota técnica refuerza urgencia de puntos públicos de agua potável y sanitarios accesibles",
             "summaryLiteral": "Indicadores territoriales recomiendan instalación prioritaria en corredores urbanos de alta circulación para prevenir riesgos sanitarios.",
             "publishedDateIsoLiteral": "2026-11-02",
             "sourceReferenceLiteral": "Diagnóstico Territorial • Floripa Dignidade",
