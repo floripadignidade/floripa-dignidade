@@ -1,13 +1,13 @@
 {
-  "generationTimestampISO": "2026-11-15T17:37:13.200Z",
-  "correlationIdentifier": "0cb280b2-9f34-4cbf-bf9b-f9fc593c8d18",
+  "generationTimestampISO": "2026-11-16T13:01:45.486Z",
+  "correlationIdentifier": "8623f5a4-66ba-4803-b9d1-7c98bebca3e1",
   "sourceLocaleIdentifier": "pt-BR",
   "activeLocalesCollection": [
     "pt-BR",
     "es-ES",
     "en-US"
   ],
-  "totalModulesProcessedQuantity": 26,
+  "totalModulesProcessedQuantity": 28,
   "isParityVerifiedBoolean": true,
   "parityViolationsCollection": [],
   "auditTrailCollection": [
@@ -276,6 +276,18 @@
       "parityViolationsCountQuantity": 0
     },
     {
+      "moduleIdentifierLiteral": "apps/floripa-dignidade/identidad",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\apps\\floripa-dignidade\\src\\app\\[locale]\\identidad\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "FOLDER_PER_LOCALE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
+    },
+    {
       "moduleIdentifierLiteral": "apps/floripa-dignidade/newsletter/invalid-token",
       "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\apps\\floripa-dignidade\\src\\app\\[locale]\\newsletter\\invalid-token\\i18n",
       "processedLocalesCollection": [
@@ -308,6 +320,18 @@
         "en-US"
       ],
       "siloFormatLiteral": "LEGACY_FLAT_FILE",
+      "missingLocalesCollection": [],
+      "parityViolationsCountQuantity": 0
+    },
+    {
+      "moduleIdentifierLiteral": "apps/floripa-dignidade/transparencia",
+      "filesystemPathLiteral": "C:\\Users\\VAIO\\apps\\aaa-proyectos-propios\\floripa-dignidade-container\\floripa-dignidade\\apps\\floripa-dignidade\\src\\app\\[locale]\\transparencia\\i18n",
+      "processedLocalesCollection": [
+        "pt-BR",
+        "es-ES",
+        "en-US"
+      ],
+      "siloFormatLiteral": "FOLDER_PER_LOCALE",
       "missingLocalesCollection": [],
       "parityViolationsCountQuantity": 0
     },

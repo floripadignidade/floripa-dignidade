@@ -59,6 +59,56 @@
       }
     }
   },
+  "apps/floripa-dignidade/identidad": {
+    "identity": {
+      "hero": {
+        "badgeLabelLiteral": "Transparency • Human Rights • Florianópolis",
+        "headlineMainLiteral": "Citizen dignity is non-negotiable:",
+        "headlineAccentLiteral": "it is an active conquest",
+        "descriptionLiteral": "Floripa Dignidade is a civil society organization dedicated to the steadfast defense of human rights, independent public budget auditing, and territorial support for vulnerable communities across Florianópolis."
+      },
+      "framework": {
+        "badgeLiteral": "Civil Society Regulatory Framework",
+        "headlineLiteral": "Legal Constitution and Public Governance",
+        "descriptionLiteral": "Structured under Brazilian Federal Law 13.019/2014 (MROSC), the organization maintains full political and partisan independence to audit municipal contracts, collaboration agreements, and public shelter facilities.",
+        "legalFormLiteral": "Non-Profit Civil Association (CSO)",
+        "territorialJurisdictionLiteral": "Florianópolis Metropolitan Area • Santa Catarina, Brazil"
+      },
+      "pillarsSection": {
+        "badgeLiteral": "Impact Triad",
+        "headlineLiteral": "Bread, Shelter and Law: The Three Seeds of Citizenship",
+        "descriptionLiteral": "Our civic intervention connects immediate material relief, safe shelter, and legal defense before public authorities and judicial courts.",
+        "pillarsCollection": [
+          {
+            "identifier": "PAO",
+            "titleLiteral": "Bread",
+            "subtitleLiteral": "Food Security and Vital Support",
+            "descriptionLiteral": "Solidarity kitchen networking, municipal food program auditing, and emergency supplies dispatch."
+          },
+          {
+            "identifier": "TETO",
+            "titleLiteral": "Shelter",
+            "subtitleLiteral": "Protected Housing and Human Dignity",
+            "descriptionLiteral": "Public shelter monitoring, protection of unsheltered populations against institutional violence, and housing rights defense."
+          },
+          {
+            "identifier": "LEI",
+            "titleLiteral": "Law",
+            "subtitleLiteral": "Legal Defense and Fiscal Auditing",
+            "descriptionLiteral": "Strategic public-interest litigation, algorithmic municipal expenditure auditing, and safe reporting channels."
+          }
+        ]
+      },
+      "actions": {
+        "primaryCtaLabelLiteral": "Explore Public Expenditure",
+        "secondaryCtaLabelLiteral": "Citizen Reporting Channel"
+      },
+      "metadata": {
+        "pageTitleLiteral": "Institutional Identity and Governance",
+        "pageDescriptionLiteral": "Discover Floripa Dignidade's mission, legal constitution (MROSC), and three impact pillars."
+      }
+    }
+  },
   "apps/floripa-dignidade/newsletter/invalid-token": {
     "invalidToken": {
       "hero": {
@@ -120,6 +170,218 @@
       "exportCsvLabel": "Export Report",
       "printReportLabel": "Print Certificate",
       "restrictAccessToggle": "Filter by Severity"
+    }
+  },
+  "apps/floripa-dignidade/transparencia": {
+    "transparency": {
+      "hero": {
+        "editionBadgeLiteral": "Proactive Transparency • Law 12.527/2011 • Florianópolis",
+        "editionLabelLiteral": "Civic Gazette by Secretariat",
+        "headlineMainLiteral": "Public transparency gazette:",
+        "headlineAccentLiteral": "audited facts by secretariat",
+        "leadDescriptionLiteral": "Follow journalistic briefings, executive summaries, and civic oversight alerts covering municipal contracts, social shelters, and public services in Florianópolis.",
+        "primaryCtaLabelLiteral": "Open Expenditure Observatory",
+        "secondaryCtaLabelLiteral": "Submit Protected Report"
+      },
+      "heroCarousel": {
+        "carouselAriaLabelLiteral": "Editorial highlights of the Proactive Transparency Civic Gazette",
+        "carouselRoleDescriptionLiteral": "carousel",
+        "slideRoleDescriptionLiteral": "slide",
+        "pauseRotationLabelLiteral": "Pause automatic rotation of highlights",
+        "resumeRotationLabelLiteral": "Resume automatic rotation of highlights",
+        "previousSlideLabelLiteral": "Previous slide",
+        "nextSlideLabelLiteral": "Next slide",
+        "readMoreLabelLiteral": "Read more",
+        "viewInObservatoryLabelLiteral": "Inspect in Observatory",
+        "slidePositionTemplateLiteral": "Slide {current} of {total}",
+        "dotNavigationAriaLabelLiteral": "Select highlight by position",
+        "featuredSlidesCollection": [
+          {
+            "articleIdentifier": "hero-passarela-acolhimento-2026",
+            "secretariatIdentifier": "SOCIAL_ASSISTANCE",
+            "headlineLiteral": "Civic audit tracks municipal shelter agreements and food security execution across the capital",
+            "summaryLiteral": "Documentary review cross-checks municipal collaboration contracts for Passarela da Cidadania and solidarity kitchens against territorial service goals, ensuring visibility into nutritional standards and human dignity.",
+            "publishedDateIsoLiteral": "2026-11-12",
+            "sourceReferenceLiteral": "PMF Transparency Portal • Collaboration Terms 2026",
+            "verificationStatusLiteral": "VERIFIED_AUDIT",
+            "targetActionPathLiteral": "/observatorio/gastos-publicos"
+          },
+          {
+            "articleIdentifier": "hero-consultorio-rua-2026",
+            "secretariatIdentifier": "PUBLIC_HEALTH",
+            "headlineLiteral": "Expanded mobile clinical outreach lowers access barriers for citizens lacking civil documents",
+            "summaryLiteral": "Multidisciplinary Street Outreach Clinic teams broadened clinical follow-ups and mental health referrals without requiring prior proof of fixed residence.",
+            "publishedDateIsoLiteral": "2026-11-09",
+            "sourceReferenceLiteral": "SMS Technical Bulletin • Primary Care",
+            "verificationStatusLiteral": "VERIFIED_AUDIT",
+            "targetActionPathLiteral": "/observatorio/gastos-publicos"
+          },
+          {
+            "articleIdentifier": "hero-agua-pontos-criticos-2026",
+            "secretariatIdentifier": "INFRASTRUCTURE_SANITATION",
+            "headlineLiteral": "Technical note stresses urgency for public drinking water stations and accessible restrooms downtown",
+            "summaryLiteral": "Territorial indicators recommend priority installation along high-traffic urban corridors to prevent sanitation health hazards and protect human dignity.",
+            "publishedDateIsoLiteral": "2026-11-02",
+            "sourceReferenceLiteral": "Territorial Diagnosis • Floripa Dignidade",
+            "verificationStatusLiteral": "CRITICAL_ALERT",
+            "targetActionPathLiteral": "/denuncia"
+          }
+        ]
+      },
+      "navigation": {
+        "filterHeadingLiteral": "Filter edition by municipal secretariat",
+        "allSecretariatsLabelLiteral": "All Secretariats",
+        "articlesCountSuffixLiteral": "published briefings",
+        "jumpToSecretariatPrefixLiteral": "Filter desk for"
+      },
+      "featuredLead": {
+        "sectionBadgeLiteral": "Front Page Lead • Featured Dossier",
+        "readInObservatoryLabelLiteral": "Inspect figures in Observatory",
+        "article": {
+          "articleIdentifier": "lead-passarela-acolhimento-2026",
+          "secretariatIdentifier": "SOCIAL_ASSISTANCE",
+          "headlineLiteral": "Civic audit tracks municipal shelter agreements and food security execution across the capital",
+          "summaryLiteral": "Documentary review cross-checks municipal collaboration contracts for Passarela da Cidadania and solidarity kitchens against territorial service goals, ensuring visibility into nutritional standards and human dignity.",
+          "publishedDateIsoLiteral": "2026-11-12",
+          "sourceReferenceLiteral": "PMF Transparency Portal • Collaboration Terms 2026",
+          "verificationStatusLiteral": "VERIFIED_AUDIT",
+          "targetActionPathLiteral": "/observatorio/gastos-publicos"
+        }
+      },
+      "statusLabels": {
+        "VERIFIED_AUDIT": "Official Source Verified",
+        "MONITORING_ACTIVE": "Active Monitoring",
+        "CRITICAL_ALERT": "Priority Alert"
+      },
+      "secretariatsSection": {
+        "sectionHeadingLiteral": "Sectoral Desks by Secretariat",
+        "sectionSubtitleLiteral": "Each municipal department compiles a period executive summary alongside news briefings linked to official records and public contracts.",
+        "summaryHeadingLiteral": "Secretariat Executive Summary",
+        "sourcePrefixLiteral": "Source:",
+        "secretariatsCollection": [
+          {
+            "secretariatIdentifier": "SOCIAL_ASSISTANCE",
+            "secretariatNameLiteral": "Social Assistance and Human Rights",
+            "executiveSummaryLiteral": "Focused on monitoring municipal shelters, street outreach teams, and continuous meal distribution for unsheltered citizens.",
+            "keyFocusAreaLiteral": "Special Social Protection and Food Security",
+            "articlesCollection": [
+              {
+                "articleIdentifier": "soc-acolhimento-inverno-2026",
+                "secretariatIdentifier": "SOCIAL_ASSISTANCE",
+                "headlineLiteral": "Report assesses bed capacity and dignified shelter protocols across municipal facilities",
+                "summaryLiteral": "The review consolidates occupancy logs, basic hygiene availability, and MROSC compliance across partnered units in the Downtown and Mainland districts.",
+                "publishedDateIsoLiteral": "2026-11-10",
+                "sourceReferenceLiteral": "Municipal Official Gazette • MROSC Agreements",
+                "verificationStatusLiteral": "VERIFIED_AUDIT",
+                "targetActionPathLiteral": "/observatorio/gastos-publicos"
+              },
+              {
+                "articleIdentifier": "soc-abordagem-direitos-2026",
+                "secretariatIdentifier": "SOCIAL_ASSISTANCE",
+                "headlineLiteral": "Civic channel logs requests to safeguard personal belongings during urban outreach sweeps",
+                "summaryLiteral": "Affected citizens and support networks reported irregular seizures in central areas; the observatory requested formal clarification on the applied protocol.",
+                "publishedDateIsoLiteral": "2026-11-08",
+                "sourceReferenceLiteral": "Civic Reporting Network • LGPD Protocol",
+                "verificationStatusLiteral": "CRITICAL_ALERT",
+                "targetActionPathLiteral": "/denuncia"
+              }
+            ]
+          },
+          {
+            "secretariatIdentifier": "PUBLIC_HEALTH",
+            "secretariatNameLiteral": "Public Health and Primary Care",
+            "executiveSummaryLiteral": "Tracking essential medicine stocks, mobile street clinic shifts, and primary healthcare coverage across island and mainland neighborhoods.",
+            "keyFocusAreaLiteral": "Street Outreach Clinics and Primary Health Units",
+            "articlesCollection": [
+              {
+                "articleIdentifier": "sau-consultorio-rua-2026",
+                "secretariatIdentifier": "PUBLIC_HEALTH",
+                "headlineLiteral": "Expanded mobile clinical outreach lowers access barriers for citizens lacking civil documents",
+                "summaryLiteral": "Multidisciplinary teams broadened clinical follow-ups and mental health referrals without requiring prior proof of fixed residence.",
+                "publishedDateIsoLiteral": "2026-11-09",
+                "sourceReferenceLiteral": "SMS Technical Bulletin • Primary Care",
+                "verificationStatusLiteral": "VERIFIED_AUDIT",
+                "targetActionPathLiteral": "/observatorio/gastos-publicos"
+              },
+              {
+                "articleIdentifier": "sau-insumos-basicos-2026",
+                "secretariatIdentifier": "PUBLIC_HEALTH",
+                "headlineLiteral": "Monitoring reviews restocking timelines across district pharmacies in Northern and Southern Island",
+                "summaryLiteral": "Active emergency supply contracts are tracked for delivery timeliness to prevent shortages at high-demand neighborhood clinics.",
+                "publishedDateIsoLiteral": "2026-11-05",
+                "sourceReferenceLiteral": "E-Pública Portal • Health Contracts",
+                "verificationStatusLiteral": "MONITORING_ACTIVE",
+                "targetActionPathLiteral": "/observatorio/gastos-publicos"
+              }
+            ]
+          },
+          {
+            "secretariatIdentifier": "EDUCATION_CITIZENSHIP",
+            "secretariatNameLiteral": "Education and Community Inclusion",
+            "executiveSummaryLiteral": "Oversight of school nutrition programs, neighborhood daycare capacity, and youth and adult literacy initiatives in vulnerable territories.",
+            "keyFocusAreaLiteral": "School Nutrition and Early Childhood Seats",
+            "articlesCollection": [
+              {
+                "articleIdentifier": "edu-merenda-agricultura-2026",
+                "secretariatIdentifier": "EDUCATION_CITIZENSHIP",
+                "headlineLiteral": "Family farming procurement secures regional nutrition across municipal education centers",
+                "summaryLiteral": "Supply tender auditing confirms compliance with statutory sourcing thresholds from regional agricultural cooperatives.",
+                "publishedDateIsoLiteral": "2026-11-07",
+                "sourceReferenceLiteral": "School Nutrition Tender • PMF",
+                "verificationStatusLiteral": "VERIFIED_AUDIT",
+                "targetActionPathLiteral": "/observatorio/gastos-publicos"
+              },
+              {
+                "articleIdentifier": "edu-vagas-territoriais-2026",
+                "secretariatIdentifier": "EDUCATION_CITIZENSHIP",
+                "headlineLiteral": "Survey maps early childhood waitlist demand across high-growth districts",
+                "summaryLiteral": "Open datasets highlight demand concentration in the Northern Island and Mainland, guiding civic budget expansion recommendations.",
+                "publishedDateIsoLiteral": "2026-11-03",
+                "sourceReferenceLiteral": "Open Education Dashboard • IBGE/PMF",
+                "verificationStatusLiteral": "MONITORING_ACTIVE",
+                "targetActionPathLiteral": "/observatorio/gastos-publicos"
+              }
+            ]
+          },
+          {
+            "secretariatIdentifier": "INFRASTRUCTURE_SANITATION",
+            "secretariatNameLiteral": "Infrastructure, Housing and Sanitation",
+            "executiveSummaryLiteral": "Inspection of drainage works, clean drinking water access, safe public lighting, and prevention of forced evictions without housing alternatives.",
+            "keyFocusAreaLiteral": "Basic Sanitation and Right to the City",
+            "articlesCollection": [
+              {
+                "articleIdentifier": "inf-saneamento-tapera-2026",
+                "secretariatIdentifier": "INFRASTRUCTURE_SANITATION",
+                "headlineLiteral": "Communities track sewage network and stormwater drainage schedule in Tapera",
+                "summaryLiteral": "The briefing summarizes physical field milestones against disbursed funds alongside local community leaders.",
+                "publishedDateIsoLiteral": "2026-11-06",
+                "sourceReferenceLiteral": "Public Works Schedule • PMF",
+                "verificationStatusLiteral": "MONITORING_ACTIVE",
+                "targetActionPathLiteral": "/observatorio/gastos-publicos"
+              },
+              {
+                "articleIdentifier": "inf-agua-pontos-criticos-2026",
+                "secretariatIdentifier": "INFRASTRUCTURE_SANITATION",
+                "headlineLiteral": "Technical note stresses urgency for public drinking water stations and accessible restrooms",
+                "summaryLiteral": "Territorial indicators recommend priority installation along high-traffic urban corridors to prevent sanitation health hazards.",
+                "publishedDateIsoLiteral": "2026-11-02",
+                "sourceReferenceLiteral": "Territorial Diagnosis • Floripa Dignidade",
+                "verificationStatusLiteral": "CRITICAL_ALERT",
+                "targetActionPathLiteral": "/denuncia"
+              }
+            ]
+          }
+        ]
+      },
+      "methodologyBanner": {
+        "headlineLiteral": "Editorial Methodology and Civic Independence",
+        "descriptionLiteral": "Every briefing published in this gazette links back to official public records or community testimonies anonymized under LGPD standards, with zero partisan funding.",
+        "legalBasisLiteral": "Federal Law 12.527/2011 (FOIA) • Law 13.019/2014 (MROSC) • Law 13.709/2018 (LGPD)"
+      },
+      "metadata": {
+        "pageTitleLiteral": "Proactive Transparency and Secretariat Gazette",
+        "pageDescriptionLiteral": "Civic newspaper featuring summarized news briefings, documentary audits, and executive summaries organized by municipal secretariats in Florianópolis."
+      }
     }
   },
   "apps/floripa-dignidade/unauthorized": {
