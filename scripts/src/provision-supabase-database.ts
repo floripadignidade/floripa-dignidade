@@ -48,7 +48,7 @@ const parseProvisioningCliFlags = (commandArgumentsCollection: readonly string[]
 
   return Object.freeze({
     isApplyModeBoolean: hasDryRunFlagBoolean ? false : hasApplyFlagBoolean,
-    preferDirectMigrationConnectionBoolean: !isDirectDisabledBoolean,
+    shouldPreferDirectMigrationConnectionBoolean: !isDirectDisabledBoolean,
   });
 };
 
@@ -66,8 +66,9 @@ const renderMigrationGroup = (
     const checksumPreviewLiteral = entrySnapshot.checksumSha256Literal.slice(0, 12);
     const durationMsQuantity = entrySnapshot.executionDurationInMillisecondsQuantity;
     console.warn(
-      `   ${colorLiteral}${markerLiteral}${resetLiteral} ${entrySnapshot.migrationFilenameLiteral}` +
-        ` ${grayLiteral}(sha256: ${checksumPreviewLiteral}... | ${durationMsQuantity}ms)${resetLiteral}`,
+      `   ${colorLiteral}${markerLiteral}${resetLiteral} ` +
+        `${entrySnapshot.migrationFilenameLiteral} ${grayLiteral}` +
+        `(sha256: ${checksumPreviewLiteral}... | ${durationMsQuantity}ms)${resetLiteral}`,
     );
   }
 };
@@ -81,11 +82,11 @@ const renderProvisioningSummary = (reportSnapshot: ISupabaseProvisioningReport):
   const durationMsQuantity = reportSnapshot.executionDurationInMillisecondsQuantity;
 
   console.warn(
-    `\n${boldLiteral}Modo:${resetLiteral} ${modeColorLiteral}${reportSnapshot.executionModeLiteral}${resetLiteral}` +
-      ` | ${boldLiteral}Canal:${resetLiteral} ${reportSnapshot.connectionSourceKeyLiteral}` +
-      ` | ${boldLiteral}Descubiertas:${resetLiteral} ${discoveredQuantity}`,
+    `\n${boldLiteral}Modo:${resetLiteral} ${modeColorLiteral}` +
+      `${reportSnapshot.executionModeLiteral}${resetLiteral} | ` +
+      `${boldLiteral}Canal:${resetLiteral} ${reportSnapshot.connectionSourceKeyLiteral} | ` +
+      `${boldLiteral}Descubiertas:${resetLiteral} ${discoveredQuantity}`,
   );
-
   renderMigrationGroup(
     'MIGRACIONES APLICADAS EN ESTA EJECUCIÓN',
     greenLiteral,
@@ -104,7 +105,6 @@ const renderProvisioningSummary = (reportSnapshot: ISupabaseProvisioningReport):
     '▶',
     reportSnapshot.pendingMigrationsCollection,
   );
-
   console.warn(`\n${boldLiteral}Duración Total:${resetLiteral}       ${durationMsQuantity}ms`);
   console.warn(
     `${boldLiteral}Reporte Forense JSON:${resetLiteral} ` +
@@ -119,14 +119,12 @@ const ExecuteCommandLineRunner = async (): Promise<void> => {
   const correlationIdentifier = GenerateCorrelationIdentifier();
   const { boldLiteral, cyanLiteral, greenLiteral, redLiteral, resetLiteral, yellowLiteral } =
     ANSI_COLORS;
-  const { isApplyModeBoolean, preferDirectMigrationConnectionBoolean } = parseProvisioningCliFlags(
-    process.argv.slice(2),
-  );
+  const { isApplyModeBoolean, shouldPreferDirectMigrationConnectionBoolean } =
+    parseProvisioningCliFlags(process.argv.slice(2));
   const bannerTitleLiteral =
     '--- [FLORIPA DIGNIDADE]: PROVISIONAMIENTO SQL IDEMPOTENTE DE SUPABASE ---';
 
   console.warn(`\n${boldLiteral}${cyanLiteral}${bannerTitleLiteral}${resetLiteral}`);
-
   void EmitTelemetrySignal({
     occurrenceTimestampISO: new Date().toISOString(),
     severityLevelLiteral: 'INFO',
@@ -137,37 +135,29 @@ const ExecuteCommandLineRunner = async (): Promise<void> => {
     semanticIntentTag: 'CLI_SUPABASE_PROVISIONING_START',
     contextMetadataSnapshot: Object.freeze({
       isApplyModeBoolean,
-      preferDirectMigrationConnectionBoolean,
+      preferDirectMigrationConnectionBoolean: shouldPreferDirectMigrationConnectionBoolean,
     }),
   });
 
   try {
     const reportSnapshot = await ProvisionInitialSupabaseDatabase({
       isApplyModeBoolean,
-      preferDirectMigrationConnectionBoolean,
+      preferDirectMigrationConnectionBoolean: shouldPreferDirectMigrationConnectionBoolean,
       correlationIdentifier,
     });
-
     renderProvisioningSummary(reportSnapshot);
-
-    if (!isApplyModeBoolean && reportSnapshot.pendingMigrationsCollection.length > 0) {
-      console.warn(
-        `${boldLiteral}${yellowLiteral}ℹ MODO DRY_RUN ACTIVO:${resetLiteral}` +
-          ' Ejecuta con --apply para aplicar las migraciones pendientes en transacción.\n',
-      );
-    } else {
-      console.warn(
-        `${boldLiteral}${greenLiteral}✔ PROVISIONAMIENTO SQL CONSOLIDADO EXITOSAMENTE.${resetLiteral}\n`,
-      );
-    }
-
+    const hasPendingDryRunBoolean =
+      !isApplyModeBoolean && reportSnapshot.pendingMigrationsCollection.length > 0;
+    const footerMessageLiteral = hasPendingDryRunBoolean
+      ? `${boldLiteral}${yellowLiteral}ℹ MODO DRY_RUN ACTIVO:${resetLiteral} Ejecuta con --apply para aplicar las migraciones pendientes en transacción.\n`
+      : `${boldLiteral}${greenLiteral}✔ PROVISIONAMIENTO SQL CONSOLIDADO EXITOSAMENTE.${resetLiteral}\n`;
+    console.warn(footerMessageLiteral);
     process.exit(0);
   } catch (caughtExecutionError: unknown) {
     const errorDescriptionLiteral =
       caughtExecutionError instanceof Error
         ? caughtExecutionError.message
         : String(caughtExecutionError);
-
     void EmitTelemetrySignal({
       occurrenceTimestampISO: new Date().toISOString(),
       severityLevelLiteral: 'CRITICAL',
@@ -178,10 +168,8 @@ const ExecuteCommandLineRunner = async (): Promise<void> => {
       semanticIntentTag: 'CLI_SUPABASE_PROVISIONING_FAULT',
       contextMetadataSnapshot: Object.freeze({ errorDescriptionLiteral }),
     });
-
     console.error(
-      `\n${boldLiteral}${redLiteral}✖ FALLO EN PROVISIONAMIENTO SQL:${resetLiteral}` +
-        ` ${errorDescriptionLiteral}\n`,
+      `\n${boldLiteral}${redLiteral}✖ FALLO EN PROVISIONAMIENTO SQL:${resetLiteral} ${errorDescriptionLiteral}\n`,
     );
     process.exit(1);
   }
