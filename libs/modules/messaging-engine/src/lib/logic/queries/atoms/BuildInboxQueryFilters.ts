@@ -1,29 +1,94 @@
 /**
- * @section Messaging Logic - Inbox Query Builder
- * @description Átomo de lógica pura encargado de generar las cadenas de filtrado
- * para el protocolo PostgREST. Garantiza que las consultas al Ledger sean
- * consistentes y sigan la política de exclusión de rastro eliminado.
+ * @file libs/modules/messaging-engine/src/lib/logic/queries/atoms/BuildInboxQueryFilters.ts
+ * @section Messaging Logic - Inbox Query Builder (Atom)
+ * @description Átomo de lógica pura encargado de validar el identificador ciudadano
+ * mediante Zod y construir cadenas de filtrado PostgREST seguras y alineadas con el
+ * esquema físico (`dispatched_at`) para notificaciones y mensajería directa.
  *
- * Protocolo OEDP-V17.0 - Functional Atomicity & Pure Logic.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 e ISO/IEC 27001.
+ *
+ * @author Raz Podestá - MetaShark Tech
+ * @license UNLICENSED
  */
 
-interface IInboxFiltersResult {
+import { z } from 'zod';
+
+import { ValidationException } from '@floripa-dignidade/exceptions';
+import {
+  EmitTelemetrySignal,
+  GenerateCorrelationIdentifier,
+  ModuleIdentifierSchema,
+  OperationCodeSchema,
+  ReportForensicException,
+} from '@floripa-dignidade/telemetry';
+
+const FILTER_BUILDER_MODULE_IDENTIFIER = ModuleIdentifierSchema.parse(
+  'MESSAGING_INBOX_FILTER_BUILDER',
+);
+
+const FILTER_VALIDATION_WARNING_CODE = OperationCodeSchema.parse(
+  'INBOX_FILTER_CITIZEN_IDENTIFIER_INVALID',
+);
+
+const CitizenIdentifierUuidSchema = z
+  .string()
+  .trim()
+  .uuid({ message: 'CITIZEN_IDENTIFIER_MUST_BE_UUID_V4' });
+
+/**
+ * @interface IInboxFiltersResult
+ * @description Contrato inmutable con los filtros PostgREST validados para el buzón unificado.
+ */
+export interface IInboxFiltersResult {
   readonly notificationsQueryLiteral: string;
   readonly messagesQueryLiteral: string;
 }
 
 /**
- * Construye los filtros técnicos para la recuperación del buzón.
+ * Construye los filtros PostgREST validados para la recuperación del buzón ciudadano.
  *
- * @param citizenIdentifier - UUID del ciudadano bajo auditoría.
- * @returns {IInboxFiltersResult} Diccionario de filtros para el enjambre de red.
+ * @param citizenIdentifier - UUID v4 del ciudadano bajo consulta.
+ * @returns {IInboxFiltersResult} Diccionario inmutable de filtros de consulta.
+ * @throws {ValidationException} Si `citizenIdentifier` no cumple el formato UUID v4.
  */
 export const BuildInboxQueryFilters = (citizenIdentifier: string): IInboxFiltersResult => {
-  // Filtro para Alertas: Destinatario exacto y omitir eliminadas lógicamente.
-  const notificationsQueryLiteral = `recipient_id=eq.${citizenIdentifier}&interaction_status=neq.TRASHED_DELETED&order=dispatch_timestamp.desc`;
+  const validationResult = CitizenIdentifierUuidSchema.safeParse(citizenIdentifier);
 
-  // Filtro para Mensajes: Emisor O Receptor y omitir eliminados lógicamente.
-  const messagesQueryLiteral = `or=(sender_id.eq.${citizenIdentifier},recipient_id.eq.${citizenIdentifier})&current_status=neq.TRASHED_DELETED&order=transmission_timestamp.desc`;
+  if (!validationResult.success) {
+    const correlationIdentifier = GenerateCorrelationIdentifier();
+    const validationIssuesCollection = validationResult.error.flatten();
+
+    void EmitTelemetrySignal({
+      occurrenceTimestampISO: new Date().toISOString(),
+      severityLevelLiteral: 'WARNING',
+      moduleIdentifierLiteral: FILTER_BUILDER_MODULE_IDENTIFIER,
+      operationCodeLiteral: FILTER_VALIDATION_WARNING_CODE,
+      correlationIdentifier,
+      messageContentLiteral:
+        'Construcción de filtro PostgREST bloqueada por identificador ciudadano inválido.',
+      semanticIntentTag: 'SECURITY_POSTGREST_FILTER_VALIDATION_WARNING',
+      contextMetadataSnapshot: Object.freeze({ validationIssuesCollection }),
+    });
+
+    const validationException = new ValidationException('IDENTIFICADOR_CIUDADANO_BUZON_INVALIDO', {
+      validationIssuesCollection,
+      correlationIdentifier,
+    });
+
+    ReportForensicException(validationException, correlationIdentifier);
+    throw validationException;
+  }
+
+  const validatedCitizenIdentifier = validationResult.data;
+
+  const notificationsQueryLiteral =
+    `recipient_id=eq.${validatedCitizenIdentifier}` +
+    '&interaction_status=neq.TRASHED_DELETED&order=dispatched_at.desc';
+
+  const messagesQueryLiteral =
+    `or=(sender_id.eq.${validatedCitizenIdentifier},recipient_id.eq.${validatedCitizenIdentifier})` +
+    '&current_status=neq.TRASHED_DELETED&order=dispatched_at.desc';
 
   return Object.freeze({
     notificationsQueryLiteral,

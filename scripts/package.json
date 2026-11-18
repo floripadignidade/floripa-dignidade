@@ -2,10 +2,10 @@
   "name": "@floripa-dignidade/scripts",
   "version": "1.1.0",
   "private": true,
-  "description": "ISO-Standard: Bunker de Gatilhos CLI e Orquestracion de Infraestructura Tecnica.",
+  "description": "Módulo de disparadores CLI y orquestación de infraestructura técnica.",
   "type": "module",
   "sideEffects": false,
-  "author": "Raz Podesta - MetaShark Tech",
+  "author": "Raz Podestá - MetaShark Tech",
   "license": "UNLICENSED",
   "exports": {
     ".": {
@@ -14,9 +14,9 @@
     }
   },
   "dependencies": {
-    "@floripa-dignidade/tools": "workspace:*",
-    "@floripa-dignidade/telemetry": "workspace:*",
     "@floripa-dignidade/exceptions": "workspace:*",
+    "@floripa-dignidade/telemetry": "workspace:*",
+    "@floripa-dignidade/tools": "workspace:*",
     "tsx": "^4.19.0"
   },
   "nx": {

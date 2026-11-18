@@ -1,0 +1,36 @@
+{
+  "reportIdentifier": "280f3c6b-42cf-4b07-bc5d-f762c467a0fa",
+  "auditTimestampISO": "2026-11-18T02:16:16.427Z",
+  "correlationIdentifier": "78288341-7d38-40fe-9d9d-3dd0afd38764",
+  "executionModeLiteral": "DRY_RUN",
+  "connectionSourceKeyLiteral": "DATABASE_URL",
+  "executionDurationInMillisecondsQuantity": 398,
+  "totalDiscoveredMigrationsQuantity": 3,
+  "appliedMigrationsCollection": [],
+  "skippedMigrationsCollection": [
+    {
+      "migrationFilenameLiteral": "00_migration_master_schema.sql",
+      "checksumSha256Literal": "31ea9db872a644d1c41181c28ce03d782f21d3969107965fbdc8586ee2b499de",
+      "executionDurationInMillisecondsQuantity": 0,
+      "statusLiteral": "SKIPPED_ALREADY_APPLIED",
+      "appliedAtTimestampISO": "2026-11-17T23:53:15.577Z"
+    },
+    {
+      "migrationFilenameLiteral": "02_ecosystem_operational_ledgers.sql",
+      "checksumSha256Literal": "a847ece2d1be211c1cdad2302b1841d5562d26cb995777c3f19dcab7404db6ae",
+      "executionDurationInMillisecondsQuantity": 0,
+      "statusLiteral": "SKIPPED_ALREADY_APPLIED",
+      "appliedAtTimestampISO": "2026-11-17T23:53:15.577Z"
+    },
+    {
+      "migrationFilenameLiteral": "03_payload_cms_schema.sql",
+      "checksumSha256Literal": "4a5b89e736a07208c26d899c09f6a3e3f945d8e7823b037c567ab8868a656b31",
+      "executionDurationInMillisecondsQuantity": 0,
+      "statusLiteral": "SKIPPED_ALREADY_APPLIED",
+      "appliedAtTimestampISO": "2026-11-18T01:55:35.172Z"
+    }
+  ],
+  "pendingMigrationsCollection": [],
+  "isProvisioningSuccessfulBoolean": true,
+  "actionableSummaryLiteral": "Simulación DRY_RUN completada: 0 pendientes, 3 ya aplicadas."
+}

@@ -2,15 +2,11 @@
  * @section Environment Configuration - Infrastructure Contract Schema (Master Orchestrator)
  * @description Única Fuente de Verdad (SSOT) para la auditoría y validación estricta de variables
  * de entorno del ecosistema. Implementa aislamiento de hardware conforme a la doctrina
- * Cloud-Primary (ADR 0015) y soporte elástico para inferencia cognitiva multi-proveedor.
+ * Cloud-Primary (ADR 0015), soporte de canal DDL dedicado para PostgreSQL y soporte elástico
+ * para inferencia cognitiva multi-proveedor.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
- * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Confiabilidad y Seguridad).
- *
- * SANEADO Zenith:
- * 1. Atomización completada: tokens bridados delegados a 'EnvironmentTokens.schema'.
- * 2. Reducción física a 112 líneas (cumplimiento de max-lines <= 150).
- * 3. Re-exportación simétrica total para preservar retrocompatibilidad absoluta en el monorepo.
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 (Confiabilidad) e ISO/IEC 27001.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
@@ -65,8 +61,18 @@ export const EnvironmentSchema = z
       'Token institucional Service Role.',
     ),
     DATABASE_URL: PostgresUniformResourceLocatorSchema.describe(
-      'Cadena de conexión física a PostgreSQL.',
+      'Cadena de conexión agrupada (Transaction Pooler) para runtime serverless.',
     ),
+    DIRECT_DATABASE_URL: PostgresUniformResourceLocatorSchema.optional().describe(
+      'Cadena opcional de conexión directa o Session Pooler (puerto 5432) para migraciones DDL.',
+    ),
+    SUPABASE_DB_ROOT_CERT_PEM: z
+      .string()
+      .trim()
+      .optional()
+      .describe(
+        'Certificado raíz PEM opcional de Supabase para verificación TLS estricta en PostgreSQL.',
+      ),
 
     // --- 3. ALMACENAMIENTO MULTIMEDIA (Pasarela S3 Compatible) ---
     S3_ENDPOINT: S3EndpointUniformResourceLocatorSchema.describe(

@@ -1,8 +1,8 @@
 {
   "name": "@floripa-dignidade/tools",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "private": true,
-  "description": "Tools Module: Herramientas de automatización, compilación i18n, auditoría de infraestructura y mantenimiento.",
+  "description": "Tools Module: Herramientas de automatización, compilación i18n, auditoría de infraestructura, auditoría Supabase y mantenimiento.",
   "type": "module",
   "sideEffects": false,
   "author": "Raz Podestá - MetaShark Tech",
@@ -19,9 +19,14 @@
     "@floripa-dignidade/environment-validator": "workspace:*",
     "@floripa-dignidade/exceptions": "workspace:*",
     "@floripa-dignidade/financial-ingestion-engine": "workspace:*",
+    "@floripa-dignidade/shared-utility": "workspace:*",
     "@floripa-dignidade/telemetry": "workspace:*",
     "@swc/helpers": "~0.5.18",
+    "pg": "^8.23.1",
     "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1"
   },
   "nx": {
     "tags": [

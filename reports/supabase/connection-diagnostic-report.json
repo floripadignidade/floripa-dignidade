@@ -1,0 +1,43 @@
+{
+  "reportIdentifier": "78044b06-1323-4964-958c-f2203b2bc0db",
+  "auditTimestampISO": "2026-11-18T02:16:21.717Z",
+  "correlationIdentifier": "2e29f3a4-d1ba-4dd7-be19-5a2f047d48f0",
+  "executionDurationInMillisecondsQuantity": 837,
+  "isDatabaseReachableAndAuthenticatedBoolean": true,
+  "isOverallConnectionHealthyBoolean": true,
+  "sqlConnectionDiagnostic": {
+    "statusLiteral": "OPERATIONAL",
+    "isAuthenticatedBoolean": true,
+    "isSslEncryptedBoolean": true,
+    "connectionModeLiteral": "POOLER_TRANSACTION_OR_SESSION",
+    "targetHostLiteral": "aws-0-sa-east-1.pooler.supabase.com",
+    "targetPortNumeric": 6543,
+    "latencyInMillisecondsQuantity": 298,
+    "databaseNameLiteral": "postgres",
+    "authenticatedRoleLiteral": "postgres",
+    "postgresVersionLiteral": "PostgreSQL 17.11 on aarch64-unknown-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit",
+    "isStandbyReplicaBoolean": false,
+    "diagnosticMessageLiteral": "Sesión SQL [POOLER_TRANSACTION_OR_SESSION] (298ms)."
+  },
+  "httpLayersCollection": [
+    {
+      "layerIdentifierLiteral": "POSTGREST_REST_API",
+      "statusLiteral": "OPERATIONAL",
+      "httpStatusCodeNumeric": 200,
+      "latencyInMillisecondsQuantity": 799,
+      "sanitizedEndpointLiteral": "https://vekjuwrdeozvvnqyweox.supabase.co/rest/v1/",
+      "diagnosticMessageLiteral": "Capa POSTGREST_REST_API HTTP 200 (799ms)."
+    },
+    {
+      "layerIdentifierLiteral": "SUPABASE_STORAGE_API",
+      "statusLiteral": "OPERATIONAL",
+      "httpStatusCodeNumeric": 200,
+      "latencyInMillisecondsQuantity": 725,
+      "sanitizedEndpointLiteral": "https://vekjuwrdeozvvnqyweox.supabase.co/storage/v1/bucket",
+      "diagnosticMessageLiteral": "Capa SUPABASE_STORAGE_API HTTP 200 (725ms)."
+    }
+  ],
+  "actionableRecommendationsCollection": [
+    "Infraestructura de conexión Supabase en estado nominal operacional (SQL y HTTP)."
+  ]
+}

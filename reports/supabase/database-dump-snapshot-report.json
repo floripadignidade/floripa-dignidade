@@ -1,0 +1,784 @@
+{
+  "reportIdentifier": "c3942ac7-0ff0-4674-bcff-c6cf3cc50350",
+  "auditTimestampISO": "2026-11-18T02:16:33.271Z",
+  "correlationIdentifier": "7c567350-d77a-49dc-80d3-60f1d0ad6481",
+  "executionDurationInMillisecondsQuantity": 1586,
+  "targetDatabaseNameLiteral": "postgres",
+  "isLgpdPiiMaskingAppliedBoolean": true,
+  "rowSampleLimitPerTableQuantity": 20,
+  "installedExtensionsCollection": [
+    {
+      "extensionNameLiteral": "pg_stat_statements",
+      "installedVersionLiteral": "1.11",
+      "schemaNameLiteral": "extensions"
+    },
+    {
+      "extensionNameLiteral": "pgcrypto",
+      "installedVersionLiteral": "1.3",
+      "schemaNameLiteral": "extensions"
+    },
+    {
+      "extensionNameLiteral": "plpgsql",
+      "installedVersionLiteral": "1.0",
+      "schemaNameLiteral": "pg_catalog"
+    },
+    {
+      "extensionNameLiteral": "supabase_vault",
+      "installedVersionLiteral": "0.3.1",
+      "schemaNameLiteral": "vault"
+    },
+    {
+      "extensionNameLiteral": "uuid-ossp",
+      "installedVersionLiteral": "1.1",
+      "schemaNameLiteral": "extensions"
+    }
+  ],
+  "storageBucketsCollection": [
+    {
+      "bucketIdentifierLiteral": "media-vault",
+      "bucketNameLiteral": "media-vault",
+      "isPublicBoolean": true,
+      "fileSizeLimitBytesNumeric": 15728640
+    }
+  ],
+  "functionsDefinitionsCollection": [
+    {
+      "schemaNameLiteral": "public",
+      "functionNameLiteral": "fn_update_citizen_mutation_timestamp",
+      "definitionSqlLiteral": "CREATE OR REPLACE FUNCTION public.fn_update_citizen_mutation_timestamp()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'public', 'pg_catalog'\nAS $function$\r\nBEGIN\r\n    NEW.last_mutation_timestamp_iso := NOW();\r\n    RETURN NEW;\r\nEND;\r\n$function$\n"
+    }
+  ],
+  "triggersDefinitionsCollection": [
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "citizen_identities_ledger",
+      "triggerNameLiteral": "trg_citizen_identity_update_timestamp",
+      "definitionSqlLiteral": "CREATE TRIGGER trg_citizen_identity_update_timestamp BEFORE UPDATE ON public.citizen_identities_ledger FOR EACH ROW EXECUTE FUNCTION fn_update_citizen_mutation_timestamp()"
+    }
+  ],
+  "tablePoliciesCollection": [
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "citizen_identities_ledger",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        },
+        {
+          "policyNameLiteral": "Citizen_Initial_Registration_Insert",
+          "commandLiteral": "INSERT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": null,
+          "withCheckExpressionLiteral": "((citizen_id = ( SELECT auth.uid() AS uid)) AND ((assigned_authority_role)::text = 'IDENTITY_REGISTERED'::text) AND (is_verified_human = false) AND (trust_weight_score = (0.1)::double precision))"
+        },
+        {
+          "policyNameLiteral": "Citizen_Self_Read_Access",
+          "commandLiteral": "SELECT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "(citizen_id = ( SELECT auth.uid() AS uid))",
+          "withCheckExpressionLiteral": null
+        },
+        {
+          "policyNameLiteral": "Citizen_Self_Update_Access",
+          "commandLiteral": "UPDATE",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "(citizen_id = ( SELECT auth.uid() AS uid))",
+          "withCheckExpressionLiteral": "(citizen_id = ( SELECT auth.uid() AS uid))"
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "citizen_users",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "citizen_users_sessions",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "communication_groups_ledger",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Groups",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        },
+        {
+          "policyNameLiteral": "Authenticated_Verified_Groups_Read",
+          "commandLiteral": "SELECT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "(((visibility_mode)::text = ANY ((ARRAY['PUBLIC_TRANSPARENCY'::character varying, 'VERIFIED_ONLY'::character varying])::text[])) AND ((operational_status)::text = 'ACTIVE'::text))",
+          "withCheckExpressionLiteral": null
+        },
+        {
+          "policyNameLiteral": "Public_Transparency_Groups_Read",
+          "commandLiteral": "SELECT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "anon",
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "(((visibility_mode)::text = 'PUBLIC_TRANSPARENCY'::text) AND ((operational_status)::text = 'ACTIVE'::text))",
+          "withCheckExpressionLiteral": null
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "direct_messages_ledger",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Direct_Messages",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        },
+        {
+          "policyNameLiteral": "Citizen_Read_Own_Direct_Messages",
+          "commandLiteral": "SELECT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((sender_id = ( SELECT auth.uid() AS uid)) OR (recipient_id = ( SELECT auth.uid() AS uid)))",
+          "withCheckExpressionLiteral": null
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "ecosystem_schema_migrations",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Read_Migrations",
+          "commandLiteral": "SELECT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": null
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "group_memberships_ledger",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Memberships",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        },
+        {
+          "policyNameLiteral": "Citizen_Self_Membership_Manage",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "(citizen_id = ( SELECT auth.uid() AS uid))",
+          "withCheckExpressionLiteral": "((citizen_id = ( SELECT auth.uid() AS uid)) AND ((membership_status)::text = ANY ((ARRAY['ACTIVE'::character varying, 'PAUSED'::character varying, 'LEFT_INACTIVE'::character varying, 'REPRESENTED'::character varying])::text[])))"
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "media_vault",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "newsletter_subscribers",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Newsletter",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "organizations",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_kv",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_locked_documents",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_locked_documents_rels",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_migrations",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_preferences",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_preferences_rels",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "project_financial_ledger",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Financial_Ledger",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        },
+        {
+          "policyNameLiteral": "Public_Read_Project_Financial_Ledger",
+          "commandLiteral": "SELECT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "anon",
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "true",
+          "withCheckExpressionLiteral": null
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "system_notifications_ledger",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Notifications",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        },
+        {
+          "policyNameLiteral": "Citizen_Acknowledge_Own_Notifications",
+          "commandLiteral": "UPDATE",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((recipient_id)::text = (( SELECT auth.uid() AS uid))::text)",
+          "withCheckExpressionLiteral": "((recipient_id)::text = (( SELECT auth.uid() AS uid))::text)"
+        },
+        {
+          "policyNameLiteral": "Citizen_Read_Own_Or_Global_Notifications",
+          "commandLiteral": "SELECT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "(((recipient_id)::text = (( SELECT auth.uid() AS uid))::text) OR ((recipient_id)::text = 'GLOBAL_BROADCAST'::text))",
+          "withCheckExpressionLiteral": null
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "system_telemetry_logs",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Telemetry",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "territorial_master_data",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Territorial",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        },
+        {
+          "policyNameLiteral": "Public_Read_Territorial_Master_Data",
+          "commandLiteral": "SELECT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "anon",
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "true",
+          "withCheckExpressionLiteral": null
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "user_presence_ledger",
+      "isRowLevelSecurityEnabledBoolean": true,
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Presence",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        },
+        {
+          "policyNameLiteral": "Citizen_Self_Presence_Manage",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "(citizen_id = ( SELECT auth.uid() AS uid))",
+          "withCheckExpressionLiteral": "(citizen_id = ( SELECT auth.uid() AS uid))"
+        }
+      ]
+    }
+  ],
+  "sanitizedTablesDataCollection": [
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "citizen_identities_ledger",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "citizen_users",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "citizen_users_sessions",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "communication_groups_ledger",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "direct_messages_ledger",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "ecosystem_schema_migrations",
+      "exactRowCountNumeric": 3,
+      "sampledRowsCountQuantity": 3,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [
+        "migration_filename_literal"
+      ],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": [
+        {
+          "checksum_sha256_literal": "31ea9db872a644d1c41181c28ce03d782f21d3969107965fbdc8586ee2b499de",
+          "execution_duration_ms": 50,
+          "applied_at": "2026-11-17T23:53:15.577Z",
+          "migration_filename_literal": "00_MIGRATION_MASTER_SCHEMA.SQL"
+        },
+        {
+          "checksum_sha256_literal": "a847ece2d1be211c1cdad2302b1841d5562d26cb995777c3f19dcab7404db6ae",
+          "execution_duration_ms": 391,
+          "applied_at": "2026-11-17T23:53:15.577Z",
+          "migration_filename_literal": "02_ECOSYSTEM_OPERATIONAL_LEDGERS.SQL"
+        },
+        {
+          "checksum_sha256_literal": "4a5b89e736a07208c26d899c09f6a3e3f945d8e7823b037c567ab8868a656b31",
+          "execution_duration_ms": 177,
+          "applied_at": "2026-11-18T01:55:35.172Z",
+          "migration_filename_literal": "03_PAYLOAD_CMS_SCHEMA.SQL"
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "group_memberships_ledger",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "media_vault",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "newsletter_subscribers",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "organizations",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_kv",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_locked_documents",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_locked_documents_rels",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_migrations",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_preferences",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_preferences_rels",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "project_financial_ledger",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "system_notifications_ledger",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "system_telemetry_logs",
+      "exactRowCountNumeric": 6,
+      "sampledRowsCountQuantity": 6,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [
+        "previousEventHashFingerprint",
+        "contentHashFingerprint"
+      ],
+      "rowsCollection": [
+        {
+          "log_id": "83762f8f-52db-4ddd-8767-04f292a4bc30",
+          "correlationIdentifier": "15b7a90c-3a3e-4de6-8978-b9624645f0eb",
+          "occurrenceTimestampISO": "2026-11-18T00:56:53.189Z",
+          "executionLatencyInMillisecondsQuantity": null,
+          "isEncryptedPayloadBoolean": false,
+          "severityLevelLiteral": "DEBUG",
+          "previousEventHashFingerprint": "[OMITTED_SECRET]",
+          "contentHashFingerprint": "[OMITTED_SECRET]",
+          "encryptionInitializationVectorLiteral": null,
+          "moduleIdentifierLiteral": "ENVIRONMENT_HARDWARE_SENSOR",
+          "operationCodeLiteral": "HARDWARE_METADATA_EXTRACTED",
+          "semanticIntentTag": "HARDWARE_ENVIRONMENT_ACQUISITION",
+          "messageContentLiteral": "Sensor de hardware activado: Captura de variables de entorno finalizada.",
+          "contextMetadataSnapshot": {
+            "variablesCountQuantity": 94
+          }
+        },
+        {
+          "log_id": "eb5524d3-e4b9-4e22-b996-00d30309c34a",
+          "correlationIdentifier": "43bbe93c-9fbe-49fd-a337-5b0faefd2647",
+          "occurrenceTimestampISO": "2026-11-18T00:56:52.653Z",
+          "executionLatencyInMillisecondsQuantity": null,
+          "isEncryptedPayloadBoolean": false,
+          "severityLevelLiteral": "INFO",
+          "previousEventHashFingerprint": "[OMITTED_SECRET]",
+          "contentHashFingerprint": "[OMITTED_SECRET]",
+          "encryptionInitializationVectorLiteral": null,
+          "moduleIdentifierLiteral": "CORE_ROUTING_LOCALE_SENSOR",
+          "operationCodeLiteral": "LOCALE_INFERENCE_RESOLVED",
+          "semanticIntentTag": "ROUTING_LOCALE_DETECTION",
+          "messageContentLiteral": "Localización resuelta: [es-ES] vía [PLANNED_VARIANT_FALLBACK].",
+          "contextMetadataSnapshot": {
+            "matchedCandidateLiteral": "es-419",
+            "resolvedLocaleIdentifier": "es-ES",
+            "resolutionStrategyLiteral": "PLANNED_VARIANT_FALLBACK"
+          }
+        },
+        {
+          "log_id": "1ec72599-c91e-4b4e-bc1f-3f21864b8550",
+          "correlationIdentifier": "2fb5285b-6e41-4983-888b-513c7476036a",
+          "occurrenceTimestampISO": "2026-11-18T00:56:53.439Z",
+          "executionLatencyInMillisecondsQuantity": null,
+          "isEncryptedPayloadBoolean": false,
+          "severityLevelLiteral": "DEBUG",
+          "previousEventHashFingerprint": "[OMITTED_SECRET]",
+          "contentHashFingerprint": "[OMITTED_SECRET]",
+          "encryptionInitializationVectorLiteral": null,
+          "moduleIdentifierLiteral": "ENVIRONMENT_HARDWARE_SENSOR",
+          "operationCodeLiteral": "HARDWARE_METADATA_EXTRACTED",
+          "semanticIntentTag": "HARDWARE_ENVIRONMENT_ACQUISITION",
+          "messageContentLiteral": "Sensor de hardware activado: Captura de variables de entorno finalizada.",
+          "contextMetadataSnapshot": {
+            "variablesCountQuantity": 94
+          }
+        },
+        {
+          "log_id": "8c73be6d-1bf7-4880-9c65-b7a6de928eb5",
+          "correlationIdentifier": "0a218b21-6277-4158-954c-02d904e7e971",
+          "occurrenceTimestampISO": "2026-11-18T00:56:53.196Z",
+          "executionLatencyInMillisecondsQuantity": null,
+          "isEncryptedPayloadBoolean": false,
+          "severityLevelLiteral": "DEBUG",
+          "previousEventHashFingerprint": "[OMITTED_SECRET]",
+          "contentHashFingerprint": "[OMITTED_SECRET]",
+          "encryptionInitializationVectorLiteral": null,
+          "moduleIdentifierLiteral": "ENVIRONMENT_HARDWARE_SENSOR",
+          "operationCodeLiteral": "HARDWARE_METADATA_EXTRACTED",
+          "semanticIntentTag": "HARDWARE_ENVIRONMENT_ACQUISITION",
+          "messageContentLiteral": "Sensor de hardware activado: Captura de variables de entorno finalizada.",
+          "contextMetadataSnapshot": {
+            "variablesCountQuantity": 94
+          }
+        },
+        {
+          "log_id": "242658df-8c39-48d8-9072-accbb942d2d1",
+          "correlationIdentifier": "61dffe08-4bc2-41e6-a7c9-a35ca595e697",
+          "occurrenceTimestampISO": "2026-11-18T00:56:53.566Z",
+          "executionLatencyInMillisecondsQuantity": 3.834338,
+          "isEncryptedPayloadBoolean": false,
+          "severityLevelLiteral": "INFO",
+          "previousEventHashFingerprint": "[OMITTED_SECRET]",
+          "contentHashFingerprint": "[OMITTED_SECRET]",
+          "encryptionInitializationVectorLiteral": null,
+          "moduleIdentifierLiteral": "TELEMETRY_PERFORMANCE_MONITOR",
+          "operationCodeLiteral": "LOAD_TRANSPARENCY_PAGE_DICTIONARY_PERFORMANCE_SUCCESS",
+          "semanticIntentTag": "SRE_PERFORMANCE_METRIC",
+          "messageContentLiteral": "TELEMETRY.SIGNALS.LATENCY_REPORT",
+          "contextMetadataSnapshot": {
+            "targetModuleLiteral": "TRANSPARENCY_PAGE_DICTIONARY_LOADER",
+            "executionStatusLiteral": "SUCCESS",
+            "targetOperationLiteral": "LOAD_TRANSPARENCY_PAGE_DICTIONARY",
+            "startAbsoluteTimestampISO": "2026-11-18T00:56:53.562Z"
+          }
+        },
+        {
+          "log_id": "6d54ccf8-6e6c-408b-84bd-262fe131f783",
+          "correlationIdentifier": "1315cac1-9e00-4a6e-9d76-96784ce1887e",
+          "occurrenceTimestampISO": "2026-11-18T00:56:53.615Z",
+          "executionLatencyInMillisecondsQuantity": 1.78854000000001,
+          "isEncryptedPayloadBoolean": false,
+          "severityLevelLiteral": "INFO",
+          "previousEventHashFingerprint": "[OMITTED_SECRET]",
+          "contentHashFingerprint": "[OMITTED_SECRET]",
+          "encryptionInitializationVectorLiteral": null,
+          "moduleIdentifierLiteral": "TELEMETRY_PERFORMANCE_MONITOR",
+          "operationCodeLiteral": "LOAD_IDENTITY_PAGE_DICTIONARY_PERFORMANCE_SUCCESS",
+          "semanticIntentTag": "SRE_PERFORMANCE_METRIC",
+          "messageContentLiteral": "TELEMETRY.SIGNALS.LATENCY_REPORT",
+          "contextMetadataSnapshot": {
+            "targetModuleLiteral": "IDENTITY_PAGE_DICTIONARY_LOADER",
+            "executionStatusLiteral": "SUCCESS",
+            "targetOperationLiteral": "LOAD_IDENTITY_PAGE_DICTIONARY",
+            "startAbsoluteTimestampISO": "2026-11-18T00:56:53.614Z"
+          }
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "territorial_master_data",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "user_presence_ledger",
+      "exactRowCountNumeric": 0,
+      "sampledRowsCountQuantity": 0,
+      "isTruncatedByLimitBoolean": false,
+      "maskedColumnsCollection": [],
+      "omittedSecretColumnsCollection": [],
+      "rowsCollection": []
+    }
+  ]
+}

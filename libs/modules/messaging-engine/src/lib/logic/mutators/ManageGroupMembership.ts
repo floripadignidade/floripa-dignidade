@@ -1,162 +1,218 @@
 /**
- * @section Messaging Logic - Group Membership Orchestrator
- * @description Orquestador de élite encargado de gestionar la vinculación de
- * ciudadanos con Action Hubs territoriales. Coordina la validación de ADN,
- * la seguridad de red y la persistencia inmutable del historial en el Ledger.
+ * @file libs/modules/messaging-engine/src/lib/logic/mutators/ManageGroupMembership.ts
+ * @section Messaging Logic - Group Membership Mutator (Orchestrator)
+ * @description Orquestador encargado de validar la transición de membresía ciudadana
+ * (`JOIN` / `LEAVE`), resolver credenciales vía `@floripa-dignidade/environment-validator`,
+ * ejecutar un upsert idempotente en `group_memberships_ledger` y emitir telemetría SRE
+ * conforme a `TelemetrySignalSchema`.
  *
- * Protocolo OEDP-V17.0 - High Performance SRE & Swarm Intelligence.
- * SANEADO Zenith: Resolución de Paradoja Asíncrona (await) en Aduana de Entorno.
+ * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
+ * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 e ISO/IEC 27001.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
 import { z } from 'zod';
-import { ValidateEnvironmentAduana } from '@floripa-dignidade/environment-validator';
-import { InternalSystemException, ValidationException } from '@floripa-dignidade/exceptions';
+
+import { ValidateEnvironmentContract } from '@floripa-dignidade/environment-validator';
 import {
+  GlobalBaseException,
+  MapHttpErrorToException,
+  ValidationException,
+} from '@floripa-dignidade/exceptions';
+import {
+  type CorrelationIdentifier,
+  CorrelationIdentifierSchema,
   EmitTelemetrySignal,
   GenerateCorrelationIdentifier,
+  type ModuleIdentifier,
+  ModuleIdentifierSchema,
+  type OperationCode,
+  OperationCodeSchema,
+  ReportForensicException,
   TraceExecutionTime,
 } from '@floripa-dignidade/telemetry';
 
-/* 1. ADN de Intención (Aduana Atómica) */
-/**
- * @name MembershipActionSchema
- * @description Define el contrato de integridad para las transiciones de membresía.
- */
+import {
+  CreatePrimaryDatabaseHeaders,
+  type IPrimaryDatabaseHeadersResult,
+} from '../dispatchers/CreateSovereignDatabaseHeaders';
+import { PersistMembershipTransition } from '../dispatchers/PersistMembershipTransition';
+
+const MEMBERSHIP_ORCHESTRATOR_IDENTIFIER: ModuleIdentifier = ModuleIdentifierSchema.parse(
+  'GROUP_MEMBERSHIP_ORCHESTRATOR',
+);
+const TRACE_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'EXECUTE_MEMBERSHIP_TRANSITION_FLOW',
+);
+const FAILURE_OPERATION_CODE: OperationCode = OperationCodeSchema.parse(
+  'MEMBERSHIP_ORCHESTRATION_COLLAPSE',
+);
+
 const MembershipActionSchema = z
   .object({
     groupIdentifier: z
       .string()
-      .uuid()
-      .describe('Identificador del Hub de Comunicación de destino.'),
-
-    citizenIdentifier: z.string().uuid().describe('UUID de la identidad ciudadana solicitante.'),
-
+      .trim()
+      .uuid({ message: 'GROUP_IDENTIFIER_MUST_BE_UUID_V4' })
+      .describe('Identificador UUID del grupo de comunicación objetivo.'),
+    citizenIdentifier: z
+      .string()
+      .trim()
+      .uuid({ message: 'CITIZEN_IDENTIFIER_MUST_BE_UUID_V4' })
+      .describe('Identificador UUID del ciudadano solicitante.'),
     membershipActionLiteral: z
       .enum(['JOIN', 'LEAVE'])
-      .describe('Tipo de transición de membresía (Alta/Baja).'),
+      .describe('Transición solicitada sobre la membresía en el grupo.'),
   })
   .readonly();
 
-/* 2. Enjambre Atómico (Internal Swarm) */
-import { CreateSovereignDatabaseHeaders } from '../dispatchers/CreateSovereignDatabaseHeaders';
-import { PersistMembershipTransition } from '../dispatchers/PersistMembershipTransition';
+type TMembershipActionPayload = z.infer<typeof MembershipActionSchema>;
 
-/** Identificador técnico del aparato para el Neural Sentinel. */
-const MEMBERSHIP_ORCHESTRATOR_IDENTIFIER = 'GROUP_MEMBERSHIP_ORCHESTRATOR';
+const resolveSafeCorrelationIdentifier = (
+  candidateIdentifier: string | undefined,
+): CorrelationIdentifier => {
+  const validationResult = CorrelationIdentifierSchema.safeParse(candidateIdentifier);
+  return validationResult.success ? validationResult.data : GenerateCorrelationIdentifier();
+};
+
+const validateMembershipActionRequest = (
+  unvalidatedRequestSnapshot: unknown,
+  correlationIdentifier: CorrelationIdentifier,
+): TMembershipActionPayload => {
+  const validationResult = MembershipActionSchema.safeParse(unvalidatedRequestSnapshot);
+  if (!validationResult.success) {
+    throw new ValidationException('DATOS_DE_MEMBRESIA_INVALIDOS', {
+      issuesCollection: validationResult.error.flatten(),
+      correlationIdentifier,
+    });
+  }
+  return validationResult.data;
+};
+
+const persistMembershipUpsertAction = async (
+  validatedRequest: TMembershipActionPayload,
+  targetStatusLiteral: 'ACTIVE' | 'LEFT_INACTIVE',
+  correlationIdentifier: CorrelationIdentifier,
+): Promise<void> => {
+  const { SUPABASE_URL: rawSupabaseUrlLiteral, SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret } =
+    await ValidateEnvironmentContract();
+
+  const normalizedSupabaseUrlLiteral = rawSupabaseUrlLiteral.trim().replace(/\/+$/, '');
+  const upsertDatabaseHeadersSnapshot: IPrimaryDatabaseHeadersResult = Object.freeze({
+    ...CreatePrimaryDatabaseHeaders(cloudSecurityKeySecret, 'minimal'),
+    Prefer: 'return=minimal, resolution=merge-duplicates',
+  });
+
+  await PersistMembershipTransition(normalizedSupabaseUrlLiteral, upsertDatabaseHeadersSnapshot, {
+    group_id: validatedRequest.groupIdentifier,
+    citizen_id: validatedRequest.citizenIdentifier,
+    membership_status: targetStatusLiteral,
+    last_action_correlation_id: correlationIdentifier,
+    updated_at: new Date().toISOString(),
+  });
+};
+
+const normalizeMembershipError = (
+  caughtExecutionError: unknown,
+  correlationIdentifier: CorrelationIdentifier,
+): GlobalBaseException => {
+  if (caughtExecutionError instanceof GlobalBaseException) {
+    return caughtExecutionError;
+  }
+
+  const errorDescriptionLiteral =
+    caughtExecutionError instanceof Error
+      ? caughtExecutionError.message
+      : String(caughtExecutionError);
+
+  return MapHttpErrorToException(500, 'FALLO_EN_ORQUESTACION_DE_MEMBRESIA_SRE', {
+    originalErrorLiteral: errorDescriptionLiteral,
+    correlationIdentifier,
+  });
+};
 
 /**
- * Gestiona integralmente la entrada o salida de un ciudadano en un grupo.
- * Implementa el patrón "Cloud Sovereign" garantizando la resolución asíncrona de
- * infraestructura antes de impactar el Ledger de comunidades.
+ * Gestiona de forma idempotente la vinculación o salida de un ciudadano en un grupo.
  *
- * @param unvalidatedRequestSnapshot - Datos crudos de la solicitud capturados en la UI.
- * @returns {Promise<boolean>} Verdadero si el estado de membresía fue sincronizado.
- * @throws {ValidationException} Si los identificadores o la acción son inválidos.
- * @throws {InternalSystemException} Si la comunicación con el Tier de Datos falla.
+ * @param unvalidatedRequestSnapshot - Carga útil con grupo, ciudadano y transición.
+ * @param correlationIdentifierFallback - Identificador UUID v4 opcional de trazabilidad.
+ * @returns {Promise<boolean>} Verdadero tras confirmar el upsert en Supabase.
+ * @throws {ValidationException} Si la carga útil incumple `MembershipActionSchema`.
+ * @throws {GlobalBaseException} Si falla la configuración de entorno o la persistencia.
  */
 export const ManageGroupMembership = async (
   unvalidatedRequestSnapshot: unknown,
+  correlationIdentifierFallback?: string,
 ): Promise<boolean> => {
-  const correlationIdentifier = GenerateCorrelationIdentifier();
+  const correlationIdentifier = resolveSafeCorrelationIdentifier(correlationIdentifierFallback);
 
   return await TraceExecutionTime(
     MEMBERSHIP_ORCHESTRATOR_IDENTIFIER,
-    'EXECUTE_MEMBERSHIP_TRANSITION_FLOW',
+    TRACE_OPERATION_CODE,
     correlationIdentifier,
-    async () => {
+    async (): Promise<boolean> => {
       try {
-        /**
-         * 1. CAPTURA DE INFRAESTRUCTURA (Sovereign Secrets)
-         * 🛡️ SANEADO Zenith (Fix TS2339): Inyección de await mandatorio.
-         * La resolución de secretos se audita ahora dentro del rastro de latencia.
-         */
-        const { SUPABASE_URL: cloudUrlLiteral, SUPABASE_SERVICE_ROLE_KEY: cloudSecurityKeySecret } =
-          await ValidateEnvironmentAduana();
+        const validatedRequest = validateMembershipActionRequest(
+          unvalidatedRequestSnapshot,
+          correlationIdentifier,
+        );
+        const isJoiningActionBoolean = validatedRequest.membershipActionLiteral === 'JOIN';
+        const targetStatusLiteral = isJoiningActionBoolean ? 'ACTIVE' : 'LEFT_INACTIVE';
 
-        // 2. ADUANA DE ADN (Safe Parsing)
-        const validationResult = MembershipActionSchema.safeParse(unvalidatedRequestSnapshot);
-
-        if (!validationResult.success) {
-          /** Reporte de violación estructural antes del colapso */
-          void EmitTelemetrySignal({
-            severityLevelLiteral: 'WARNING',
-            moduleIdentifierLiteral: MEMBERSHIP_ORCHESTRATOR_IDENTIFIER,
-            operationCodeLiteral: 'MEMBERSHIP_ADN_CONTRACT_VIOLATION',
-            correlationIdentifier,
-            messageContentLiteral: 'La estructura de la solicitud de membresía es ilegítima.',
-            contextMetadataSnapshot: { issuesCollection: validationResult.error.flatten() },
-          });
-
-          throw new ValidationException('DATOS_DE_MEMBRESIA_INVALIDOS', {
-            issuesCollection: validationResult.error.flatten(),
-          });
-        }
-
-        const { groupIdentifier, citizenIdentifier, membershipActionLiteral } =
-          validationResult.data;
-
-        // 3. LÓGICA DE ESTADO (Join/Leave Mapping)
-        /**
-         * Traducimos la intención de la UI a estados ontológicos del Ledger.
-         */
-        const targetStatusLiteral = membershipActionLiteral === 'JOIN' ? 'ACTIVE' : 'LEFT_INACTIVE';
-
-        // 4. SEGURIDAD Y PERSISTENCIA (Delegación Atómica)
-        /**
-         * @section DRY Standard
-         * Reutilizamos el generador de cabeceras soberanas con preferencia 'minimal'.
-         */
-        const securityHeadersSnapshot = CreateSovereignDatabaseHeaders(
-          cloudSecurityKeySecret,
-          'minimal',
+        await persistMembershipUpsertAction(
+          validatedRequest,
+          targetStatusLiteral,
+          correlationIdentifier,
         );
 
-        await PersistMembershipTransition(cloudUrlLiteral, securityHeadersSnapshot, {
-          group_id: groupIdentifier,
-          citizen_id: citizenIdentifier,
-          membership_status: targetStatusLiteral,
-          last_action_correlation_id: correlationIdentifier,
-          updated_at: new Date().toISOString(),
-        });
-
-        // 5. REPORTE DE ÉXITO (SRE Analytics)
         void EmitTelemetrySignal({
+          occurrenceTimestampISO: new Date().toISOString(),
           severityLevelLiteral: 'INFO',
           moduleIdentifierLiteral: MEMBERSHIP_ORCHESTRATOR_IDENTIFIER,
-          operationCodeLiteral: `MEMBERSHIP_${membershipActionLiteral}_SUCCESS`,
+          operationCodeLiteral: OperationCodeSchema.parse(
+            `MEMBERSHIP_${validatedRequest.membershipActionLiteral}_SUCCESS`,
+          ),
           correlationIdentifier,
-          messageContentLiteral: `Soberanía de membresía actualizada exitosamente: [${membershipActionLiteral}].`,
-          contextMetadataSnapshot: {
-            groupIdentifier,
-            citizenIdentifier,
+          messageContentLiteral:
+            'Membresía grupal actualizada exitosamente: ' +
+            `[${validatedRequest.membershipActionLiteral}].`,
+          semanticIntentTag: 'COMMUNITY_MEMBERSHIP_TRANSITION',
+          contextMetadataSnapshot: Object.freeze({
+            groupIdentifier: validatedRequest.groupIdentifier,
+            citizenIdentifier: validatedRequest.citizenIdentifier,
             targetStatusLiteral,
-          },
+          }),
         });
 
         return true;
-      } catch (caughtError: unknown) {
-        // 6. GESTIÓN FORENSE DE FALLO (Resilience Layer)
-        if (caughtError instanceof ValidationException) throw caughtError;
-
-        const errorDescriptionLiteral =
-          caughtError instanceof Error ? caughtError.message : String(caughtError);
+      } catch (caughtExecutionError: unknown) {
+        const normalizedException = normalizeMembershipError(
+          caughtExecutionError,
+          correlationIdentifier,
+        );
+        const isClientFaultBoolean = normalizedException.httpStatusCodeNumeric < 500;
 
         void EmitTelemetrySignal({
-          severityLevelLiteral: 'CRITICAL',
+          occurrenceTimestampISO: new Date().toISOString(),
+          severityLevelLiteral: isClientFaultBoolean ? 'WARNING' : 'CRITICAL',
           moduleIdentifierLiteral: MEMBERSHIP_ORCHESTRATOR_IDENTIFIER,
-          operationCodeLiteral: 'MEMBERSHIP_ORCHESTRATION_COLLAPSE',
+          operationCodeLiteral: FAILURE_OPERATION_CODE,
           correlationIdentifier,
-          messageContentLiteral: 'Error crítico en el orquestador de membresías ciudadanas.',
-          contextMetadataSnapshot: { errorTraceLiteral: errorDescriptionLiteral },
+          messageContentLiteral:
+            'Fallo durante la transición de membresía en el círculo de comunicación.',
+          semanticIntentTag: isClientFaultBoolean
+            ? 'MEMBERSHIP_VALIDATION_WARNING'
+            : 'INFRASTRUCTURE_IO_FAULT',
+          contextMetadataSnapshot: Object.freeze({
+            httpStatusCodeNumeric: normalizedException.httpStatusCodeNumeric,
+            operationalErrorCodeLiteral: normalizedException.operationalErrorCodeLiteral,
+          }),
         });
 
-        throw new InternalSystemException('FALLO_EN_ORQUESTACION_DE_MEMBRESIA_SRE', {
-          originalErrorLiteral: errorDescriptionLiteral,
-          correlationIdentifier,
-        });
+        ReportForensicException(normalizedException, correlationIdentifier);
+        throw normalizedException;
       }
     },
   );

@@ -4,8 +4,9 @@
  * @description Configura el adaptador de persistencia PostgreSQL para Payload CMS 3.84+
  * optimizado para Vercel Serverless y Supabase Pooler (ADR 0015 / ADR 0031). Normaliza
  * parámetros `sslmode` conflictivos de `pg-connection-string`, aplica TLS con verificación
- * estricta cuando se provee certificado CA raíz (`SUPABASE_DB_ROOT_CERT_PEM`) o TLS cifrado
- * compatible con Supabase Pooler, y desactiva `push` automático en producción.
+ * estricta cuando se provee certificado CA raíz (`SUPABASE_DB_ROOT_CERT_PEM`), desactiva
+ * `push` automático en todos los entornos (`push: false`) y excluye de Drizzle los ledgers
+ * operacionales gestionados por `database/*.sql`.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Cloud-Primary).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa), ISO/IEC 25010 e ISO/IEC 27001.
@@ -13,6 +14,9 @@
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
+
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { postgresAdapter } from '@payloadcms/db-postgres';
 
@@ -46,6 +50,25 @@ const SSL_QUERY_PARAMETERS_TO_STRIP_COLLECTION: readonly string[] = Object.freez
   'sslkey',
   'uselibpqcompat',
 ]);
+
+const EXCLUDED_OPERATIONAL_TABLES_FILTER_COLLECTION: readonly string[] = Object.freeze([
+  '!ecosystem_schema_migrations',
+  '!citizen_identities_ledger',
+  '!newsletter_subscribers',
+  '!system_telemetry_logs',
+  '!system_notifications_ledger',
+  '!direct_messages_ledger',
+  '!user_presence_ledger',
+  '!communication_groups_ledger',
+  '!group_memberships_ledger',
+  '!territorial_master_data',
+  '!project_financial_ledger',
+]);
+
+const MIGRATIONS_DIRECTORY_PATH_LITERAL = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  '../migrations',
+);
 
 interface ITlsSocketConfiguration {
   readonly rejectUnauthorized: boolean;
@@ -97,11 +120,23 @@ const resolveTlsSocketConfiguration = (
   });
 };
 
+const resolveSslVerificationModeLiteral = (
+  isSslDisabledBoolean: boolean,
+  isStrictCertificateVerifiedBoolean: boolean,
+): 'DISABLED' | 'STRICT_CA_VERIFIED' | 'ENCRYPTED_POOLER_COMPATIBLE' => {
+  if (isSslDisabledBoolean) {
+    return 'DISABLED';
+  }
+
+  return isStrictCertificateVerifiedBoolean ? 'STRICT_CA_VERIFIED' : 'ENCRYPTED_POOLER_COMPATIBLE';
+};
+
 /**
  * Genera la instancia del adaptador PostgreSQL validada para Payload CMS en Vercel y Supabase.
+ * Desactiva `push` automático en todo entorno para preservar los ledgers operacionales en `public`.
  *
  * @param databaseUrlLiteral - Cadena de conexión validada por `ValidateEnvironmentContract`.
- * @returns Adaptador configurado para el motor relacional de Payload CMS.
+ * @returns Adaptador configurado para el motor relacional de Payload CMS gobernado por migraciones.
  * @throws {ValidationException} Si la cadena de conexión incumple el contrato PostgreSQL.
  */
 export const CreatePostgresDatabaseAdapter = (databaseUrlLiteral: string) => {
@@ -119,9 +154,6 @@ export const CreatePostgresDatabaseAdapter = (databaseUrlLiteral: string) => {
   }
 
   const environmentMetadataSnapshot = GatherEnvironmentMetadata();
-  const isProductionEnvironmentBoolean = environmentMetadataSnapshot['NODE_ENV'] === 'production';
-  const isSchemaPushEnabledBoolean = !isProductionEnvironmentBoolean;
-
   const normalizedConnection = normalizePostgresConnectionString(urlValidationResult.data);
   const tlsSocketConfiguration = resolveTlsSocketConfiguration(
     environmentMetadataSnapshot['SUPABASE_DB_ROOT_CERT_PEM'],
@@ -133,22 +165,26 @@ export const CreatePostgresDatabaseAdapter = (databaseUrlLiteral: string) => {
     moduleIdentifierLiteral: ADAPTER_MODULE_IDENTIFIER,
     operationCodeLiteral: ADAPTER_INITIALIZED_OPERATION_CODE,
     correlationIdentifier,
-    messageContentLiteral: 'Adaptador PostgreSQL del CMS configurado con aislamiento TLS.',
+    messageContentLiteral:
+      'Adaptador PostgreSQL del CMS configurado con aislamiento TLS y push desactivado.',
     semanticIntentTag: 'CMS_DATABASE_ADAPTER_INIT',
     contextMetadataSnapshot: Object.freeze({
       targetHostLiteral: normalizedConnection.targetHostLiteral,
       targetPortLiteral: normalizedConnection.targetPortLiteral,
-      sslVerificationModeLiteral: normalizedConnection.isSslDisabledBoolean
-        ? 'DISABLED'
-        : tlsSocketConfiguration.rejectUnauthorized
-          ? 'STRICT_CA_VERIFIED'
-          : 'ENCRYPTED_POOLER_COMPATIBLE',
-      isSchemaPushEnabledBoolean,
+      sslVerificationModeLiteral: resolveSslVerificationModeLiteral(
+        normalizedConnection.isSslDisabledBoolean,
+        tlsSocketConfiguration.rejectUnauthorized,
+      ),
+      isSchemaPushEnabledBoolean: false,
+      migrationsDirectoryPathLiteral: MIGRATIONS_DIRECTORY_PATH_LITERAL,
+      excludedOperationalTablesCountQuantity: EXCLUDED_OPERATIONAL_TABLES_FILTER_COLLECTION.length,
     }),
   });
 
   return postgresAdapter({
-    push: isSchemaPushEnabledBoolean,
+    push: false,
+    migrationDir: MIGRATIONS_DIRECTORY_PATH_LITERAL,
+    tablesFilter: [...EXCLUDED_OPERATIONAL_TABLES_FILTER_COLLECTION],
     pool: {
       connectionString: normalizedConnection.sanitizedConnectionStringLiteral,
       ssl: normalizedConnection.isSslDisabledBoolean ? false : tlsSocketConfiguration,

@@ -1052,3 +1052,42 @@ identificándose 4 puntos bloqueantes específicos en el `lint-staged` y el pipe
 - `pnpm lint` & `pnpm typecheck`: **APROBADOS** (`0` errores en verde).
 
 ---
+
+## [2026-11-17] HITO 14: Saneamiento de Paridad Lingüística en Transparencia, Erradicación de Advertencias de Almacenamiento Local y Cimientos del Auditor de Supabase (OEDP-V18.1)
+
+### 1. Diagnóstico Forense y Desafíos Resueltos
+
+1. **Resolución de Paridad Lingüística en Transparencia (ADR 0030 / ADR 0035):**  
+   El motor Weaver (`run-weaver.ts`) fallaba en Vercel CI debido a la ausencia de las 12 claves del
+   bloque `heroCarousel` en `es-ES/transparency.json` y `en-US/transparency.json`. Se implementaron
+   los bloques completos con paridad 1:1 frente a `pt-BR`, alcanzando 28/28 módulos en verde con 0
+   violaciones.
+2. **Corrección de Ruta Rota de Diccionarios Unificados en Identidad:**  
+   `LoadIdentityPageDictionary.ts` invocaba una ruta con profundidad excesiva
+   (`../../../../i18n/dictionaries/`), provocando el warning `Module not found` de Turbopack. Se
+   atomizó el cargador en 4 átomos puros bajo `logic/atoms/`, corrigiendo la ruta a
+   `src/app/i18n/dictionaries/`.
+3. **Erradicación del `ExperimentalWarning: localStorage` en SSR (Node.js 22+):**  
+   Al consultar `'localStorage' in globalThis` durante `next build`, Node.js emitía advertencias por
+   falta de `--localstorage-file`. Se atomizó `ResolveSafeClientStorage.ts` aislando el acceso a
+   `window.localStorage` exclusivamente tras certificar `typeof window !== 'undefined'` y
+   `!DetermineServerRuntime()`.
+4. **Fundación de la Suite de Auditoría de Base de Datos / Supabase (Fase 0 y Fase 1):**  
+   Se diseñó la arquitectura de diagnóstico de solo lectura (`reports/supabase/`), incorporando `pg`
+   en `libs/tools/package.json`, catálogos de recursos esperados
+   (`SupabaseExpectedResourcesCatalog.ts`), contratos Zod (`SupabaseConnectionReport`,
+   `SupabaseResourcesAuditReport`, `SupabaseDumpSnapshotReport`), cliente PostgreSQL saneado
+   (`CreateSanitizedPostgresClient.ts`), escritor de reportes (`PersistSupabaseReportToDisk.ts`),
+   diagnóstico SQL real (`ExecuteSqlConnectionDiagnostic.ts`) y diagnóstico HTTP de capas
+   PostgREST/Storage (`ExecuteSupabaseHttpLayersDiagnostic.ts`).
+
+### 2. Decisiones Arquitectónicas Inmutables
+
+- **Cero Mutaciones en Base de Datos:** Toda la suite de herramientas de Supabase opera en modo
+  estrictamente transaccional de solo lectura (`SELECT` exclusivamente), sin emitir `DDL` ni `DML`
+  destructivo.
+- **Enmascaramiento LGPD Contractual:** Cualquier volcado o inspección de datos aplica
+  obligatoriamente anonimización vía `MaskCitizenIdentity` sobre correos, teléfonos y documentos
+  fiscales, excluyendo por diseño columnas de secretos o contraseñas.
+
+---

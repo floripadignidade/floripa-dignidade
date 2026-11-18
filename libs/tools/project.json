@@ -1,10 +1,9 @@
 {
   "name": "@floripa-dignidade/tools",
-  "tags": ["scope:tools", "type:tool", "platform:node"],
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/tools/src",
   "projectType": "library",
-
+  "tags": ["scope:tools", "type:tool", "platform:node"],
   "targets": {
     "build": {
       "executor": "@nx/js:swc",
@@ -14,16 +13,20 @@
         "main": "libs/tools/src/index.ts",
         "tsConfig": "libs/tools/tsconfig.lib.json",
         "stripLeadingPaths": true
-      }
+      },
+      "cache": true
     },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc -p libs/tools/tsconfig.lib.json"
-      }
+        "command": "tsc -p libs/tools/tsconfig.lib.json --noEmit",
+        "color": true
+      },
+      "cache": true
     },
     "lint": {
-      "executor": "@nx/eslint:lint"
+      "executor": "@nx/eslint:lint",
+      "cache": true
     }
   }
 }

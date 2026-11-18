@@ -1,0 +1,3607 @@
+{
+  "reportIdentifier": "a10779e2-ce3f-4c7a-8169-ce535e3f7efa",
+  "auditTimestampISO": "2026-11-18T02:16:27.111Z",
+  "correlationIdentifier": "9963bc98-657c-4474-a6c9-081c7a799605",
+  "executionDurationInMillisecondsQuantity": 899,
+  "targetDatabaseNameLiteral": "postgres",
+  "discoveredSchemasCollection": [
+    "auth",
+    "extensions",
+    "graphql",
+    "graphql_public",
+    "public",
+    "realtime",
+    "storage",
+    "vault"
+  ],
+  "installedExtensionsCollection": [
+    {
+      "extensionNameLiteral": "pg_stat_statements",
+      "installedVersionLiteral": "1.11",
+      "schemaNameLiteral": "extensions"
+    },
+    {
+      "extensionNameLiteral": "pgcrypto",
+      "installedVersionLiteral": "1.3",
+      "schemaNameLiteral": "extensions"
+    },
+    {
+      "extensionNameLiteral": "plpgsql",
+      "installedVersionLiteral": "1.0",
+      "schemaNameLiteral": "pg_catalog"
+    },
+    {
+      "extensionNameLiteral": "supabase_vault",
+      "installedVersionLiteral": "0.3.1",
+      "schemaNameLiteral": "vault"
+    },
+    {
+      "extensionNameLiteral": "uuid-ossp",
+      "installedVersionLiteral": "1.1",
+      "schemaNameLiteral": "extensions"
+    }
+  ],
+  "tablesAuditCollection": [
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "citizen_identities_ledger",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "citizen_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "gen_random_uuid()"
+        },
+        {
+          "columnNameLiteral": "sync_correlation_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "trust_weight_score",
+          "dataTypeLiteral": "float8",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "0.1"
+        },
+        {
+          "columnNameLiteral": "last_authority_sync_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "created_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "last_mutation_timestamp_iso",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "is_verified_human",
+          "dataTypeLiteral": "bool",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "false"
+        },
+        {
+          "columnNameLiteral": "assigned_authority_role",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "'IDENTITY_REGISTERED'::character varying"
+        },
+        {
+          "columnNameLiteral": "full_legal_name_literal",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "email_address_literal",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17689_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17689_3_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17689_5_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17689_6_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17689_7_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17689_8_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_citizen_authority_role_valid",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_citizen_trust_weight_range",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "citizen_identities_ledger_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        },
+        {
+          "constraintNameLiteral": "uq_citizen_email_address",
+          "constraintTypeLiteral": "UNIQUE"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "citizen_identities_ledger_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX citizen_identities_ledger_pkey ON public.citizen_identities_ledger USING btree (citizen_id)"
+        },
+        {
+          "indexNameLiteral": "idx_citizen_assigned_authority_role",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_citizen_assigned_authority_role ON public.citizen_identities_ledger USING btree (assigned_authority_role)"
+        },
+        {
+          "indexNameLiteral": "idx_citizen_sync_correlation_id",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_citizen_sync_correlation_id ON public.citizen_identities_ledger USING btree (sync_correlation_id) WHERE (sync_correlation_id IS NOT NULL)"
+        },
+        {
+          "indexNameLiteral": "idx_citizen_trust_weight_score_desc",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_citizen_trust_weight_score_desc ON public.citizen_identities_ledger USING btree (trust_weight_score DESC)"
+        },
+        {
+          "indexNameLiteral": "uq_citizen_email_address",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX uq_citizen_email_address ON public.citizen_identities_ledger USING btree (email_address_literal)"
+        }
+      ],
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        },
+        {
+          "policyNameLiteral": "Citizen_Initial_Registration_Insert",
+          "commandLiteral": "INSERT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": null,
+          "withCheckExpressionLiteral": "((citizen_id = ( SELECT auth.uid() AS uid)) AND ((assigned_authority_role)::text = 'IDENTITY_REGISTERED'::text) AND (is_verified_human = false) AND (trust_weight_score = (0.1)::double precision))"
+        },
+        {
+          "policyNameLiteral": "Citizen_Self_Read_Access",
+          "commandLiteral": "SELECT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "(citizen_id = ( SELECT auth.uid() AS uid))",
+          "withCheckExpressionLiteral": null
+        },
+        {
+          "policyNameLiteral": "Citizen_Self_Update_Access",
+          "commandLiteral": "UPDATE",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "(citizen_id = ( SELECT auth.uid() AS uid))",
+          "withCheckExpressionLiteral": "(citizen_id = ( SELECT auth.uid() AS uid))"
+        }
+      ],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "authenticated",
+          "privilegesCollection": [
+            "INSERT",
+            "SELECT"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "citizen_users",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "nextval('citizen_users_id_seq'::regclass)"
+        },
+        {
+          "columnNameLiteral": "full_legal_name_literal",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "assigned_authority_role_literal",
+          "dataTypeLiteral": "enum_citizen_users_assigned_authority_role_literal",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "'IDENTITY_REGISTERED'::enum_citizen_users_assigned_authority_role_literal"
+        },
+        {
+          "columnNameLiteral": "tenant_organization_identifier_id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "forensic_identification_group_is_identity_legally_verified_bool",
+          "dataTypeLiteral": "bool",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": "false"
+        },
+        {
+          "columnNameLiteral": "forensic_identification_group_has_accepted_privacy_policy_boole",
+          "dataTypeLiteral": "bool",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "false"
+        },
+        {
+          "columnNameLiteral": "updated_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "created_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "email",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "reset_password_token",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "reset_password_expiration",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "salt",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "hash",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "reset_password_requested_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "login_attempts",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": "0"
+        },
+        {
+          "columnNameLiteral": "lock_until",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17953_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17953_2_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17953_3_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17953_6_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17953_7_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17953_8_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17953_9_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "citizen_users_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        },
+        {
+          "constraintNameLiteral": "citizen_users_tenant_organization_identifier_id_organizations_i",
+          "constraintTypeLiteral": "FOREIGN KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "citizen_users_created_at_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX citizen_users_created_at_idx ON public.citizen_users USING btree (created_at)"
+        },
+        {
+          "indexNameLiteral": "citizen_users_email_idx",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX citizen_users_email_idx ON public.citizen_users USING btree (email)"
+        },
+        {
+          "indexNameLiteral": "citizen_users_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX citizen_users_pkey ON public.citizen_users USING btree (id)"
+        },
+        {
+          "indexNameLiteral": "citizen_users_tenant_organization_identifier_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX citizen_users_tenant_organization_identifier_idx ON public.citizen_users USING btree (tenant_organization_identifier_id)"
+        },
+        {
+          "indexNameLiteral": "citizen_users_updated_at_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX citizen_users_updated_at_idx ON public.citizen_users USING btree (updated_at)"
+        }
+      ],
+      "policiesCollection": [],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "citizen_users_sessions",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "_order",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "_parent_id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "id",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "created_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "expires_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17967_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17967_2_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17967_3_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17967_5_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "citizen_users_sessions_parent_id_fk",
+          "constraintTypeLiteral": "FOREIGN KEY"
+        },
+        {
+          "constraintNameLiteral": "citizen_users_sessions_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "citizen_users_sessions_order_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX citizen_users_sessions_order_idx ON public.citizen_users_sessions USING btree (_order)"
+        },
+        {
+          "indexNameLiteral": "citizen_users_sessions_parent_id_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX citizen_users_sessions_parent_id_idx ON public.citizen_users_sessions USING btree (_parent_id)"
+        },
+        {
+          "indexNameLiteral": "citizen_users_sessions_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX citizen_users_sessions_pkey ON public.citizen_users_sessions USING btree (id)"
+        }
+      ],
+      "policiesCollection": [],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "communication_groups_ledger",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "group_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "gen_random_uuid()"
+        },
+        {
+          "columnNameLiteral": "owner_org_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "creator_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "correlation_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "created_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "governance_model",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "'MODERATED_DIALOGUE'::character varying"
+        },
+        {
+          "columnNameLiteral": "visibility_mode",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "'VERIFIED_ONLY'::character varying"
+        },
+        {
+          "columnNameLiteral": "operational_status",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "'ACTIVE'::character varying"
+        },
+        {
+          "columnNameLiteral": "territory_id",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "display_name",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "slug_identifier",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "description_text",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "''::character varying"
+        },
+        {
+          "columnNameLiteral": "participation_stats_json",
+          "dataTypeLiteral": "jsonb",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "'{}'::jsonb"
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17807_10_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17807_11_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17807_12_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17807_13_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17807_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17807_2_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17807_3_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17807_4_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17807_5_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17807_6_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17807_7_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17807_8_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_group_governance_valid",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_group_status_valid",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_group_visibility_valid",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "communication_groups_ledger_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        },
+        {
+          "constraintNameLiteral": "uq_communication_groups_slug",
+          "constraintTypeLiteral": "UNIQUE"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "communication_groups_ledger_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX communication_groups_ledger_pkey ON public.communication_groups_ledger USING btree (group_id)"
+        },
+        {
+          "indexNameLiteral": "idx_groups_owner_org_status",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_groups_owner_org_status ON public.communication_groups_ledger USING btree (owner_org_id, operational_status)"
+        },
+        {
+          "indexNameLiteral": "idx_groups_public_active",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_groups_public_active ON public.communication_groups_ledger USING btree (visibility_mode, created_at DESC) WHERE ((operational_status)::text = 'ACTIVE'::text)"
+        },
+        {
+          "indexNameLiteral": "uq_communication_groups_slug",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX uq_communication_groups_slug ON public.communication_groups_ledger USING btree (slug_identifier)"
+        }
+      ],
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Groups",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        },
+        {
+          "policyNameLiteral": "Authenticated_Verified_Groups_Read",
+          "commandLiteral": "SELECT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "(((visibility_mode)::text = ANY ((ARRAY['PUBLIC_TRANSPARENCY'::character varying, 'VERIFIED_ONLY'::character varying])::text[])) AND ((operational_status)::text = 'ACTIVE'::text))",
+          "withCheckExpressionLiteral": null
+        },
+        {
+          "policyNameLiteral": "Public_Transparency_Groups_Read",
+          "commandLiteral": "SELECT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "anon",
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "(((visibility_mode)::text = 'PUBLIC_TRANSPARENCY'::text) AND ((operational_status)::text = 'ACTIVE'::text))",
+          "withCheckExpressionLiteral": null
+        }
+      ],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "anon",
+          "privilegesCollection": [
+            "SELECT"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "authenticated",
+          "privilegesCollection": [
+            "SELECT"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "direct_messages_ledger",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "message_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "gen_random_uuid()"
+        },
+        {
+          "columnNameLiteral": "thread_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sender_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "recipient_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "correlation_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "mutation_correlation_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "dispatched_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "updated_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "is_sensitive",
+          "dataTypeLiteral": "bool",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "true"
+        },
+        {
+          "columnNameLiteral": "content_type",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "'STANDARD_TEXT'::character varying"
+        },
+        {
+          "columnNameLiteral": "current_status",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "'SENT_TO_SERVER'::character varying"
+        },
+        {
+          "columnNameLiteral": "attachments_array",
+          "dataTypeLiteral": "_uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "ARRAY[]::uuid[]"
+        },
+        {
+          "columnNameLiteral": "body_text",
+          "dataTypeLiteral": "text",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17770_10_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17770_11_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17770_12_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17770_13_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17770_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17770_2_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17770_3_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17770_4_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17770_5_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17770_7_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17770_8_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17770_9_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_dm_content_type_valid",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_dm_status_valid",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "direct_messages_ledger_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "direct_messages_ledger_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX direct_messages_ledger_pkey ON public.direct_messages_ledger USING btree (message_id)"
+        },
+        {
+          "indexNameLiteral": "idx_dm_recipient_dispatched",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_dm_recipient_dispatched ON public.direct_messages_ledger USING btree (recipient_id, dispatched_at DESC) WHERE ((current_status)::text <> 'TRASHED_DELETED'::text)"
+        },
+        {
+          "indexNameLiteral": "idx_dm_sender_dispatched",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_dm_sender_dispatched ON public.direct_messages_ledger USING btree (sender_id, dispatched_at DESC) WHERE ((current_status)::text <> 'TRASHED_DELETED'::text)"
+        },
+        {
+          "indexNameLiteral": "idx_dm_thread_dispatched",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_dm_thread_dispatched ON public.direct_messages_ledger USING btree (thread_id, dispatched_at DESC)"
+        }
+      ],
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Direct_Messages",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        },
+        {
+          "policyNameLiteral": "Citizen_Read_Own_Direct_Messages",
+          "commandLiteral": "SELECT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((sender_id = ( SELECT auth.uid() AS uid)) OR (recipient_id = ( SELECT auth.uid() AS uid)))",
+          "withCheckExpressionLiteral": null
+        }
+      ],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "authenticated",
+          "privilegesCollection": [
+            "SELECT"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "ecosystem_schema_migrations",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "checksum_sha256_literal",
+          "dataTypeLiteral": "bpchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "execution_duration_ms",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "0"
+        },
+        {
+          "columnNameLiteral": "applied_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "migration_filename_literal",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17680_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17680_2_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17680_3_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17680_4_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_migration_duration_non_negative",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "ecosystem_schema_migrations_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "ecosystem_schema_migrations_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX ecosystem_schema_migrations_pkey ON public.ecosystem_schema_migrations USING btree (migration_filename_literal)"
+        }
+      ],
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Read_Migrations",
+          "commandLiteral": "SELECT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": null
+        }
+      ],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "group_memberships_ledger",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "citizen_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "group_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "delegated_mandatary_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "last_action_correlation_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "delegation_correlation_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "updated_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "membership_status",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "'ACTIVE'::character varying"
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17832_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17832_2_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17832_6_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17832_7_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_membership_status_valid",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "fk_membership_communication_group",
+          "constraintTypeLiteral": "FOREIGN KEY"
+        },
+        {
+          "constraintNameLiteral": "pk_group_memberships_ledger",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "idx_memberships_group_status",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_memberships_group_status ON public.group_memberships_ledger USING btree (group_id, membership_status)"
+        },
+        {
+          "indexNameLiteral": "pk_group_memberships_ledger",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX pk_group_memberships_ledger ON public.group_memberships_ledger USING btree (citizen_id, group_id)"
+        }
+      ],
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Memberships",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        },
+        {
+          "policyNameLiteral": "Citizen_Self_Membership_Manage",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "(citizen_id = ( SELECT auth.uid() AS uid))",
+          "withCheckExpressionLiteral": "((citizen_id = ( SELECT auth.uid() AS uid)) AND ((membership_status)::text = ANY ((ARRAY['ACTIVE'::character varying, 'PAUSED'::character varying, 'LEFT_INACTIVE'::character varying, 'REPRESENTED'::character varying])::text[])))"
+        }
+      ],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "authenticated",
+          "privilegesCollection": [
+            "INSERT",
+            "SELECT",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "media_vault",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "nextval('media_vault_id_seq'::regclass)"
+        },
+        {
+          "columnNameLiteral": "alternative_text_literal",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "caption_literal",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "organization_owner_identifier_id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "_objectkey",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "updated_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "created_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "url",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "thumbnail_u_r_l",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "filename",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "mime_type",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "filesize",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "width",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "height",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "focal_x",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "focal_y",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_thumbnail_url",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_thumbnail_width",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_thumbnail_height",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_thumbnail_mime_type",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_thumbnail_filesize",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_thumbnail_filename",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_standard_card_url",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_standard_card_width",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_standard_card_height",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_standard_card_mime_type",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_standard_card_filesize",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_standard_card_filename",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_forensic_high_definition_url",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_forensic_high_definition_width",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_forensic_high_definition_height",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_forensic_high_definition_mime_type",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_forensic_high_definition_filesize",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "sizes_forensic_high_definition_filename",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17975_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17975_2_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17975_6_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17975_7_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "media_vault_organization_owner_identifier_id_organizations_id_f",
+          "constraintTypeLiteral": "FOREIGN KEY"
+        },
+        {
+          "constraintNameLiteral": "media_vault_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "media_vault_created_at_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX media_vault_created_at_idx ON public.media_vault USING btree (created_at)"
+        },
+        {
+          "indexNameLiteral": "media_vault_filename_idx",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX media_vault_filename_idx ON public.media_vault USING btree (filename)"
+        },
+        {
+          "indexNameLiteral": "media_vault_organization_owner_identifier_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX media_vault_organization_owner_identifier_idx ON public.media_vault USING btree (organization_owner_identifier_id)"
+        },
+        {
+          "indexNameLiteral": "media_vault_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX media_vault_pkey ON public.media_vault USING btree (id)"
+        },
+        {
+          "indexNameLiteral": "media_vault_sizes_forensic_high_definition_sizes_forensi_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX media_vault_sizes_forensic_high_definition_sizes_forensi_idx ON public.media_vault USING btree (sizes_forensic_high_definition_filename)"
+        },
+        {
+          "indexNameLiteral": "media_vault_sizes_standard_card_sizes_standard_card_file_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX media_vault_sizes_standard_card_sizes_standard_card_file_idx ON public.media_vault USING btree (sizes_standard_card_filename)"
+        },
+        {
+          "indexNameLiteral": "media_vault_sizes_thumbnail_sizes_thumbnail_filename_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX media_vault_sizes_thumbnail_sizes_thumbnail_filename_idx ON public.media_vault USING btree (sizes_thumbnail_filename)"
+        },
+        {
+          "indexNameLiteral": "media_vault_updated_at_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX media_vault_updated_at_idx ON public.media_vault USING btree (updated_at)"
+        }
+      ],
+      "policiesCollection": [],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "newsletter_subscribers",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "gen_random_uuid()"
+        },
+        {
+          "columnNameLiteral": "verification_token",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "correlation_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "activation_correlation_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "created_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "verified_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "preferred_locale",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "'pt-BR'::character varying"
+        },
+        {
+          "columnNameLiteral": "status",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "'PENDING_VERIFICATION'::character varying"
+        },
+        {
+          "columnNameLiteral": "is_active_boolean",
+          "dataTypeLiteral": "bool",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "email_address",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17716_10_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17716_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17716_2_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17716_3_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17716_5_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17716_7_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17716_8_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_newsletter_status_valid",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "newsletter_subscribers_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        },
+        {
+          "constraintNameLiteral": "uq_newsletter_email_address",
+          "constraintTypeLiteral": "UNIQUE"
+        },
+        {
+          "constraintNameLiteral": "uq_newsletter_verification_token",
+          "constraintTypeLiteral": "UNIQUE"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "newsletter_subscribers_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX newsletter_subscribers_pkey ON public.newsletter_subscribers USING btree (id)"
+        },
+        {
+          "indexNameLiteral": "uq_newsletter_email_address",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX uq_newsletter_email_address ON public.newsletter_subscribers USING btree (email_address)"
+        },
+        {
+          "indexNameLiteral": "uq_newsletter_verification_token",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX uq_newsletter_verification_token ON public.newsletter_subscribers USING btree (verification_token)"
+        }
+      ],
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Newsletter",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        }
+      ],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "organizations",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "nextval('organizations_id_seq'::regclass)"
+        },
+        {
+          "columnNameLiteral": "institutional_name_literal",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "legal_identification_literal",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "institutional_slug_literal",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "primary_brand_color_hex",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": "'#003366'::character varying"
+        },
+        {
+          "columnNameLiteral": "secondary_brand_color_hex",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": "'#F5A623'::character varying"
+        },
+        {
+          "columnNameLiteral": "institutional_logo_identifier_id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "is_root_organization_boolean",
+          "dataTypeLiteral": "bool",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": "false"
+        },
+        {
+          "columnNameLiteral": "operational_status_literal",
+          "dataTypeLiteral": "enum_organizations_operational_status_literal",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "'ACTIVE'::enum_organizations_operational_status_literal"
+        },
+        {
+          "columnNameLiteral": "updated_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "created_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17938_10_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17938_11_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17938_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17938_2_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17938_3_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17938_4_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17938_9_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "organizations_institutional_logo_identifier_id_media_vault_id_f",
+          "constraintTypeLiteral": "FOREIGN KEY"
+        },
+        {
+          "constraintNameLiteral": "organizations_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "organizations_created_at_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX organizations_created_at_idx ON public.organizations USING btree (created_at)"
+        },
+        {
+          "indexNameLiteral": "organizations_institutional_logo_identifier_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX organizations_institutional_logo_identifier_idx ON public.organizations USING btree (institutional_logo_identifier_id)"
+        },
+        {
+          "indexNameLiteral": "organizations_institutional_slug_literal_idx",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX organizations_institutional_slug_literal_idx ON public.organizations USING btree (institutional_slug_literal)"
+        },
+        {
+          "indexNameLiteral": "organizations_legal_identification_literal_idx",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX organizations_legal_identification_literal_idx ON public.organizations USING btree (legal_identification_literal)"
+        },
+        {
+          "indexNameLiteral": "organizations_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX organizations_pkey ON public.organizations USING btree (id)"
+        },
+        {
+          "indexNameLiteral": "organizations_updated_at_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX organizations_updated_at_idx ON public.organizations USING btree (updated_at)"
+        }
+      ],
+      "policiesCollection": [],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_kv",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "nextval('payload_kv_id_seq'::regclass)"
+        },
+        {
+          "columnNameLiteral": "key",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "data",
+          "dataTypeLiteral": "jsonb",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17986_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17986_2_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17986_3_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "payload_kv_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "payload_kv_key_idx",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX payload_kv_key_idx ON public.payload_kv USING btree (key)"
+        },
+        {
+          "indexNameLiteral": "payload_kv_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX payload_kv_pkey ON public.payload_kv USING btree (id)"
+        }
+      ],
+      "policiesCollection": [],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_locked_documents",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "nextval('payload_locked_documents_id_seq'::regclass)"
+        },
+        {
+          "columnNameLiteral": "global_slug",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "updated_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "created_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17995_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17995_3_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17995_4_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "payload_locked_documents_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "payload_locked_documents_created_at_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_locked_documents_created_at_idx ON public.payload_locked_documents USING btree (created_at)"
+        },
+        {
+          "indexNameLiteral": "payload_locked_documents_global_slug_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_locked_documents_global_slug_idx ON public.payload_locked_documents USING btree (global_slug)"
+        },
+        {
+          "indexNameLiteral": "payload_locked_documents_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX payload_locked_documents_pkey ON public.payload_locked_documents USING btree (id)"
+        },
+        {
+          "indexNameLiteral": "payload_locked_documents_updated_at_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_locked_documents_updated_at_idx ON public.payload_locked_documents USING btree (updated_at)"
+        }
+      ],
+      "policiesCollection": [],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_locked_documents_rels",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "nextval('payload_locked_documents_rels_id_seq'::regclass)"
+        },
+        {
+          "columnNameLiteral": "order",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "parent_id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "path",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "citizen_users_id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "organizations_id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "media_vault_id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_18006_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_18006_3_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_18006_4_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "payload_locked_documents_rels_citizen_users_fk",
+          "constraintTypeLiteral": "FOREIGN KEY"
+        },
+        {
+          "constraintNameLiteral": "payload_locked_documents_rels_media_vault_fk",
+          "constraintTypeLiteral": "FOREIGN KEY"
+        },
+        {
+          "constraintNameLiteral": "payload_locked_documents_rels_organizations_fk",
+          "constraintTypeLiteral": "FOREIGN KEY"
+        },
+        {
+          "constraintNameLiteral": "payload_locked_documents_rels_parent_fk",
+          "constraintTypeLiteral": "FOREIGN KEY"
+        },
+        {
+          "constraintNameLiteral": "payload_locked_documents_rels_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "payload_locked_documents_rels_citizen_users_id_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_locked_documents_rels_citizen_users_id_idx ON public.payload_locked_documents_rels USING btree (citizen_users_id)"
+        },
+        {
+          "indexNameLiteral": "payload_locked_documents_rels_media_vault_id_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_locked_documents_rels_media_vault_id_idx ON public.payload_locked_documents_rels USING btree (media_vault_id)"
+        },
+        {
+          "indexNameLiteral": "payload_locked_documents_rels_order_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_locked_documents_rels_order_idx ON public.payload_locked_documents_rels USING btree (\"order\")"
+        },
+        {
+          "indexNameLiteral": "payload_locked_documents_rels_organizations_id_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_locked_documents_rels_organizations_id_idx ON public.payload_locked_documents_rels USING btree (organizations_id)"
+        },
+        {
+          "indexNameLiteral": "payload_locked_documents_rels_parent_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_locked_documents_rels_parent_idx ON public.payload_locked_documents_rels USING btree (parent_id)"
+        },
+        {
+          "indexNameLiteral": "payload_locked_documents_rels_path_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_locked_documents_rels_path_idx ON public.payload_locked_documents_rels USING btree (path)"
+        },
+        {
+          "indexNameLiteral": "payload_locked_documents_rels_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX payload_locked_documents_rels_pkey ON public.payload_locked_documents_rels USING btree (id)"
+        }
+      ],
+      "policiesCollection": [],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_migrations",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "nextval('payload_migrations_id_seq'::regclass)"
+        },
+        {
+          "columnNameLiteral": "name",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "batch",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "updated_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "created_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_18035_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_18035_4_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_18035_5_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "payload_migrations_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "payload_migrations_created_at_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_migrations_created_at_idx ON public.payload_migrations USING btree (created_at)"
+        },
+        {
+          "indexNameLiteral": "payload_migrations_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX payload_migrations_pkey ON public.payload_migrations USING btree (id)"
+        },
+        {
+          "indexNameLiteral": "payload_migrations_updated_at_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_migrations_updated_at_idx ON public.payload_migrations USING btree (updated_at)"
+        }
+      ],
+      "policiesCollection": [],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_preferences",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "nextval('payload_preferences_id_seq'::regclass)"
+        },
+        {
+          "columnNameLiteral": "key",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "value",
+          "dataTypeLiteral": "jsonb",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "updated_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "created_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_18015_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_18015_4_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_18015_5_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "payload_preferences_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "payload_preferences_created_at_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_preferences_created_at_idx ON public.payload_preferences USING btree (created_at)"
+        },
+        {
+          "indexNameLiteral": "payload_preferences_key_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_preferences_key_idx ON public.payload_preferences USING btree (key)"
+        },
+        {
+          "indexNameLiteral": "payload_preferences_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX payload_preferences_pkey ON public.payload_preferences USING btree (id)"
+        },
+        {
+          "indexNameLiteral": "payload_preferences_updated_at_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_preferences_updated_at_idx ON public.payload_preferences USING btree (updated_at)"
+        }
+      ],
+      "policiesCollection": [],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "payload_preferences_rels",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "nextval('payload_preferences_rels_id_seq'::regclass)"
+        },
+        {
+          "columnNameLiteral": "order",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "parent_id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "path",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "citizen_users_id",
+          "dataTypeLiteral": "int4",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_18026_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_18026_3_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_18026_4_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "payload_preferences_rels_citizen_users_fk",
+          "constraintTypeLiteral": "FOREIGN KEY"
+        },
+        {
+          "constraintNameLiteral": "payload_preferences_rels_parent_fk",
+          "constraintTypeLiteral": "FOREIGN KEY"
+        },
+        {
+          "constraintNameLiteral": "payload_preferences_rels_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "payload_preferences_rels_citizen_users_id_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_preferences_rels_citizen_users_id_idx ON public.payload_preferences_rels USING btree (citizen_users_id)"
+        },
+        {
+          "indexNameLiteral": "payload_preferences_rels_order_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_preferences_rels_order_idx ON public.payload_preferences_rels USING btree (\"order\")"
+        },
+        {
+          "indexNameLiteral": "payload_preferences_rels_parent_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_preferences_rels_parent_idx ON public.payload_preferences_rels USING btree (parent_id)"
+        },
+        {
+          "indexNameLiteral": "payload_preferences_rels_path_idx",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX payload_preferences_rels_path_idx ON public.payload_preferences_rels USING btree (path)"
+        },
+        {
+          "indexNameLiteral": "payload_preferences_rels_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX payload_preferences_rels_pkey ON public.payload_preferences_rels USING btree (id)"
+        }
+      ],
+      "policiesCollection": [],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "project_financial_ledger",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "gen_random_uuid()"
+        },
+        {
+          "columnNameLiteral": "correlation_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "last_ingestion_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "allocated_amount_numeric",
+          "dataTypeLiteral": "numeric",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "organization_name_literal",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "project_name_literal",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "specification_category_literal",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "reference_month_year_literal",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17864_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17864_2_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17864_3_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17864_4_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17864_5_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17864_6_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17864_7_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17864_8_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_financial_allocated_amount_non_negative",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "project_financial_ledger_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        },
+        {
+          "constraintNameLiteral": "uq_project_financial_natural_key",
+          "constraintTypeLiteral": "UNIQUE"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "idx_financial_ledger_ingestion_desc",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_financial_ledger_ingestion_desc ON public.project_financial_ledger USING btree (last_ingestion_at DESC)"
+        },
+        {
+          "indexNameLiteral": "project_financial_ledger_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX project_financial_ledger_pkey ON public.project_financial_ledger USING btree (id)"
+        },
+        {
+          "indexNameLiteral": "uq_project_financial_natural_key",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX uq_project_financial_natural_key ON public.project_financial_ledger USING btree (organization_name_literal, project_name_literal, specification_category_literal, reference_month_year_literal)"
+        }
+      ],
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Financial_Ledger",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        },
+        {
+          "policyNameLiteral": "Public_Read_Project_Financial_Ledger",
+          "commandLiteral": "SELECT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "anon",
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "true",
+          "withCheckExpressionLiteral": null
+        }
+      ],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "anon",
+          "privilegesCollection": [
+            "SELECT"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "authenticated",
+          "privilegesCollection": [
+            "SELECT"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "system_notifications_ledger",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "notification_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "gen_random_uuid()"
+        },
+        {
+          "columnNameLiteral": "correlation_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "mutation_correlation_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "dispatched_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "acknowledged_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "recipient_id",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "priority_level",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "category_tag",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "interaction_status",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "'DELIVERED_UNREAD'::character varying"
+        },
+        {
+          "columnNameLiteral": "headline_text",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "action_route",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "body_content",
+          "dataTypeLiteral": "text",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17750_10_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17750_12_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17750_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17750_2_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17750_4_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17750_6_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17750_7_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17750_8_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17750_9_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_notification_category_valid",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_notification_priority_valid",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_notification_status_valid",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "system_notifications_ledger_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "idx_notifications_recipient_dispatched",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_notifications_recipient_dispatched ON public.system_notifications_ledger USING btree (recipient_id, dispatched_at DESC) WHERE ((interaction_status)::text <> 'TRASHED_DELETED'::text)"
+        },
+        {
+          "indexNameLiteral": "idx_notifications_unread_count",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_notifications_unread_count ON public.system_notifications_ledger USING btree (recipient_id) WHERE ((interaction_status)::text = 'DELIVERED_UNREAD'::text)"
+        },
+        {
+          "indexNameLiteral": "system_notifications_ledger_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX system_notifications_ledger_pkey ON public.system_notifications_ledger USING btree (notification_id)"
+        }
+      ],
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Notifications",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        },
+        {
+          "policyNameLiteral": "Citizen_Acknowledge_Own_Notifications",
+          "commandLiteral": "UPDATE",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((recipient_id)::text = (( SELECT auth.uid() AS uid))::text)",
+          "withCheckExpressionLiteral": "((recipient_id)::text = (( SELECT auth.uid() AS uid))::text)"
+        },
+        {
+          "policyNameLiteral": "Citizen_Read_Own_Or_Global_Notifications",
+          "commandLiteral": "SELECT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "(((recipient_id)::text = (( SELECT auth.uid() AS uid))::text) OR ((recipient_id)::text = 'GLOBAL_BROADCAST'::text))",
+          "withCheckExpressionLiteral": null
+        }
+      ],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "authenticated",
+          "privilegesCollection": [
+            "SELECT"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "system_telemetry_logs",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "log_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "gen_random_uuid()"
+        },
+        {
+          "columnNameLiteral": "correlationIdentifier",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "occurrenceTimestampISO",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "executionLatencyInMillisecondsQuantity",
+          "dataTypeLiteral": "float8",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "isEncryptedPayloadBoolean",
+          "dataTypeLiteral": "bool",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "false"
+        },
+        {
+          "columnNameLiteral": "severityLevelLiteral",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "previousEventHashFingerprint",
+          "dataTypeLiteral": "bpchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "contentHashFingerprint",
+          "dataTypeLiteral": "bpchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "encryptionInitializationVectorLiteral",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "moduleIdentifierLiteral",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "operationCodeLiteral",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "semanticIntentTag",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "messageContentLiteral",
+          "dataTypeLiteral": "text",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "contextMetadataSnapshot",
+          "dataTypeLiteral": "jsonb",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17733_10_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17733_11_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17733_13_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17733_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17733_2_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17733_3_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17733_5_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17733_6_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_telemetry_latency_non_negative",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_telemetry_severity_valid",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "system_telemetry_logs_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "idx_telemetry_correlation",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_telemetry_correlation ON public.system_telemetry_logs USING btree (\"correlationIdentifier\")"
+        },
+        {
+          "indexNameLiteral": "idx_telemetry_critical_errors",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_telemetry_critical_errors ON public.system_telemetry_logs USING btree (\"occurrenceTimestampISO\" DESC) WHERE ((\"severityLevelLiteral\")::text = ANY ((ARRAY['ERROR'::character varying, 'CRITICAL'::character varying])::text[]))"
+        },
+        {
+          "indexNameLiteral": "idx_telemetry_occurrence_desc",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_telemetry_occurrence_desc ON public.system_telemetry_logs USING btree (\"occurrenceTimestampISO\" DESC)"
+        },
+        {
+          "indexNameLiteral": "system_telemetry_logs_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX system_telemetry_logs_pkey ON public.system_telemetry_logs USING btree (log_id)"
+        }
+      ],
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Telemetry",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        }
+      ],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "territorial_master_data",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "last_sync_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "ibge_id",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "hierarchy_level",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "name_literal",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "metadata_snapshot",
+          "dataTypeLiteral": "jsonb",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "'{}'::jsonb"
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17850_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17850_2_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17850_3_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17850_4_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17850_5_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_territorial_hierarchy_valid",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "territorial_master_data_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "idx_territorial_hierarchy_name",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_territorial_hierarchy_name ON public.territorial_master_data USING btree (hierarchy_level, name_literal)"
+        },
+        {
+          "indexNameLiteral": "territorial_master_data_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX territorial_master_data_pkey ON public.territorial_master_data USING btree (ibge_id)"
+        }
+      ],
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Territorial",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        },
+        {
+          "policyNameLiteral": "Public_Read_Territorial_Master_Data",
+          "commandLiteral": "SELECT",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "anon",
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "true",
+          "withCheckExpressionLiteral": null
+        }
+      ],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "anon",
+          "privilegesCollection": [
+            "SELECT"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "authenticated",
+          "privilegesCollection": [
+            "SELECT"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    },
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "user_presence_ledger",
+      "estimatedRowCountNumeric": 0,
+      "isRowLevelSecurityEnabledBoolean": true,
+      "isRowLevelSecurityForcedBoolean": false,
+      "columnsCollection": [
+        {
+          "columnNameLiteral": "citizen_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "correlation_id",
+          "dataTypeLiteral": "uuid",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "last_heartbeat_at",
+          "dataTypeLiteral": "timestamptz",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "now()"
+        },
+        {
+          "columnNameLiteral": "availability_status",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": false,
+          "defaultValueLiteral": "'OFFLINE'::character varying"
+        },
+        {
+          "columnNameLiteral": "platform_type",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "custom_status_text",
+          "dataTypeLiteral": "varchar",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        },
+        {
+          "columnNameLiteral": "push_token",
+          "dataTypeLiteral": "text",
+          "isNullableBoolean": true,
+          "defaultValueLiteral": null
+        }
+      ],
+      "constraintsCollection": [
+        {
+          "constraintNameLiteral": "2200_17792_1_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17792_2_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17792_3_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "2200_17792_4_not_null",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_presence_availability_valid",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "chk_presence_platform_valid",
+          "constraintTypeLiteral": "CHECK"
+        },
+        {
+          "constraintNameLiteral": "user_presence_ledger_pkey",
+          "constraintTypeLiteral": "PRIMARY KEY"
+        }
+      ],
+      "indexesCollection": [
+        {
+          "indexNameLiteral": "idx_presence_active_push_token",
+          "isUniqueBoolean": false,
+          "isPrimaryBoolean": false,
+          "indexDefinitionLiteral": "CREATE INDEX idx_presence_active_push_token ON public.user_presence_ledger USING btree (citizen_id) WHERE (push_token IS NOT NULL)"
+        },
+        {
+          "indexNameLiteral": "user_presence_ledger_pkey",
+          "isUniqueBoolean": true,
+          "isPrimaryBoolean": true,
+          "indexDefinitionLiteral": "CREATE UNIQUE INDEX user_presence_ledger_pkey ON public.user_presence_ledger USING btree (citizen_id)"
+        }
+      ],
+      "policiesCollection": [
+        {
+          "policyNameLiteral": "Administrative_Auditor_Full_Access_Presence",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)",
+          "withCheckExpressionLiteral": "((( SELECT auth.jwt() AS jwt) ->> 'assignedAuthorityRoleLiteral'::text) = 'INFRASTRUCTURE_ADMINISTRATIVE_AUDITOR'::text)"
+        },
+        {
+          "policyNameLiteral": "Citizen_Self_Presence_Manage",
+          "commandLiteral": "ALL",
+          "permissiveModeLiteral": "PERMISSIVE",
+          "rolesCollection": [
+            "authenticated"
+          ],
+          "usingExpressionLiteral": "(citizen_id = ( SELECT auth.uid() AS uid))",
+          "withCheckExpressionLiteral": "(citizen_id = ( SELECT auth.uid() AS uid))"
+        }
+      ],
+      "roleGrantsCollection": [
+        {
+          "granteeRoleLiteral": "authenticated",
+          "privilegesCollection": [
+            "INSERT",
+            "SELECT",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "postgres",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        {
+          "granteeRoleLiteral": "service_role",
+          "privilegesCollection": [
+            "DELETE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        }
+      ]
+    }
+  ],
+  "databaseFunctionsCollection": [
+    {
+      "schemaNameLiteral": "public",
+      "functionNameLiteral": "fn_update_citizen_mutation_timestamp",
+      "securityModeLiteral": "SECURITY_INVOKER",
+      "returnTypeLiteral": "trigger"
+    }
+  ],
+  "databaseTriggersCollection": [
+    {
+      "schemaNameLiteral": "public",
+      "tableNameLiteral": "citizen_identities_ledger",
+      "triggerNameLiteral": "trg_citizen_identity_update_timestamp",
+      "timingLiteral": "BEFORE",
+      "eventsCollection": [
+        "UPDATE"
+      ]
+    }
+  ],
+  "storageBucketsCollection": [
+    {
+      "bucketIdentifierLiteral": "media-vault",
+      "bucketNameLiteral": "media-vault",
+      "isPublicBoolean": true,
+      "fileSizeLimitBytesNumeric": 15728640
+    }
+  ],
+  "gapAnalysisSummary": {
+    "isFullyProvisionedBoolean": true,
+    "missingExtensionsCollection": [],
+    "missingOperationalTablesCollection": [],
+    "missingCmsTablesCollection": [],
+    "missingFunctionsCollection": [],
+    "missingTriggersCollection": [],
+    "missingStorageBucketsCollection": [],
+    "tablesMissingRequiredRlsCollection": [],
+    "securityAlertsCollection": []
+  }
+}

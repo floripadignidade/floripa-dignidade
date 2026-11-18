@@ -21,8 +21,41 @@
     },
     "audit-infrastructure": {
       "executor": "nx:run-commands",
+      "cache": false,
       "options": {
-        "command": "tsx --tsconfig ./tsconfig.base.json scripts/src/audit-cloud-infrastructure-secrets.ts",
+        "command": "tsx --env-file-if-exists=.env --tsconfig ./tsconfig.base.json scripts/src/audit-cloud-infrastructure-secrets.ts",
+        "color": true
+      }
+    },
+    "audit-supabase-connection": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "command": "tsx --env-file-if-exists=.env --tsconfig ./tsconfig.base.json scripts/src/audit-supabase-connection.ts",
+        "color": true
+      }
+    },
+    "audit-supabase-resources": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "command": "tsx --env-file-if-exists=.env --tsconfig ./tsconfig.base.json scripts/src/audit-supabase-resources.ts",
+        "color": true
+      }
+    },
+    "dump-supabase-snapshot": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "command": "tsx --env-file-if-exists=.env --tsconfig ./tsconfig.base.json scripts/src/dump-supabase-snapshot.ts",
+        "color": true
+      }
+    },
+    "provision-supabase-database": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "command": "tsx --env-file-if-exists=.env --tsconfig ./tsconfig.base.json scripts/src/provision-supabase-database.ts",
         "color": true
       }
     },
@@ -35,8 +68,9 @@
     },
     "ingest-financial-budget": {
       "executor": "nx:run-commands",
+      "cache": false,
       "options": {
-        "command": "tsx --tsconfig ./tsconfig.base.json scripts/src/ingest-financial-budget.ts",
+        "command": "tsx --env-file-if-exists=.env --tsconfig ./tsconfig.base.json scripts/src/ingest-financial-budget.ts",
         "color": true
       }
     },

@@ -1,24 +1,19 @@
 /**
- * @section Tools & Automation - Package Entry Point (Enterprise Barrel)
+ * @file libs/tools/src/index.ts
+ * @section Tools & Automation - Package Entry Point
  * @description Único punto de exportación autorizado para las herramientas de
- * mantenimiento, auditoría, conformidad y automatización del ecosistema Floripa Dignidade.
- * Centraliza la exposición de orquestadores de compilación de i18n, higiene SRE de hardware,
- * auditoría forense de infraestructura cloud y herramientas de ingesta de presupuestos.
+ * mantenimiento, auditoría de conformidad, secretos cloud, diagnóstico, auditoría,
+ * volcado seguro y provisionamiento idempotente de Supabase del ecosistema Floripa Dignidade.
  *
  * Protocolo OEDP-V18.1 - Reference Architecture (Source-First & Clean Paths).
  * Normas: ISO/IEC 11179 (Nomenclatura Prosa) e ISO/IEC 25010 (Mantenibilidad y Modularidad).
- *
- * SANEADO Zenith:
- * 1. Re-incorporación canónica de 'AuditCloudInfrastructureSecrets' y sus esquemas de reporte.
- * 2. Rutas relativas limpias (Extensionless) para resolución determinista en Next.js y Nx.
- * 3. Exportación isomórfica libre de dependencias colapsantes para CI/CD.
  *
  * @author Raz Podestá - MetaShark Tech
  * @license UNLICENSED
  */
 
-/** Versión técnica sincronizada del búnker de herramientas. */
-export const TOOLS_BUNKER_VERSION = '1.3.2';
+/** Versión técnica sincronizada del módulo de herramientas. */
+export const TOOLS_BUNKER_VERSION = '1.3.6';
 
 /**
  * @section 1. Orquestadores Lingüísticos (Weaver Engine)
@@ -56,7 +51,43 @@ export type {
 } from './lib/infrastructure-auditor/schemas/CloudInfrastructureAuditReport.schema';
 
 /**
- * @section 5. Orquestadores de Datos Financieros
+ * @section 5. Diagnóstico, Auditoría Profunda y Provisionamiento de Supabase
+ * Sondas autenticadas SQL, auditoría granular de recursos, HTTP, volcado seguro (LGPD)
+ * y motor transaccional idempotente de carga inicial/incremental SQL.
+ */
+export { AuditSupabaseConnection } from './lib/supabase-auditor/AuditSupabaseConnection';
+export { AuditSupabaseDumpSnapshot } from './lib/supabase-auditor/AuditSupabaseDumpSnapshot';
+export { AuditSupabaseResources } from './lib/supabase-auditor/AuditSupabaseResources';
+export { ProvisionInitialSupabaseDatabase } from './lib/supabase-auditor/ProvisionInitialSupabaseDatabase';
+export { SUPABASE_EXPECTED_RESOURCES_CATALOG } from './lib/supabase-auditor/constants/SupabaseExpectedResourcesCatalog';
+export type {
+  ISqlConnectionDiagnostic,
+  ISupabaseConnectionReport,
+  ISupabaseHttpLayerDiagnostic,
+  TSupabaseConnectionCheckStatus,
+} from './lib/supabase-auditor/schemas/SupabaseConnectionReport.schema';
+export type {
+  IExpectedVsActualGapSummary,
+  ISupabaseResourcesAuditReport,
+  ITableGranularAuditSnapshot,
+} from './lib/supabase-auditor/schemas/SupabaseResourcesAuditReport.schema';
+export type {
+  IFunctionDefinitionDump,
+  ISanitizedTableDataDump,
+  ISupabaseDumpSnapshotReport,
+  ITablePolicyDumpEntry,
+  ITriggerDefinitionDump,
+} from './lib/supabase-auditor/schemas/SupabaseDumpSnapshotReport.schema';
+export type {
+  IProvisionedMigrationEntry,
+  IProvisioningOptions,
+  ISupabaseProvisioningReport,
+  TProvisionedMigrationStatus,
+  TProvisioningExecutionMode,
+} from './lib/supabase-auditor/schemas/SupabaseProvisioningReport.schema';
+
+/**
+ * @section 6. Orquestadores de Datos Financieros
  * Ingesta interactiva y validación de matrices presupuestarias institucionales (XLSX).
  */
 export { ExecuteFinancialIngestionOrchestrator } from './lib/financial-tools/ExecuteFinancialIngestionOrchestrator';
